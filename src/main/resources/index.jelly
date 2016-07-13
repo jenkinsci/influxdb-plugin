@@ -1,0 +1,4 @@
+<?jelly escape-by-default='true'?>
+<div>
+    This plugin allows sending build results to InfluxDB. It was inspired by https://github.com/jrajala-eficode/jenkins-ci.influxdb-plugin
+</div>

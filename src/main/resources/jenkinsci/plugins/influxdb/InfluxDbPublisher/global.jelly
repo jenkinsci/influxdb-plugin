@@ -1,0 +1,46 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+   
+    <f:section title="influxdb target">
+        <f:entry>
+  
+             <f:repeatable
+                var="currentTarget"
+                items="${descriptor.targets}"
+                add="new influxdb target">
+    
+                <table width="100%" >
+             
+                      <f:entry title="description">
+                        <f:textbox name="targetBinding.description" value="${currentTarget.description}" />
+                      </f:entry>
+             
+                      <f:entry title="url" field="url">
+                        <f:textbox name="targetBinding.url"   value="${currentTarget.url}" />
+                      </f:entry>
+             
+                      <f:entry title="username" field="username">
+                        <f:textbox name="targetBinding.username"  value="${currentTarget.username}"/>
+                      </f:entry>
+             
+                      <f:entry title="password" field="password">
+                        <f:password name="targetBinding.password"  value="${currentTarget.password}"/>
+                      </f:entry>
+             
+                      <f:entry title="database" field="database" >
+                        <f:textbox name="targetBinding.database" value="${currentTarget.database}" />
+                      </f:entry>
+             
+                      <f:entry title="delete target" >
+                        <div align="right">
+                          <f:repeatableDeleteButton value="delete target"/>
+                        </div>
+                      </f:entry>
+             
+                  </table>
+                             
+            </f:repeatable>
+             
+        </f:entry>
+    </f:section>
+</j:jelly>

@@ -1,0 +1,50 @@
+package jenkinsci.plugins.influxdb.generators;
+
+import hudson.model.AbstractBuild;
+import hudson.tasks.test.AbstractTestResultAction;
+import org.influxdb.dto.Point;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class JenkinsBasePointGenerator extends AbstractPointGenerator {
+
+    public static final String BUILD_TIME = "build_time";
+    public static final String BUILD_STATUS_MESSAGE = "build_status_message";
+    public static final String PROJECT_BUILD_HEALTH = "project_build_health";
+    public static final String TESTS_FAILED = "tests_failed";
+    public static final String TESTS_SKIPPED = "tests_skipped";
+    public static final String TESTS_TOTAL = "tests_total";
+
+    private final AbstractBuild<?, ?> build;
+
+    public JenkinsBasePointGenerator(AbstractBuild<?, ?> build) {
+        this.build = build;
+    }
+
+    public boolean hasReport() {
+        return true;
+    }
+
+    public Point[] generate() {
+        Point point = Point.measurement("jenkins_data")
+            .field(BUILD_NUMBER, build.getNumber())
+            .field(PROJECT_NAME, build.getProject().getName())
+            .field(BUILD_TIME, build.getDuration())
+            .field(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
+            .field(PROJECT_BUILD_HEALTH, build.getProject().getBuildHealth().getScore())
+        //if (hasTestResults(build)) { 
+            //.field(TESTS_FAILED, build.getAction(AbstractTestResultAction.class).getFailCount())
+            //.field(TESTS_SKIPPED, build.getAction(AbstractTestResultAction.class).getSkipCount())
+            //.field(TESTS_TOTAL, build.getAction(AbstractTestResultAction.class).getTotalCount())
+            .build();
+        //}
+        //point.build();
+        
+        return new Point[] {point};
+    }
+
+    private boolean hasTestResults(AbstractBuild<?, ?> build) {
+        return build.getAction(AbstractTestResultAction.class) != null;
+    }
+}
