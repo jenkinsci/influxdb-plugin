@@ -47,6 +47,32 @@ THE SOFTWARE.
         </license>
     </licenses>
 
+    <developers>
+        <developer>
+            <id>aleksisimell</id>
+            <name>Aleksi Simell</name>
+            <email>aleksi.simell@eficode.com</email>
+        </developer>
+
+        <developer>
+            <id>jrajala_eficode</id>
+            <name>Jouni Rajala</name>
+            <email>jouni.rajala@eficode.com</email>
+        </developer>
+
+        <developer>
+            <id>joachim_rodrigues</id>
+            <name>joachim rodrigues</name>
+            <email>rodrigues.joachim@gmail.com</email>
+        </developer>
+
+        <developer>
+            <id>patelm5</id>
+            <name>Mike Patel</name>
+            <email>mpatelgrad@gmail.com</email>
+        </developer>
+    </developers>
+
     <repositories>
         <repository>
             <id>repo.jenkins-ci.org</id>
