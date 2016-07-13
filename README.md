@@ -1,7 +1,6 @@
 # InfluxDb Jenkins Plugin
 
-This plugin allows you to send the build metrics to InfluxDb servers to be used for analysis and radiators. Codebase
-is forked from jrajala-eficode/jenkins-ci.influxdb-plugin and updated to use InfluxDb 0.9+ with the help of http://christoph-burmeister.eu/?p=2906.
+This plugin allows you to send the build metrics to InfluxDb servers to be used for analysis and radiators. Plugin originally developed by Jouni Rajala (jrajala-eficode/jenkins-ci.influxdb-plugin) and updated to use InfluxDb 0.9+ with the help of http://christoph-burmeister.eu/?p=2906.
 
 Tested with InfluxDb 0.12 and 0.13
 
