@@ -1,7 +1,6 @@
 # InfluxDb Jenkins Plugin
 
-This plugin allows you to send the build metrics to InfluxDb servers to be used for analysis and radiators. Plugin originally developed by Jouni Rajala (jrajala-eficode/jenkins-ci.influxdb-plugin) and updated to use InfluxDb 0.9+ with the help of http://christoph-burmeister.eu/?p=2906.
-
+This plugin allows you to send the build metrics to InfluxDb servers to be used for analysis and radiators. 
 Tested with InfluxDb 0.12 and 0.13
 
 # Instructions
@@ -31,3 +30,6 @@ The url-parameter needs the whole url in order to work including the `http://` (
    
 Future plans:
 - Getting plugin into Jenkins distribution
+
+# Special Thanks
+Plugin originally developed by Jouni Rajala (https://twitter.com/rajalajouni) and updated to use InfluxDb 0.9+ with the help of http://christoph-burmeister.eu/?p=2906.
