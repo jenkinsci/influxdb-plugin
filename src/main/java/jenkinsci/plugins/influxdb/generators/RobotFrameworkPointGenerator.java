@@ -72,6 +72,10 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     private List<Point> generateSubPoints(RobotResult robotResult) {
         List<Point> subPoints = new ArrayList<Point>();
         for(RobotSuiteResult suiteResult : robotResult.getAllSuites()) {
+            Point suitePoint = generateSuitePoint(suiteResult);
+            if (suitePointExists(subPoints, suitePoint)) {
+                continue;
+            }
             subPoints.add(generateSuitePoint(suiteResult));
 
             for(RobotCaseResult caseResult : suiteResult.getAllCases()) {
@@ -94,6 +98,15 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
             }
         }
         return subPoints;
+    }
+
+    private boolean suitePointExists(List<Point> subPoints, Point point) {
+        for (Point p : subPoints) {
+            if (p.toString() == point.toString()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Point generateCasePoint(RobotCaseResult caseResult) {
