@@ -24,6 +24,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     public static final String RF_PASS_PERCENTAGE = "rf_pass_percentage";
     public static final String RF_DURATION = "rf_duration";
     public static final String RF_SUITES = "rf_suites";
+    public static final String RF_SUITE_NAME = "rf_suite_name";
     public static final String RF_TESTCASES = "rf_testcases";
 
     private final AbstractBuild<?, ?> build;
@@ -72,13 +73,13 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     private List<Point> generateSubPoints(RobotResult robotResult) {
         List<Point> subPoints = new ArrayList<Point>();
         for(RobotSuiteResult suiteResult : robotResult.getAllSuites()) {
-            Point suitePoint = generateSuitePoint(suiteResult);
-            if (suitePointExists(subPoints, suitePoint)) {
-                continue;
-            }
             subPoints.add(generateSuitePoint(suiteResult));
 
             for(RobotCaseResult caseResult : suiteResult.getAllCases()) {
+                Point casePoint = generateCasePoint(caseResult);
+                if (casePointExists(subPoints, casePoint)) {
+                    continue;
+                }
                 subPoints.add(generateCasePoint(caseResult));
                 try {
                     Thread.sleep(100);
@@ -100,10 +101,17 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
         return subPoints;
     }
 
-    private boolean suitePointExists(List<Point> subPoints, Point point) {
+    private boolean casePointExists(List<Point> subPoints, Point point) {
         for (Point p : subPoints) {
-            if (p.toString() == point.toString()) {
-                return true;
+            try {
+                // CasePoints are the same if all the fields are equal
+                String pFields = p.toString().substring(p.toString().indexOf("fields="));
+                String pointFields = point.toString().substring(point.toString().indexOf("fields="));
+                if (pFields.equals(pointFields)) {
+                    return true;
+                }
+            } catch (StringIndexOutOfBoundsException e) {
+                // Handle exception
             }
         }
         return false;
@@ -114,6 +122,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
             .field(BUILD_NUMBER, build.getNumber())
             .field(PROJECT_NAME, build.getProject().getName())
             .field(RF_NAME, caseResult.getName())
+            .field(RF_SUITE_NAME, caseResult.getParent().getName())
             .field(RF_CRITICAL_FAILED, caseResult.getCriticalFailed())
             .field(RF_CRITICAL_PASSED, caseResult.getCriticalPassed())
             .field(RF_FAILED, caseResult.getFailed())
@@ -174,6 +183,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
         Point point = Point.measurement("suite_result")
             .field(BUILD_NUMBER, build.getNumber())
             .field(PROJECT_NAME, build.getProject().getName())
+            .field(RF_SUITE_NAME, suiteResult.getName())
             .field(RF_TESTCASES, suiteResult.getAllCases().size())
             .field(RF_CRITICAL_FAILED, suiteResult.getCriticalFailed())
             .field(RF_CRITICAL_PASSED, suiteResult.getCriticalPassed())
