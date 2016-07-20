@@ -1,7 +1,9 @@
 # InfluxDb Jenkins Plugin
 
+By Eficode Ltd (https://github.com/eficode).
+
 This plugin allows you to send the build metrics to InfluxDb servers to be used for analysis and radiators. 
-Tested with InfluxDb 0.12 and 0.13
+Tested with InfluxDb 0.12 and 0.13.
 
 # Instructions
 
@@ -26,10 +28,7 @@ The url-parameter needs the whole url in order to work including the `http://` (
 - cobertura_number_of_packages
 - cobertura_number_of_sourcefiles
 - cobertura_number_of_classes
-- Supporting Robot Framework plugin metrics
-   
-Future plans:
-- Getting plugin into Jenkins distribution
+- Robot Framework plugin metrics
 
 # Special Thanks
 Plugin originally developed by Jouni Rajala (https://twitter.com/rajalajouni) and updated to use InfluxDb 0.9+ with the help of http://christoph-burmeister.eu/?p=2906.
