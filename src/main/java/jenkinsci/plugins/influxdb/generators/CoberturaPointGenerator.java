@@ -38,6 +38,8 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
     public Point[] generate() {
         coberturaProjectData = CoverageDataFileHandler.loadCoverageData(coberturaFile);
         Point point = Point.measurement("cobertura_data")
+            .field(BUILD_NUMBER, build.getNumber())
+            .field(PROJECT_NAME, build.getProject().getName())
             .field(COBERTURA_NUMBER_OF_PACKAGES, coberturaProjectData.getPackages().size())
             .field(COBERTURA_NUMBER_OF_SOURCEFILES, coberturaProjectData.getNumberOfSourceFiles())
             .field(COBERTURA_NUMBER_OF_CLASSES, coberturaProjectData.getNumberOfClasses())

@@ -27,21 +27,36 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     }
 
     public Point[] generate() {
+        boolean results = hasTestResults(build);
+        Point point = (results) ? generatePointWithTestResults() : generatePointWithoutTestResults();
+        return new Point[] {point};
+    }
+
+    private Point generatePointWithoutTestResults() {
         Point point = Point.measurement("jenkins_data")
             .field(BUILD_NUMBER, build.getNumber())
             .field(PROJECT_NAME, build.getProject().getName())
             .field(BUILD_TIME, build.getDuration())
             .field(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
             .field(PROJECT_BUILD_HEALTH, build.getProject().getBuildHealth().getScore())
-        //if (hasTestResults(build)) { 
-            //.field(TESTS_FAILED, build.getAction(AbstractTestResultAction.class).getFailCount())
-            //.field(TESTS_SKIPPED, build.getAction(AbstractTestResultAction.class).getSkipCount())
-            //.field(TESTS_TOTAL, build.getAction(AbstractTestResultAction.class).getTotalCount())
             .build();
-        //}
-        //point.build();
-        
-        return new Point[] {point};
+
+        return point;
+    }
+
+    private Point generatePointWithTestResults() {
+        Point point = Point.measurement("jenkins_data")
+            .field(BUILD_NUMBER, build.getNumber())
+            .field(PROJECT_NAME, build.getProject().getName())
+            .field(BUILD_TIME, build.getDuration())
+            .field(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
+            .field(PROJECT_BUILD_HEALTH, build.getProject().getBuildHealth().getScore())
+            .field(TESTS_FAILED, build.getAction(AbstractTestResultAction.class).getFailCount())
+            .field(TESTS_SKIPPED, build.getAction(AbstractTestResultAction.class).getSkipCount())
+            .field(TESTS_TOTAL, build.getAction(AbstractTestResultAction.class).getTotalCount())
+            .build();
+
+        return point;
     }
 
     private boolean hasTestResults(AbstractBuild<?, ?> build) {
