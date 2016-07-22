@@ -136,7 +136,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
 
         return point;
     }
-    private final class RobotTagResult {
+    private static final class RobotTagResult {
         protected final String name;
         protected RobotTagResult(String name) {
             this.name = name;
