@@ -1,2 +1,5 @@
 target/
 *.swp
+pom.xml.releaseBackup
+work/
+release.properties
