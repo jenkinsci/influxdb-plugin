@@ -30,6 +30,7 @@ THE SOFTWARE.
         <artifactId>plugin</artifactId>
         <version>2.7</version>
     </parent>
+
     <groupId>jenkins-ci.plugins</groupId>
     <artifactId>influxdb</artifactId>
     <url>https://wiki.jenkins-ci.org/display/JENKINS/InfluxDB+Plugin</url>
@@ -44,7 +45,7 @@ THE SOFTWARE.
         <developerConnection>scm:git:ssh://git@github.com/jenkinsci/influxdb-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/influxdb-plugin</url>
       <tag>influxdb-1.1</tag>
-  </scm>
+    </scm>
 
     <properties>
         <jenkins.version>1.642.3</jenkins.version>
@@ -144,29 +145,12 @@ THE SOFTWARE.
         </dependency>
     </dependencies>
 
+    <!-- The current maintainers of the plugin-->
     <developers>
         <developer>
             <id>aleksisimell</id>
             <name>Aleksi Simell</name>
             <email>aleksi.simell@eficode.com</email>
-        </developer>
-
-        <developer>
-            <id>jrajala_eficode</id>
-            <name>Jouni Rajala</name>
-            <email>jouni.rajala@eficode.com</email>
-        </developer>
-
-        <developer>
-            <id>joachim_rodrigues</id>
-            <name>joachim rodrigues</name>
-            <email>rodrigues.joachim@gmail.com</email>
-        </developer>
-
-        <developer>
-            <id>patelm5</id>
-            <name>Mike Patel</name>
-            <email>mpatelgrad@gmail.com</email>
         </developer>
     </developers>
 </project>
