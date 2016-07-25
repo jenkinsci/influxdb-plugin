@@ -70,7 +70,6 @@ public class InfluxDbPublisher extends Notifier {
         }
         for (Target target : targets) {
             if (target.getUrl().equals(selectedTarget)) {
-                //if (true) { throw new RuntimeException("target.getUrl: " + target.getUrl() + ", selectedTarget: " + selectedTarget); }
                 return target;
             }
         }
