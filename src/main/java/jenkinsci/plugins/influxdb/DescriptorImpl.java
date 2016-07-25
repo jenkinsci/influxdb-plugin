@@ -3,7 +3,6 @@ package jenkinsci.plugins.influxdb;
 import java.util.Iterator;
  
 import org.kohsuke.stapler.StaplerRequest;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  
 import jenkinsci.plugins.influxdb.models.Target;
 import hudson.model.AbstractProject;
@@ -44,8 +43,7 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
     }
  
     @Override
-    @SuppressFBWarnings("NP_PARAMETER_MUST_BE_NONNULL_BUT_MARKED_AS_NULLABLE")
-    public Publisher newInstance(StaplerRequest req, JSONObject formData) {
+    public Publisher newInstance(@Nonnull StaplerRequest req, JSONObject formData) {
         InfluxDbPublisher publisher = new InfluxDbPublisher();
         req.bindParameters(publisher, "publisherBinding.");
         return publisher;
