@@ -31,7 +31,6 @@ THE SOFTWARE.
         <version>2.7</version>
     </parent>
 
-    <groupId>jenkins-ci.plugins</groupId>
     <artifactId>influxdb</artifactId>
     <url>https://wiki.jenkins-ci.org/display/JENKINS/InfluxDB+Plugin</url>
     <version>1.2-SNAPSHOT</version>
@@ -44,7 +43,7 @@ THE SOFTWARE.
         <connection>scm:git:ssh://github.com/jenkinsci/influxdb-plugin.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/jenkinsci/influxdb-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/influxdb-plugin</url>
-      <tag>influxdb-1.1</tag>
+        <tag>influxdb-1.1</tag>
     </scm>
 
     <properties>
@@ -57,20 +56,6 @@ THE SOFTWARE.
             <comments>All source code is under the MIT license.</comments>
         </license>
     </licenses>
-
-    <repositories>
-        <repository>
-            <id>repo.jenkins-ci.org</id>
-            <url>http://repo.jenkins-ci.org/public/</url>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>repo.jenkins-ci.org</id>
-            <url>http://repo.jenkins-ci.org/public/</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <dependencies>
         <dependency>
