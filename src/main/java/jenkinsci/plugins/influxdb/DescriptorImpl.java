@@ -1,6 +1,8 @@
 package jenkinsci.plugins.influxdb;
  
 import java.util.Iterator;
+import javax.annotation.Nonnull;
+import javax.annotation.CheckForNull;
  
 import org.kohsuke.stapler.StaplerRequest;
  
