@@ -45,7 +45,7 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
     }
  
     @Override
-    public Publisher newInstance(@Nonnull StaplerRequest req, @Nonnull JSONObject formData) {
+    public Publisher newInstance(@CheckForNull StaplerRequest req, @Nonnull JSONObject formData) {
         InfluxDbPublisher publisher = new InfluxDbPublisher();
         req.bindParameters(publisher, "publisherBinding.");
         return publisher;
