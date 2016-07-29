@@ -1,6 +1,6 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import hudson.model.Run;
+import hudson.model.AbstractBuild;
 import org.influxdb.dto.Point;
 
 public interface PointGenerator {

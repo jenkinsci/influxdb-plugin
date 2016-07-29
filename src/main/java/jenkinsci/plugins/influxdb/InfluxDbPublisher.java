@@ -11,7 +11,6 @@ import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.BatchPoints;
 import org.influxdb.dto.Point;
  
-import jenkins.tasks.SimpleBuildStep;
 import jenkinsci.plugins.influxdb.models.BuildData;
 import jenkinsci.plugins.influxdb.models.Target;
 import jenkinsci.plugins.influxdb.generators.CoberturaPointGenerator;
@@ -20,19 +19,14 @@ import jenkinsci.plugins.influxdb.generators.RobotFrameworkPointGenerator;
 import jenkinsci.plugins.influxdb.generators.PointGenerator;
 import hudson.Extension;
 import hudson.Launcher;
-import hudson.FilePath;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
-import hudson.model.Run;
-import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
-
-import org.kohsuke.stapler.DataBoundConstructor;
  
-public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
+public class InfluxDbPublisher extends Notifier {
  
     /** The logger. **/
     private static final Logger logger = Logger.getLogger(InfluxDbPublisher.class.getName());
@@ -48,7 +42,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     public InfluxDbPublisher() {
     }
  
-    @DataBoundConstructor
     public InfluxDbPublisher(String target) {
         this.selectedTarget = target;
     }
@@ -83,8 +76,8 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         return null;
     }
  
-    //@Override
-    public boolean prebuild(Run<?, ?> build, TaskListener listener) {
+    @Override
+    public boolean prebuild(AbstractBuild<?, ?> build, BuildListener listener) {
         return true;
     }
  
@@ -104,7 +97,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     }
  
     @Override
-    public void perform(Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener)
+    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
             throws InterruptedException, IOException {
  
         // get the target from the job's config
@@ -131,13 +124,16 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(build);
         writeDataToDatabase(influxDB, target, jGen.generate());
 
-        CoberturaPointGenerator cGen = new CoberturaPointGenerator(build, workspace);
+        CoberturaPointGenerator cGen = new CoberturaPointGenerator(build);
         if (cGen.hasReport())
             writeDataToDatabase(influxDB, target, cGen.generate());
 
         RobotFrameworkPointGenerator rfGen = new RobotFrameworkPointGenerator(build);
         if (rfGen.hasReport())
             writeDataToDatabase(influxDB, target, rfGen.generate());
+
+        return true;
+ 
     }
 
     // Write multiple points from an array. 
@@ -165,17 +161,9 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         return batchPoints;
     }
  
-    @Deprecated
     private BuildData getBuildData(AbstractBuild<?, ?> build) {
         BuildData buildData = new BuildData();
         buildData.setJobName(build.getProject().getName());
-        buildData.setJobDurationSeconds(build.getDuration());
-        return buildData;
-    }
-
-    private BuildData getBuildData(Run<?, ?> build) {
-        BuildData buildData = new BuildData();
-        buildData.setJobName(build.getParent().getName());
         buildData.setJobDurationSeconds(build.getDuration());
         return buildData;
     }

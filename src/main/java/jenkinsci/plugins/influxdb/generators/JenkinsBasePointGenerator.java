@@ -1,6 +1,6 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import hudson.model.Run;
+import hudson.model.AbstractBuild;
 import hudson.tasks.test.AbstractTestResultAction;
 import org.influxdb.dto.Point;
 
@@ -16,9 +16,9 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     public static final String TESTS_SKIPPED = "tests_skipped";
     public static final String TESTS_TOTAL = "tests_total";
 
-    private final Run<?, ?> build;
+    private final AbstractBuild<?, ?> build;
 
-    public JenkinsBasePointGenerator(Run<?, ?> build) {
+    public JenkinsBasePointGenerator(AbstractBuild<?, ?> build) {
         this.build = build;
     }
 
@@ -35,10 +35,10 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     private Point generatePointWithoutTestResults() {
         Point point = Point.measurement("jenkins_data")
             .field(BUILD_NUMBER, build.getNumber())
-            .field(PROJECT_NAME, build.getParent().getName())
+            .field(PROJECT_NAME, build.getProject().getName())
             .field(BUILD_TIME, build.getDuration())
             .field(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
-            .field(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
+            .field(PROJECT_BUILD_HEALTH, build.getProject().getBuildHealth().getScore())
             .build();
 
         return point;
@@ -47,10 +47,10 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     private Point generatePointWithTestResults() {
         Point point = Point.measurement("jenkins_data")
             .field(BUILD_NUMBER, build.getNumber())
-            .field(PROJECT_NAME, build.getParent().getName())
+            .field(PROJECT_NAME, build.getProject().getName())
             .field(BUILD_TIME, build.getDuration())
             .field(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
-            .field(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
+            .field(PROJECT_BUILD_HEALTH, build.getProject().getBuildHealth().getScore())
             .field(TESTS_FAILED, build.getAction(AbstractTestResultAction.class).getFailCount())
             .field(TESTS_SKIPPED, build.getAction(AbstractTestResultAction.class).getSkipCount())
             .field(TESTS_TOTAL, build.getAction(AbstractTestResultAction.class).getTotalCount())
@@ -59,7 +59,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         return point;
     }
 
-    private boolean hasTestResults(Run<?, ?> build) {
+    private boolean hasTestResults(AbstractBuild<?, ?> build) {
         return build.getAction(AbstractTestResultAction.class) != null;
     }
 }

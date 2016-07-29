@@ -1,7 +1,6 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import hudson.FilePath;
-import hudson.model.Run;
+import hudson.model.AbstractBuild;
 import net.sourceforge.cobertura.coveragedata.ClassData;
 import net.sourceforge.cobertura.coveragedata.CoverageDataFileHandler;
 import net.sourceforge.cobertura.coveragedata.PackageData;
@@ -23,13 +22,13 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
     public static final String COBERTURA_NUMBER_OF_CLASSES = "cobertura_number_of_classes";
     private static final String COBERTURA_REPORT_FILE = "/target/cobertura/cobertura.ser";
 
-    private final Run<?, ?> build;
+    private final AbstractBuild<?, ?> build;
     private ProjectData coberturaProjectData;
     private final File coberturaFile;
 
-    public CoberturaPointGenerator(Run<?, ?> build, FilePath workspace) {
+    public CoberturaPointGenerator(AbstractBuild<?, ?> build) {
         this.build = build;
-        coberturaFile = new File(workspace + COBERTURA_REPORT_FILE);
+        coberturaFile = new File(build.getWorkspace() + COBERTURA_REPORT_FILE);
     }
 
     public boolean hasReport() {
@@ -40,7 +39,7 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
         coberturaProjectData = CoverageDataFileHandler.loadCoverageData(coberturaFile);
         Point point = Point.measurement("cobertura_data")
             .field(BUILD_NUMBER, build.getNumber())
-            .field(PROJECT_NAME, build.getParent().getName())
+            .field(PROJECT_NAME, build.getProject().getName())
             .field(COBERTURA_NUMBER_OF_PACKAGES, coberturaProjectData.getPackages().size())
             .field(COBERTURA_NUMBER_OF_SOURCEFILES, coberturaProjectData.getNumberOfSourceFiles())
             .field(COBERTURA_NUMBER_OF_CLASSES, coberturaProjectData.getNumberOfClasses())
