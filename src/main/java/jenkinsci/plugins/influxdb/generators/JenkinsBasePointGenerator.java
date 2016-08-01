@@ -6,6 +6,7 @@ import org.influxdb.dto.Point;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.System;
 
 public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
@@ -28,15 +29,18 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     public Point[] generate() {
         boolean results = hasTestResults(build);
-        Point point = (results) ? generatePointWithTestResults() : generatePointWithoutTestResults();
+        long startTime = build.getTimeInMillis();
+        long currTime = System.currentTimeMillis();
+        long dt = currTime - startTime;
+        Point point = (results) ? generatePointWithTestResults(dt) : generatePointWithoutTestResults(dt);
         return new Point[] {point};
     }
 
-    private Point generatePointWithoutTestResults() {
+    private Point generatePointWithoutTestResults(long dt) {
         Point point = Point.measurement("jenkins_data")
             .field(BUILD_NUMBER, build.getNumber())
             .field(PROJECT_NAME, build.getParent().getName())
-            .field(BUILD_TIME, build.getDuration())
+            .field(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
             .field(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
             .field(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
             .build();
@@ -44,11 +48,11 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         return point;
     }
 
-    private Point generatePointWithTestResults() {
+    private Point generatePointWithTestResults(long dt) {
         Point point = Point.measurement("jenkins_data")
             .field(BUILD_NUMBER, build.getNumber())
             .field(PROJECT_NAME, build.getParent().getName())
-            .field(BUILD_TIME, build.getDuration())
+            .field(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
             .field(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
             .field(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
             .field(TESTS_FAILED, build.getAction(AbstractTestResultAction.class).getFailCount())
