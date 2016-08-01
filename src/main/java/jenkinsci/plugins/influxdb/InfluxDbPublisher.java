@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.lang.System;
  
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDB.ConsistencyLevel;
@@ -176,7 +177,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     private BuildData getBuildData(Run<?, ?> build) {
         BuildData buildData = new BuildData();
         buildData.setJobName(build.getParent().getName());
-        buildData.setJobDurationSeconds(build.getDuration());
+        buildData.setJobDurationSeconds(System.currentTimeMillis() - build.getTimeInMillis());
         return buildData;
     }
 }
