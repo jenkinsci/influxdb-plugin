@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.lang.System;
  
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDB.ConsistencyLevel;
@@ -161,10 +162,18 @@ public class InfluxDbPublisher extends Notifier {
         return batchPoints;
     }
  
+   @Deprecated 
     private BuildData getBuildData(AbstractBuild<?, ?> build) {
         BuildData buildData = new BuildData();
         buildData.setJobName(build.getProject().getName());
         buildData.setJobDurationSeconds(build.getDuration());
+        return buildData;
+    }
+
+    private BuildData getBuildData(Run<?, ?> build) {
+        BuildData buildData = new BuildData();
+        buildData.setJobName(build.getParent().getName());
+        buildData.setJobDurationSeconds(System.currentTimeMillis() - build.getTimeInMillis());
         return buildData;
     }
 }
