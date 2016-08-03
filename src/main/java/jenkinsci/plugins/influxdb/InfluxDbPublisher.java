@@ -18,6 +18,7 @@ import jenkinsci.plugins.influxdb.models.Target;
 import jenkinsci.plugins.influxdb.generators.CoberturaPointGenerator;
 import jenkinsci.plugins.influxdb.generators.JenkinsBasePointGenerator;
 import jenkinsci.plugins.influxdb.generators.RobotFrameworkPointGenerator;
+//import jenkinsci.plugins.influxdb.generators.ZAProxyPointGenerator;
 import jenkinsci.plugins.influxdb.generators.PointGenerator;
 import hudson.Extension;
 import hudson.Launcher;
@@ -139,6 +140,11 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         RobotFrameworkPointGenerator rfGen = new RobotFrameworkPointGenerator(build);
         if (rfGen.hasReport())
             writeDataToDatabase(influxDB, target, rfGen.generate());
+        /*
+        ZAProxyPointGenerator zGen = new ZAProxyPointGenerator(build, workspace);
+        if (zGen.hasReport())
+            writeDataToDatabase(influxDB, target, zGen.generate());
+        */
     }
 
     // Write multiple points from an array. 
