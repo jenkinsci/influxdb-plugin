@@ -46,6 +46,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
  
     private String selectedTarget;
+    private String coberturaReportLocation;
  
     public InfluxDbPublisher() {
     }
@@ -55,7 +56,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         this.selectedTarget = target;
     }
  
-    // Not used anywhere
     public String getSelectedTarget() {
         String ipTemp = selectedTarget;
         if (ipTemp == null) {
@@ -67,10 +67,18 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         return ipTemp;
     }
  
-    // Not used anywhere
     public void setSelectedTarget(String target) {
         this.selectedTarget = target;
     }
+    
+    public String getCoberturaReportLocation() {
+       return this.coberturaReportLocation; 
+    }
+    
+    public void setCoberturaReportLocation(String location) {
+        this.coberturaReportLocation = location;
+    }
+
  
     public Target getTarget() {
         Target[] targets = DESCRIPTOR.getTargets();
@@ -133,7 +141,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(build);
         writeDataToDatabase(influxDB, target, jGen.generate());
 
-        CoberturaPointGenerator cGen = new CoberturaPointGenerator(build, workspace);
+        CoberturaPointGenerator cGen = new CoberturaPointGenerator(build, workspace, coberturaReportLocation);
         if (cGen.hasReport())
             writeDataToDatabase(influxDB, target, cGen.generate());
 

@@ -21,15 +21,14 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
     public static final String COBERTURA_NUMBER_OF_PACKAGES = "cobertura_number_of_packages";
     public static final String COBERTURA_NUMBER_OF_SOURCEFILES = "cobertura_number_of_sourcefiles";
     public static final String COBERTURA_NUMBER_OF_CLASSES = "cobertura_number_of_classes";
-    private static final String COBERTURA_REPORT_FILE = "/target/cobertura/cobertura.ser";
 
     private final Run<?, ?> build;
     private ProjectData coberturaProjectData;
     private final File coberturaFile;
 
-    public CoberturaPointGenerator(Run<?, ?> build, FilePath workspace) {
+    public CoberturaPointGenerator(Run<?, ?> build, FilePath workspace, String coberturaReportLocation) {
         this.build = build;
-        coberturaFile = new File(workspace + COBERTURA_REPORT_FILE);
+        coberturaFile = new File(workspace + "/" + coberturaReportLocation);
     }
 
     public boolean hasReport() {
