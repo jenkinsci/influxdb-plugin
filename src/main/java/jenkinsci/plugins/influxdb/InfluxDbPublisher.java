@@ -61,7 +61,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         if (ipTemp == null) {
             Target[] targets = DESCRIPTOR.getTargets();
             if (targets.length > 0) {
-                ipTemp = targets[0].getUrl();
+                ipTemp = targets[0].getUrl() + "," + targets[0].getDatabase();
             }
         }
         return ipTemp;
@@ -86,7 +86,8 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
             return targets[0];
         }
         for (Target target : targets) {
-            if (target.getUrl().equals(selectedTarget)) {
+            String targetInfo = target.getUrl() + "," + target.getDatabase(); 
+            if (targetInfo.equals(selectedTarget)) {
                 return target;
             }
         }
@@ -142,12 +143,17 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         writeDataToDatabase(influxDB, target, jGen.generate());
 
         CoberturaPointGenerator cGen = new CoberturaPointGenerator(build, workspace, coberturaReportLocation);
-        if (cGen.hasReport())
+        if (cGen.hasReport()) {
+            listener.getLogger().println("Cobertura data found. Writing to InfluxDB...");
             writeDataToDatabase(influxDB, target, cGen.generate());
+        }
 
         RobotFrameworkPointGenerator rfGen = new RobotFrameworkPointGenerator(build);
-        if (rfGen.hasReport())
+        if (rfGen.hasReport()) {
+            listener.getLogger().println("Robot Framework data found. Writing to InfluxDB...");
             writeDataToDatabase(influxDB, target, rfGen.generate());
+        }
+
         /*
         ZAProxyPointGenerator zGen = new ZAProxyPointGenerator(build, workspace);
         if (zGen.hasReport())
