@@ -4,13 +4,13 @@
   <f:entry title="influxdb target">
     <select class="setting-input" name="publisherBinding.selectedTarget" >
         <j:forEach var="currentTarget" items="${descriptor.targets}">
-            <f:option selected="${currentTarget.url==instance.selectedTarget}" value="${currentTarget.url}" >${currentTarget.description}</f:option>
+            <f:option selected="${currentTarget.url==instance.selectedTarget}" value="${currentTarget.url}">${currentTarget.description}</f:option>
         </j:forEach>
     </select>
   </f:entry>
   
   <f:entry title="Cobertura report location" field="coberturaReportLocation">
-        <f:textbox class="setting-input" name="publisherBinding.coberturaReportLocation" default="target/cobertura/cobertura.ser"/>
+        <f:textbox class="setting-input" name="publisherBinding.coberturaReportLocation" default="target/cobertura/cobertura.ser" />
   </f:entry>
 
 </j:jelly>
