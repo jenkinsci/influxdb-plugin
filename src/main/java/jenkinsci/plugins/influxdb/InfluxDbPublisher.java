@@ -153,11 +153,12 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
             listener.getLogger().println("Robot Framework data found. Writing to InfluxDB...");
             writeDataToDatabase(influxDB, target, rfGen.generate());
         }
-
         /*
         ZAProxyPointGenerator zGen = new ZAProxyPointGenerator(build, workspace);
-        if (zGen.hasReport())
+        if (zGen.hasReport()) {
+            listener.getLogger().println("ZAProxy data found. Writing to InfluxDB...");
             writeDataToDatabase(influxDB, target, zGen.generate());
+        }
         */
     }
 
