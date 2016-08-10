@@ -44,9 +44,31 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
         return false;
     }
 
+    public Point[] generate() {
+        try {
+            List ls = coberturaFile.act(new CoberturaFileCallable()); 
+            Point point = Point.measurement("cobertura_data")
+                .field(BUILD_NUMBER, build.getNumber())
+                .field(PROJECT_NAME, build.getParent().getName())
+                .field(COBERTURA_NUMBER_OF_PACKAGES, ls.get(0))
+                .field(COBERTURA_NUMBER_OF_SOURCEFILES, ls.get(1))
+                .field(COBERTURA_NUMBER_OF_CLASSES, ls.get(2))
+                .field(COBERTURA_BRANCH_COVERAGE_RATE, ls.get(3))
+                .field(COBERTURA_LINE_COVERAGE_RATE, ls.get(4))
+                .field(COBERTURA_PACKAGE_COVERAGE_RATE, ls.get(5))
+                .field(COBERTURA_CLASS_COVERAGE_RATE, ls.get(6))
+                .build();
+            return new Point[] {point};
+        } catch (IOException|InterruptedException e) {
+            // NOP
+        }
+        return null;
+    }
+
     private static final class CoberturaFileCallable extends MasterToSlaveFileCallable<List<Number>> {
         private static final long serialVersionUID = 1;
         private ProjectData coberturaProjectData;
+
         @Override
         public List<Number> invoke(File f, VirtualChannel channel) {
             coberturaProjectData = CoverageDataFileHandler.loadCoverageData(f);
@@ -60,6 +82,7 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
             ls.add(getClassCoverage()*100d);
             return ls;
         }
+
         private double getPackageCoverage() {
             double totalPacakges = coberturaProjectData.getPackages().size();
             double packagesCovered = 0;
@@ -82,26 +105,4 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
             return classesCovered / totalClasses;
         }
     }
-
-    public Point[] generate() {
-        try {
-            List ls = coberturaFile.act(new CoberturaFileCallable()); 
-            Point point = Point.measurement("cobertura_data")
-                .field(BUILD_NUMBER, build.getNumber())
-                .field(PROJECT_NAME, build.getParent().getName())
-                .field(COBERTURA_NUMBER_OF_PACKAGES, ls.get(0))
-                .field(COBERTURA_NUMBER_OF_SOURCEFILES, ls.get(1))
-                .field(COBERTURA_NUMBER_OF_CLASSES, ls.get(2))
-                .field(COBERTURA_BRANCH_COVERAGE_RATE, ls.get(3))
-                .field(COBERTURA_LINE_COVERAGE_RATE, ls.get(4))
-                .field(COBERTURA_PACKAGE_COVERAGE_RATE, ls.get(5))
-                .field(COBERTURA_CLASS_COVERAGE_RATE, ls.get(6))
-                .build();
-            return new Point[] {point};
-        } catch (IOException|InterruptedException e) {
-            // NOP
-        }
-        return null;
-    }
-
 }
