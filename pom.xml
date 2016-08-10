@@ -33,7 +33,7 @@ THE SOFTWARE.
 
     <artifactId>influxdb</artifactId>
     <url>https://wiki.jenkins-ci.org/display/JENKINS/InfluxDB+Plugin</url>
-    <version>1.6</version>
+    <version>1.7-SNAPSHOT</version>
     <packaging>hpi</packaging>
  
     <name>InfluxDB Plugin</name>
@@ -43,7 +43,7 @@ THE SOFTWARE.
         <connection>scm:git:ssh://github.com/jenkinsci/influxdb-plugin.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/jenkinsci/influxdb-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/influxdb-plugin</url>
-        <tag>1.6</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
