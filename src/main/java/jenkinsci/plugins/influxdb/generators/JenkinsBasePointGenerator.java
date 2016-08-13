@@ -4,10 +4,6 @@ import hudson.model.Run;
 import hudson.tasks.test.AbstractTestResultAction;
 import org.influxdb.dto.Point;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.lang.System;
-
 public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     public static final String BUILD_TIME = "build_time";
@@ -37,7 +33,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     }
 
     private Point generatePointWithoutTestResults(long dt) {
-        Point point = Point.measurement("jenkins_data")
+        Point point = Point.measurement(measurementName("jenkins_data"))
             .field(BUILD_NUMBER, build.getNumber())
             .field(PROJECT_NAME, build.getParent().getName())
             .field(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
@@ -49,7 +45,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     }
 
     private Point generatePointWithTestResults(long dt) {
-        Point point = Point.measurement("jenkins_data")
+        Point point = Point.measurement(measurementName("jenkins_data"))
             .field(BUILD_NUMBER, build.getNumber())
             .field(PROJECT_NAME, build.getParent().getName())
             .field(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
