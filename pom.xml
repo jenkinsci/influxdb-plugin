@@ -139,5 +139,25 @@ THE SOFTWARE.
             <email>aleksi.simell@eficode.com</email>
         </developer>
     </developers>
+
+    <repositories>
+        <repository>
+            <id>java.net-m2-repository</id>
+            <url>http://maven.jenkins-ci.org:8081/content/repositories/releases/
+            </url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>jenkins-m2-repository</id>
+            <name>Jenkins Plugin Repository</name>
+            <url>http://maven.jenkins-ci.org:8081/content/repositories/releases/</url>
+            <layout>default</layout>
+        </pluginRepository>
+        <pluginRepository>
+            <id>maven.jenkins-ci.org</id>
+            <url>http://maven.glassfish.org/content/groups/public/</url>
+        </pluginRepository>
+    </pluginRepositories>
 </project>
 
