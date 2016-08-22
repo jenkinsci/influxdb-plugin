@@ -18,4 +18,9 @@ public abstract class AbstractPointGenerator implements  PointGenerator {
         columnNames.add(BUILD_NUMBER);
         values.add(build.getNumber());
     }
+
+    protected String measurementName(String measurement) {
+        //influx disallows "-" in measurement names.
+        return measurement.replaceAll("-", "_");
+    }
 }

@@ -7,7 +7,8 @@ public class Target {
     String username;
     String password;
     String database;
-     
+    String retentionPolicy;
+
     public Target(){
         //nop
     }
@@ -51,7 +52,15 @@ public class Target {
     public void setDatabase(String database) {
         this.database = database;
     }
- 
+
+    public String getRetentionPolicy() {
+        return retentionPolicy;
+    }
+
+    public void setRetentionPolicy(String retentionPolicy) {
+        this.retentionPolicy = retentionPolicy;
+    }
+
     @Override
     public String toString() {
         return "Target [url=" + this.url + ", description=" + this.description + ", username=" + this.username
