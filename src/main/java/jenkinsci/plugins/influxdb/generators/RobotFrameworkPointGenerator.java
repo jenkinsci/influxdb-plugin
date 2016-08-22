@@ -7,9 +7,10 @@ import hudson.plugins.robot.model.RobotResult;
 import hudson.plugins.robot.model.RobotSuiteResult;
 import org.influxdb.dto.Point;
 
-import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
 
@@ -52,7 +53,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateOverviewPoint(RobotBuildAction robotBuildAction) {
-        Point point = Point.measurement("rf_results")
+        Point point = Point.measurement(measurementName("rf_results"))
             .field(BUILD_NUMBER, build.getNumber())
             .field(PROJECT_NAME, build.getParent().getName())
             .field(RF_FAILED, robotBuildAction.getResult().getOverallFailed())
@@ -118,7 +119,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateCasePoint(RobotCaseResult caseResult) {
-        Point point = Point.measurement("testcase_point")
+        Point point = Point.measurement(measurementName("testcase_point"))
             .field(BUILD_NUMBER, build.getNumber())
             .field(PROJECT_NAME, build.getParent().getName())
             .field(RF_NAME, caseResult.getName())
@@ -166,7 +167,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateTagPoint(RobotTagResult tagResult) {
-        Point point = Point.measurement("tag_point")
+        Point point = Point.measurement(measurementName("tag_point"))
             .field(RF_CRITICAL_FAILED, tagResult.criticalFailed)
             .field(RF_CRITICAL_PASSED, tagResult.criticalPassed)
             .field(RF_CRITICAL_TOTAL, tagResult.criticalPassed + tagResult.criticalFailed)
@@ -180,7 +181,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateSuitePoint(RobotSuiteResult suiteResult) {
-        Point point = Point.measurement("suite_result")
+        Point point = Point.measurement(measurementName("suite_result"))
             .field(BUILD_NUMBER, build.getNumber())
             .field(PROJECT_NAME, build.getParent().getName())
             .field(RF_SUITE_NAME, suiteResult.getName())
