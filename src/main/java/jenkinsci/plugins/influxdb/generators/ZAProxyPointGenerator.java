@@ -9,6 +9,7 @@ import org.zaproxy.clientapi.core.AlertsFile;
 
 import hudson.FilePath;
 import hudson.model.Run;
+import hudson.remoting.VirtualChannel;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +37,7 @@ public class ZAProxyPointGenerator extends AbstractPointGenerator {
     public boolean hasReport() {
         try {
             return (zapFile != null && zapFile.exists());
-        } catch (IOException|InterrupedException e) {
+        } catch (IOException|InterruptedException e) {
             // NOP
         }
         return false;
@@ -44,7 +45,7 @@ public class ZAProxyPointGenerator extends AbstractPointGenerator {
 
     public Point[] generate() {
         try {
-            List<int> ls = zapFile.act(new ZAPFileCallable());
+            List<Integer> ls = zapFile.act(new ZAPFileCallable());
             Point point = Point.measurement("zap_data")
                 .field(BUILD_NUMBER, build.getNumber())
                 .field(PROJECT_NAME, build.getParent().getName())
@@ -60,16 +61,21 @@ public class ZAProxyPointGenerator extends AbstractPointGenerator {
         return null;
     }
 
-    private static final class ZAPFileCallable extends MasterToSlaveFileCallable<List<int>> {
+    private static final class ZAPFileCallable extends MasterToSlaveFileCallable<List<Integer>> {
         private static final long serialVersionUID = 1;
 
         @Override
-        public List<int> invoke(File f, VirtualChannel channel) {
-            List<int> ls = new ArrayList<int>();
+        public List<Integer> invoke(File f, VirtualChannel channel) {
+            try {
+            List<Integer> ls = new ArrayList<Integer>();
             ls.add(AlertsFile.getAlertsFromFile(f, "high").size());
             ls.add(AlertsFile.getAlertsFromFile(f, "medium").size());
             ls.add(AlertsFile.getAlertsFromFile(f, "low").size());
             ls.add(AlertsFile.getAlertsFromFile(f, "informational").size());
             return ls;
+            } catch  (IOException|JDOMException e) {
+                return null;
+            }
         }
+    }
 }
