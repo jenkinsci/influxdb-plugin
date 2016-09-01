@@ -132,7 +132,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         BuildData buildData = getBuildData(build);
 
         // prepare a meaningful logmessage
-        String logMessage = "publishing data: " + buildData.toString() + " to " + target.toString();
+        String logMessage = "[InfluxDB Plugin] Publishing data: " + buildData.toString() + " to " + target.toString();
 
         // write to jenkins logger
         logger.log(Level.INFO, logMessage);
@@ -151,20 +151,20 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
 
         CoberturaPointGenerator cGen = new CoberturaPointGenerator(build, workspace, coberturaReportLocation);
         if (cGen.hasReport()) {
-            listener.getLogger().println("Cobertura data found. Writing to InfluxDB...");
+            listener.getLogger().println("[InfluxDB Plugin] Cobertura data found. Writing to InfluxDB...");
             pointsToWrite.addAll(Arrays.asList(cGen.generate()));
         }
 
 
         RobotFrameworkPointGenerator rfGen = new RobotFrameworkPointGenerator(build);
         if (rfGen.hasReport()) {
-            listener.getLogger().println("Robot Framework data found. Writing to InfluxDB...");
+            listener.getLogger().println("[InfluxDB Plugin] Robot Framework data found. Writing to InfluxDB...");
             pointsToWrite.addAll(Arrays.asList(rfGen.generate()));
         }
 
         JacocoPointGenerator jacoGen = new JacocoPointGenerator(build, workspace);
         if (jacoGen.hasReport()) {
-            listener.getLogger().println("Jacoco data found. Writing to InfluxDB...");
+            listener.getLogger().println("[InfluxDB Plugin] Jacoco data found. Writing to InfluxDB...");
             pointsToWrite.addAll(Arrays.asList(jacoGen.generate()));
         }
 
