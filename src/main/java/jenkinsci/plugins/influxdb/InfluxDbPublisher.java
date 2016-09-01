@@ -188,7 +188,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
                 .database(target.getDatabase())
                 .points(pointsToWrite.toArray(new Point[0]))
                 .retentionPolicy(target.getRetentionPolicy())
-                .tag("async", "true")
                 .consistency(ConsistencyLevel.ALL)
                 .build();
         influxDB.write(batchPoints);
