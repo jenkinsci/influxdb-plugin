@@ -14,6 +14,7 @@ import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 import jenkins.tasks.SimpleBuildStep;
 import jenkinsci.plugins.influxdb.generators.CoberturaPointGenerator;
+import jenkinsci.plugins.influxdb.generators.JacocoPointGenerator;
 import jenkinsci.plugins.influxdb.generators.JenkinsBasePointGenerator;
 import jenkinsci.plugins.influxdb.generators.RobotFrameworkPointGenerator;
 import jenkinsci.plugins.influxdb.models.BuildData;
@@ -140,7 +141,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
 
         // connect to InfluxDB
         InfluxDB influxDB = InfluxDBFactory.connect(target.getUrl(), target.getUsername(), target.getPassword());
-        List<Point> pointsToWrite = new ArrayList<>();
+        List<Point> pointsToWrite = new ArrayList<Point>();
 
         // finally write to InfluxDB
         pointsToWrite.addAll(generateInfluxData(buildData));
@@ -160,6 +161,13 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
             listener.getLogger().println("Robot Framework data found. Writing to InfluxDB...");
             pointsToWrite.addAll(Arrays.asList(rfGen.generate()));
         }
+
+        JacocoPointGenerator jacoGen = new JacocoPointGenerator(build, workspace);
+        if (jacoGen.hasReport()) {
+            listener.getLogger().println("Jacoco data found. Writing to InfluxDB...");
+            pointsToWrite.addAll(Arrays.asList(jacoGen.generate()));
+        }
+
         /*
         ZAProxyPointGenerator zGen = new ZAProxyPointGenerator(build, workspace);
         if (zGen.hasReport()) {
