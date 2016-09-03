@@ -8,6 +8,7 @@ public class Target {
     String password;
     String database;
     String retentionPolicy;
+    boolean exposeExceptions;
 
     public Target(){
         //nop
@@ -59,6 +60,14 @@ public class Target {
 
     public void setRetentionPolicy(String retentionPolicy) {
         this.retentionPolicy = retentionPolicy;
+    }
+
+    public boolean isExposeExceptions() {
+        return exposeExceptions;
+    }
+
+    public void setExposeExceptions(boolean exposeExceptions) {
+        this.exposeExceptions = exposeExceptions;
     }
 
     @Override
