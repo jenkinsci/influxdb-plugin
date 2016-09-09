@@ -37,7 +37,7 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
 
     public boolean hasReport() {
         try {
-            return (coberturaFile != null && coberturaFile.exists());
+            return (coberturaFile != null && coberturaFile.exists() && coberturaFile.getName().endsWith("ser"));
         } catch (IOException|InterruptedException e) {
             // NOP
         }
