@@ -28,9 +28,7 @@ public class JacocoPointGenerator extends AbstractPointGenerator {
     }
 
     public Point[] generate() {
-        Point point = Point.measurement(measurementName("jacoco_data"))
-            .field(BUILD_NUMBER, build.getNumber())
-            .field(PROJECT_NAME, build.getParent().getName())
+        Point point = buildPoint(measurementName("jacoco_data"), build)
             .field(JACOCO_INSTRUCTION_COVERAGE_RATE, jacocoBuildAction.getResult().getInstructionCoverage().getPercentageFloat())
             .field(JACOCO_CLASS_COVERAGE_RATE, jacocoBuildAction.getResult().getClassCoverage().getPercentageFloat())
             .field(JACOCO_BRANCH_COVERAGE_RATE, jacocoBuildAction.getResult().getBranchCoverage().getPercentageFloat())

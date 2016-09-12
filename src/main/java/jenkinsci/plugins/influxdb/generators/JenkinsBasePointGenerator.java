@@ -33,9 +33,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     }
 
     private Point generatePointWithoutTestResults(long dt) {
-        Point point = Point.measurement(measurementName("jenkins_data"))
-            .field(BUILD_NUMBER, build.getNumber())
-            .field(PROJECT_NAME, build.getParent().getName())
+        Point point = buildPoint(measurementName("jenkins_data"), build)
             .field(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
             .field(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
             .field(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
@@ -45,9 +43,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     }
 
     private Point generatePointWithTestResults(long dt) {
-        Point point = Point.measurement(measurementName("jenkins_data"))
-            .field(BUILD_NUMBER, build.getNumber())
-            .field(PROJECT_NAME, build.getParent().getName())
+        Point point = buildPoint(measurementName("jenkins_data"), build)
             .field(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
             .field(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
             .field(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())

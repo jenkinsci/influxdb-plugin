@@ -119,9 +119,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateCasePoint(RobotCaseResult caseResult) {
-        Point point = Point.measurement(measurementName("testcase_point"))
-            .field(BUILD_NUMBER, build.getNumber())
-            .field(PROJECT_NAME, build.getParent().getName())
+        Point point = buildPoint(measurementName("testcase_point"), build)
             .field(RF_NAME, caseResult.getName())
             .field(RF_SUITE_NAME, caseResult.getParent().getName())
             .field(RF_CRITICAL_FAILED, caseResult.getCriticalFailed())
@@ -167,7 +165,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateTagPoint(RobotTagResult tagResult) {
-        Point point = Point.measurement(measurementName("tag_point"))
+        Point point = buildPoint(measurementName("tag_point"), build)
             .field(RF_CRITICAL_FAILED, tagResult.criticalFailed)
             .field(RF_CRITICAL_PASSED, tagResult.criticalPassed)
             .field(RF_CRITICAL_TOTAL, tagResult.criticalPassed + tagResult.criticalFailed)
@@ -181,9 +179,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateSuitePoint(RobotSuiteResult suiteResult) {
-        Point point = Point.measurement(measurementName("suite_result"))
-            .field(BUILD_NUMBER, build.getNumber())
-            .field(PROJECT_NAME, build.getParent().getName())
+        Point point = buildPoint(measurementName("suite_result"), build)
             .field(RF_SUITE_NAME, suiteResult.getName())
             .field(RF_TESTCASES, suiteResult.getAllCases().size())
             .field(RF_CRITICAL_FAILED, suiteResult.getCriticalFailed())

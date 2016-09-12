@@ -46,10 +46,8 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
 
     public Point[] generate() {
         try {
-            List ls = coberturaFile.act(new CoberturaFileCallable()); 
-            Point point = Point.measurement("cobertura_data")
-                .field(BUILD_NUMBER, build.getNumber())
-                .field(PROJECT_NAME, build.getParent().getName())
+            List ls = coberturaFile.act(new CoberturaFileCallable());
+            Point point = buildPoint("cobertura_data", build)
                 .field(COBERTURA_NUMBER_OF_PACKAGES, ls.get(0))
                 .field(COBERTURA_NUMBER_OF_SOURCEFILES, ls.get(1))
                 .field(COBERTURA_NUMBER_OF_CLASSES, ls.get(2))
@@ -64,6 +62,8 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
         }
         return null;
     }
+
+
 
     private static final class CoberturaFileCallable extends MasterToSlaveFileCallable<List<Number>> {
         private static final long serialVersionUID = 1;

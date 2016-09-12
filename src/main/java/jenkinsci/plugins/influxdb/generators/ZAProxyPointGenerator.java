@@ -1,19 +1,15 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import jenkins.MasterToSlaveFileCallable;
-
-import org.influxdb.dto.Point;
-import org.jdom.JDOMException;
-import org.zaproxy.clientapi.core.Alert;
-import org.zaproxy.clientapi.core.AlertsFile;
-
 import hudson.FilePath;
 import hudson.model.Run;
 import hudson.remoting.VirtualChannel;
+import jenkins.MasterToSlaveFileCallable;
+import org.influxdb.dto.Point;
+import org.jdom.JDOMException;
+import org.zaproxy.clientapi.core.AlertsFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.InterruptedException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,12 +39,11 @@ public class ZAProxyPointGenerator extends AbstractPointGenerator {
         return false;
     }
 
+    @Override
     public Point[] generate() {
         try {
             List<Integer> ls = zapFile.act(new ZAPFileCallable());
-            Point point = Point.measurement("zap_data")
-                .field(BUILD_NUMBER, build.getNumber())
-                .field(PROJECT_NAME, build.getParent().getName())
+            Point point = buildPoint("zap_data", build)
                 .field(HIGH_ALERTS, ls.get(0))
                 .field(MEDIUM_ALERTS, ls.get(1))
                 .field(LOW_ALERTS, ls.get(2))
