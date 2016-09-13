@@ -4,7 +4,9 @@ import org.influxdb.dto.Point;
 
 import hudson.model.Run;
 import hudson.plugins.cobertura.CoberturaBuildAction;
+import hudson.plugins.cobertura.Ratio;
 import hudson.plugins.cobertura.targets.CoverageMetric;
+import hudson.plugins.cobertura.targets.CoverageResult;
 
 public class CoberturaPointGenerator extends AbstractPointGenerator {
 
@@ -29,11 +31,20 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
     }
 
     public Point[] generate() {
+        CoverageResult result = coberturaBuildAction.getResult();
+        Ratio conditionals = result.getCoverage(CoverageMetric.CONDITIONAL);
+        Ratio lines = result.getCoverage(CoverageMetric.LINE);
+        Ratio packages = result.getCoverage(CoverageMetric.PACKAGES);
+        Ratio classes = result.getCoverage(CoverageMetric.CLASSES);
+        Ratio files = result.getCoverage(CoverageMetric.FILES);
         Point point = buildPoint("cobertura_data", build)
-            .field(COBERTURA_BRANCH_COVERAGE_RATE, coberturaBuildAction.getResult().getCoverage(CoverageMetric.CONDITIONAL).getPercentageFloat())
-            .field(COBERTURA_LINE_COVERAGE_RATE, coberturaBuildAction.getResult().getCoverage(CoverageMetric.LINE).getPercentageFloat())
-            .field(COBERTURA_PACKAGE_COVERAGE_RATE, coberturaBuildAction.getResult().getCoverage(CoverageMetric.PACKAGES).getPercentageFloat())
-            .field(COBERTURA_CLASS_COVERAGE_RATE, coberturaBuildAction.getResult().getCoverage(CoverageMetric.CLASSES).getPercentageFloat())
+            .field(COBERTURA_NUMBER_OF_PACKAGES, packages.denominator)
+            .field(COBERTURA_NUMBER_OF_SOURCEFILES, files.denominator)
+            .field(COBERTURA_NUMBER_OF_CLASSES, classes.denominator)
+            .field(COBERTURA_BRANCH_COVERAGE_RATE, conditionals.getPercentageFloat())
+            .field(COBERTURA_LINE_COVERAGE_RATE, lines.getPercentageFloat())
+            .field(COBERTURA_PACKAGE_COVERAGE_RATE, packages.getPercentageFloat())
+            .field(COBERTURA_CLASS_COVERAGE_RATE, classes.getPercentageFloat())
             .build();
         return new Point[] {point};
     }
