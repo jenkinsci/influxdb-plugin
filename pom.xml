@@ -85,12 +85,6 @@ THE SOFTWARE.
             <artifactId>guava</artifactId>
             <version>15.0-rc1</version>
         </dependency>
-
-        <dependency>
-            <groupId>net.sourceforge.cobertura</groupId>
-            <artifactId>cobertura</artifactId> 
-            <version>1.9.4.1</version>
-        </dependency>
                                       
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
@@ -134,6 +128,12 @@ THE SOFTWARE.
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>jacoco</artifactId>
             <version>1.0.9</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>cobertura</artifactId>
+            <version>1.9.7</version>
         </dependency>
     </dependencies>
 

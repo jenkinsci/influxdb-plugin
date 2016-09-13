@@ -10,8 +10,4 @@
     </select>
   </f:entry>
   
-  <f:entry title="Cobertura report location" field="coberturaReportLocation">
-        <f:textbox class="setting-input" name="publisherBinding.coberturaReportLocation" default="target/cobertura/cobertura.ser" />
-  </f:entry>
-
 </j:jelly>

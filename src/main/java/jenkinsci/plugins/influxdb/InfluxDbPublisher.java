@@ -48,8 +48,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
     private String selectedTarget;
-    //default - unless overridden
-    private String coberturaReportLocation = "target/cobertura/cobertura.ser";
 
     public InfluxDbPublisher() {
     }
@@ -74,16 +72,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         Preconditions.checkNotNull(target);
         this.selectedTarget = target;
     }
-
-    public String getCoberturaReportLocation() {
-       return this.coberturaReportLocation;
-    }
-
-    public void setCoberturaReportLocation(String location) {
-        Preconditions.checkNotNull(location);
-        this.coberturaReportLocation = location;
-    }
-
 
     public Target getTarget() {
         Target[] targets = DESCRIPTOR.getTargets();
@@ -149,7 +137,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(build);
         pointsToWrite.addAll(Arrays.asList(jGen.generate()));
 
-        CoberturaPointGenerator cGen = new CoberturaPointGenerator(build, workspace, coberturaReportLocation);
+        CoberturaPointGenerator cGen = new CoberturaPointGenerator(build);
         if (cGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Cobertura data found. Writing to InfluxDB...");
             pointsToWrite.addAll(Arrays.asList(cGen.generate()));
@@ -162,7 +150,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
             pointsToWrite.addAll(Arrays.asList(rfGen.generate()));
         }
 
-        JacocoPointGenerator jacoGen = new JacocoPointGenerator(build, workspace);
+        JacocoPointGenerator jacoGen = new JacocoPointGenerator(build);
         if (jacoGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Jacoco data found. Writing to InfluxDB...");
             pointsToWrite.addAll(Arrays.asList(jacoGen.generate()));

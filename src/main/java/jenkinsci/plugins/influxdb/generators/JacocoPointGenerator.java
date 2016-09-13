@@ -2,7 +2,6 @@ package jenkinsci.plugins.influxdb.generators;
 
 import org.influxdb.dto.Point;
 
-import hudson.FilePath;
 import hudson.model.Run;
 import hudson.plugins.jacoco.JacocoBuildAction;
 
@@ -18,7 +17,7 @@ public class JacocoPointGenerator extends AbstractPointGenerator {
     private final Run<?, ?> build;
     private final JacocoBuildAction jacocoBuildAction;
 
-    public JacocoPointGenerator(Run<?, ?> build, FilePath workspace) {
+    public JacocoPointGenerator(Run<?, ?> build) {
         this.build = build;
         jacocoBuildAction = build.getAction(JacocoBuildAction.class);
     }
