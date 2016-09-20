@@ -24,9 +24,11 @@ public class ZAProxyPointGenerator extends AbstractPointGenerator {
 
     private final Run<?, ?> build;
     private final FilePath zapFile;
+    private final String customPrefix;
 
-    public ZAProxyPointGenerator(Run<?, ?> build, FilePath workspace) {
+    public ZAProxyPointGenerator(String customPrefix, Run<?, ?> build, FilePath workspace) {
         this.build = build;
+        this.customPrefix = customPrefix;
         zapFile = new FilePath(workspace, ZAP_REPORT_FILE);
     }
 
@@ -43,7 +45,7 @@ public class ZAProxyPointGenerator extends AbstractPointGenerator {
     public Point[] generate() {
         try {
             List<Integer> ls = zapFile.act(new ZAPFileCallable());
-            Point point = buildPoint("zap_data", build)
+            Point point = buildPoint("zap_data", customPrefix, build)
                 .field(HIGH_ALERTS, ls.get(0))
                 .field(MEDIUM_ALERTS, ls.get(1))
                 .field(LOW_ALERTS, ls.get(2))

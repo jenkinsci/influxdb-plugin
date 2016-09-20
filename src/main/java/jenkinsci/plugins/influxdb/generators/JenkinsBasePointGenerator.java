@@ -14,9 +14,11 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     public static final String TESTS_TOTAL = "tests_total";
 
     private final Run<?, ?> build;
+    private final String customPrefix;
 
-    public JenkinsBasePointGenerator(Run<?, ?> build) {
+    public JenkinsBasePointGenerator(String customPrefix, Run<?, ?> build) {
         this.build = build;
+        this.customPrefix = customPrefix;
     }
 
     public boolean hasReport() {
@@ -33,7 +35,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     }
 
     private Point generatePointWithoutTestResults(long dt) {
-        Point point = buildPoint(measurementName("jenkins_data"), build)
+        Point point = buildPoint(measurementName("jenkins_data"), customPrefix, build)
             .field(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
             .field(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
             .field(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
@@ -43,7 +45,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     }
 
     private Point generatePointWithTestResults(long dt) {
-        Point point = buildPoint(measurementName("jenkins_data"), build)
+        Point point = buildPoint(measurementName("jenkins_data"), customPrefix , build)
             .field(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
             .field(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
             .field(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
