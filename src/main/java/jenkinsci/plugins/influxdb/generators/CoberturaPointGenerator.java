@@ -1,5 +1,7 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.influxdb.dto.Point;
 
 import hudson.model.Run;
@@ -20,9 +22,12 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
 
     private final Run<?, ?> build;
     private final CoberturaBuildAction coberturaBuildAction;
+    private final String customPrefix;
 
-    public CoberturaPointGenerator(Run<?, ?> build) {
+    public CoberturaPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix, Run<?, ?> build) {
+        super(projectNameRenderer);
         this.build = build;
+        this.customPrefix = customPrefix;
         coberturaBuildAction = build.getAction(CoberturaBuildAction.class);
     }
 
@@ -37,7 +42,7 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
         Ratio packages = result.getCoverage(CoverageMetric.PACKAGES);
         Ratio classes = result.getCoverage(CoverageMetric.CLASSES);
         Ratio files = result.getCoverage(CoverageMetric.FILES);
-        Point point = buildPoint("cobertura_data", build)
+        Point point = buildPoint("cobertura_data", customPrefix, build)
             .field(COBERTURA_NUMBER_OF_PACKAGES, packages.denominator)
             .field(COBERTURA_NUMBER_OF_SOURCEFILES, files.denominator)
             .field(COBERTURA_NUMBER_OF_CLASSES, classes.denominator)

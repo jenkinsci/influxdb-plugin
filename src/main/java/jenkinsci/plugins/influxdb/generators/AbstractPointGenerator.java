@@ -1,28 +1,36 @@
 package jenkinsci.plugins.influxdb.generators;
 
 import hudson.model.Run;
+import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import org.influxdb.dto.Point;
 
-public abstract class AbstractPointGenerator implements  PointGenerator {
+import java.util.Objects;
+
+public abstract class AbstractPointGenerator implements PointGenerator {
 
     public static final String PROJECT_NAME = "project_name";
     public static final String BUILD_NUMBER = "build_number";
 
+    private MeasurementRenderer projectNameRenderer;
+
+    public AbstractPointGenerator(MeasurementRenderer projectNameRenderer) {
+        this.projectNameRenderer = Objects.requireNonNull(projectNameRenderer);
+    }
+
     @Override
-    public Point.Builder buildPoint(String name, Run<?,?> build) {
+    public Point.Builder buildPoint(String name, String customPrefix, Run<?, ?> build) {
+        final String renderedProjectName = projectNameRenderer.render(build);
         return Point
                 .measurement(name)
-                .addField(PROJECT_NAME, build
-                        .getParent()
-                        .getName())
+                .addField(PROJECT_NAME, renderedProjectName)
                 .addField(BUILD_NUMBER, build.getNumber())
-                .tag(PROJECT_NAME, build
-                        .getParent()
-                        .getName());
+                .tag(PROJECT_NAME, renderedProjectName);
     }
 
     protected String measurementName(String measurement) {
-        //influx disallows "-" in measurement names.
+        //influx discourages "-" in measurement names.
         return measurement.replaceAll("-", "_");
     }
+
+
 }

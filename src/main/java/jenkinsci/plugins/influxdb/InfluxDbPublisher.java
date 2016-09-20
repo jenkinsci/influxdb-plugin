@@ -1,6 +1,7 @@
 package jenkinsci.plugins.influxdb;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import hudson.Extension;
 import hudson.FilePath;
@@ -19,6 +20,8 @@ import jenkinsci.plugins.influxdb.generators.JenkinsBasePointGenerator;
 import jenkinsci.plugins.influxdb.generators.RobotFrameworkPointGenerator;
 import jenkinsci.plugins.influxdb.models.BuildData;
 import jenkinsci.plugins.influxdb.models.Target;
+import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDB.ConsistencyLevel;
 import org.influxdb.InfluxDBFactory;
@@ -49,6 +52,13 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
 
     private String selectedTarget;
 
+    /**
+     * custom prefix, for example in multi branch pipelines, where every build is named
+     * after the branch built and thus you have different builds called 'master' that report
+     * different metrics.
+     */
+    private String customPrefix;
+
     public InfluxDbPublisher() {
     }
 
@@ -71,6 +81,14 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     public void setSelectedTarget(String target) {
         Preconditions.checkNotNull(target);
         this.selectedTarget = target;
+    }
+
+    public String getCustomPrefix() {
+        return customPrefix;
+    }
+
+    public void setCustomPrefix(String customPrefix) {
+        this.customPrefix = customPrefix;
     }
 
     public Target getTarget() {
@@ -111,6 +129,8 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     public void perform(Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener)
             throws InterruptedException, IOException {
 
+        MeasurementRenderer<Run<?, ?>> measurementRenderer = new ProjectNameRenderer(customPrefix);
+
         // get the target from the job's config
         Target target = getTarget();
         if (target==null) {
@@ -134,23 +154,23 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         // finally write to InfluxDB
         pointsToWrite.addAll(generateInfluxData(buildData));
 
-        JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(build);
+        JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build);
         pointsToWrite.addAll(Arrays.asList(jGen.generate()));
 
-        CoberturaPointGenerator cGen = new CoberturaPointGenerator(build);
+        CoberturaPointGenerator cGen = new CoberturaPointGenerator(measurementRenderer, customPrefix, build);
         if (cGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Cobertura data found. Writing to InfluxDB...");
             pointsToWrite.addAll(Arrays.asList(cGen.generate()));
         }
 
 
-        RobotFrameworkPointGenerator rfGen = new RobotFrameworkPointGenerator(build);
+        RobotFrameworkPointGenerator rfGen = new RobotFrameworkPointGenerator(measurementRenderer, customPrefix, build);
         if (rfGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Robot Framework data found. Writing to InfluxDB...");
             pointsToWrite.addAll(Arrays.asList(rfGen.generate()));
         }
 
-        JacocoPointGenerator jacoGen = new JacocoPointGenerator(build);
+        JacocoPointGenerator jacoGen = new JacocoPointGenerator(measurementRenderer, customPrefix, build);
         if (jacoGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Jacoco data found. Writing to InfluxDB...");
             pointsToWrite.addAll(Arrays.asList(jacoGen.generate()));
@@ -184,16 +204,20 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
 
     private List<Point> generateInfluxData(BuildData buildData) {
         // prepare the measurement point for the timeseries
-        Point point = Point.measurement(INFLUX_MEASUREMENT_PREFIX + "_" + jobName(buildData))
+        Point point = Point.measurement(sanitize(prefix() + "_" + buildData.getJobName()))
                 .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .field(INFLUX_FIELDNAME_JOBDURATION, buildData.getJobDurationSeconds())
                 .build();
         return Lists.newArrayList(point);
     }
 
+    private String prefix() {
+        return Strings.emptyToNull(customPrefix) != null ? customPrefix : INFLUX_MEASUREMENT_PREFIX;
+    }
+
     //influx disallows "-" in measurements.
-    private String jobName(BuildData buildData) {
-        return buildData.getJobName().replaceAll("-", "_");
+    private String sanitize(String buildName) {
+        return buildName.replaceAll("-", "_");
     }
 
     @Deprecated
