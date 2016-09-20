@@ -15,10 +15,12 @@ public class JacocoPointGenerator extends AbstractPointGenerator {
     public static final String JACOCO_INSTRUCTION_COVERAGE_RATE = "jacoco_instruction_coverage_rate";
 
     private final Run<?, ?> build;
+    private final String customPrefix;
     private final JacocoBuildAction jacocoBuildAction;
 
-    public JacocoPointGenerator(Run<?, ?> build) {
+    public JacocoPointGenerator(String customPrefix, Run<?, ?> build) {
         this.build = build;
+        this.customPrefix = customPrefix;
         jacocoBuildAction = build.getAction(JacocoBuildAction.class);
     }
 
@@ -27,7 +29,7 @@ public class JacocoPointGenerator extends AbstractPointGenerator {
     }
 
     public Point[] generate() {
-        Point point = buildPoint(measurementName("jacoco_data"), build)
+        Point point = buildPoint(measurementName("jacoco_data"), customPrefix, build)
             .field(JACOCO_INSTRUCTION_COVERAGE_RATE, jacocoBuildAction.getResult().getInstructionCoverage().getPercentageFloat())
             .field(JACOCO_CLASS_COVERAGE_RATE, jacocoBuildAction.getResult().getClassCoverage().getPercentageFloat())
             .field(JACOCO_BRANCH_COVERAGE_RATE, jacocoBuildAction.getResult().getBranchCoverage().getPercentageFloat())

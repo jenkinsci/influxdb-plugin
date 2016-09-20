@@ -29,10 +29,12 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     public static final String RF_TESTCASES = "rf_testcases";
 
     private final Run<?, ?> build;
+    private final String customPrefix;
     private final Map<String, RobotTagResult> tagResults;
 
-    public RobotFrameworkPointGenerator(Run<?, ?> build) {
+    public RobotFrameworkPointGenerator(String customPrefix, Run<?, ?> build) {
         this.build = build;
+        this.customPrefix = customPrefix;
         tagResults = new Hashtable<String, RobotTagResult>();
     }
 
@@ -119,7 +121,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateCasePoint(RobotCaseResult caseResult) {
-        Point point = buildPoint(measurementName("testcase_point"), build)
+        Point point = buildPoint(measurementName("testcase_point"), customPrefix, build)
             .field(RF_NAME, caseResult.getName())
             .field(RF_SUITE_NAME, caseResult.getParent().getName())
             .field(RF_CRITICAL_FAILED, caseResult.getCriticalFailed())
@@ -165,7 +167,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateTagPoint(RobotTagResult tagResult) {
-        Point point = buildPoint(measurementName("tag_point"), build)
+        Point point = buildPoint(measurementName("tag_point"), customPrefix, build)
             .field(RF_CRITICAL_FAILED, tagResult.criticalFailed)
             .field(RF_CRITICAL_PASSED, tagResult.criticalPassed)
             .field(RF_CRITICAL_TOTAL, tagResult.criticalPassed + tagResult.criticalFailed)
@@ -179,7 +181,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateSuitePoint(RobotSuiteResult suiteResult) {
-        Point point = buildPoint(measurementName("suite_result"), build)
+        Point point = buildPoint(measurementName("suite_result"), customPrefix, build)
             .field(RF_SUITE_NAME, suiteResult.getName())
             .field(RF_TESTCASES, suiteResult.getAllCases().size())
             .field(RF_CRITICAL_FAILED, suiteResult.getCriticalFailed())
