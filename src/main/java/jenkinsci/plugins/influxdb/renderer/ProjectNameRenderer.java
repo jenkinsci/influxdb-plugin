@@ -20,6 +20,7 @@ public class ProjectNameRenderer implements MeasurementRenderer<Run<?, ?>> {
     protected String projectName(String prefix, Run<?, ?> build) {
         return Joiner
                 .on("_")
+                .skipNulls()
                 .join(Strings.emptyToNull(prefix), build
                         .getParent()
                         .getName());
