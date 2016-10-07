@@ -14,10 +14,7 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 import jenkins.tasks.SimpleBuildStep;
-import jenkinsci.plugins.influxdb.generators.CoberturaPointGenerator;
-import jenkinsci.plugins.influxdb.generators.JacocoPointGenerator;
-import jenkinsci.plugins.influxdb.generators.JenkinsBasePointGenerator;
-import jenkinsci.plugins.influxdb.generators.RobotFrameworkPointGenerator;
+import jenkinsci.plugins.influxdb.generators.*;
 import jenkinsci.plugins.influxdb.models.BuildData;
 import jenkinsci.plugins.influxdb.models.Target;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
@@ -28,11 +25,13 @@ import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.BatchPoints;
 import org.influxdb.dto.Point;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,6 +57,20 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
      * different metrics.
      */
     private String customPrefix;
+
+
+    /**
+     * custom data, especially in pipelines, where additional information is calculated
+     * or retrieved by Groovy functions which should be sent to InfluxDB
+     * This can easily be done by calling
+     *
+     *   def myDataMap = [:]
+     *   myDataMap['myKey'] = 'myValue'
+     *   step([$class: 'InfluxDbPublisher', target: myTarget, customPrefix: 'myPrefix', customData: myDataMap])
+     *
+     * inside a pipeline script
+     */
+    private Map<String, Object> customData;
 
     public InfluxDbPublisher() {
     }
@@ -89,6 +102,15 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
 
     public void setCustomPrefix(String customPrefix) {
         this.customPrefix = customPrefix;
+    }
+
+    @DataBoundSetter
+    public void setCustomData (Map<String, Object> customData) {
+        this.customData = customData;
+    }
+
+    public Map<String, Object> getCustomData () {
+        return customData;
     }
 
     public Target getTarget() {
@@ -157,12 +179,17 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build);
         pointsToWrite.addAll(Arrays.asList(jGen.generate()));
 
+        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, customPrefix, build, customData);
+        if (cdGen.hasReport()) {
+            listener.getLogger().println("[InfluxDB Plugin] Custom data found. Writing to InfluxDB...");
+            pointsToWrite.addAll(Arrays.asList(cdGen.generate()));
+        }
+
         CoberturaPointGenerator cGen = new CoberturaPointGenerator(measurementRenderer, customPrefix, build);
         if (cGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Cobertura data found. Writing to InfluxDB...");
             pointsToWrite.addAll(Arrays.asList(cGen.generate()));
         }
-
 
         RobotFrameworkPointGenerator rfGen = new RobotFrameworkPointGenerator(measurementRenderer, customPrefix, build);
         if (rfGen.hasReport()) {
