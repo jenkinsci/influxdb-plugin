@@ -3,6 +3,3 @@ target/
 pom.xml.releaseBackup
 work/
 release.properties
-.idea/
-*.iml
-
