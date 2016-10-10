@@ -100,6 +100,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         return customPrefix;
     }
 
+    @DataBoundSetter
     public void setCustomPrefix(String customPrefix) {
         this.customPrefix = customPrefix;
     }
