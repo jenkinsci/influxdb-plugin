@@ -19,7 +19,6 @@ public class PerformancePointGenerator extends AbstractPointGenerator {
     public static final String PERFORMANCE_MIN = "min";     // min duration
     public static final String PERFORMANCE_TOTAL_TRAFFIC = "total_traffic";
     public static final String PERFORMANCE_SIZE = "size";   // Size of all samples
-    public static final String PERFORMANCE_TOTAL_DURATION = "total_duration";   // Total duration of all samples
 
     private final Run<?, ?> build;
     private final String customPrefix;
