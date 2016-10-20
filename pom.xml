@@ -135,6 +135,12 @@ THE SOFTWARE.
             <artifactId>cobertura</artifactId>
             <version>1.9.7</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>performance</artifactId>
+            <version>1.15</version>
+        </dependency>
     </dependencies>
 
     <!-- The current maintainers of the plugin-->

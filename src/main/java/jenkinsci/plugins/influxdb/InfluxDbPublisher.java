@@ -204,6 +204,11 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
             pointsToWrite.addAll(Arrays.asList(jacoGen.generate()));
         }
 
+        PerformancePointGenerator perfGen = new PerformancePointGenerator(measurementRenderer, customPrefix, build);
+        if (perfGen.hasReport()) {
+            listener.getLogger().println("[InfluxDB Plugin] Performance data found. Writing to InfluxDB...");
+            pointsToWrite.addAll(Arrays.asList(perfGen.generate()));
+        }
         /*
         ZAProxyPointGenerator zGen = new ZAProxyPointGenerator(build, workspace);
         if (zGen.hasReport()) {
