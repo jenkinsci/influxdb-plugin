@@ -36,8 +36,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-//import jenkinsci.plugins.influxdb.generators.ZAProxyPointGenerator;
-
 public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
 
     /** The logger. **/
@@ -209,6 +207,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
             listener.getLogger().println("[InfluxDB Plugin] Performance data found. Writing to InfluxDB...");
             pointsToWrite.addAll(Arrays.asList(perfGen.generate()));
         }
+
         writeToInflux(target, influxDB, pointsToWrite);
 
 
