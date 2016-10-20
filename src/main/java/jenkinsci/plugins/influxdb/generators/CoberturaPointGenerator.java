@@ -42,7 +42,7 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
         Ratio packages = result.getCoverage(CoverageMetric.PACKAGES);
         Ratio classes = result.getCoverage(CoverageMetric.CLASSES);
         Ratio files = result.getCoverage(CoverageMetric.FILES);
-        Point point = buildPoint("cobertura_data", customPrefix, build)
+        Point point = buildPoint(measurementName("cobertura_data"), customPrefix, build)
             .field(COBERTURA_NUMBER_OF_PACKAGES, packages.denominator)
             .field(COBERTURA_NUMBER_OF_SOURCEFILES, files.denominator)
             .field(COBERTURA_NUMBER_OF_CLASSES, classes.denominator)

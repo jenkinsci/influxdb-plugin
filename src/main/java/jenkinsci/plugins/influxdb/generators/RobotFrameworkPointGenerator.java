@@ -59,9 +59,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateOverviewPoint(RobotBuildAction robotBuildAction) {
-        Point point = Point.measurement(measurementName("rf_results"))
-            .field(BUILD_NUMBER, build.getNumber())
-            .field(PROJECT_NAME, projectNameRenderer.render(build))
+        Point point = buildPoint(measurementName("rf_results"), customPrefix, build)
             .field(RF_FAILED, robotBuildAction.getResult().getOverallFailed())
             .field(RF_PASSED, robotBuildAction.getResult().getOverallPassed())
             .field(RF_TOTAL, robotBuildAction.getResult().getOverallTotal())
