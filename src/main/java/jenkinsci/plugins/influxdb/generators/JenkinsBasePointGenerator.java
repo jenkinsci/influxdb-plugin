@@ -29,6 +29,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     public Point[] generate() {
         boolean results = hasTestResults(build);
+        // Build is not finished when running with pipelines. Duration must be calculated manually
         long startTime = build.getTimeInMillis();
         long currTime = System.currentTimeMillis();
         long dt = currTime - startTime;
