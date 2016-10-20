@@ -209,13 +209,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
             listener.getLogger().println("[InfluxDB Plugin] Performance data found. Writing to InfluxDB...");
             pointsToWrite.addAll(Arrays.asList(perfGen.generate()));
         }
-        /*
-        ZAProxyPointGenerator zGen = new ZAProxyPointGenerator(build, workspace);
-        if (zGen.hasReport()) {
-            listener.getLogger().println("ZAProxy data found. Writing to InfluxDB...");
-            writeDataToDatabase(influxDB, target, zGen.generate());
-        }
-        */
         writeToInflux(target, influxDB, pointsToWrite);
 
 
