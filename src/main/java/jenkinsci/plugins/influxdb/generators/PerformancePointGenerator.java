@@ -48,7 +48,7 @@ public class PerformancePointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateReportPoint(PerformanceReport performanceReport) {
-        Point point = buildPoint(measurementName(performanceReport.getReportFileName()), customPrefix, build)
+        Point point = buildPoint(measurementName(performanceReport.getReportFileName() + "_data"), customPrefix, build)
             .field(PERFORMANCE_ERROR_PERCENT, performanceReport.errorPercent())
             .field(PERFORMANCE_ERROR_COUNT, performanceReport.countErrors())
             .field(PERFORMANCE_AVERAGE, performanceReport.getAverage())
