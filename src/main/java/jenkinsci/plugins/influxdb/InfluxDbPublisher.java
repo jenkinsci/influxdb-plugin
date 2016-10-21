@@ -161,7 +161,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         BuildData buildData = getBuildData(build);
 
         // prepare a meaningful logmessage
-        String logMessage = "[InfluxDB Plugin] Publishing data: " + buildData.toString() + " to " + target.toString();
+        String logMessage = "[InfluxDB Plugin] Publishing data to: " + target.toString();
 
         // write to jenkins logger
         logger.log(Level.INFO, logMessage);
@@ -226,25 +226,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         influxDB.write(batchPoints);
     }
 
-
-    private List<Point> generateInfluxData(BuildData buildData) {
-        // prepare the measurement point for the timeseries
-        Point point = Point.measurement(sanitize(prefix() + "_" + buildData.getJobName()))
-                .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-                .field(INFLUX_FIELDNAME_JOBDURATION, buildData.getJobDurationSeconds())
-                .build();
-        return Lists.newArrayList(point);
-    }
-
-    private String prefix() {
-        return Strings.emptyToNull(customPrefix) != null ? customPrefix : INFLUX_MEASUREMENT_PREFIX;
-    }
-
-    //influx disallows "-" in measurements.
-    private String sanitize(String buildName) {
-        return buildName.replaceAll("-", "_");
-    }
-
     @Deprecated
     private BuildData getBuildData(AbstractBuild<?, ?> build) {
         BuildData buildData = new BuildData();
@@ -259,4 +240,5 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         buildData.setJobDurationSeconds(System.currentTimeMillis() - build.getTimeInMillis());
         return buildData;
     }
+
 }

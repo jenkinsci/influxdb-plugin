@@ -63,7 +63,7 @@ public class Target {
 
     @Override
     public String toString() {
-        return "Target [url=" + this.url + ", description=" + this.description + ", username=" + this.username
+        return "[url=" + this.url + ", description=" + this.description + ", username=" + this.username
                 + ", password=*****, database=" + this.database + "]";
     }
 }
