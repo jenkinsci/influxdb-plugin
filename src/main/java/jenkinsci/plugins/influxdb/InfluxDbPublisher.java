@@ -15,7 +15,6 @@ import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 import jenkins.tasks.SimpleBuildStep;
 import jenkinsci.plugins.influxdb.generators.*;
-import jenkinsci.plugins.influxdb.models.BuildData;
 import jenkinsci.plugins.influxdb.models.Target;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
@@ -157,8 +156,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         if (target==null) {
             throw new RuntimeException("Target was null!");
         }
-        // extract the required buildData from the build context
-        BuildData buildData = getBuildData(build);
 
         // prepare a meaningful logmessage
         String logMessage = "[InfluxDB Plugin] Publishing data to: " + target.toString();
@@ -173,8 +170,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         List<Point> pointsToWrite = new ArrayList<Point>();
 
         // finally write to InfluxDB
-        pointsToWrite.addAll(generateInfluxData(buildData));
-
         JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build);
         pointsToWrite.addAll(Arrays.asList(jGen.generate()));
 
@@ -225,20 +220,4 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
                 .build();
         influxDB.write(batchPoints);
     }
-
-    @Deprecated
-    private BuildData getBuildData(AbstractBuild<?, ?> build) {
-        BuildData buildData = new BuildData();
-        buildData.setJobName(build.getProject().getName());
-        buildData.setJobDurationSeconds(build.getDuration());
-        return buildData;
-    }
-
-    private BuildData getBuildData(Run<?, ?> build) {
-        BuildData buildData = new BuildData();
-        buildData.setJobName(build.getParent().getName());
-        buildData.setJobDurationSeconds(System.currentTimeMillis() - build.getTimeInMillis());
-        return buildData;
-    }
-
 }
