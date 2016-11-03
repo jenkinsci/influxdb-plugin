@@ -69,6 +69,28 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
      */
     private Map<String, Object> customData;
 
+    /**
+     * custom data maps, especially in pipelines, where additional information is calculated
+     * or retrieved by Groovy functions which should be sent to InfluxDB.
+     *
+     * This goes beyond customData since it allows to define multiple customData measurement
+     * where the name of the measurement is defined as the key of the customDataMap.
+     *
+     * Example for a pipeline script:
+     *
+     *   def myDataMap1 = [:]
+     *   def myDataMap2 = [:]
+     *   def myCustomDataMap = [:]
+     *   myDataMap1.myMap1Key1 = 'first value of first map'
+     *   myDataMap1.myMap1Key2 = 'second value of first map'
+     *   myDataMap2.myMap2Key1 = 'first value of second map'
+     *   myCustomDataMap.series1 = myDataMap1
+     *   myCustomDataMap.series2 = myDataMap2
+     *   step([$class: 'InfluxDbPublisher', target: myTarget, customPrefix: 'myPrefix', customDataMap: myCustomDataMap])
+     *
+     */
+    private Map<String, Map<String, Object>> customDataMap;
+
     public InfluxDbPublisher() {
     }
 
@@ -109,6 +131,15 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
 
     public Map<String, Object> getCustomData () {
         return customData;
+    }
+
+    @DataBoundSetter
+    public void setCustomDataMap(Map<String, Map<String, Object>> customDataMap) {
+        this.customDataMap = customDataMap;
+    }
+
+    public Map<String, Map<String, Object>> getCustomDataMap() {
+        return customDataMap;
     }
 
     public Target getTarget() {
@@ -177,6 +208,12 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         if (cdGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Custom data found. Writing to InfluxDB...");
             pointsToWrite.addAll(Arrays.asList(cdGen.generate()));
+        }
+
+        CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, customPrefix, build, customDataMap);
+        if (cdmGen.hasReport()) {
+            listener.getLogger().println("[InfluxDB Plugin] Custom data map found. Writing to InfluxDB...");
+            pointsToWrite.addAll(Arrays.asList(cdmGen.generate()));
         }
 
         CoberturaPointGenerator cGen = new CoberturaPointGenerator(measurementRenderer, customPrefix, build);

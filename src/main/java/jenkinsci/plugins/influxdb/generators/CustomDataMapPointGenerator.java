@@ -4,8 +4,7 @@ import hudson.model.Run;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import org.influxdb.dto.Point;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class CustomDataMapPointGenerator extends AbstractPointGenerator {
 
@@ -13,32 +12,29 @@ public class CustomDataMapPointGenerator extends AbstractPointGenerator {
 
     private final Run<?, ?> build;
     private final String customPrefix;
-    Map<String, Object> customDataMap;
+    Map<String, Map<String, Object>> customDataMap;
 
-    public CustomDataMapPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix, Run<?, ?> build, Map CustomDataMap) {
+    public CustomDataMapPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix, Run<?, ?> build, Map customDataMap) {
         super(projectNameRenderer);
         this.build = build;
         this.customPrefix = customPrefix;
-        this.customDataMap = CustomDataMap;
+        this.customDataMap = customDataMap;
     }
 
     public boolean hasReport() {
         return (customDataMap != null && customDataMap.size() > 0);
     }
 
-    public Map<String, Point[]> generate() {
-        long startTime = build.getTimeInMillis();
-        long currTime = System.currentTimeMillis();
-        long dt = currTime - startTime;
-        Map<String, Point[]> customPoints = new HashMap<String, Point[]>;
-        while (customDataMap.keySet().iterator().hasNext() {
-            String key = customDataMap.keySet().iterator().next();
-            Point point = buildPoint(measurementName(key, customPrefix, build)
+    public Point[] generate() {
+        List<Point> customPoints = new ArrayList<Point>();
+        Set<String> customKeys = customDataMap.keySet();
+        for (String key : customKeys) {
+            Point point = buildPoint(measurementName(key), customPrefix, build)
                     .fields(customDataMap.get(key))
                     .build();
-            customPoints.put(customDataMap.keySet().iterator().next(), customDataMap.get())
+            customPoints.add(point);
         }
-        return new Point[] {point};
+        return customPoints.toArray(new Point[customPoints.size()]);
     }
 
 }
