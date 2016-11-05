@@ -1,6 +1,5 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import hudson.model.AbstractBuild;
 import hudson.model.Job;
 import hudson.model.Run;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
@@ -9,7 +8,6 @@ import org.influxdb.dto.Point;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.util.*;
