@@ -73,7 +73,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
      * custom data maps, especially in pipelines, where additional information is calculated
      * or retrieved by Groovy functions which should be sent to InfluxDB.
      *
-     * This goes beyond customData since it allows to define multiple customData measurement
+     * This goes beyond customData since it allows to define multiple customData measurements
      * where the name of the measurement is defined as the key of the customDataMap.
      *
      * Example for a pipeline script:
@@ -81,11 +81,12 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
      *   def myDataMap1 = [:]
      *   def myDataMap2 = [:]
      *   def myCustomDataMap = [:]
-     *   myDataMap1.myMap1Key1 = 'first value of first map'
-     *   myDataMap1.myMap1Key2 = 'second value of first map'
-     *   myDataMap2.myMap2Key1 = 'first value of second map'
-     *   myCustomDataMap.series1 = myDataMap1
-     *   myCustomDataMap.series2 = myDataMap2
+     *   myDataMap1["myMap1Key1"] = 11 //first value of first map
+     *   myDataMap1["myMap1Key2"] = 12 //second value of first map
+     *   myDataMap2["myMap2Key1"] = 21 //first value of second map
+     *   myDataMap2["myMap2Key2"] = 22 //second value of second map
+     *   myCustomDataMap["series1"] = myDataMap1
+     *   myCustomDataMap["series2"] = myDataMap2
      *   step([$class: 'InfluxDbPublisher', target: myTarget, customPrefix: 'myPrefix', customDataMap: myCustomDataMap])
      *
      */
