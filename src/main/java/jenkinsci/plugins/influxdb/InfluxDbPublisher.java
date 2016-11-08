@@ -40,9 +40,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     /** The logger. **/
     private static final Logger logger = Logger.getLogger(InfluxDbPublisher.class.getName());
 
-    private static final String INFLUX_MEASUREMENT_PREFIX = "build";
-    private static final String INFLUX_FIELDNAME_JOBDURATION = "jobduration";
-
     @Extension
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
@@ -242,7 +239,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         }
 
         writeToInflux(target, influxDB, pointsToWrite);
-
 
     }
 
