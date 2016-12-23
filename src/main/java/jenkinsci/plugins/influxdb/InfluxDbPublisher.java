@@ -246,12 +246,21 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         /**
          * build batchpoints for a single write.
          */
-        BatchPoints batchPoints = BatchPoints
-                .database(target.getDatabase())
-                .points(pointsToWrite.toArray(new Point[0]))
-                .retentionPolicy(target.getRetentionPolicy())
-                .consistency(ConsistencyLevel.ALL)
-                .build();
-        influxDB.write(batchPoints);
+        try {
+            BatchPoints batchPoints = BatchPoints
+                    .database(target.getDatabase())
+                    .points(pointsToWrite.toArray(new Point[0]))
+                    .retentionPolicy(target.getRetentionPolicy())
+                    .consistency(ConsistencyLevel.ALL)
+                    .build();
+            influxDB.write(batchPoints);
+        } catch (Exception e) {
+            if (target.isExposeExceptions()) {
+                throw new InfluxReportException(e);
+            } else {
+                //Exceptions not exposed by configuration. Just log and ignore.
+                logger.log(Level.WARNING, "Could not report to InfluxDB. Ignoring Exception.", e);
+            }
+        }
     }
 }

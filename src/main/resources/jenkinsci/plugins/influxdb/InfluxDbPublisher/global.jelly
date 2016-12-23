@@ -35,6 +35,10 @@
                          <f:textbox name="targetBinding.retentionPolicy" value="${currentTarget.retentionPolicy}" default="default" />
                       </f:entry>
 
+                      <f:entry title="exposeExceptions" field="exposeExceptions" >
+                         <f:checkbox name="targetBinding.exposeExceptions" checked="${currentTarget.exposeExceptions}" default="true" />
+                      </f:entry>
+
                       <f:entry title="delete target" >
                         <div align="right">
                           <f:repeatableDeleteButton value="delete target"/>
