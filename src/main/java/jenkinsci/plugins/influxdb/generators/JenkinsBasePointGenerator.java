@@ -46,14 +46,25 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         long startTime = build.getTimeInMillis();
         long currTime = System.currentTimeMillis();
         long dt = currTime - startTime;
+        // Build is not finished when running with pipelines. Assume build is a success if not set
+        // by another build step.
+        String result;
+        int ordinal;
+        if (build.getResult() == null) {
+            result = "?";   // Build Result is "?" if build is still running
+            ordinal = 5;    // Build ordinal is unknown, if build is still running. Default it to 5, which is not set in Jenkins ordinals
+        } else {
+            result = build.getResult().toString();
+            ordinal = build.getResult().ordinal;
+        }
 
         Point.Builder point = buildPoint(measurementName("jenkins_data"), customPrefix, build);
 
         point.field(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
             .field(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
-            .field(BUILD_RESULT, build.getResult().toString())
-            .field(BUILD_RESULT_ORDINAL, build.getResult().ordinal)
-            .field(BUILD_IS_SUCCESSFUL, build.getResult().ordinal < 2 ? true : false)
+            .field(BUILD_RESULT, result)
+            .field(BUILD_RESULT_ORDINAL, ordinal)
+            .field(BUILD_IS_SUCCESSFUL, ordinal < 2 ? true : false)
             .field(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
             .field(PROJECT_LAST_SUCCESSFUL, getLastSuccessfulBuild())
             .field(PROJECT_LAST_STABLE, getLastStableBuild());
