@@ -46,13 +46,13 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         long startTime = build.getTimeInMillis();
         long currTime = System.currentTimeMillis();
         long dt = currTime - startTime;
-        // Build is not finished when running with pipelines. Assume build is a success if not set
-        // by another build step.
+        // Build is not finished when running with pipelines. Set build status as unknown and ordinal
+        // as something not predefined
         String result;
         int ordinal;
         if (build.getResult() == null) {
-            result = "?";   // Build Result is "?" if build is still running
-            ordinal = 5;    // Build ordinal is unknown, if build is still running. Default it to 5, which is not set in Jenkins ordinals
+            result = "?";
+            ordinal = 5;
         } else {
             result = build.getResult().toString();
             ordinal = build.getResult().ordinal;
