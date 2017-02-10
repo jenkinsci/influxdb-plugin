@@ -28,6 +28,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     public static final String RF_SUITES = "rf_suites";
     public static final String RF_SUITE_NAME = "rf_suite_name";
     public static final String RF_TESTCASES = "rf_testcases";
+    public static final String RF_TAG_NAME = "rf_tag_name";
 
     private final Run<?, ?> build;
     private final String customPrefix;
@@ -170,6 +171,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
 
     private Point generateTagPoint(RobotTagResult tagResult) {
         Point point = buildPoint(measurementName("tag_point"), customPrefix, build)
+            .field(RF_TAG_NAME, tagResult.name)
             .field(RF_CRITICAL_FAILED, tagResult.criticalFailed)
             .field(RF_CRITICAL_PASSED, tagResult.criticalPassed)
             .field(RF_CRITICAL_TOTAL, tagResult.criticalPassed + tagResult.criticalFailed)
