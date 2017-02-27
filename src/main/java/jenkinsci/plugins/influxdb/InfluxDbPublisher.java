@@ -238,6 +238,12 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
             pointsToWrite.addAll(Arrays.asList(perfGen.generate()));
         }
 
+        SonarQubePointGenerator sonarGen = new SonarQubePointGenerator(measurementRenderer, customPrefix, build);
+        if (sonarGen.hasReport()) {
+            listener.getLogger().println("[InfluxDB Plugin] SonarQube data found. Writing to InfluxDB...");
+            pointsToWrite.addAll(Arrays.asList(sonarGen.generate()));
+        }   
+
         writeToInflux(target, influxDB, pointsToWrite);
 
     }
