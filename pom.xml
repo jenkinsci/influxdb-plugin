@@ -148,6 +148,24 @@ THE SOFTWARE.
             <artifactId>performance</artifactId>
             <version>1.15</version>
         </dependency>
+
+        <dependency>
+		<groupId>org.apache.commons</groupId>
+		<artifactId>commons-lang3</artifactId>
+		<version>3.0</version>
+	</dependency>
+		
+	<dependency>
+		<groupId>org.apache.httpcomponents</groupId>
+		<artifactId>httpcore</artifactId>
+		<version>4.4.4</version>
+	</dependency>
+		
+	<dependency>
+		<groupId>org.apache.httpcomponents</groupId>
+		<artifactId>httpclient</artifactId>
+		<version>4.5.2</version>
+	</dependency>
     </dependencies>
 
     <!-- The current maintainers of the plugin-->
