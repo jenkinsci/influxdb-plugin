@@ -4,3 +4,4 @@ pom.xml.releaseBackup
 work/
 release.properties
 .idea
+.DS_Store
