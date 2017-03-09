@@ -97,17 +97,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         this.selectedTarget = target;
     }
 
-    public String getSelectedTarget() {
-        String ipTemp = selectedTarget;
-        if (ipTemp == null) {
-            Target[] targets = DESCRIPTOR.getTargets();
-            if (targets.length > 0) {
-                ipTemp = targets[0].getUrl() + "," + targets[0].getDatabase();
-            }
-        }
-        return ipTemp;
-    }
-
     public void setSelectedTarget(String target) {
         Preconditions.checkNotNull(target);
         this.selectedTarget = target;
