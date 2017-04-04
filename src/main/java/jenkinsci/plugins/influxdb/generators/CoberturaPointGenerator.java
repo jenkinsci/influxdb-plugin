@@ -43,13 +43,13 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
         Ratio classes = result.getCoverage(CoverageMetric.CLASSES);
         Ratio files = result.getCoverage(CoverageMetric.FILES);
         Point point = buildPoint(measurementName("cobertura_data"), customPrefix, build)
-            .field(COBERTURA_NUMBER_OF_PACKAGES, packages.denominator)
-            .field(COBERTURA_NUMBER_OF_SOURCEFILES, files.denominator)
-            .field(COBERTURA_NUMBER_OF_CLASSES, classes.denominator)
-            .field(COBERTURA_BRANCH_COVERAGE_RATE, conditionals.getPercentageFloat())
-            .field(COBERTURA_LINE_COVERAGE_RATE, lines.getPercentageFloat())
-            .field(COBERTURA_PACKAGE_COVERAGE_RATE, packages.getPercentageFloat())
-            .field(COBERTURA_CLASS_COVERAGE_RATE, classes.getPercentageFloat())
+            .addField(COBERTURA_NUMBER_OF_PACKAGES, packages.denominator)
+            .addField(COBERTURA_NUMBER_OF_SOURCEFILES, files.denominator)
+            .addField(COBERTURA_NUMBER_OF_CLASSES, classes.denominator)
+            .addField(COBERTURA_BRANCH_COVERAGE_RATE, conditionals.getPercentageFloat())
+            .addField(COBERTURA_LINE_COVERAGE_RATE, lines.getPercentageFloat())
+            .addField(COBERTURA_PACKAGE_COVERAGE_RATE, packages.getPercentageFloat())
+            .addField(COBERTURA_CLASS_COVERAGE_RATE, classes.getPercentageFloat())
             .build();
         return new Point[] {point};
     }

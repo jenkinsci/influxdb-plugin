@@ -85,18 +85,18 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		Point point = null;
 		try {
 			point = buildPoint(measurementName("sonarqube_data"), customPrefix, build)
-					.field(BUILD_DISPLAY_NAME, build.getDisplayName())
-					.field(SONARQUBE_CRTITCAL_ISSUES,
+					.addField(BUILD_DISPLAY_NAME, build.getDisplayName())
+					.addField(SONARQUBE_CRTITCAL_ISSUES,
 							getSonarIssues(this.SONAR_ISSUES_URL, "CRITICAL"))
-					.field(SONARQUBE_BLOCKER_ISSUES,
+					.addField(SONARQUBE_BLOCKER_ISSUES,
 							getSonarIssues(this.SONAR_ISSUES_URL, "BLOCKER"))
-					.field(SONARQUBE_MAJOR_ISSUES,
+					.addField(SONARQUBE_MAJOR_ISSUES,
 							getSonarIssues(this.SONAR_ISSUES_URL, "MAJOR"))
-					.field(SONARQUBE_MINOR_ISSUES,
+					.addField(SONARQUBE_MINOR_ISSUES,
 							getSonarIssues(this.SONAR_ISSUES_URL, "MINOR"))
-					.field(SONARQUBE_INFO_ISSUES,
+					.addField(SONARQUBE_INFO_ISSUES,
 							getSonarIssues(this.SONAR_ISSUES_URL, "INFO"))
-					.field(SONARQUBE_LINES_OF_CODE,
+					.addField(SONARQUBE_LINES_OF_CODE,
 							getLinesofCode(this.SONAR_METRICS_URL))
 					.build();
 		} catch (IOException e) {
