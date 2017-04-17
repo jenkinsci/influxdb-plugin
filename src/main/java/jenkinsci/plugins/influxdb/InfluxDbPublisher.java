@@ -244,6 +244,12 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
             listener.getLogger().println("[InfluxDB Plugin] SonarQube data found. Writing to InfluxDB...");
             pointsToWrite.addAll(Arrays.asList(sonarGen.generate()));
         }   
+        
+        ChangeLogPointGenerator changeLogGen = new ChangeLogPointGenerator(measurementRenderer, customPrefix, build);
+        if (changeLogGen.hasReport()) {
+            listener.getLogger().println("[InfluxDB Plugin] Git ChangeLog data found. Writing to InfluxDB...");
+            pointsToWrite.addAll(Arrays.asList(changeLogGen.generate()));
+        }  
 
         writeToInflux(target, influxDB, pointsToWrite);
 
