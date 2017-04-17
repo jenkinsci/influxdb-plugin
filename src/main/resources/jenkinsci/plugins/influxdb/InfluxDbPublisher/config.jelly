@@ -4,8 +4,8 @@
   <f:entry title="influxdb target">
     <select class="setting-input" name="publisherBinding.selectedTarget" >
         <j:forEach var="currentTarget" items="${descriptor.targets}">
-            <j:set var="targetInfo" value="${currentTarget.url},${currentTarget.database}" />
-            <f:option selected="${targetInfo==instance.selectedTarget}" value="${targetInfo}">${currentTarget.description}</f:option>
+            <j:set var="targetDescription" value="${currentTarget.description}" />
+            <f:option selected="${targetDescription==instance.selectedTarget}" value="${targetDescription}">${currentTarget.description}</f:option>
         </j:forEach>
     </select>
   </f:entry>
