@@ -15,6 +15,8 @@ public class PerformancePointGenerator extends AbstractPointGenerator {
     public static final String PERFORMANCE_ERROR_PERCENT = "error_percent"; // failed / size * 100
     public static final String PERFORMANCE_ERROR_COUNT = "error_count";     // Amount of failed samples
     public static final String PERFORMANCE_AVERAGE = "average"; // Total duration / size
+    public static final String PERFORMANCE_90PERCENTILE = "90Percentile";   // 90 Percentile duration
+    public static final String PERFORMANCE_MEDIAN = "median";   //median duration
     public static final String PERFORMANCE_MAX = "max";     // max duration
     public static final String PERFORMANCE_MIN = "min";     // min duration
     public static final String PERFORMANCE_TOTAL_TRAFFIC = "total_traffic";
@@ -37,7 +39,7 @@ public class PerformancePointGenerator extends AbstractPointGenerator {
 
     public Point[] generate() {
         Map<String, PerformanceReport> reportMap = performanceBuildAction.getPerformanceReportMap().getPerformanceReportMap();
-        
+
         List<Point> pointsList = new ArrayList<Point>();
 
         for (String key : reportMap.keySet()) {
@@ -56,6 +58,8 @@ public class PerformancePointGenerator extends AbstractPointGenerator {
             .addField(PERFORMANCE_MIN, performanceReport.getMin())
             .addField(PERFORMANCE_TOTAL_TRAFFIC, performanceReport.getTotalTrafficInKb())
             .addField(PERFORMANCE_SIZE, performanceReport.size())
+            .addField(PERFORMANCE_90PERCENTILE, performanceReport.get90Line())
+            .addField(PERFORMANCE_MEDIAN, performanceReport.getMedian())
             .build();
 
         return point;
