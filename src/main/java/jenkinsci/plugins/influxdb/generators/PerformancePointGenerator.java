@@ -51,15 +51,15 @@ public class PerformancePointGenerator extends AbstractPointGenerator {
 
     private Point generateReportPoint(PerformanceReport performanceReport) {
         Point point = buildPoint(measurementName("performance_data"), customPrefix, build)
-            .field(PERFORMANCE_ERROR_PERCENT, performanceReport.errorPercent())
-            .field(PERFORMANCE_ERROR_COUNT, performanceReport.countErrors())
-            .field(PERFORMANCE_AVERAGE, performanceReport.getAverage())
-            .field(PERFORMANCE_90PERCENTILE, performanceReport.get90Line())
-            .field(PERFORMANCE_MEDIAN, performanceReport.getMedian())
-            .field(PERFORMANCE_MAX, performanceReport.getMax())
-            .field(PERFORMANCE_MIN, performanceReport.getMin())
-            .field(PERFORMANCE_TOTAL_TRAFFIC, performanceReport.getTotalTrafficInKb())
-            .field(PERFORMANCE_SIZE, performanceReport.size())
+            .addField(PERFORMANCE_ERROR_PERCENT, performanceReport.errorPercent())
+            .addField(PERFORMANCE_ERROR_COUNT, performanceReport.countErrors())
+            .addField(PERFORMANCE_AVERAGE, performanceReport.getAverage())
+            .addField(PERFORMANCE_MAX, performanceReport.getMax())
+            .addField(PERFORMANCE_MIN, performanceReport.getMin())
+            .addField(PERFORMANCE_TOTAL_TRAFFIC, performanceReport.getTotalTrafficInKb())
+            .addField(PERFORMANCE_SIZE, performanceReport.size())
+            .addField(PERFORMANCE_90PERCENTILE, performanceReport.get90Line())
+            .addField(PERFORMANCE_MEDIAN, performanceReport.getMedian())
             .build();
 
         return point;

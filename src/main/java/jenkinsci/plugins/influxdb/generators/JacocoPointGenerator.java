@@ -32,11 +32,11 @@ public class JacocoPointGenerator extends AbstractPointGenerator {
 
     public Point[] generate() {
         Point point = buildPoint(measurementName("jacoco_data"), customPrefix, build)
-            .field(JACOCO_INSTRUCTION_COVERAGE_RATE, jacocoBuildAction.getResult().getInstructionCoverage().getPercentageFloat())
-            .field(JACOCO_CLASS_COVERAGE_RATE, jacocoBuildAction.getResult().getClassCoverage().getPercentageFloat())
-            .field(JACOCO_BRANCH_COVERAGE_RATE, jacocoBuildAction.getResult().getBranchCoverage().getPercentageFloat())
-            .field(JACOCO_LINE_COVERAGE_RATE, jacocoBuildAction.getResult().getLineCoverage().getPercentageFloat())
-            .field(JACOCO_METHOD_COVERAGE_RATE, jacocoBuildAction.getResult().getMethodCoverage().getPercentageFloat())
+            .addField(JACOCO_INSTRUCTION_COVERAGE_RATE, jacocoBuildAction.getResult().getInstructionCoverage().getPercentageFloat())
+            .addField(JACOCO_CLASS_COVERAGE_RATE, jacocoBuildAction.getResult().getClassCoverage().getPercentageFloat())
+            .addField(JACOCO_BRANCH_COVERAGE_RATE, jacocoBuildAction.getResult().getBranchCoverage().getPercentageFloat())
+            .addField(JACOCO_LINE_COVERAGE_RATE, jacocoBuildAction.getResult().getLineCoverage().getPercentageFloat())
+            .addField(JACOCO_METHOD_COVERAGE_RATE, jacocoBuildAction.getResult().getMethodCoverage().getPercentageFloat())
             .build();
         return new Point[] {point};
     }

@@ -60,19 +60,19 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
         Point.Builder point = buildPoint(measurementName("jenkins_data"), customPrefix, build);
 
-        point.field(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
-            .field(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
-            .field(BUILD_RESULT, result)
-            .field(BUILD_RESULT_ORDINAL, ordinal)
-            .field(BUILD_IS_SUCCESSFUL, ordinal < 2 ? true : false)
-            .field(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
-            .field(PROJECT_LAST_SUCCESSFUL, getLastSuccessfulBuild())
-            .field(PROJECT_LAST_STABLE, getLastStableBuild());
+        point.addField(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
+            .addField(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
+            .addField(BUILD_RESULT, result)
+            .addField(BUILD_RESULT_ORDINAL, ordinal)
+            .addField(BUILD_IS_SUCCESSFUL, ordinal < 2 ? true : false)
+            .addField(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
+            .addField(PROJECT_LAST_SUCCESSFUL, getLastSuccessfulBuild())
+            .addField(PROJECT_LAST_STABLE, getLastStableBuild());
 
         if(hasTestResults(build)) {
-            point.field(TESTS_FAILED, build.getAction(AbstractTestResultAction.class).getFailCount());
-            point.field(TESTS_SKIPPED, build.getAction(AbstractTestResultAction.class).getSkipCount());
-            point.field(TESTS_TOTAL, build.getAction(AbstractTestResultAction.class).getTotalCount());
+            point.addField(TESTS_FAILED, build.getAction(AbstractTestResultAction.class).getFailCount());
+            point.addField(TESTS_SKIPPED, build.getAction(AbstractTestResultAction.class).getSkipCount());
+            point.addField(TESTS_TOTAL, build.getAction(AbstractTestResultAction.class).getTotalCount());
         }
 
         return new Point[] {point.build()};

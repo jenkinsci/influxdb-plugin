@@ -61,16 +61,16 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
 
     private Point generateOverviewPoint(RobotBuildAction robotBuildAction) {
         Point point = buildPoint(measurementName("rf_results"), customPrefix, build)
-            .field(RF_FAILED, robotBuildAction.getResult().getOverallFailed())
-            .field(RF_PASSED, robotBuildAction.getResult().getOverallPassed())
-            .field(RF_TOTAL, robotBuildAction.getResult().getOverallTotal())
-            .field(RF_CRITICAL_FAILED, robotBuildAction.getResult().getCriticalFailed())
-            .field(RF_CRITICAL_PASSED, robotBuildAction.getResult().getCriticalPassed())
-            .field(RF_CRITICAL_TOTAL, robotBuildAction.getResult().getCriticalTotal())
-            .field(RF_CRITICAL_PASS_PERCENTAGE, robotBuildAction.getCriticalPassPercentage())
-            .field(RF_PASS_PERCENTAGE, robotBuildAction.getOverallPassPercentage())
-            .field(RF_DURATION, robotBuildAction.getResult().getDuration())
-            .field(RF_SUITES, robotBuildAction.getResult().getAllSuites().size())
+            .addField(RF_FAILED, robotBuildAction.getResult().getOverallFailed())
+            .addField(RF_PASSED, robotBuildAction.getResult().getOverallPassed())
+            .addField(RF_TOTAL, robotBuildAction.getResult().getOverallTotal())
+            .addField(RF_CRITICAL_FAILED, robotBuildAction.getResult().getCriticalFailed())
+            .addField(RF_CRITICAL_PASSED, robotBuildAction.getResult().getCriticalPassed())
+            .addField(RF_CRITICAL_TOTAL, robotBuildAction.getResult().getCriticalTotal())
+            .addField(RF_CRITICAL_PASS_PERCENTAGE, robotBuildAction.getCriticalPassPercentage())
+            .addField(RF_PASS_PERCENTAGE, robotBuildAction.getOverallPassPercentage())
+            .addField(RF_DURATION, robotBuildAction.getResult().getDuration())
+            .addField(RF_SUITES, robotBuildAction.getResult().getAllSuites().size())
             .build();
 
         return point;
