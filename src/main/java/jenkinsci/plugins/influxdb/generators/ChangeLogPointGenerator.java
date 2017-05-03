@@ -35,7 +35,9 @@ public class ChangeLogPointGenerator extends AbstractPointGenerator {
 	public boolean hasReport() {
 		if (build instanceof AbstractBuild) {
 			getChangeLog(build);
-			return true;
+			if (this.getCommitCount() > 0) {
+				return true;
+			}
 		}
 		return false;
 	}
