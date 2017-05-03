@@ -44,11 +44,11 @@ public class ChangeLogPointGenerator extends AbstractPointGenerator {
 		
 		Point.Builder point = buildPoint(measurementName("changelog_data"), customPrefix, build);
 
-		point.field(BUILD_DISPLAY_NAME, build.getDisplayName())
-				.field("commit_messages", this.getMessages())
-				.field("culprits", this.getCulprits())
-				.field("affected_paths", this.getAffectedPaths())
-				.field("commit_count", this.getCommitCount());
+		point.addField(BUILD_DISPLAY_NAME, build.getDisplayName())
+				.addField("commit_messages", this.getMessages())
+				.addField("culprits", this.getCulprits())
+				.addField("affected_paths", this.getAffectedPaths())
+				.addField("commit_count", this.getCommitCount());
 
 		return new Point[] { point.build() };
 	}
