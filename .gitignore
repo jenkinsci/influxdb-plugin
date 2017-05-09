@@ -4,5 +4,6 @@ pom.xml.releaseBackup
 work/
 release.properties
 .idea
+*.iml
 .DS_Store
 changes.txt
