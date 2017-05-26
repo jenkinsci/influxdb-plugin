@@ -4,9 +4,9 @@ import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import org.influxdb.dto.Point;
 
 import hudson.model.Run;
-import hudson.plugins.performance.PerformanceBuildAction;
+import hudson.plugins.performance.actions.PerformanceBuildAction;
 import hudson.plugins.performance.PerformanceReportMap;
-import hudson.plugins.performance.PerformanceReport;
+import hudson.plugins.performance.reports.PerformanceReport;
 
 import java.util.*;
 
@@ -57,7 +57,7 @@ public class PerformancePointGenerator extends AbstractPointGenerator {
             .addField(PERFORMANCE_MAX, performanceReport.getMax())
             .addField(PERFORMANCE_MIN, performanceReport.getMin())
             .addField(PERFORMANCE_TOTAL_TRAFFIC, performanceReport.getTotalTrafficInKb())
-            .addField(PERFORMANCE_SIZE, performanceReport.size())
+            .addField(PERFORMANCE_SIZE, performanceReport.samplesCount())
             .addField(PERFORMANCE_90PERCENTILE, performanceReport.get90Line())
             .addField(PERFORMANCE_MEDIAN, performanceReport.getMedian())
             .build();
