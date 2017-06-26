@@ -7,12 +7,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.influxdb.dto.Point;
 
 import hudson.model.Run;
@@ -22,7 +21,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class SonarQubePointGenerator extends AbstractPointGenerator {
-    
+
 	public static final String BUILD_DISPLAY_NAME = "display_name";
 	public static final String SONARQUBE_LINES_OF_CODE = "lines_of_code";
 	public static final String SONARQUBE_COMPLEXITY = "complexity";
@@ -61,11 +60,11 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 			if (!StringUtils.isEmpty(sonarBuildLink)) {
 				setSonarDetails(sonarBuildLink);
 				return true;
-			} 
+			}
 		} catch (IOException e) {
 			//
 		}
-		
+
 		return false;
 	}
 
@@ -79,63 +78,58 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		} catch (URISyntaxException e) {
 			//
 		}
-		
+
 	}
+
 	public Point[] generate() {
 		Point point = null;
 		try {
 			point = buildPoint(measurementName("sonarqube_data"), customPrefix, build)
-					.field(BUILD_DISPLAY_NAME, build.getDisplayName())
-					.field(SONARQUBE_CRTITCAL_ISSUES,
-							getSonarIssues(this.SONAR_ISSUES_URL, "CRITICAL"))
-					.field(SONARQUBE_BLOCKER_ISSUES,
-							getSonarIssues(this.SONAR_ISSUES_URL, "BLOCKER"))
-					.field(SONARQUBE_MAJOR_ISSUES,
-							getSonarIssues(this.SONAR_ISSUES_URL, "MAJOR"))
-					.field(SONARQUBE_MINOR_ISSUES,
-							getSonarIssues(this.SONAR_ISSUES_URL, "MINOR"))
-					.field(SONARQUBE_INFO_ISSUES,
-							getSonarIssues(this.SONAR_ISSUES_URL, "INFO"))
-					.field(SONARQUBE_LINES_OF_CODE,
-							getLinesofCode(this.SONAR_METRICS_URL))
-					.build();
+					.addField(BUILD_DISPLAY_NAME, build.getDisplayName())
+					.addField(SONARQUBE_CRTITCAL_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "CRITICAL"))
+					.addField(SONARQUBE_BLOCKER_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "BLOCKER"))
+					.addField(SONARQUBE_MAJOR_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "MAJOR"))
+					.addField(SONARQUBE_MINOR_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "MINOR"))
+					.addField(SONARQUBE_INFO_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "INFO"))
+					.addField(SONARQUBE_LINES_OF_CODE, getLinesofCode(this.SONAR_METRICS_URL)).build();
 		} catch (IOException e) {
-			//handle
+			// handle
 		}
 		return new Point[] { point };
 	}
 
-
 	public String getResult(String request) throws IOException {
-		CloseableHttpClient client = null;
-		CloseableHttpResponse response = null;
 		StringBuffer result = new StringBuffer();
-		try {
+		
+		try 
+		{
+			URL url = new URL(request);
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("GET");
+			conn.setRequestProperty("Accept", "application/json");
 
-			client = HttpClientBuilder.create().build();
-			HttpGet getrequest = new HttpGet(request);
+			if (conn.getResponseCode() != 200) {
+				throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
+			}
 
-			response = client.execute(getrequest);
-
-			BufferedReader rd;
-
-			rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-
+			BufferedReader rd = new BufferedReader(new InputStreamReader((conn.getInputStream())));
 			String line = "";
 			while ((line = rd.readLine()) != null) {
 				result.append(line);
 			}
 
-		} catch (UnsupportedOperationException | IOException e) {
-			//handle
-		} finally {
-			if (response != null) {
-				response.close();
-			}
-			if (client != null) {
-				client.close();
-			}
+			conn.disconnect();
+
+		} catch (MalformedURLException e) {
+
+			e.printStackTrace();
+
+		} catch (IOException e) {
+
+			e.printStackTrace();
+
 		}
+
 		return result.toString();
 	}
 
@@ -159,7 +153,6 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		return url;
 	}
 
-
 	private String getSonarProjectName(String url) throws URISyntaxException {
 		URI uri = new URI(url);
 		String[] projectUrl = uri.getPath().split("/");
@@ -180,12 +173,12 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 				linesofcodeCount = metricsObject.getInt("value");
 			}
 		}
-		
+
 		return linesofcodeCount;
 	}
 
 	public int getSonarIssues(String url, String severity) throws IOException {
-		String output = getResult(url+severity);
+		String output = getResult(url + severity);
 		return JSONObject.fromObject(output).getInt("total");
 	}
 

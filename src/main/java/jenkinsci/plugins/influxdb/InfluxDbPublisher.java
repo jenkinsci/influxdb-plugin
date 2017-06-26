@@ -201,58 +201,69 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
 
         // finally write to InfluxDB
         JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build);
-        pointsToWrite.addAll(Arrays.asList(jGen.generate()));
+        addPoints(pointsToWrite, jGen, listener);
 
         CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, customPrefix, build, customData);
         if (cdGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Custom data found. Writing to InfluxDB...");
-            pointsToWrite.addAll(Arrays.asList(cdGen.generate()));
+            addPoints(pointsToWrite, cdGen, listener);
         }
 
         CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, customPrefix, build, customDataMap);
         if (cdmGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Custom data map found. Writing to InfluxDB...");
-            pointsToWrite.addAll(Arrays.asList(cdmGen.generate()));
+            addPoints(pointsToWrite, cdmGen, listener);
         }
 
         CoberturaPointGenerator cGen = new CoberturaPointGenerator(measurementRenderer, customPrefix, build);
         if (cGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Cobertura data found. Writing to InfluxDB...");
-            pointsToWrite.addAll(Arrays.asList(cGen.generate()));
+            addPoints(pointsToWrite, cGen, listener);
         }
 
         RobotFrameworkPointGenerator rfGen = new RobotFrameworkPointGenerator(measurementRenderer, customPrefix, build);
         if (rfGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Robot Framework data found. Writing to InfluxDB...");
-            pointsToWrite.addAll(Arrays.asList(rfGen.generate()));
+            addPoints(pointsToWrite, rfGen, listener);
         }
 
         JacocoPointGenerator jacoGen = new JacocoPointGenerator(measurementRenderer, customPrefix, build);
         if (jacoGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Jacoco data found. Writing to InfluxDB...");
-            pointsToWrite.addAll(Arrays.asList(jacoGen.generate()));
+            addPoints(pointsToWrite, jacoGen, listener);
         }
 
         PerformancePointGenerator perfGen = new PerformancePointGenerator(measurementRenderer, customPrefix, build);
         if (perfGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Performance data found. Writing to InfluxDB...");
-            pointsToWrite.addAll(Arrays.asList(perfGen.generate()));
+            addPoints(pointsToWrite, perfGen, listener);
         }
 
+        
         SonarQubePointGenerator sonarGen = new SonarQubePointGenerator(measurementRenderer, customPrefix, build);
         if (sonarGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] SonarQube data found. Writing to InfluxDB...");
-            pointsToWrite.addAll(Arrays.asList(sonarGen.generate()));
-        }   
+            addPoints(pointsToWrite, sonarGen, listener);
+        }
+        
         
         ChangeLogPointGenerator changeLogGen = new ChangeLogPointGenerator(measurementRenderer, customPrefix, build);
         if (changeLogGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Git ChangeLog data found. Writing to InfluxDB...");
-            pointsToWrite.addAll(Arrays.asList(changeLogGen.generate()));
+            addPoints(pointsToWrite, changeLogGen, listener);
         }  
 
         writeToInflux(target, influxDB, pointsToWrite);
+        listener.getLogger().println("[InfluxDB Plugin] Completed.");
 
+    }
+
+    private void addPoints(List<Point> pointsToWrite, PointGenerator generator, TaskListener listener) {
+        try {
+            pointsToWrite.addAll(Arrays.asList(generator.generate()));
+        } catch (Exception e) {
+            listener.getLogger().println("[InfluxDB Plugin] Failed to collect data. Ignoring Exception:" + e);
+        }
     }
 
     private void writeToInflux(Target target, InfluxDB influxDB, List<Point> pointsToWrite) {
@@ -264,7 +275,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
                     .database(target.getDatabase())
                     .points(pointsToWrite.toArray(new Point[0]))
                     .retentionPolicy(target.getRetentionPolicy())
-                    .consistency(ConsistencyLevel.ALL)
+                    .consistency(ConsistencyLevel.ANY)
                     .build();
             influxDB.write(batchPoints);
         } catch (Exception e) {
