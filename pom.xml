@@ -154,7 +154,7 @@ THE SOFTWARE.
 		<artifactId>commons-lang3</artifactId>
 		<version>3.0</version>
 	</dependency>
-    </dependencies> 
+    </dependencies>
 
     <!-- The current maintainers of the plugin-->
     <developers>
