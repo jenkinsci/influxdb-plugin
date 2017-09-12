@@ -10,6 +10,7 @@ public abstract class AbstractPointGenerator implements PointGenerator {
 
     public static final String PROJECT_NAME = "project_name";
     public static final String BUILD_NUMBER = "build_number";
+    public static final String CUSTOM_PREFIX = "prefix";
 
     private MeasurementRenderer projectNameRenderer;
 
@@ -24,7 +25,8 @@ public abstract class AbstractPointGenerator implements PointGenerator {
                 .measurement(name)
                 .addField(PROJECT_NAME, renderedProjectName)
                 .addField(BUILD_NUMBER, build.getNumber())
-                .tag(PROJECT_NAME, renderedProjectName);
+                .tag(PROJECT_NAME, renderedProjectName)
+                .tag(CUSTOM_PREFIX, measurementName(customPrefix));
     }
 
     protected String measurementName(String measurement) {
