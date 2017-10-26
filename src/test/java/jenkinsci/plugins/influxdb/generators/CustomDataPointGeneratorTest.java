@@ -59,7 +59,7 @@ public class CustomDataPointGeneratorTest {
         pointsToWrite.addAll(Arrays.asList(cdGen.generate()));
 
         String lineProtocol = pointsToWrite.get(0).lineProtocol();
-        Assert.assertTrue(lineProtocol.startsWith("jenkins_custom_data,project_name=test_prefix_master build_number=11i,build_time="));
+        Assert.assertTrue(lineProtocol.startsWith("jenkins_custom_data,prefix=test_prefix,project_name=test_prefix_master build_number=11i,build_time="));
         Assert.assertTrue(lineProtocol.indexOf("project_name=\"test_prefix_master\",test1=11i,test2=22i")>0);
     }
 }
