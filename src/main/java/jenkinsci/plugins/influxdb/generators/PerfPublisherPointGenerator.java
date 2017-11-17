@@ -34,14 +34,11 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
         List<Point> pointsList = new ArrayList<>();
 
         pointsList.add(generateSummaryPoint(reports));
-
-        if (!reports.getAverageValuePerMetrics().isEmpty())
-            pointsList.add(generateMetricsPoint(reports));
+        pointsList.addAll(generateMetricsPoints(reports));
 
         for (Test test : reports.getTests()) {
             pointsList.add(generateTestPoint(test));
-            if (!test.getMetrics().isEmpty())
-                pointsList.add(generateTestMetricsPoint(test.getMetrics()));
+            pointsList.addAll(generateTestMetricsPoints(test));
         }
 
         return pointsList.toArray(new Point[pointsList.size()]);
@@ -87,22 +84,22 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
         return builder.build();
     }
 
-    private Point generateMetricsPoint(ReportContainer reports) {
-        if (reports.getAverageValuePerMetrics().isEmpty())
-            return null;
+    private List<Point> generateMetricsPoints(ReportContainer reports) {
 
-        Point.Builder builder = buildPoint(measurementName("perfpublisher_metrics"), customPrefix, build);
-        // worst
-        for (Map.Entry<String, Double> entry : reports.getWorstValuePerMetrics().entrySet())
-            builder.addField(entry.getKey() + ".worst", entry.getValue());
-        // best
-        for (Map.Entry<String, Double> entry : reports.getBestValuePerMetrics().entrySet())
-            builder.addField(entry.getKey() + ".best", entry.getValue());
-        // average
+        List<Point> pointsList = new ArrayList<>();
+
         for (Map.Entry<String, Double> entry : reports.getAverageValuePerMetrics().entrySet())
-            builder.addField(entry.getKey() + ".avg", entry.getValue());
-        // .build
-        return builder.build();
+        {
+            String metricName = entry.getKey();
+            Point point = buildPoint(measurementName("perfpublisher_metric"), customPrefix, build)
+                    .addField("metric_name", metricName)
+                    .addField("average", entry.getValue())
+                    .addField("worst", reports.getWorstValuePerMetrics().get(metricName))
+                    .addField("best", reports.getBestValuePerMetrics().get(metricName))
+                    .build();
+            pointsList.add(point);
+        }
+        return pointsList;
     }
 
     private Point generateTestPoint(Test test) {
@@ -126,11 +123,23 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
         return builder.build();
     }
 
+    private List<Point> generateTestMetricsPoints(Test test) {
+        List<Point> pointsList = new ArrayList<>();
 
-    private Point generateTestMetricsPoint(Map<String, Metric> metricMap) {
-        Point.Builder builder = buildPoint(measurementName("perfpublisher_test_metrics"), customPrefix, build);
-        for (Map.Entry<String, Metric> entry : metricMap.entrySet())
-            builder.addField(entry.getKey(), entry.getValue().getMeasure());
-        return builder.build();
+        for (Map.Entry<String, Metric> entry : test.getMetrics().entrySet()) {
+            String metricName = entry.getKey();
+            Metric metric = entry.getValue();
+
+            Point point = buildPoint(measurementName("perfpublisher_test_metric"), customPrefix, build)
+                    .addField("test_name", test.getName())
+                    .addField("metric_name", metricName)
+                    .addField("value", metric.getMeasure())
+                    .addField("unit", metric.getUnit())
+                    .addField("relevant", metric.isRelevant())
+                    .build();
+
+            pointsList.add(point);
+        }
+        return pointsList;
     }
 }
