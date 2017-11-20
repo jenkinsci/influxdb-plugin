@@ -159,7 +159,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
         private long lastReportedTime = 0;
 
         TimeGenerator() {
-            nanoTimeShift = System.currentTimeMillis() * 1000 - System.nanoTime();
+            nanoTimeShift = System.currentTimeMillis() * 1000000 - System.nanoTime();
         }
 
         long getTimeNanos() {
