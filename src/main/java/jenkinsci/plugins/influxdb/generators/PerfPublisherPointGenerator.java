@@ -11,21 +11,31 @@ import org.influxdb.dto.Point;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class PerfPublisherPointGenerator extends AbstractPointGenerator {
     private final Run<?, ?> build;
     private final String customPrefix;
     private final PerfPublisherBuildAction performanceBuildAction;
+    private final TimeGenerator timeGenerator;
 
     public PerfPublisherPointGenerator(MeasurementRenderer<Run<?,?>> measurementRenderer, String customPrefix, Run<?, ?> build) {
         super(measurementRenderer);
         this.build = build;
         this.customPrefix = customPrefix;
         performanceBuildAction = build.getAction(PerfPublisherBuildAction.class);
+        timeGenerator = new TimeGenerator();
     }
 
     public boolean hasReport() {
         return performanceBuildAction != null && performanceBuildAction.getReport() != null;
+    }
+
+    @Override
+    public Point.Builder buildPoint(String name, String customPrefix, Run<?, ?> build) {
+        // add unique time to guarantee correct point adding to DB
+        return super.buildPoint(name, customPrefix, build)
+                .time(timeGenerator.getTimeNanos(), TimeUnit.NANOSECONDS);
     }
 
     public Point[] generate() {
@@ -141,5 +151,24 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
             pointsList.add(point);
         }
         return pointsList;
+    }
+
+    // generates unique nano timestamps
+    private static class TimeGenerator {
+        private final long nanoTimeShift;
+        private long lastReportedTime = 0;
+
+        TimeGenerator() {
+            nanoTimeShift = System.currentTimeMillis() * 1000 - System.nanoTime();
+        }
+
+        long getTimeNanos() {
+            long timeToReport = System.nanoTime() + nanoTimeShift;
+            if (timeToReport <= lastReportedTime) {
+                timeToReport = lastReportedTime + 1;
+            }
+            lastReportedTime = timeToReport;
+            return timeToReport;
+        }
     }
 }
