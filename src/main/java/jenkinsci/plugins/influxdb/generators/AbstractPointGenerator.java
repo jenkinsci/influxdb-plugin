@@ -21,12 +21,17 @@ public abstract class AbstractPointGenerator implements PointGenerator {
     @Override
     public Point.Builder buildPoint(String name, String customPrefix, Run<?, ?> build) {
         final String renderedProjectName = projectNameRenderer.render(build);
-        return Point
+        Point.Builder builder = Point
                 .measurement(name)
                 .addField(PROJECT_NAME, renderedProjectName)
                 .addField(BUILD_NUMBER, build.getNumber())
-                .tag(PROJECT_NAME, renderedProjectName)
-                .tag(CUSTOM_PREFIX, measurementName(customPrefix));
+                .tag(PROJECT_NAME, renderedProjectName);
+
+        if (customPrefix != null && !customPrefix.isEmpty())
+            builder = builder.tag(CUSTOM_PREFIX, measurementName(customPrefix));
+
+        return builder;
+
     }
 
     protected String measurementName(String measurement) {
