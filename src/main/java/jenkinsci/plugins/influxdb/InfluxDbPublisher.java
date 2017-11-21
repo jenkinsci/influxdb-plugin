@@ -196,7 +196,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         listener.getLogger().println(logMessage);
 
         // connect to InfluxDB
-        InfluxDB influxDB = InfluxDBFactory.connect(target.getUrl(), target.getUsername(), target.getPassword());
+        InfluxDB influxDB = Strings.isNullOrEmpty(target.getUsername()) ? InfluxDBFactory.connect(target.getUrl()) : InfluxDBFactory.connect(target.getUrl(), target.getUsername(), target.getPassword());
         List<Point> pointsToWrite = new ArrayList<Point>();
 
         // finally write to InfluxDB
