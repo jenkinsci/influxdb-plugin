@@ -201,6 +201,20 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         if (target.isUsingJenkinsProxy()) {
             builder.proxy(Jenkins.getInstance().proxy.createProxy(target.getUrl()));
+            if (Jenkins.getInstance().proxy.getUserName() != null) {
+                builder.proxyAuthenticator(new Authenticator() {
+                    @Override
+                    public Request authenticate(Route route, Response response) throws IOException {
+                        if (response.request().header("Proxy-Authorization") != null) {
+                            return null; // Give up, we've already failed to authenticate.
+                        }
+
+                        String credential = Credentials.basic(Jenkins.getInstance().proxy.getUserName(), Jenkins.getInstance().proxy.getPassword());
+                        return response.request().newBuilder().header("Proxy-Authorization", credential).build();
+                    }
+                });
+            }
+            builder.build();
         }
 
         // connect to InfluxDB
