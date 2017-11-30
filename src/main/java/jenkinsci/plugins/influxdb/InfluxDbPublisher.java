@@ -46,6 +46,11 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     private String selectedTarget;
 
     /**
+     * custom project name, overrides the project name with the specified value
+     */
+    private String customProjectName;
+
+    /**
      * custom prefix, for example in multi branch pipelines, where every build is named
      * after the branch built and thus you have different builds called 'master' that report
      * different metrics.
@@ -114,6 +119,15 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         this.selectedTarget = target;
     }
 
+    public String getCustomProjectName() {
+        return customProjectName;
+    }
+
+    @DataBoundSetter
+    public void setCustomProjectName(String customProjectName) {
+        this.customProjectName = customProjectName;
+    }    
+
     public String getCustomPrefix() {
         return customPrefix;
     }
@@ -179,7 +193,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     public void perform(Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener)
             throws InterruptedException, IOException {
 
-        MeasurementRenderer<Run<?, ?>> measurementRenderer = new ProjectNameRenderer(customPrefix);
+        MeasurementRenderer<Run<?, ?>> measurementRenderer = new ProjectNameRenderer(customPrefix, customProjectName);
 
         // get the target from the job's config
         Target target = getTarget();
