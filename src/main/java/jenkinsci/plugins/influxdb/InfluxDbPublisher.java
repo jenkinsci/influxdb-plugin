@@ -204,7 +204,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         addPoints(pointsToWrite, jGen, listener);
 
         CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, customPrefix, build, customData);
-        if (cdGen.hasReport()) {
+         if (cdGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Custom data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, cdGen, listener);
         }
@@ -251,7 +251,13 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         if (changeLogGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Git ChangeLog data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, changeLogGen, listener);
-        }  
+        }
+
+        PerfPublisherPointGenerator perfPublisherGen = new PerfPublisherPointGenerator(measurementRenderer, customPrefix, build);
+        if (perfPublisherGen.hasReport()) {
+            listener.getLogger().println("[InfluxDB Plugin] PerfPublisher data found. Writing to InfluxDB...");
+            addPoints(pointsToWrite, perfPublisherGen, listener);
+        }
 
         writeToInflux(target, influxDB, pointsToWrite);
         listener.getLogger().println("[InfluxDB Plugin] Completed.");
@@ -272,7 +278,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
          */
         try {
             BatchPoints batchPoints = BatchPoints
-                    .database(target.getDatabase())
+                     .database(target.getDatabase())
                     .points(pointsToWrite.toArray(new Point[0]))
                     .retentionPolicy(target.getRetentionPolicy())
                     .consistency(ConsistencyLevel.ANY)
