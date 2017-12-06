@@ -40,7 +40,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     /** The logger. **/
     private static final Logger logger = Logger.getLogger(InfluxDbPublisher.class.getName());
 
-    @Extension
+    @Extension(optional = true)
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
     private String selectedTarget;
