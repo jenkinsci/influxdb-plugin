@@ -47,7 +47,7 @@ THE SOFTWARE.
     </scm>
 
     <properties>
-        <jenkins.version>1.642.3</jenkins.version>
+        <jenkins.version>2.7</jenkins.version>
         <findbugs.failOnError>false</findbugs.failOnError>
     </properties>
 
@@ -142,7 +142,7 @@ THE SOFTWARE.
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>cobertura</artifactId>
-            <version>1.9.7</version>
+            <version>1.11</version>
             <optional>true</optional>
         </dependency>
 
