@@ -124,11 +124,11 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     }
 
     @DataBoundSetter
-    public void setCustomData (Map<String, Object> customData) {
+    public void setCustomData(Map<String, Object> customData) {
         this.customData = customData;
     }
 
-    public Map<String, Object> getCustomData () {
+    public Map<String, Object> getCustomData() {
         return customData;
     }
 
