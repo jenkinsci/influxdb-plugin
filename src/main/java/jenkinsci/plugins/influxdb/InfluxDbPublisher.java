@@ -221,7 +221,9 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
                 listener.getLogger().println("[InfluxDB Plugin] Cobertura data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, cGen, listener);
             }
-        } catch (NoClassDefFoundError ignore) { }
+        } catch (NoClassDefFoundError ignore) {
+            logger.log(Level.INFO, "Plugin skipped: Cobertura");
+        }
 
         RobotFrameworkPointGenerator rfGen = new RobotFrameworkPointGenerator(measurementRenderer, customPrefix, build);
         if (rfGen.hasReport()) {
@@ -235,7 +237,9 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
                 listener.getLogger().println("[InfluxDB Plugin] Jacoco data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, jacoGen, listener);
             }
-        } catch (NoClassDefFoundError ignore) { }
+        } catch (NoClassDefFoundError ignore) {
+            logger.log(Level.INFO, "Plugin skipped: JaCoCo");
+        }
 
         try {
             PerformancePointGenerator perfGen = new PerformancePointGenerator(measurementRenderer, customPrefix, build);
@@ -243,7 +247,9 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
                 listener.getLogger().println("[InfluxDB Plugin] Performance data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, perfGen, listener);
             }
-        } catch (NoClassDefFoundError ignore) { }
+        } catch (NoClassDefFoundError ignore) {
+            logger.log(Level.INFO, "Plugin skipped: Performance");
+        }
 
         SonarQubePointGenerator sonarGen = new SonarQubePointGenerator(measurementRenderer, customPrefix, build);
         if (sonarGen.hasReport()) {
@@ -264,7 +270,9 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
                 listener.getLogger().println("[InfluxDB Plugin] PerfPublisher data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, perfPublisherGen, listener);
             }
-        } catch (NoClassDefFoundError ignore) { }
+        } catch (NoClassDefFoundError ignore) {
+            logger.log(Level.INFO, "Plugin skipped: Performance Publisher");
+        }
 
         writeToInflux(target, influxDB, pointsToWrite);
         listener.getLogger().println("[InfluxDB Plugin] Completed.");
