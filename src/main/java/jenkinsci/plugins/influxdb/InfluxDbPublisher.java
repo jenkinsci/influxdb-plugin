@@ -204,7 +204,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         addPoints(pointsToWrite, jGen, listener);
 
         CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, customPrefix, build, customData);
-         if (cdGen.hasReport()) {
+        if (cdGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Custom data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, cdGen, listener);
         }
@@ -215,10 +215,14 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
             addPoints(pointsToWrite, cdmGen, listener);
         }
 
-        CoberturaPointGenerator cGen = new CoberturaPointGenerator(measurementRenderer, customPrefix, build);
-        if (cGen.hasReport()) {
-            listener.getLogger().println("[InfluxDB Plugin] Cobertura data found. Writing to InfluxDB...");
-            addPoints(pointsToWrite, cGen, listener);
+        try {
+            CoberturaPointGenerator cGen = new CoberturaPointGenerator(measurementRenderer, customPrefix, build);
+            if (cGen.hasReport()) {
+                listener.getLogger().println("[InfluxDB Plugin] Cobertura data found. Writing to InfluxDB...");
+                addPoints(pointsToWrite, cGen, listener);
+            }
+        } catch (NoClassDefFoundError ignore) {
+            logger.log(Level.INFO, "Plugin skipped: Cobertura");
         }
 
         RobotFrameworkPointGenerator rfGen = new RobotFrameworkPointGenerator(measurementRenderer, customPrefix, build);
@@ -227,41 +231,51 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
             addPoints(pointsToWrite, rfGen, listener);
         }
 
-        JacocoPointGenerator jacoGen = new JacocoPointGenerator(measurementRenderer, customPrefix, build);
-        if (jacoGen.hasReport()) {
-            listener.getLogger().println("[InfluxDB Plugin] Jacoco data found. Writing to InfluxDB...");
-            addPoints(pointsToWrite, jacoGen, listener);
+        try {
+            JacocoPointGenerator jacoGen = new JacocoPointGenerator(measurementRenderer, customPrefix, build);
+            if (jacoGen.hasReport()) {
+                listener.getLogger().println("[InfluxDB Plugin] Jacoco data found. Writing to InfluxDB...");
+                addPoints(pointsToWrite, jacoGen, listener);
+            }
+        } catch (NoClassDefFoundError ignore) {
+            logger.log(Level.INFO, "Plugin skipped: JaCoCo");
         }
 
-        PerformancePointGenerator perfGen = new PerformancePointGenerator(measurementRenderer, customPrefix, build);
-        if (perfGen.hasReport()) {
-            listener.getLogger().println("[InfluxDB Plugin] Performance data found. Writing to InfluxDB...");
-            addPoints(pointsToWrite, perfGen, listener);
+        try {
+            PerformancePointGenerator perfGen = new PerformancePointGenerator(measurementRenderer, customPrefix, build);
+            if (perfGen.hasReport()) {
+                listener.getLogger().println("[InfluxDB Plugin] Performance data found. Writing to InfluxDB...");
+                addPoints(pointsToWrite, perfGen, listener);
+            }
+        } catch (NoClassDefFoundError ignore) {
+            logger.log(Level.INFO, "Plugin skipped: Performance");
         }
 
-        
         SonarQubePointGenerator sonarGen = new SonarQubePointGenerator(measurementRenderer, customPrefix, build);
         if (sonarGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] SonarQube data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, sonarGen, listener);
         }
-        
-        
+
+
         ChangeLogPointGenerator changeLogGen = new ChangeLogPointGenerator(measurementRenderer, customPrefix, build);
         if (changeLogGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Git ChangeLog data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, changeLogGen, listener);
         }
 
-        PerfPublisherPointGenerator perfPublisherGen = new PerfPublisherPointGenerator(measurementRenderer, customPrefix, build);
-        if (perfPublisherGen.hasReport()) {
-            listener.getLogger().println("[InfluxDB Plugin] PerfPublisher data found. Writing to InfluxDB...");
-            addPoints(pointsToWrite, perfPublisherGen, listener);
+        try {
+            PerfPublisherPointGenerator perfPublisherGen = new PerfPublisherPointGenerator(measurementRenderer, customPrefix, build);
+            if (perfPublisherGen.hasReport()) {
+                listener.getLogger().println("[InfluxDB Plugin] PerfPublisher data found. Writing to InfluxDB...");
+                addPoints(pointsToWrite, perfPublisherGen, listener);
+            }
+        } catch (NoClassDefFoundError ignore) {
+            logger.log(Level.INFO, "Plugin skipped: Performance Publisher");
         }
 
         writeToInflux(target, influxDB, pointsToWrite);
         listener.getLogger().println("[InfluxDB Plugin] Completed.");
-
     }
 
     private void addPoints(List<Point> pointsToWrite, PointGenerator generator, TaskListener listener) {
