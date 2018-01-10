@@ -34,7 +34,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 	public static final String URL_PATTERN_IN_LOGS = ".*" + Pattern.quote("ANALYSIS SUCCESSFUL, you can browse ")
 			+ "(.*)";
 
-	public static final String SONAR_ISSUES_BASE_URL = "/api/issues/search?ps=500&projectkeys=";
+	public static final String SONAR_ISSUES_BASE_URL = "/api/issues/search?ps=500&projectKeys=";
 
 	public static final String SONAR_METRICS_BASE_URL = "/api/measures/component?metricKeys=ncloc,complexity,violations&componentKey=";
 
