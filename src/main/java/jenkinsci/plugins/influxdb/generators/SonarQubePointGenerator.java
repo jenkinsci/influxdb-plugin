@@ -10,8 +10,7 @@ import java.util.regex.Pattern;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Base64;
-
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.influxdb.dto.Point;
 
@@ -105,8 +104,11 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		try 
 		{
 			URL url = new URL(request);
-			String encoding = Base64.getEncoder().encodeToString(("test1:test1").getBytes(‌"UTF‌​-8"​));
+			String token = "9650497c84441ce25dba771b840f33666bf5ef0d:";
+			String encoding = Base64.encodeBase64String(token.getBytes("UTF-8"));
+			String auth = "Basic " + encoding;
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestProperty("Authorization", auth);
 			conn.setRequestMethod("GET");
 			conn.setRequestProperty("Accept", "application/json");
 

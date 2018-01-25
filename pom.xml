@@ -165,7 +165,28 @@ THE SOFTWARE.
             <artifactId>commons-lang3</artifactId>
             <version>3.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.9</version>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>animal-sniffer-maven-plugin</artifactId>
+                <version>1.16</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo.signature</groupId>
+                <artifactId>java18</artifactId>
+                <version>1.0</version>
+            </plugin>
+        </plugins>
+    </build>
 
     <!-- The current maintainers of the plugin-->
     <developers>
