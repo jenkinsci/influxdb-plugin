@@ -251,7 +251,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
             logger.log(Level.INFO, "Plugin skipped: Performance");
         }
 
-        SonarQubePointGenerator sonarGen = new SonarQubePointGenerator(measurementRenderer, customPrefix, build);
+        SonarQubePointGenerator sonarGen = new SonarQubePointGenerator(measurementRenderer, customPrefix, build, listener);
         if (sonarGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] SonarQube data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, sonarGen, listener);
