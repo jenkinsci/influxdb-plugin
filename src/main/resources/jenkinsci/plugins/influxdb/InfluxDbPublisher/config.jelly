@@ -15,6 +15,9 @@
           <f:entry title="custom-prefix" field="customPrefix" >
               <f:textbox name="publisherBinding.customPrefix" value="${publisherBinding.customPrefix}"/>
           </f:entry>
+          <f:entry title="custom-project-name" field="customProjectName" >
+              <f:textbox name="publisherBinding.customProjectName" value="${publisherBinding.customProjectName}"/>
+          </f:entry>
        </f:advanced>
   </f:section>
 
