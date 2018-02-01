@@ -239,10 +239,14 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
             logger.log(Level.INFO, "Plugin skipped: Cobertura");
         }
 
-        RobotFrameworkPointGenerator rfGen = new RobotFrameworkPointGenerator(measurementRenderer, customPrefix, build);
-        if (rfGen.hasReport()) {
-            listener.getLogger().println("[InfluxDB Plugin] Robot Framework data found. Writing to InfluxDB...");
-            addPoints(pointsToWrite, rfGen, listener);
+        try {
+            RobotFrameworkPointGenerator rfGen = new RobotFrameworkPointGenerator(measurementRenderer, customPrefix, build);
+            if (rfGen.hasReport()) {
+                listener.getLogger().println("[InfluxDB Plugin] Robot Framework data found. Writing to InfluxDB...");
+                addPoints(pointsToWrite, rfGen, listener);
+            }
+        } catch (NoClassDefFoundError ignore) {
+            logger.log(Level.INFO, "Plugin skipped: Robot Framework");
         }
 
         try {
