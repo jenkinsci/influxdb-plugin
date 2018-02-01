@@ -37,7 +37,7 @@ public class PerfPublisherPointGeneratorTest {
     public void before() {
         build = Mockito.mock(Run.class);
         Job job = Mockito.mock(Job.class);
-        measurementRenderer = new ProjectNameRenderer(CUSTOM_PREFIX);
+        measurementRenderer = new ProjectNameRenderer(CUSTOM_PREFIX, null);
         PerfPublisherBuildAction buildAction = Mockito.mock(PerfPublisherBuildAction.class);
         reports = new ReportContainer();
 
