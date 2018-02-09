@@ -27,7 +27,7 @@ public class CustomDataPointGeneratorTest {
     public void before() {
         build = Mockito.mock(Run.class);
         job = Mockito.mock(Job.class);
-        measurementRenderer = new ProjectNameRenderer(CUSTOM_PREFIX);
+        measurementRenderer = new ProjectNameRenderer(CUSTOM_PREFIX, null);
 
         Mockito.when(build.getNumber()).thenReturn(BUILD_NUMBER);
         Mockito.when(build.getParent()).thenReturn(job);

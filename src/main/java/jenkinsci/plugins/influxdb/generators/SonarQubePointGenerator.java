@@ -8,13 +8,16 @@ import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.net.HttpURLConnection;
+import java.lang.InterruptedException;
 import java.net.MalformedURLException;
 import java.net.URL;
-
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.influxdb.dto.Point;
 
 import hudson.model.Run;
+import hudson.model.TaskListener;
+import hudson.EnvVars;
 import hudson.util.IOUtils;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import net.sf.json.JSONArray;
@@ -45,12 +48,14 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
 	private final Run<?, ?> build;
 	private final String customPrefix;
+	private final TaskListener listener;
 
 	public SonarQubePointGenerator(MeasurementRenderer<Run<?, ?>> measurementRenderer, String customPrefix,
-			Run<?, ?> build) {
+			Run<?, ?> build, TaskListener listener) {
 		super(measurementRenderer);
 		this.build = build;
 		this.customPrefix = customPrefix;
+		this.listener = listener;
 	}
 
 	public boolean hasReport() {
@@ -103,8 +108,21 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		
 		try 
 		{
+			String auth = "";
+			try {
+				String token = build.getEnvironment(listener).get("SONAR_AUTH_TOKEN");
+				if (token != null) {
+					token = token + ":";
+					String encoding = Base64.encodeBase64String(token.getBytes("UTF-8"));
+					auth = "Basic " + encoding;
+				}
+			} catch (InterruptedException|IOException e) {
+				// handle
+			}
 			URL url = new URL(request);
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			if (auth != "")
+				conn.setRequestProperty("Authorization", auth);
 			conn.setRequestMethod("GET");
 			conn.setRequestProperty("Accept", "application/json");
 
