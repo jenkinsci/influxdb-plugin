@@ -9,6 +9,8 @@ public class Target {
     String database;
     String retentionPolicy;
     boolean exposeExceptions;
+    boolean globalListener;
+    String globalListenerFilter;
 
     public Target(){
         //nop
@@ -70,9 +72,32 @@ public class Target {
         this.exposeExceptions = exposeExceptions;
     }
 
+    public boolean isGlobalListener() {
+        return globalListener;
+    }
+
+    public void setGlobalListener(boolean globalListener) {
+        this.globalListener = globalListener;
+    }
+
+    public String getGlobalListenerFilter() {
+        return globalListenerFilter;
+    }
+
+    public void setGlobalListenerFilter(String globalListenerFilter) {
+        this.globalListenerFilter = globalListenerFilter;
+    }
+
     @Override
     public String toString() {
-        return "[url=" + this.url + ", description=" + this.description + ", username=" + this.username
-                + ", password=*****, database=" + this.database + "]";
+        return "[" +
+                "description='" + description + '\'' +
+                ", url='" + url + '\'' +
+                ", database='" + database + '\'' +
+                ", retentionPolicy='" + retentionPolicy + '\'' +
+                ", exposeExceptions=" + exposeExceptions +
+                ", globalListener=" + globalListener +
+                ", globalListenerFilter='" + globalListenerFilter + '\'' +
+                ']';
     }
 }
