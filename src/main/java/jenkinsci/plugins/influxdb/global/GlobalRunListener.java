@@ -60,8 +60,12 @@ public class GlobalRunListener extends RunListener<Run<?, ?>> {
         Job<?, ?> parent = build.getParent();
         if (parent instanceof AbstractProject) {
             InfluxDbPublisher publisher = (InfluxDbPublisher) ((AbstractProject) parent).getPublishersList().get(InfluxDbPublisher.class);
-            String buildTarget = publisher.getSelectedTarget();
-            return buildTarget != null && StringUtils.equals(buildTarget, target.getDescription());
+            if (publisher != null) {
+                String buildTarget = publisher.getSelectedTarget();
+                return buildTarget != null && StringUtils.equals(buildTarget, target.getDescription());
+            } else {
+                return false;
+            }
         } else {
             return false;
         }
