@@ -94,6 +94,8 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
      */
     private Map<String, Map<String, Object>> customDataMap;
 
+    private Map<String, String> globalTags;
+
     public InfluxDbPublisher() {
     }
 
@@ -154,6 +156,13 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     public Map<String, Map<String, Object>> getCustomDataMap() {
         return customDataMap;
     }
+
+    @DataBoundSetter
+    public void setGlobalTags(Map<String, String> globalTags) {
+        this.globalTags = globalTags;
+    }
+
+    public Map<String, String> getGlobalTags() { return globalTags; }
 
     public Target getTarget() {
         Target[] targets = DESCRIPTOR.getTargets();
@@ -223,7 +232,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
             addPoints(pointsToWrite, cdGen, listener);
         }
 
-        CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, customPrefix, build, customDataMap);
+        CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, customPrefix, build, customDataMap, globalTags);
         if (cdmGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Custom data map found. Writing to InfluxDB...");
             addPoints(pointsToWrite, cdmGen, listener);

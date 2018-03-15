@@ -38,16 +38,21 @@ public class CustomDataMapPointGeneratorTest {
     @Test
     public void hasReportTest() {
         //check with customDataMap = null
-        CustomDataMapPointGenerator cdmGen1 = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, null);
+        CustomDataMapPointGenerator cdmGen1 = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
+                null, null);
         Assert.assertFalse(cdmGen1.hasReport());
 
         //check with empty customDataMap
-        CustomDataMapPointGenerator cdmGen2 = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, Collections.<String, Map<String, Object>>emptyMap());
+        CustomDataMapPointGenerator cdmGen2 = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
+                Collections.<String, Map<String, Object>>emptyMap(), Collections.<String, String>emptyMap());
         Assert.assertFalse(cdmGen2.hasReport());
     }
 
     @Test
     public void generateTest() {
+
+        Map<String, String> globalTags = new HashMap<>();
+        globalTags.put("test1Tag", "testValue");
 
         Map<String, Object> customData1 = new HashMap<String, Object>();
         customData1.put("test1", 11);
@@ -66,7 +71,8 @@ public class CustomDataMapPointGeneratorTest {
 
         List<Point> pointsToWrite = new ArrayList<Point>();
 
-        CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, customDataMap);
+        CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
+                customDataMap, globalTags);
         pointsToWrite.addAll(Arrays.asList(cdmGen.generate()));
 
         String lineProtocol1;
@@ -78,7 +84,8 @@ public class CustomDataMapPointGeneratorTest {
             lineProtocol1 = pointsToWrite.get(1).lineProtocol();
             lineProtocol2 = pointsToWrite.get(0).lineProtocol();
         }
-        Assert.assertTrue(lineProtocol1.startsWith("series1,prefix=test_prefix,project_name=test_prefix_master build_number=11i,project_name=\"test_prefix_master\",test1=11i,test2=22i"));
-        Assert.assertTrue(lineProtocol2.startsWith("series2,prefix=test_prefix,project_name=test_prefix_master build_number=11i,project_name=\"test_prefix_master\",test3=33i,test4=44i"));
+
+        Assert.assertTrue(lineProtocol1.startsWith("series1,prefix=test_prefix,project_name=test_prefix_master,test1Tag=testValue build_number=11i,project_name=\"test_prefix_master\",test1=11i,test2=22i"));
+        Assert.assertTrue(lineProtocol2.startsWith("series2,prefix=test_prefix,project_name=test_prefix_master,test1Tag=testValue build_number=11i,project_name=\"test_prefix_master\",test3=33i,test4=44i"));
     }
 }
