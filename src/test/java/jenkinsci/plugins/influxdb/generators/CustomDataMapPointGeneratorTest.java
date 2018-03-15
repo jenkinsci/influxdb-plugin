@@ -51,8 +51,8 @@ public class CustomDataMapPointGeneratorTest {
     @Test
     public void generateTest() {
 
-        Map<String, String> globalTags = new HashMap<>();
-        globalTags.put("test1Tag", "testValue");
+        Map<String, String> customDataMapTags = new HashMap<>();
+        customDataMapTags.put("test1Tag", "testValue");
 
         Map<String, Object> customData1 = new HashMap<String, Object>();
         customData1.put("test1", 11);
@@ -72,7 +72,7 @@ public class CustomDataMapPointGeneratorTest {
         List<Point> pointsToWrite = new ArrayList<Point>();
 
         CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
-                customDataMap, globalTags);
+                customDataMap, customDataMapTags);
         pointsToWrite.addAll(Arrays.asList(cdmGen.generate()));
 
         String lineProtocol1;
