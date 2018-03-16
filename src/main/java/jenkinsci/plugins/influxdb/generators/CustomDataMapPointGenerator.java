@@ -12,7 +12,7 @@ public class CustomDataMapPointGenerator extends AbstractPointGenerator {
 
     private final Run<?, ?> build;
     private final String customPrefix;
-    private final Map<String, Map<String, Object>> customDataMap;
+    Map<String, Map<String, Object>> customDataMap;
     private final Map<String, String> customDataMapTags;
 
     public CustomDataMapPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix,
