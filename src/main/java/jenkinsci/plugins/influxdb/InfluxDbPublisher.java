@@ -94,6 +94,21 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
      */
     private Map<String, Map<String, Object>> customDataMap;
 
+    /**
+     * custom tags that are sent to all measurements defined in customDataMaps.
+     *
+     * Example for a pipeline script:
+     *
+     * def myCustomTags = [:]
+     * myCustomTags["buildResult"] = currentBuild.result
+     * myCustomTags["NODE_LABELS"] = env.NODE_LABELS
+     * step([$class: 'InfluxDbPublisher',
+     *       target: myTarget,
+     *       customPrefix: 'myPrefix',
+     *       customDataMap: myCustomDataMap,
+     *       customDataMapTags: myCustomTags])
+     */
+
     private Map<String, String> customDataMapTags;
 
     public InfluxDbPublisher() {
