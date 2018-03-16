@@ -158,11 +158,11 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     }
 
     @DataBoundSetter
-    public void setcustomDataMapTags(Map<String, String> customDataMapTags) {
+    public void setCustomDataMapTags(Map<String, String> customDataMapTags) {
         this.customDataMapTags = customDataMapTags;
     }
 
-    public Map<String, String> getcustomDataMapTags() { return customDataMapTags; }
+    public Map<String, String> getCustomDataMapTags() { return customDataMapTags; }
 
     public Target getTarget() {
         Target[] targets = DESCRIPTOR.getTargets();
