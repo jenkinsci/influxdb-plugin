@@ -34,9 +34,7 @@ public class CustomDataMapPointGenerator extends AbstractPointGenerator {
         Set<String> customKeys = customDataMap.keySet();
 
         for (String key : customKeys) {
-            Point.Builder pointBuilder;
-
-            pointBuilder = buildPoint(measurementName(key), customPrefix, build)
+            Point.Builder pointBuilder = buildPoint(measurementName(key), customPrefix, build)
                     .fields(customDataMap.get(key));
 
             if (customDataMapTags != null && customDataMapTags.size() > 0) {
