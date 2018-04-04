@@ -13,11 +13,11 @@ public class CustomDataMapPointGenerator extends AbstractPointGenerator {
     private final Run<?, ?> build;
     private final String customPrefix;
     Map<String, Map<String, Object>> customDataMap;
-    Map<String, String> customDataMapTags;
+    Map<String, Map<String, String>> customDataMapTags;
 
     public CustomDataMapPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix,
                                        Run<?, ?> build, Map<String, Map<String, Object>> customDataMap,
-                                       Map<String, String> customDataMapTags) {
+                                       Map<String, Map<String, String>> customDataMapTags) {
         super(projectNameRenderer);
         this.build = build;
         this.customPrefix = customPrefix;
@@ -37,8 +37,11 @@ public class CustomDataMapPointGenerator extends AbstractPointGenerator {
             Point.Builder pointBuilder = buildPoint(measurementName(key), customPrefix, build)
                     .fields(customDataMap.get(key));
 
-            if (customDataMapTags != null && customDataMapTags.size() > 0) {
-                pointBuilder = pointBuilder.tag(customDataMapTags);
+            Map<String, String> customTags = customDataMapTags.get(key);
+            if (customTags != null) {
+                if (customTags.size() > 0){
+                    pointBuilder = pointBuilder.tag(customTags);
+                }
             }
 
             Point point = pointBuilder.build();

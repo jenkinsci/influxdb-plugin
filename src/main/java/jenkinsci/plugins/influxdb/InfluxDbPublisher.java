@@ -99,17 +99,19 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
      *
      * Example for a pipeline script:
      *
+     * def myCustomDataMapTags = [:]
      * def myCustomTags = [:]
      * myCustomTags["buildResult"] = currentBuild.result
      * myCustomTags["NODE_LABELS"] = env.NODE_LABELS
+     * myCustomDataMapTags["series1"] = myCustomTags
      * step([$class: 'InfluxDbPublisher',
      *       target: myTarget,
      *       customPrefix: 'myPrefix',
      *       customDataMap: myCustomDataMap,
-     *       customDataMapTags: myCustomTags])
+     *       customDataMapTags: myCustomDataMapTags])
      */
 
-    private Map<String, String> customDataMapTags;
+    private Map<String, Map<String, String>> customDataMapTags;
 
     public InfluxDbPublisher() {
     }
@@ -173,11 +175,11 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     }
 
     @DataBoundSetter
-    public void setCustomDataMapTags(Map<String, String> customDataMapTags) {
+    public void setCustomDataMapTags(Map<String, Map<String, String>> customDataMapTags) {
         this.customDataMapTags = customDataMapTags;
     }
 
-    public Map<String, String> getCustomDataMapTags() { return customDataMapTags; }
+    public Map<String, Map<String, String>> getCustomDataMapTags() { return customDataMapTags; }
 
     public Target getTarget() {
         Target[] targets = DESCRIPTOR.getTargets();
