@@ -86,7 +86,7 @@ public class CustomDataMapPointGeneratorTest {
             lineProtocol1 = pointsToWrite.get(1).lineProtocol();
             lineProtocol2 = pointsToWrite.get(0).lineProtocol();
         }
-        
+
         Assert.assertTrue(lineProtocol1.startsWith("series1,build_result=SUCCESS,prefix=test_prefix,project_name=test_prefix_master build_number=11i,project_name=\"test_prefix_master\",test1=11i,test2=22i"));
         Assert.assertTrue(lineProtocol2.startsWith("series2,prefix=test_prefix,project_name=test_prefix_master build_number=11i,project_name=\"test_prefix_master\",test3=33i,test4=44i"));
     }
