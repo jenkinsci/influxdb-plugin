@@ -10,6 +10,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     public static final String BUILD_TIME = "build_time";
     public static final String BUILD_STATUS_MESSAGE = "build_status_message";
+    public static final String TIME_IN_QUEUE = "time_in_queue";
 
     /* BUILD_RESULT BUILD_RESULT_ORDINAL BUILD_IS_SUCCESSFUL - explanation
      * SUCCESS   0 true  - The build had no errors.
@@ -78,7 +79,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         }
 
         if (hasMetricsPlugin(build)) {
-            point.addField(QUEUED_TIME, build.getAction(jenkins.metrics.impl.TimeInQueueAction.class).getQueuingDurationMillis());
+            point.addField(TIME_IN_QUEUE, build.getAction(jenkins.metrics.impl.TimeInQueueAction.class).getQueuingDurationMillis());
         }
 
         return new Point[] {point.build()};
