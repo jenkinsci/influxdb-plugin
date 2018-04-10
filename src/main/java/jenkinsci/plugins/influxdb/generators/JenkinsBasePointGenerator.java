@@ -2,6 +2,7 @@ package jenkinsci.plugins.influxdb.generators;
 
 import hudson.model.Run;
 import hudson.tasks.test.AbstractTestResultAction;
+import jenkins.metrics.impl.TimeInQueueAction;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import org.influxdb.dto.Point;
 
@@ -67,7 +68,8 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             .addField(BUILD_IS_SUCCESSFUL, ordinal < 2 ? true : false)
             .addField(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
             .addField(PROJECT_LAST_SUCCESSFUL, getLastSuccessfulBuild())
-            .addField(PROJECT_LAST_STABLE, getLastStableBuild());
+            .addField(PROJECT_LAST_STABLE, getLastStableBuild())
+            .tag(BUILD_RESULT, result);
 
         if(hasTestResults(build)) {
             point.addField(TESTS_FAILED, build.getAction(AbstractTestResultAction.class).getFailCount());
@@ -75,11 +77,19 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             point.addField(TESTS_TOTAL, build.getAction(AbstractTestResultAction.class).getTotalCount());
         }
 
+        if (hasMetricsPlugin(build)) {
+            point.addField(QUEUED_TIME, build.getAction(jenkins.metrics.impl.TimeInQueueAction.class).getQueuingDurationMillis());
+        }
+
         return new Point[] {point.build()};
     }
 
     private boolean hasTestResults(Run<?, ?> build) {
         return build.getAction(AbstractTestResultAction.class) != null;
+    }
+
+    private boolean hasMetricsPlugin(Run<?, ?> build) {
+        return build.getAction(jenkins.metrics.impl.TimeInQueueAction.class) != null;
     }
 
     private int getLastSuccessfulBuild() {
