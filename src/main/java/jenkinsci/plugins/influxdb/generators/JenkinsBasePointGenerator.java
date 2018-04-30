@@ -1,5 +1,6 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import hudson.model.Executor;
 import hudson.model.Run;
 import hudson.tasks.test.AbstractTestResultAction;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
@@ -20,6 +21,8 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     public static final String BUILD_RESULT = "build_result";
     public static final String BUILD_RESULT_ORDINAL = "build_result_ordinal";
     public static final String BUILD_IS_SUCCESSFUL = "build_successful";
+
+    public static final String BUILD_AGENT_NAME = "build_agent_name";
 
     public static final String PROJECT_BUILD_HEALTH = "project_build_health";
     public static final String PROJECT_LAST_SUCCESSFUL = "last_successful_build";
@@ -64,7 +67,8 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             .addField(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
             .addField(BUILD_RESULT, result)
             .addField(BUILD_RESULT_ORDINAL, ordinal)
-            .addField(BUILD_IS_SUCCESSFUL, ordinal < 2 ? true : false)
+            .addField(BUILD_IS_SUCCESSFUL, ordinal < 2)
+            .addField(BUILD_AGENT_NAME, getBuildAgentName())
             .addField(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
             .addField(PROJECT_LAST_SUCCESSFUL, getLastSuccessfulBuild())
             .addField(PROJECT_LAST_STABLE, getLastStableBuild());
@@ -76,6 +80,15 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         }
 
         return new Point[] {point.build()};
+    }
+
+    private String getBuildAgentName() {
+        Executor executor = build.getExecutor();
+        if (executor != null) {
+            return executor.getOwner().getName();
+        } else {
+            return "";
+        }
     }
 
     private boolean hasTestResults(Run<?, ?> build) {

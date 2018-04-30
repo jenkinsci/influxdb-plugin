@@ -2,6 +2,7 @@ package jenkinsci.plugins.influxdb.generators;
 
 import hudson.model.Job;
 import hudson.model.Run;
+import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.influxdb.dto.Point;
@@ -32,6 +33,7 @@ public class CustomDataMapPointGeneratorTest {
         Mockito.when(build.getNumber()).thenReturn(BUILD_NUMBER);
         Mockito.when(build.getParent()).thenReturn(job);
         Mockito.when(job.getName()).thenReturn(JOB_NAME);
+        Mockito.when(job.getRelativeNameFrom(Mockito.any(Jenkins.class))).thenReturn("folder/" + JOB_NAME);
 
     }
 
@@ -78,7 +80,7 @@ public class CustomDataMapPointGeneratorTest {
             lineProtocol1 = pointsToWrite.get(1).lineProtocol();
             lineProtocol2 = pointsToWrite.get(0).lineProtocol();
         }
-        Assert.assertTrue(lineProtocol1.startsWith("series1,prefix=test_prefix,project_name=test_prefix_master build_number=11i,project_name=\"test_prefix_master\",test1=11i,test2=22i"));
-        Assert.assertTrue(lineProtocol2.startsWith("series2,prefix=test_prefix,project_name=test_prefix_master build_number=11i,project_name=\"test_prefix_master\",test3=33i,test4=44i"));
+        Assert.assertTrue(lineProtocol1.startsWith("series1,prefix=test_prefix,project_name=test_prefix_master build_number=11i,project_name=\"test_prefix_master\",project_path=\"folder/master\",test1=11i,test2=22i"));
+        Assert.assertTrue(lineProtocol2.startsWith("series2,prefix=test_prefix,project_name=test_prefix_master build_number=11i,project_name=\"test_prefix_master\",project_path=\"folder/master\",test3=33i,test4=44i"));
     }
 }
