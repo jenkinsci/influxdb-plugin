@@ -9,6 +9,7 @@ public class Target {
     String database;
     String retentionPolicy;
     boolean exposeExceptions;
+    boolean usingJenkinsProxy;
 
     public Target(){
         //nop
@@ -68,6 +69,14 @@ public class Target {
 
     public void setExposeExceptions(boolean exposeExceptions) {
         this.exposeExceptions = exposeExceptions;
+    }
+
+    public boolean isUsingJenkinsProxy() {
+        return usingJenkinsProxy;
+    }
+
+    public void setUsingJenkinsProxy(boolean usingJenkinsProxy) {
+        this.usingJenkinsProxy = usingJenkinsProxy;
     }
 
     @Override

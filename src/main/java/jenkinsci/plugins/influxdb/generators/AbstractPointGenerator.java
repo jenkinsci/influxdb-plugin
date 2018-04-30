@@ -1,6 +1,7 @@
 package jenkinsci.plugins.influxdb.generators;
 
 import hudson.model.Run;
+import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import org.influxdb.dto.Point;
 
@@ -9,6 +10,7 @@ import java.util.Objects;
 public abstract class AbstractPointGenerator implements PointGenerator {
 
     public static final String PROJECT_NAME = "project_name";
+    public static final String PROJECT_PATH = "project_path";
     public static final String BUILD_NUMBER = "build_number";
     public static final String CUSTOM_PREFIX = "prefix";
 
@@ -24,6 +26,7 @@ public abstract class AbstractPointGenerator implements PointGenerator {
         Point.Builder builder = Point
                 .measurement(name)
                 .addField(PROJECT_NAME, renderedProjectName)
+                .addField(PROJECT_PATH, build.getParent().getRelativeNameFrom(Jenkins.getInstance()))
                 .addField(BUILD_NUMBER, build.getNumber())
                 .tag(PROJECT_NAME, renderedProjectName);
 

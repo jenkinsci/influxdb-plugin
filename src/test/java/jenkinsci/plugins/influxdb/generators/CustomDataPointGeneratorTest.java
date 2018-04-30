@@ -2,6 +2,7 @@ package jenkinsci.plugins.influxdb.generators;
 
 import hudson.model.Job;
 import hudson.model.Run;
+import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.influxdb.dto.Point;
@@ -32,6 +33,7 @@ public class CustomDataPointGeneratorTest {
         Mockito.when(build.getNumber()).thenReturn(BUILD_NUMBER);
         Mockito.when(build.getParent()).thenReturn(job);
         Mockito.when(job.getName()).thenReturn(JOB_NAME);
+        Mockito.when(job.getRelativeNameFrom(Mockito.any(Jenkins.class))).thenReturn("folder/" + JOB_NAME);
 
     }
 
@@ -64,6 +66,6 @@ public class CustomDataPointGeneratorTest {
 
         String lineProtocol = pointsToWrite.get(0).lineProtocol();
         Assert.assertTrue(lineProtocol.startsWith("jenkins_custom_data,prefix=test_prefix,project_name=test_prefix_master,tag1=myTag build_number=11i,build_time="));
-        Assert.assertTrue(lineProtocol.indexOf("project_name=\"test_prefix_master\",test1=11i,test2=22i")>0);
+        Assert.assertTrue(lineProtocol.indexOf("project_name=\"test_prefix_master\",project_path=\"folder/master\",test1=11i,test2=22i")>0);
     }
 }

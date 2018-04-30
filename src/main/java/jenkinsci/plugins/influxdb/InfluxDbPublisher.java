@@ -13,11 +13,13 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
+import jenkins.model.Jenkins;
 import jenkins.tasks.SimpleBuildStep;
 import jenkinsci.plugins.influxdb.generators.*;
 import jenkinsci.plugins.influxdb.models.Target;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
+import okhttp3.*;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDB.ConsistencyLevel;
 import org.influxdb.InfluxDBFactory;
@@ -258,8 +260,28 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         // write to jenkins console
         listener.getLogger().println(logMessage);
 
+        // use proxy if checked
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        if (target.isUsingJenkinsProxy()) {
+            builder.proxy(Jenkins.getInstance().proxy.createProxy(target.getUrl()));
+            if (Jenkins.getInstance().proxy.getUserName() != null) {
+                builder.proxyAuthenticator(new Authenticator() {
+                    @Override
+                    public Request authenticate(Route route, Response response) throws IOException {
+                        if (response.request().header("Proxy-Authorization") != null) {
+                            return null; // Give up, we've already failed to authenticate.
+                        }
+
+                        String credential = Credentials.basic(Jenkins.getInstance().proxy.getUserName(), Jenkins.getInstance().proxy.getPassword());
+                        return response.request().newBuilder().header("Proxy-Authorization", credential).build();
+                    }
+                });
+            }
+            builder.build();
+        }
+
         // connect to InfluxDB
-        InfluxDB influxDB = Strings.isNullOrEmpty(target.getUsername()) ? InfluxDBFactory.connect(target.getUrl()) : InfluxDBFactory.connect(target.getUrl(), target.getUsername(), target.getPassword());
+        InfluxDB influxDB = Strings.isNullOrEmpty(target.getUsername()) ? InfluxDBFactory.connect(target.getUrl(), builder) : InfluxDBFactory.connect(target.getUrl(), target.getUsername(), target.getPassword(), builder);
         List<Point> pointsToWrite = new ArrayList<Point>();
 
         // finally write to InfluxDB
