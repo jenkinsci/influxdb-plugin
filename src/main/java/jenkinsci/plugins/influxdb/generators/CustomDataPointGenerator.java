@@ -13,12 +13,15 @@ public class CustomDataPointGenerator extends AbstractPointGenerator {
     private final Run<?, ?> build;
     private final String customPrefix;
     Map<String, Object> customData;
+    Map<String, String> customDataTags;
 
-    public CustomDataPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix, Run<?, ?> build, Map customData) {
+    public CustomDataPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix,
+                                    Run<?, ?> build, Map customData, Map<String, String> customDataTags) {
         super(projectNameRenderer);
         this.build = build;
         this.customPrefix = customPrefix;
         this.customData = customData;
+        this.customDataTags = customDataTags;
     }
 
     public boolean hasReport() {
@@ -29,10 +32,19 @@ public class CustomDataPointGenerator extends AbstractPointGenerator {
         long startTime = build.getTimeInMillis();
         long currTime = System.currentTimeMillis();
         long dt = currTime - startTime;
-        Point point = buildPoint(measurementName("jenkins_custom_data"), customPrefix, build)
+
+        Point.Builder pointBuilder = buildPoint(measurementName("jenkins_custom_data"), customPrefix, build)
                 .addField(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
-                .fields(customData)
-                .build();
+                .fields(customData);
+
+        if (customDataTags != null) {
+            if (customDataTags.size() > 0) {
+                pointBuilder = pointBuilder.tag(customDataTags);
+            }
+        }
+
+        Point point = pointBuilder.build();
+
         return new Point[] {point};
     }
 
