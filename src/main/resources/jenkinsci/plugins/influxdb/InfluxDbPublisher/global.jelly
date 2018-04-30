@@ -39,6 +39,10 @@
                          <f:checkbox name="targetBinding.exposeExceptions" checked="${currentTarget.exposeExceptions}" default="true" />
                       </f:entry>
 
+                      <f:entry title="Use Jenkins Proxy" field="usingJenkinsProxy" >
+                         <f:checkbox name="targetBinding.usingJenkinsProxy" checked="${currentTarget.usingJenkinsProxy}" default="false" />
+                      </f:entry>
+
                       <f:entry title="delete target" >
                         <div align="right">
                           <f:repeatableDeleteButton value="delete target"/>
