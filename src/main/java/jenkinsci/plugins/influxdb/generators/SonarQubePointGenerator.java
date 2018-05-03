@@ -171,9 +171,9 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		return url;
 	}
 
-	private String getSonarProjectName(String url) throws URISyntaxException {
+	protected String getSonarProjectName(String url) throws URISyntaxException {
 		URI uri = new URI(url);
-		String[] projectUrl = uri.getPath().split("/");
+		String[] projectUrl = uri.getRawPath().split("/");
 		if (projectUrl.length > 1) {
 			return projectUrl[projectUrl.length - 1];
 		} else
