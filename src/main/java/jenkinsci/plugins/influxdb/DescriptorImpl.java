@@ -33,7 +33,11 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
         }
         return targets.toArray(new Target[size]);
     }
- 
+
+    public void setTargets(CopyOnWriteList newTargets) {
+        targets = newTargets;
+    }
+
     @Override
     public String getDisplayName() {
         return DISPLAY_NAME;
