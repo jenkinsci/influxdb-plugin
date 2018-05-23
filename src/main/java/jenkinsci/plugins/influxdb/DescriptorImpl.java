@@ -17,7 +17,7 @@ import net.sf.json.JSONObject;
 public final class DescriptorImpl extends BuildStepDescriptor<Publisher> implements ModelObject {
  
     public static final String DISPLAY_NAME = "Publish build data to InfluxDb target";
-    private final CopyOnWriteList<Target> targets = new CopyOnWriteList<Target>();
+    private CopyOnWriteList<Target> targets = new CopyOnWriteList<Target>();
  
     public DescriptorImpl() {
         super(InfluxDbPublisher.class);
