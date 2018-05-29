@@ -17,7 +17,7 @@ import net.sf.json.JSONObject;
 public final class DescriptorImpl extends BuildStepDescriptor<Publisher> implements ModelObject {
  
     public static final String DISPLAY_NAME = "Publish build data to InfluxDb target";
-    private final CopyOnWriteList<Target> targets = new CopyOnWriteList<Target>();
+    private CopyOnWriteList<Target> targets = new CopyOnWriteList<Target>();
  
     public DescriptorImpl() {
         super(InfluxDbPublisher.class);
@@ -33,7 +33,11 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
         }
         return targets.toArray(new Target[size]);
     }
- 
+
+    public void setTargets(CopyOnWriteList newTargets) {
+        targets = newTargets;
+    }
+
     @Override
     public String getDisplayName() {
         return DISPLAY_NAME;
