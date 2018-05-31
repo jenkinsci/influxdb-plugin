@@ -8,6 +8,7 @@ import hudson.model.Executor;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.test.AbstractTestResultAction;
+import jenkins.metrics.impl.TimeInQueueAction;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
@@ -23,6 +24,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     public static final String BUILD_TIME = "build_time";
     public static final String BUILD_STATUS_MESSAGE = "build_status_message";
+    public static final String TIME_IN_QUEUE = "time_in_queue";
 
     /* BUILD_RESULT BUILD_RESULT_ORDINAL BUILD_IS_SUCCESSFUL - explanation
      * SUCCESS   0 true  - The build had no errors.
@@ -99,6 +101,10 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             point.addField(TESTS_TOTAL, build.getAction(AbstractTestResultAction.class).getTotalCount());
         }
 
+        if (hasMetricsPlugin(build)) {
+            point.addField(TIME_IN_QUEUE, build.getAction(jenkins.metrics.impl.TimeInQueueAction.class).getQueuingDurationMillis());
+        }
+
         if (StringUtils.isNotBlank(jenkinsEnvParameterField)) {
             Properties fieldProperties = parsePropertiesString(jenkinsEnvParameterField);
             Map fieldMap = resolveEnvParameterAndTransformToMap(fieldProperties);
@@ -125,6 +131,10 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     private boolean hasTestResults(Run<?, ?> build) {
         return build.getAction(AbstractTestResultAction.class) != null;
+    }
+
+    private boolean hasMetricsPlugin(Run<?, ?> build) {
+        return build.getAction(jenkins.metrics.impl.TimeInQueueAction.class) != null;
     }
 
     private int getLastSuccessfulBuild() {
