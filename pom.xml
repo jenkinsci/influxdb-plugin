@@ -171,6 +171,14 @@ THE SOFTWARE.
             <artifactId>commons-codec</artifactId>
             <version>1.9</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>metrics</artifactId>
+            <version>3.1.2.9</version>
+            <optional>true</optional>
+        </dependency>
+
     </dependencies>
 
     <build>

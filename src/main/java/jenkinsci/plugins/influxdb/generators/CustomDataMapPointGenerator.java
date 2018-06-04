@@ -37,10 +37,12 @@ public class CustomDataMapPointGenerator extends AbstractPointGenerator {
             Point.Builder pointBuilder = buildPoint(measurementName(key), customPrefix, build)
                     .fields(customDataMap.get(key));
 
-            Map<String, String> customTags = customDataMapTags.get(key);
-            if (customTags != null) {
-                if (customTags.size() > 0){
-                    pointBuilder = pointBuilder.tag(customTags);
+            if (customDataMapTags != null) {
+                Map<String, String> customTags = customDataMapTags.get(key);
+                if (customTags != null) {
+                    if (customTags.size() > 0){
+                        pointBuilder = pointBuilder.tag(customTags);
+                    }
                 }
             }
 
