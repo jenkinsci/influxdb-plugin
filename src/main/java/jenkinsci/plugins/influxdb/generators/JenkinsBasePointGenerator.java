@@ -103,7 +103,11 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     }
 
     private boolean hasMetricsPlugin(Run<?, ?> build) {
-        return build.getAction(jenkins.metrics.impl.TimeInQueueAction.class) != null;
+        try {
+            return build.getAction(jenkins.metrics.impl.TimeInQueueAction.class) != null;
+        } catch (NoClassDefFoundError e) {
+            return false;
+        }
     }
 
     private int getLastSuccessfulBuild() {
