@@ -7,6 +7,8 @@ import jenkins.metrics.impl.TimeInQueueAction;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import org.influxdb.dto.Point;
 
+import java.util.concurrent.TimeUnit;
+
 public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     public static final String BUILD_TIME = "build_time";
@@ -44,6 +46,12 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     public boolean hasReport() {
         return true;
+    }
+
+    @Override
+    public Point.Builder buildPoint(String name, String customPrefix, Run<?, ?> build) {
+        return super.buildPoint(name, customPrefix, build)
+                .time(build.getTimeInMillis(), TimeUnit.MILLISECONDS);
     }
 
     public Point[] generate() {
