@@ -4,11 +4,12 @@ import hudson.model.*;
 import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
+import org.apache.commons.lang.StringUtils;
+import org.hamcrest.Matchers;
 import org.influxdb.dto.Point;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 /**
@@ -59,5 +60,15 @@ public class JenkinsBasePointGeneratorTest {
 
         Assert.assertTrue(points[0].lineProtocol().contains("build_agent_name=\"\""));
         Assert.assertTrue(points[0].lineProtocol().contains("project_path=\"folder/master\""));
+    }
+
+    @Test
+    public void sheduled_and_start_and_end_time_present() {
+        JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(measurementRenderer, StringUtils.EMPTY, build);
+        Point[] generatedPoints = generator.generate();
+
+        Assert.assertThat(generatedPoints[0].lineProtocol(), Matchers.containsString(String.format("%s=", JenkinsBasePointGenerator.BUILD_SCHEDULED_TIME)));
+        Assert.assertThat(generatedPoints[0].lineProtocol(), Matchers.containsString(String.format("%s=", JenkinsBasePointGenerator.BUILD_EXEC_TIME)));
+        Assert.assertThat(generatedPoints[0].lineProtocol(), Matchers.containsString(String.format("%s=", JenkinsBasePointGenerator.BUILD_MEASURED_TIME)));
     }
 }

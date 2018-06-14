@@ -3,7 +3,6 @@ package jenkinsci.plugins.influxdb.generators;
 import hudson.model.Executor;
 import hudson.model.Run;
 import hudson.tasks.test.AbstractTestResultAction;
-import jenkins.metrics.impl.TimeInQueueAction;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import org.influxdb.dto.Point;
 
@@ -12,6 +11,9 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     public static final String BUILD_TIME = "build_time";
     public static final String BUILD_STATUS_MESSAGE = "build_status_message";
     public static final String TIME_IN_QUEUE = "time_in_queue";
+    public static final String BUILD_SCHEDULED_TIME = "build_scheduled_time";
+    public static final String BUILD_EXEC_TIME = "build_exec_time";
+    public static final String BUILD_MEASURED_TIME = "build_measured_time";
 
     /* BUILD_RESULT BUILD_RESULT_ORDINAL BUILD_IS_SUCCESSFUL - explanation
      * SUCCESS   0 true  - The build had no errors.
@@ -66,6 +68,9 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         Point.Builder point = buildPoint(measurementName("jenkins_data"), customPrefix, build);
 
         point.addField(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
+            .addField(BUILD_SCHEDULED_TIME, build.getTimeInMillis())
+            .addField(BUILD_EXEC_TIME, build.getStartTimeInMillis())
+            .addField(BUILD_MEASURED_TIME, currTime)
             .addField(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
             .addField(BUILD_RESULT, result)
             .addField(BUILD_RESULT_ORDINAL, ordinal)
