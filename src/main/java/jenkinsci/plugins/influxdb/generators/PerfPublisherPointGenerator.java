@@ -114,7 +114,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
 
     private Point generateTestPoint(Test test) {
         Point.Builder builder = buildPoint(measurementName("perfpublisher_test"), customPrefix, build)
-                .addField("test_name", test.getName())
+                .tag("test_name", test.getName())
                 .addField("successful", test.isSuccessfull())
                 .addField("executed", test.isExecuted());
 
@@ -141,7 +141,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
             Metric metric = entry.getValue();
 
             Point point = buildPoint(measurementName("perfpublisher_test_metric"), customPrefix, build)
-                    .addField("test_name", test.getName())
+                    .tag("test_name", test.getName())
                     .addField("metric_name", metricName)
                     .addField("value", metric.getMeasure())
                     .addField("unit", metric.getUnit())
