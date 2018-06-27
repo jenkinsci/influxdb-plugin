@@ -129,10 +129,10 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
 
     private Map<String, Map<String, String>> customDataMapTags;
 
+    @DataBoundConstructor
     public InfluxDbPublisher() {
     }
 
-    @DataBoundConstructor
     public InfluxDbPublisher(String target) {
         this.selectedTarget = target;
     }
