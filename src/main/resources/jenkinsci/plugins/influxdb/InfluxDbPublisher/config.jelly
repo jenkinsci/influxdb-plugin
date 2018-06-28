@@ -18,6 +18,12 @@
           <f:entry title="custom-project-name" field="customProjectName" >
               <f:textbox name="publisherBinding.customProjectName" value="${publisherBinding.customProjectName}"/>
           </f:entry>
+           <f:entry title="jenkins-env-parameter FieldSet" field="jenkinsEnvParameterField">
+               <f:textarea name="publisherBinding.jenkinsEnvParameterField" value="${publisherBinding.jenkinsEnvParameterField}"/>
+           </f:entry>
+           <f:entry title="jenkins-env-parameter TagSet" field="jenkinsEnvParameterTag">
+               <f:textarea name="publisherBinding.jenkinsEnvParameterTag" value="${publisherBinding.jenkinsEnvParameterTag}"/>
+           </f:entry>
        </f:advanced>
   </f:section>
 

@@ -2,11 +2,9 @@ package jenkinsci.plugins.influxdb;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.model.AbstractBuild;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
@@ -33,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -59,6 +56,17 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
      */
     private String customPrefix;
 
+    /**
+     * Jenkins parameter/s which will be added as FieldSet to measurement 'jenkins_data'.
+     * If parameter-value has a $-prefix, it will be resolved from current jenkins-job environment-properties.
+     */
+    private String jenkinsEnvParameterField;
+
+    /**
+     * Jenkins parameter/s which will be added as TagSet to  measurement 'jenkins_data'.
+     * If parameter-value has a $-prefix, it will be resolved from current jenkins-job environment-properties.
+     */
+    private String jenkinsEnvParameterTag;
 
     /**
      * custom data, especially in pipelines, where additional information is calculated
@@ -161,7 +169,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     @DataBoundSetter
     public void setCustomProjectName(String customProjectName) {
         this.customProjectName = customProjectName;
-    }    
+    }
 
     public String getCustomPrefix() {
         return customPrefix;
@@ -170,6 +178,24 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     @DataBoundSetter
     public void setCustomPrefix(String customPrefix) {
         this.customPrefix = customPrefix;
+    }
+
+    public String getJenkinsEnvParameterField() {
+        return jenkinsEnvParameterField;
+    }
+
+    @DataBoundSetter
+    public void setJenkinsEnvParameterField(String jenkinsEnvParameterField) {
+        this.jenkinsEnvParameterField = jenkinsEnvParameterField;
+    }
+
+    public String getJenkinsEnvParameterTag() {
+        return jenkinsEnvParameterTag;
+    }
+
+    @DataBoundSetter
+    public void setJenkinsEnvParameterTag(String jenkinsEnvParameterTag) {
+        this.jenkinsEnvParameterTag = jenkinsEnvParameterTag;
     }
 
     @DataBoundSetter
@@ -285,7 +311,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         List<Point> pointsToWrite = new ArrayList<Point>();
 
         // finally write to InfluxDB
-        JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build);
+        JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build, listener, jenkinsEnvParameterField, jenkinsEnvParameterTag);
         addPoints(pointsToWrite, jGen, listener);
 
         CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, customPrefix, build, customData, customDataTags);
@@ -381,7 +407,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
          */
         try {
             BatchPoints batchPoints = BatchPoints
-                     .database(target.getDatabase())
+                    .database(target.getDatabase())
                     .points(pointsToWrite.toArray(new Point[0]))
                     .retentionPolicy(target.getRetentionPolicy())
                     .consistency(ConsistencyLevel.ANY)
