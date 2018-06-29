@@ -1,17 +1,32 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import hudson.EnvVars;
 import hudson.model.Executor;
 import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.tasks.test.AbstractTestResultAction;
-import jenkins.metrics.impl.TimeInQueueAction;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.influxdb.dto.Point;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Map;
+import java.util.Properties;
 
 public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     public static final String BUILD_TIME = "build_time";
     public static final String BUILD_STATUS_MESSAGE = "build_status_message";
     public static final String TIME_IN_QUEUE = "time_in_queue";
+    public static final String BUILD_SCHEDULED_TIME = "build_scheduled_time";
+    public static final String BUILD_EXEC_TIME = "build_exec_time";
+    public static final String BUILD_MEASURED_TIME = "build_measured_time";
 
     /* BUILD_RESULT BUILD_RESULT_ORDINAL BUILD_IS_SUCCESSFUL - explanation
      * SUCCESS   0 true  - The build had no errors.
@@ -35,11 +50,17 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     private final Run<?, ?> build;
     private final String customPrefix;
+    private final TaskListener listener;
+    private final String jenkinsEnvParameterField;
+    private final String jenkinsEnvParameterTag;
 
-    public JenkinsBasePointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix, Run<?, ?> build) {
+    public JenkinsBasePointGenerator(MeasurementRenderer<Run<?, ?>> projectNameRenderer, String customPrefix, Run<?, ?> build, TaskListener listener, String jenkinsEnvParameterField, String jenkinsEnvParameterTag) {
         super(projectNameRenderer);
         this.build = build;
         this.customPrefix = customPrefix;
+        this.listener = listener;
+        this.jenkinsEnvParameterField = jenkinsEnvParameterField;
+        this.jenkinsEnvParameterTag = jenkinsEnvParameterTag;
     }
 
     public boolean hasReport() {
@@ -66,6 +87,9 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         Point.Builder point = buildPoint(measurementName("jenkins_data"), customPrefix, build);
 
         point.addField(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
+            .addField(BUILD_SCHEDULED_TIME, build.getTimeInMillis())
+            .addField(BUILD_EXEC_TIME, build.getStartTimeInMillis())
+            .addField(BUILD_MEASURED_TIME, currTime)
             .addField(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
             .addField(BUILD_RESULT, result)
             .addField(BUILD_RESULT_ORDINAL, ordinal)
@@ -84,6 +108,18 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
         if (hasMetricsPlugin(build)) {
             point.addField(TIME_IN_QUEUE, build.getAction(jenkins.metrics.impl.TimeInQueueAction.class).getQueuingDurationMillis());
+        }
+
+        if (StringUtils.isNotBlank(jenkinsEnvParameterField)) {
+            Properties fieldProperties = parsePropertiesString(jenkinsEnvParameterField);
+            Map fieldMap = resolveEnvParameterAndTransformToMap(fieldProperties);
+            point.fields(fieldMap);
+        }
+
+        if (StringUtils.isNotBlank(jenkinsEnvParameterTag)) {
+            Properties tagProperties = parsePropertiesString(jenkinsEnvParameterTag);
+            Map tagMap = resolveEnvParameterAndTransformToMap(tagProperties);
+            point.tag(tagMap);
         }
 
         return new Point[] {point.build()};
@@ -122,5 +158,44 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             return build.getParent().getLastStableBuild().getNumber();
         else
             return 0;
+    }
+
+    private Properties parsePropertiesString(final String propertiesString) {
+        final Properties properties = new Properties();
+        try {
+            StringReader reader = new StringReader(propertiesString);
+            properties.load(reader);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return properties;
+    }
+
+    private Map<String, Object> resolveEnvParameterAndTransformToMap(final Properties properties) {
+        ImmutableMap<String, String> propertiesMap = Maps.fromProperties(properties);
+        return Maps.transformValues(propertiesMap, new Function<String, Object>() {
+            @Nullable
+            @Override
+            public Object apply(@Nullable String value) {
+                if (containsEnvParameter(value)) {
+                    return resolveEnvParameter(value);
+                }
+                return value;
+            }
+        });
+    }
+
+    private boolean containsEnvParameter(final String value) {
+        return StringUtils.length(value) > 3 && StringUtils.contains(value, "${");
+    }
+
+    private String resolveEnvParameter(final String stringValue) {
+        try {
+            EnvVars envVars = build.getEnvironment(listener);
+            return StrSubstitutor.replace(stringValue, envVars);
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return stringValue;
     }
 }
