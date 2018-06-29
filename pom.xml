@@ -33,7 +33,7 @@ THE SOFTWARE.
 
     <artifactId>influxdb</artifactId>
     <url>https://wiki.jenkins-ci.org/display/JENKINS/InfluxDB+Plugin</url>
-    <version>1.15-SNAPSHOT</version>
+    <version>1.16-SNAPSHOT</version>
     <packaging>hpi</packaging>
  
     <name>InfluxDB Plugin</name>
@@ -142,7 +142,7 @@ THE SOFTWARE.
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>cobertura</artifactId>
-            <version>1.11</version>
+            <version>1.12.1</version>
             <optional>true</optional>
         </dependency>
 

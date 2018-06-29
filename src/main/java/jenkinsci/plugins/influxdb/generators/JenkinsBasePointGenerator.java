@@ -1,10 +1,23 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import hudson.EnvVars;
 import hudson.model.Executor;
 import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.tasks.test.AbstractTestResultAction;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.influxdb.dto.Point;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Map;
+import java.util.Properties;
 
 public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
@@ -37,11 +50,17 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     private final Run<?, ?> build;
     private final String customPrefix;
+    private final TaskListener listener;
+    private final String jenkinsEnvParameterField;
+    private final String jenkinsEnvParameterTag;
 
-    public JenkinsBasePointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix, Run<?, ?> build) {
+    public JenkinsBasePointGenerator(MeasurementRenderer<Run<?, ?>> projectNameRenderer, String customPrefix, Run<?, ?> build, TaskListener listener, String jenkinsEnvParameterField, String jenkinsEnvParameterTag) {
         super(projectNameRenderer);
         this.build = build;
         this.customPrefix = customPrefix;
+        this.listener = listener;
+        this.jenkinsEnvParameterField = jenkinsEnvParameterField;
+        this.jenkinsEnvParameterTag = jenkinsEnvParameterTag;
     }
 
     public boolean hasReport() {
@@ -91,6 +110,18 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             point.addField(TIME_IN_QUEUE, build.getAction(jenkins.metrics.impl.TimeInQueueAction.class).getQueuingDurationMillis());
         }
 
+        if (StringUtils.isNotBlank(jenkinsEnvParameterField)) {
+            Properties fieldProperties = parsePropertiesString(jenkinsEnvParameterField);
+            Map fieldMap = resolveEnvParameterAndTransformToMap(fieldProperties);
+            point.fields(fieldMap);
+        }
+
+        if (StringUtils.isNotBlank(jenkinsEnvParameterTag)) {
+            Properties tagProperties = parsePropertiesString(jenkinsEnvParameterTag);
+            Map tagMap = resolveEnvParameterAndTransformToMap(tagProperties);
+            point.tag(tagMap);
+        }
+
         return new Point[] {point.build()};
     }
 
@@ -127,5 +158,44 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             return build.getParent().getLastStableBuild().getNumber();
         else
             return 0;
+    }
+
+    private Properties parsePropertiesString(final String propertiesString) {
+        final Properties properties = new Properties();
+        try {
+            StringReader reader = new StringReader(propertiesString);
+            properties.load(reader);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return properties;
+    }
+
+    private Map<String, Object> resolveEnvParameterAndTransformToMap(final Properties properties) {
+        ImmutableMap<String, String> propertiesMap = Maps.fromProperties(properties);
+        return Maps.transformValues(propertiesMap, new Function<String, Object>() {
+            @Nullable
+            @Override
+            public Object apply(@Nullable String value) {
+                if (containsEnvParameter(value)) {
+                    return resolveEnvParameter(value);
+                }
+                return value;
+            }
+        });
+    }
+
+    private boolean containsEnvParameter(final String value) {
+        return StringUtils.length(value) > 3 && StringUtils.contains(value, "${");
+    }
+
+    private String resolveEnvParameter(final String stringValue) {
+        try {
+            EnvVars envVars = build.getEnvironment(listener);
+            return StrSubstitutor.replace(stringValue, envVars);
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return stringValue;
     }
 }
