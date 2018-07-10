@@ -18,6 +18,7 @@ public class CustomDataPointGeneratorTest {
     public static final String JOB_NAME = "master";
     public static final int BUILD_NUMBER = 11;
     public static final String CUSTOM_PREFIX = "test_prefix";
+    public static final String MEASUREMENT_NAME = "jenkins_data";
 
     private Run<?,?> build;
     private Job job;
@@ -40,11 +41,11 @@ public class CustomDataPointGeneratorTest {
     @Test
     public void hasReportTest() {
         //check with customDataMap = null
-        CustomDataPointGenerator cdGen1 = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, null, null);
+        CustomDataPointGenerator cdGen1 = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, null, null, MEASUREMENT_NAME);
         Assert.assertFalse(cdGen1.hasReport());
 
         //check with empty customDataMap
-        CustomDataPointGenerator cdGen2 = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, Collections.<String, Map<String, Object>>emptyMap(), null);
+        CustomDataPointGenerator cdGen2 = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, Collections.<String, Map<String, Object>>emptyMap(), null, MEASUREMENT_NAME);
         Assert.assertFalse(cdGen2.hasReport());
     }
 
@@ -61,7 +62,7 @@ public class CustomDataPointGeneratorTest {
 
         List<Point> pointsToWrite = new ArrayList<Point>();
 
-        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, customData, customDataTags);
+        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, customData, customDataTags, MEASUREMENT_NAME);
         pointsToWrite.addAll(Arrays.asList(cdGen.generate()));
 
         String lineProtocol = pointsToWrite.get(0).lineProtocol();

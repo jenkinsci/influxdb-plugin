@@ -137,6 +137,11 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
 
     private Map<String, Map<String, String>> customDataMapTags;
 
+    /**
+     * custom measurement name used for all measurement types
+     */
+    private String customMeasurementName = "jenkins_data";
+
     @DataBoundConstructor
     public InfluxDbPublisher() {
     }
@@ -232,6 +237,15 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
 
     public Map<String, Map<String, String>> getCustomDataMapTags() { return customDataMapTags; }
 
+    @DataBoundSetter
+    public void setCustomMeasurementName(String customMeasurementName) {
+        this.customMeasurementName = customMeasurementName;
+    }
+
+    public String getCustomMeasurementName() {
+        return customMeasurementName;
+    }
+
     public Target getTarget() {
         Target[] targets = DESCRIPTOR.getTargets();
         if (selectedTarget == null && targets.length > 0) {
@@ -311,10 +325,10 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         List<Point> pointsToWrite = new ArrayList<Point>();
 
         // finally write to InfluxDB
-        JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build, listener, jenkinsEnvParameterField, jenkinsEnvParameterTag);
+        JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build, listener, jenkinsEnvParameterField, jenkinsEnvParameterTag, customMeasurementName);
         addPoints(pointsToWrite, jGen, listener);
 
-        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, customPrefix, build, customData, customDataTags);
+        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, customPrefix, build, customData, customDataTags, customMeasurementName);
         if (cdGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Custom data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, cdGen, listener);
