@@ -23,6 +23,7 @@ public class CustomDataPointGenerator extends AbstractPointGenerator {
         this.customPrefix = customPrefix;
         this.customData = customData;
         this.customDataTags = customDataTags;
+        // Extra logic to retain compatibility with existing "jenkins_custom_data" tables
         this.measurementName = measurementName.equals("jenkins_data") ? "jenkins_custom_data" : "custom_" + measurementName;
     }
 

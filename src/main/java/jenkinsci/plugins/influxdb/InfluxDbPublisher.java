@@ -139,8 +139,14 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
 
     /**
      * custom measurement name used for all measurement types
+     * Overrides the default measurement names.
+     * Default value is "jenkins_data"
+     * 
+     * For custom data, prepends "custom_", i.e. "some_measurement"
+     * becomes "custom_some_measurement".
+     * Default custom name remains "jenkins_custom_data"
      */
-    private String customMeasurementName = "jenkins_data";
+    private String measurementName = "jenkins_data";
 
     @DataBoundConstructor
     public InfluxDbPublisher() {
@@ -238,12 +244,12 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     public Map<String, Map<String, String>> getCustomDataMapTags() { return customDataMapTags; }
 
     @DataBoundSetter
-    public void setCustomMeasurementName(String customMeasurementName) {
-        this.customMeasurementName = customMeasurementName;
+    public void setMeasurementName(String measurementName) {
+        this.measurementName = measurementName;
     }
 
-    public String getCustomMeasurementName() {
-        return customMeasurementName;
+    public String getMeasurementName() {
+        return measurementName;
     }
 
     public Target getTarget() {
@@ -325,10 +331,10 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         List<Point> pointsToWrite = new ArrayList<Point>();
 
         // finally write to InfluxDB
-        JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build, listener, jenkinsEnvParameterField, jenkinsEnvParameterTag, customMeasurementName);
+        JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build, listener, jenkinsEnvParameterField, jenkinsEnvParameterTag, measurementName);
         addPoints(pointsToWrite, jGen, listener);
 
-        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, customPrefix, build, customData, customDataTags, customMeasurementName);
+        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, customPrefix, build, customData, customDataTags, measurementName);
         if (cdGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Custom data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, cdGen, listener);
