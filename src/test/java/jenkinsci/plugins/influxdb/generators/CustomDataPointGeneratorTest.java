@@ -69,4 +69,22 @@ public class CustomDataPointGeneratorTest {
         Assert.assertTrue(lineProtocol.startsWith("jenkins_custom_data,prefix=test_prefix,project_name=test_prefix_master,tag1=myTag build_number=11i,build_time="));
         Assert.assertTrue(lineProtocol.indexOf("project_name=\"test_prefix_master\",project_path=\"folder/master\",test1=11i,test2=22i")>0);
     }
+
+    @Test
+    public void custom_measurement_included() {
+        String customMeasurement = "custom_measurement";
+        Map<String, Object> customData = new HashMap<String, Object>();
+        customData.put("test1", 11);
+
+        Map<String, String> customDataTags = new HashMap<String, String>();
+        customDataTags.put("tag1", "myTag");
+
+        List<Point> pointsToWrite = new ArrayList<Point>();
+
+        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, customData, customDataTags, customMeasurement);
+        pointsToWrite.addAll(Arrays.asList(cdGen.generate()));
+
+        String lineProtocol = pointsToWrite.get(0).lineProtocol();
+        Assert.assertTrue(lineProtocol.startsWith("custom_" + customMeasurement));
+    }
 }

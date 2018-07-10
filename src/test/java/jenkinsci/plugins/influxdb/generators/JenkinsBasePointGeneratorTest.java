@@ -163,4 +163,15 @@ public class JenkinsBasePointGeneratorTest {
         assertThat(lineProtocol, containsString("testEnvKeyTag1=" + JENKINS_ENV_RESOLVED_VALUE_TAG));
         assertThat(lineProtocol, containsString("testEnvKeyTag2=PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_TAG + "_" + JENKINS_ENV_RESOLVED_VALUE_TAG + "_SUFFIX"));
     }
+
+    @Test
+    public void custom_measurement_included() {
+        String customMeasurement = "custom_measurement";
+        JenkinsBasePointGenerator jenkinsBasePointGenerator =
+                new JenkinsBasePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, listener, JENKINS_ENV_PARAMETER_FIELD, JENKINS_ENV_PARAMETER_TAG, customMeasurement);
+        Point[] generatedPoints = jenkinsBasePointGenerator.generate();
+        String lineProtocol = generatedPoints[0].lineProtocol();
+
+        Assert.assertTrue(lineProtocol.startsWith(customMeasurement));
+    }
 }
