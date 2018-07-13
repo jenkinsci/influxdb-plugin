@@ -318,12 +318,16 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         if (cdGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Custom data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, cdGen, listener);
+        } else {
+            logger.log(Level.INFO, "Data source empty: Custom Data");
         }
 
         CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, customPrefix, build, customDataMap, customDataMapTags);
         if (cdmGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Custom data map found. Writing to InfluxDB...");
             addPoints(pointsToWrite, cdmGen, listener);
+        } else {
+            logger.log(Level.INFO, "Data source empty: Custom Data Map");
         }
 
         try {
@@ -370,6 +374,8 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         if (sonarGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] SonarQube data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, sonarGen, listener);
+        } else {
+            logger.log(Level.INFO, "Plugin skipped: SonarQube");
         }
 
 
@@ -377,6 +383,8 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         if (changeLogGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Git ChangeLog data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, changeLogGen, listener);
+        } else {
+            logger.log(Level.INFO, "Data source empty: Change Log");
         }
 
         try {
