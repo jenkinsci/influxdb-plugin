@@ -32,7 +32,8 @@ public abstract class AbstractPointGenerator implements PointGenerator {
                 .addField(PROJECT_PATH, build.getParent().getRelativeNameFrom(Jenkins.getInstance()))
                 .addField(BUILD_NUMBER, build.getNumber())
                 .tag(PROJECT_NAME, renderedProjectName)
-                .time(this.timestamp, TimeUnit.MICROSECONDS);
+                // convert to nanoseconds for backwards compatability
+                .time(timestamp * 1000000, TimeUnit.NANOSECONDS);
 
         if (customPrefix != null && !customPrefix.isEmpty())
             builder = builder.tag(CUSTOM_PREFIX, measurementName(customPrefix));

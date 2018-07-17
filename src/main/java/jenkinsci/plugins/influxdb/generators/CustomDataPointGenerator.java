@@ -30,7 +30,7 @@ public class CustomDataPointGenerator extends AbstractPointGenerator {
 
     public Point[] generate() {
         long startTime = build.getTimeInMillis();
-        long dt = this.timestamp - startTime;
+        long dt = timestamp - startTime;
 
         Point.Builder pointBuilder = buildPoint(measurementName("jenkins_custom_data"), customPrefix, build)
                 .addField(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
