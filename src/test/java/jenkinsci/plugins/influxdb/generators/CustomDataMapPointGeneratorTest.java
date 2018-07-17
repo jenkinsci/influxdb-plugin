@@ -24,6 +24,8 @@ public class CustomDataMapPointGeneratorTest {
 
     private MeasurementRenderer<Run<?, ?>> measurementRenderer;
 
+    private long currTime;
+
     @Before
     public void before() {
         build = Mockito.mock(Run.class);
@@ -35,24 +37,25 @@ public class CustomDataMapPointGeneratorTest {
         Mockito.when(job.getName()).thenReturn(JOB_NAME);
         Mockito.when(job.getRelativeNameFrom(Mockito.any(Jenkins.class))).thenReturn("folder/" + JOB_NAME);
 
+        
+        currTime = System.currentTimeMillis();
     }
 
     @Test
     public void hasReportTest() {
         //check with customDataMap = null
         CustomDataMapPointGenerator cdmGen1 = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
-                null, null);
+                currTime, null, null);
         Assert.assertFalse(cdmGen1.hasReport());
 
         //check with empty customDataMap
         CustomDataMapPointGenerator cdmGen2 = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
-                Collections.<String, Map<String, Object>>emptyMap(), Collections.<String, Map<String, String>>emptyMap());
+                currTime, Collections.<String, Map<String, Object>>emptyMap(), Collections.<String, Map<String, String>>emptyMap());
         Assert.assertFalse(cdmGen2.hasReport());
     }
 
     @Test
     public void generateTest() {
-
         Map<String, Object> customData1 = new HashMap<String, Object>();
         customData1.put("test1", 11);
         customData1.put("test2", 22);
@@ -76,7 +79,7 @@ public class CustomDataMapPointGeneratorTest {
         List<Point> pointsToWrite = new ArrayList<Point>();
 
         CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
-                customDataMap, customDataMapTags);
+                currTime, customDataMap, customDataMapTags);
         pointsToWrite.addAll(Arrays.asList(cdmGen.generate()));
 
         String lineProtocol1;

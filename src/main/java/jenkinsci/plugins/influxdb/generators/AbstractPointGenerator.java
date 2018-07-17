@@ -6,6 +6,7 @@ import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import org.influxdb.dto.Point;
 
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractPointGenerator implements PointGenerator {
 
@@ -13,11 +14,13 @@ public abstract class AbstractPointGenerator implements PointGenerator {
     public static final String PROJECT_PATH = "project_path";
     public static final String BUILD_NUMBER = "build_number";
     public static final String CUSTOM_PREFIX = "prefix";
+    public long timestamp;
 
     private MeasurementRenderer projectNameRenderer;
 
-    public AbstractPointGenerator(MeasurementRenderer projectNameRenderer) {
+    public AbstractPointGenerator(MeasurementRenderer projectNameRenderer, long timestamp) {
         this.projectNameRenderer = Objects.requireNonNull(projectNameRenderer);
+        this.timestamp = timestamp;
     }
 
     @Override
@@ -28,7 +31,8 @@ public abstract class AbstractPointGenerator implements PointGenerator {
                 .addField(PROJECT_NAME, renderedProjectName)
                 .addField(PROJECT_PATH, build.getParent().getRelativeNameFrom(Jenkins.getInstance()))
                 .addField(BUILD_NUMBER, build.getNumber())
-                .tag(PROJECT_NAME, renderedProjectName);
+                .tag(PROJECT_NAME, renderedProjectName)
+                .time(this.timestamp, TimeUnit.MICROSECONDS);
 
         if (customPrefix != null && !customPrefix.isEmpty())
             builder = builder.tag(CUSTOM_PREFIX, measurementName(customPrefix));

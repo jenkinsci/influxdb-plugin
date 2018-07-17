@@ -54,8 +54,8 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     private final String jenkinsEnvParameterField;
     private final String jenkinsEnvParameterTag;
 
-    public JenkinsBasePointGenerator(MeasurementRenderer<Run<?, ?>> projectNameRenderer, String customPrefix, Run<?, ?> build, TaskListener listener, String jenkinsEnvParameterField, String jenkinsEnvParameterTag) {
-        super(projectNameRenderer);
+    public JenkinsBasePointGenerator(MeasurementRenderer<Run<?, ?>> projectNameRenderer, String customPrefix, Run<?, ?> build, long timestamp, TaskListener listener, String jenkinsEnvParameterField, String jenkinsEnvParameterTag) {
+        super(projectNameRenderer, timestamp);
         this.build = build;
         this.customPrefix = customPrefix;
         this.listener = listener;

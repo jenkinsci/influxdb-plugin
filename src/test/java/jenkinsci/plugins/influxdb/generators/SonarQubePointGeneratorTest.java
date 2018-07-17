@@ -22,7 +22,9 @@ public class SonarQubePointGeneratorTest {
 	    private Run build;
 	    private Job job;
 
-	    private MeasurementRenderer<Run<?, ?>> measurementRenderer;
+		private MeasurementRenderer<Run<?, ?>> measurementRenderer;
+		
+		private long currTime;
 
 	    @Before
 	    public void before() {
@@ -34,13 +36,14 @@ public class SonarQubePointGeneratorTest {
 	        Mockito.when(build.getParent()).thenReturn(job);
 	        Mockito.when(job.getName()).thenReturn(JOB_NAME);
 
+			currTime = System.currentTimeMillis();
 	    }
 	
 	@Test
 	public void getSonarProjectNameTest() throws URISyntaxException {
 		String name = "org.namespace:feature%2Fmy-sub-project";
 		String url = "http://sonar.dashboard.com/dashboard/index/" + name;
-		SonarQubePointGenerator gen = new SonarQubePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, null);
+		SonarQubePointGenerator gen = new SonarQubePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null);
 		assertEquals(name, gen.getSonarProjectName(url));
 	}
 }
