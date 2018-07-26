@@ -18,6 +18,7 @@ public class CustomDataPointGeneratorTest {
     public static final String JOB_NAME = "master";
     public static final int BUILD_NUMBER = 11;
     public static final String CUSTOM_PREFIX = "test_prefix";
+    public static final String MEASUREMENT_NAME = "jenkins_data";
 
     private Run<?,?> build;
     private Job job;
@@ -43,11 +44,11 @@ public class CustomDataPointGeneratorTest {
     @Test
     public void hasReportTest() {
         //check with customDataMap = null
-        CustomDataPointGenerator cdGen1 = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null, null);
+        CustomDataPointGenerator cdGen1 = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null, null, MEASUREMENT_NAME);
         Assert.assertFalse(cdGen1.hasReport());
 
         //check with empty customDataMap
-        CustomDataPointGenerator cdGen2 = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, Collections.<String, Map<String, Object>>emptyMap(), null);
+        CustomDataPointGenerator cdGen2 = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, Collections.<String, Map<String, Object>>emptyMap(), null, MEASUREMENT_NAME);
         Assert.assertFalse(cdGen2.hasReport());
     }
 
@@ -64,11 +65,29 @@ public class CustomDataPointGeneratorTest {
 
         List<Point> pointsToWrite = new ArrayList<Point>();
 
-        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, customData, customDataTags);
+        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, customData, customDataTags, MEASUREMENT_NAME);
         pointsToWrite.addAll(Arrays.asList(cdGen.generate()));
 
         String lineProtocol = pointsToWrite.get(0).lineProtocol();
         Assert.assertTrue(lineProtocol.startsWith("jenkins_custom_data,prefix=test_prefix,project_name=test_prefix_master,tag1=myTag build_number=11i,build_time="));
         Assert.assertTrue(lineProtocol.indexOf("project_name=\"test_prefix_master\",project_path=\"folder/master\",test1=11i,test2=22i")>0);
+    }
+
+    @Test
+    public void custom_measurement_included() {
+        String customMeasurement = "custom_measurement";
+        Map<String, Object> customData = new HashMap<String, Object>();
+        customData.put("test1", 11);
+
+        Map<String, String> customDataTags = new HashMap<String, String>();
+        customDataTags.put("tag1", "myTag");
+
+        List<Point> pointsToWrite = new ArrayList<Point>();
+
+        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, customData, customDataTags, customMeasurement);
+        pointsToWrite.addAll(Arrays.asList(cdGen.generate()));
+
+        String lineProtocol = pointsToWrite.get(0).lineProtocol();
+        Assert.assertTrue(lineProtocol.startsWith("custom_" + customMeasurement));
     }
 }

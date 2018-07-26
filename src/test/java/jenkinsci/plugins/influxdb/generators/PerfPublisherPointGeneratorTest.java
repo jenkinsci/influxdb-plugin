@@ -91,10 +91,10 @@ public class PerfPublisherPointGeneratorTest {
         reports.addReport(report);
         PerfPublisherPointGenerator generator = new PerfPublisherPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime);
         Point[] points = generator.generate();
-
+        
         Assert.assertTrue(points[0].lineProtocol().startsWith("perfpublisher_summary,prefix=test_prefix,project_name=test_prefix_master build_number=11i,number_of_executed_tests=1i"));
         Assert.assertTrue(points[1].lineProtocol().startsWith("perfpublisher_metric,prefix=test_prefix,project_name=test_prefix_master average=50.0,best=50.0,build_number=11i,metric_name=\"metric1\",project_name=\"test_prefix_master\",project_path=\"folder/master\",worst=50.0"));
-        Assert.assertTrue(points[2].lineProtocol().startsWith("perfpublisher_test,prefix=test_prefix,project_name=test_prefix_master build_number=11i,executed=true,project_name=\"test_prefix_master\",project_path=\"folder/master\",successful=false,test_name=\"test.txt\""));
-        Assert.assertTrue(points[3].lineProtocol().startsWith("perfpublisher_test_metric,prefix=test_prefix,project_name=test_prefix_master build_number=11i,metric_name=\"metric1\",project_name=\"test_prefix_master\",project_path=\"folder/master\",relevant=true,test_name=\"test.txt\",unit=\"ms\",value=50.0"));
+        Assert.assertTrue(points[2].lineProtocol().startsWith("perfpublisher_test,prefix=test_prefix,project_name=test_prefix_master,test_name=test.txt build_number=11i,executed=true,project_name=\"test_prefix_master\",project_path=\"folder/master\",successful=false,test_name=\"test.txt\""));
+        Assert.assertTrue(points[3].lineProtocol().startsWith("perfpublisher_test_metric,prefix=test_prefix,project_name=test_prefix_master,test_name=test.txt build_number=11i,metric_name=\"metric1\",project_name=\"test_prefix_master\",project_path=\"folder/master\",relevant=true,test_name=\"test.txt\",unit=\"ms\",value=50.0"));
     }
 }
