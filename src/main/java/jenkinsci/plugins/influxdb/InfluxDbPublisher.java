@@ -211,7 +211,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     }
 
     @DataBoundSetter
-    public void setCustomTimeStamp(long customTimeStamp) {
+    public void setCustomTimeStampLong(long customTimeStamp) {
         this.customTimeStamp = customTimeStamp;
     }
 
