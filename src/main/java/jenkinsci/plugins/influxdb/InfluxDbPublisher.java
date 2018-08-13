@@ -210,6 +210,11 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         this.customTimeStamp = Long.parseLong(customTimeStamp, 10);
     }
 
+    @DataBoundSetter
+    public void setCustomTimeStamp(long customTimeStamp) {
+        this.customTimeStamp = customTimeStamp;
+    }
+
     public String getJenkinsEnvParameterField() {
         return jenkinsEnvParameterField;
     }
