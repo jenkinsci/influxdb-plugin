@@ -65,6 +65,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     /**
      * Jenkins parameter/s which will be added as FieldSet to measurement 'jenkins_data'.
      * If parameter-value has a $-prefix, it will be resolved from current jenkins-job environment-properties.
+     * Expects a millisecond timestamp, which can be passed as a string or to customTimeStampLong as a long.
      */
     private String jenkinsEnvParameterField;
 
