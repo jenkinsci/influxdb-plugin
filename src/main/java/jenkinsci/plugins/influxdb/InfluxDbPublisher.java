@@ -57,6 +57,12 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     private String customPrefix;
 
     /**
+     * custom timestamp, enabling you to have a build that produces historical data. For example haveing 
+     * a build that pulls data from a separate API.
+     */
+    private String customTimeStamp;
+
+    /**
      * Jenkins parameter/s which will be added as FieldSet to measurement 'jenkins_data'.
      * If parameter-value has a $-prefix, it will be resolved from current jenkins-job environment-properties.
      */
@@ -191,6 +197,15 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         this.customPrefix = customPrefix;
     }
 
+    public String getCustomTimeStamp() {
+        return customTimeStamp;
+    }
+
+    @DataBoundSetter
+    public void setCustomTimeStamp(String customTimeStamp) {
+        this.customTimeStamp = customTimeStamp;
+    }
+
     public String getJenkinsEnvParameterField() {
         return jenkinsEnvParameterField;
     }
@@ -291,9 +306,14 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
             throws InterruptedException, IOException {
 
         MeasurementRenderer<Run<?, ?>> measurementRenderer = new ProjectNameRenderer(customPrefix, customProjectName);
-
-        // Get the current time for timestamping all point generation
-        long currTime = System.currentTimeMillis();
+        
+        long currTime;
+        if (customTimeStamp == null) {
+            // Get the current time for timestamping all point generation
+            currTime = System.currentTimeMillis();
+        } else {
+            currTime = Long.parseLong(customTimeStamp, 10);
+        }
 
         // get the target from the job's config
         Target target = getTarget();
