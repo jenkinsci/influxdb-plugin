@@ -163,8 +163,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
             if (targets.length > 0) {
                 //ipTemp = targets[0].getUrl() + "," + targets[0].getDatabase();
                 ipTemp = targets[0].getDescription();
-            } else {
-                throw new RuntimeException("Target was null!");
             }
         }
         return ipTemp;
@@ -297,6 +295,9 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
 
         // get the target from the job's config
         Target target = getTarget();
+        if (target==null) {
+            throw new RuntimeException("Target was null!");
+        }
 
         // prepare a meaningful logmessage
         String logMessage = "[InfluxDB Plugin] Publishing data to: " + target.toString();
