@@ -292,8 +292,8 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
 
         MeasurementRenderer<Run<?, ?>> measurementRenderer = new ProjectNameRenderer(customPrefix, customProjectName);
 
-        // Get the current time for timestamping all point generation
-        long currTime = System.currentTimeMillis();
+        // Get the current time for timestamping all point generation and convert to nanoseconds
+        long currTime = System.currentTimeMillis() * 1000000;
 
         // get the target from the job's config
         Target target = getTarget();
