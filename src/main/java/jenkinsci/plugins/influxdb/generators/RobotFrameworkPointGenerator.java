@@ -35,8 +35,8 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     private final Map<String, RobotTagResult> tagResults;
     private MeasurementRenderer<Run<?,?>> projectNameRenderer;
 
-    public RobotFrameworkPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix, Run<?, ?> build) {
-        super(projectNameRenderer);
+    public RobotFrameworkPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix, Run<?, ?> build, long timestamp) {
+        super(projectNameRenderer, timestamp);
         this.projectNameRenderer = projectNameRenderer;
         this.build = build;
         this.customPrefix = customPrefix;
@@ -78,31 +78,26 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
 
     private List<Point> generateSubPoints(RobotResult robotResult) {
         List<Point> subPoints = new ArrayList<Point>();
+        TimeGenerator suiteResultTime = new TimeGenerator(timestamp);
         for(RobotSuiteResult suiteResult : robotResult.getAllSuites()) {
-            subPoints.add(generateSuitePoint(suiteResult));
-
+            long caseTimeStamp = suiteResultTime.next();
+            subPoints.add(generateSuitePoint(suiteResult, caseTimeStamp));
+            // To preserve the existing functionality of the case being timestamps after the
+            // suiteResult, seed the new TimeGenerator with the suiteResult's time
+            TimeGenerator caseResultTime = new TimeGenerator(caseTimeStamp);
             for(RobotCaseResult caseResult : suiteResult.getAllCases()) {
-                Point casePoint = generateCasePoint(caseResult);
+                Point casePoint = generateCasePoint(caseResult, caseResultTime.next());
                 if (casePointExists(subPoints, casePoint)) {
                     continue;
                 }
-                subPoints.add(generateCasePoint(caseResult));
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException ie) {
-                    // handle
-                }
+                subPoints.add(casePoint);
             }
 
         }
 
+        TimeGenerator tagTime = new TimeGenerator(timestamp);
         for(Map.Entry<String, RobotTagResult> entry : tagResults.entrySet()) {
-            subPoints.add(generateTagPoint(entry.getValue()));
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ie) {
-                // handle
-            }
+            subPoints.add(generateTagPoint(entry.getValue(), tagTime.next()));
         }
         return subPoints;
     }
@@ -123,8 +118,8 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
         return false;
     }
 
-    private Point generateCasePoint(RobotCaseResult caseResult) {
-        Point point = buildPoint(measurementName("testcase_point"), customPrefix, build)
+    private Point generateCasePoint(RobotCaseResult caseResult, long timestamp) {
+        Point point = buildPoint(measurementName("testcase_point"), customPrefix, build, timestamp)
             .field(RF_NAME, caseResult.getName())
             .field(RF_SUITE_NAME, caseResult.getParent().getName())
             .field(RF_CRITICAL_FAILED, caseResult.getCriticalFailed())
@@ -169,8 +164,8 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
         }
     }
 
-    private Point generateTagPoint(RobotTagResult tagResult) {
-        Point point = buildPoint(measurementName("tag_point"), customPrefix, build)
+    private Point generateTagPoint(RobotTagResult tagResult, long timestamp) {
+        Point point = buildPoint(measurementName("tag_point"), customPrefix, build, timestamp)
             .field(RF_TAG_NAME, tagResult.name)
             .field(RF_CRITICAL_FAILED, tagResult.criticalFailed)
             .field(RF_CRITICAL_PASSED, tagResult.criticalPassed)
@@ -184,8 +179,8 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
         return point;
     }
 
-    private Point generateSuitePoint(RobotSuiteResult suiteResult) {
-        Point point = buildPoint(measurementName("suite_result"), customPrefix, build)
+    private Point generateSuitePoint(RobotSuiteResult suiteResult, long timestamp) {
+        Point point = buildPoint(measurementName("suite_result"), customPrefix, build, timestamp)
             .field(RF_SUITE_NAME, suiteResult.getName())
             .field(RF_TESTCASES, suiteResult.getAllCases().size())
             .field(RF_CRITICAL_FAILED, suiteResult.getCriticalFailed())
