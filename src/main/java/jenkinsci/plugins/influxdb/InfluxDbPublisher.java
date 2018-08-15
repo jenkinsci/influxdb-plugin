@@ -168,6 +168,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         return ipTemp;
     }
 
+    @DataBoundSetter
     public void setSelectedTarget(String target) {
         Preconditions.checkNotNull(target);
         this.selectedTarget = target;
