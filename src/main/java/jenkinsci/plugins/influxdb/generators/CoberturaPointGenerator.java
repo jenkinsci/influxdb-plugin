@@ -24,8 +24,8 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
     private final CoberturaBuildAction coberturaBuildAction;
     private final String customPrefix;
 
-    public CoberturaPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix, Run<?, ?> build) {
-        super(projectNameRenderer);
+    public CoberturaPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix, Run<?, ?> build, long timestamp) {
+        super(projectNameRenderer, timestamp);
         this.build = build;
         this.customPrefix = customPrefix;
         coberturaBuildAction = build.getAction(CoberturaBuildAction.class);

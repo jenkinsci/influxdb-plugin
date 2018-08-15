@@ -19,12 +19,12 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
     private final PerfPublisherBuildAction performanceBuildAction;
     private final TimeGenerator timeGenerator;
 
-    public PerfPublisherPointGenerator(MeasurementRenderer<Run<?,?>> measurementRenderer, String customPrefix, Run<?, ?> build) {
-        super(measurementRenderer);
+    public PerfPublisherPointGenerator(MeasurementRenderer<Run<?,?>> measurementRenderer, String customPrefix, Run<?, ?> build, long timestamp) {
+        super(measurementRenderer, timestamp);
         this.build = build;
         this.customPrefix = customPrefix;
         performanceBuildAction = build.getAction(PerfPublisherBuildAction.class);
-        timeGenerator = new TimeGenerator();
+        timeGenerator = new TimeGenerator(timestamp);
     }
 
     public boolean hasReport() {
@@ -35,7 +35,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
     public Point.Builder buildPoint(String name, String customPrefix, Run<?, ?> build) {
         // add unique time to guarantee correct point adding to DB
         return super.buildPoint(name, customPrefix, build)
-                .time(timeGenerator.getTimeNanos(), TimeUnit.NANOSECONDS);
+                .time(timeGenerator.next(), TimeUnit.NANOSECONDS);
     }
 
     public Point[] generate() {
@@ -115,6 +115,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
     private Point generateTestPoint(Test test) {
         Point.Builder builder = buildPoint(measurementName("perfpublisher_test"), customPrefix, build)
                 .addField("test_name", test.getName())
+                .tag("test_name", test.getName())
                 .addField("successful", test.isSuccessfull())
                 .addField("executed", test.isExecuted());
 
@@ -142,6 +143,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
 
             Point point = buildPoint(measurementName("perfpublisher_test_metric"), customPrefix, build)
                     .addField("test_name", test.getName())
+                    .tag("test_name", test.getName())
                     .addField("metric_name", metricName)
                     .addField("value", metric.getMeasure())
                     .addField("unit", metric.getUnit())
@@ -151,24 +153,5 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
             pointsList.add(point);
         }
         return pointsList;
-    }
-
-    // generates unique nano timestamps
-    private static class TimeGenerator {
-        private final long nanoTimeShift;
-        private long lastReportedTime = 0;
-
-        TimeGenerator() {
-            nanoTimeShift = System.currentTimeMillis() * 1000000 - System.nanoTime();
-        }
-
-        long getTimeNanos() {
-            long timeToReport = System.nanoTime() + nanoTimeShift;
-            if (timeToReport <= lastReportedTime) {
-                timeToReport = lastReportedTime + 1;
-            }
-            lastReportedTime = timeToReport;
-            return timeToReport;
-        }
     }
 }

@@ -137,6 +137,17 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
 
     private Map<String, Map<String, String>> customDataMapTags;
 
+    /**
+     * custom measurement name used for all measurement types
+     * Overrides the default measurement names.
+     * Default value is "jenkins_data"
+     * 
+     * For custom data, prepends "custom_", i.e. "some_measurement"
+     * becomes "custom_some_measurement".
+     * Default custom name remains "jenkins_custom_data"
+     */
+    private String measurementName = "jenkins_data";
+
     @DataBoundConstructor
     public InfluxDbPublisher() {
     }
@@ -157,6 +168,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         return ipTemp;
     }
 
+    @DataBoundSetter
     public void setSelectedTarget(String target) {
         Preconditions.checkNotNull(target);
         this.selectedTarget = target;
@@ -232,6 +244,15 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
 
     public Map<String, Map<String, String>> getCustomDataMapTags() { return customDataMapTags; }
 
+    @DataBoundSetter
+    public void setMeasurementName(String measurementName) {
+        this.measurementName = measurementName;
+    }
+
+    public String getMeasurementName() {
+        return measurementName;
+    }
+
     public Target getTarget() {
         Target[] targets = DESCRIPTOR.getTargets();
         if (selectedTarget == null && targets.length > 0) {
@@ -272,6 +293,9 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
 
         MeasurementRenderer<Run<?, ?>> measurementRenderer = new ProjectNameRenderer(customPrefix, customProjectName);
 
+        // Get the current time for timestamping all point generation and convert to nanoseconds
+        long currTime = System.currentTimeMillis() * 1000000;
+
         // get the target from the job's config
         Target target = getTarget();
         if (target==null) {
@@ -311,23 +335,27 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         List<Point> pointsToWrite = new ArrayList<Point>();
 
         // finally write to InfluxDB
-        JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build, listener, jenkinsEnvParameterField, jenkinsEnvParameterTag);
+        JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build, currTime, listener, jenkinsEnvParameterField, jenkinsEnvParameterTag, measurementName);
         addPoints(pointsToWrite, jGen, listener);
 
-        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, customPrefix, build, customData, customDataTags);
+        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, customPrefix, build, currTime, customData, customDataTags, measurementName);
         if (cdGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Custom data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, cdGen, listener);
+        } else {
+            logger.log(Level.INFO, "Data source empty: Custom Data");
         }
 
-        CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, customPrefix, build, customDataMap, customDataMapTags);
+        CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, customPrefix, build, currTime, customDataMap, customDataMapTags);
         if (cdmGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Custom data map found. Writing to InfluxDB...");
             addPoints(pointsToWrite, cdmGen, listener);
+        } else {
+            logger.log(Level.INFO, "Data source empty: Custom Data Map");
         }
 
         try {
-            CoberturaPointGenerator cGen = new CoberturaPointGenerator(measurementRenderer, customPrefix, build);
+            CoberturaPointGenerator cGen = new CoberturaPointGenerator(measurementRenderer, customPrefix, build, currTime);
             if (cGen.hasReport()) {
                 listener.getLogger().println("[InfluxDB Plugin] Cobertura data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, cGen, listener);
@@ -337,7 +365,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         }
 
         try {
-            RobotFrameworkPointGenerator rfGen = new RobotFrameworkPointGenerator(measurementRenderer, customPrefix, build);
+            RobotFrameworkPointGenerator rfGen = new RobotFrameworkPointGenerator(measurementRenderer, customPrefix, build, currTime);
             if (rfGen.hasReport()) {
                 listener.getLogger().println("[InfluxDB Plugin] Robot Framework data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, rfGen, listener);
@@ -347,7 +375,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         }
 
         try {
-            JacocoPointGenerator jacoGen = new JacocoPointGenerator(measurementRenderer, customPrefix, build);
+            JacocoPointGenerator jacoGen = new JacocoPointGenerator(measurementRenderer, customPrefix, build, currTime);
             if (jacoGen.hasReport()) {
                 listener.getLogger().println("[InfluxDB Plugin] Jacoco data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, jacoGen, listener);
@@ -357,7 +385,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         }
 
         try {
-            PerformancePointGenerator perfGen = new PerformancePointGenerator(measurementRenderer, customPrefix, build);
+            PerformancePointGenerator perfGen = new PerformancePointGenerator(measurementRenderer, customPrefix, build, currTime);
             if (perfGen.hasReport()) {
                 listener.getLogger().println("[InfluxDB Plugin] Performance data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, perfGen, listener);
@@ -366,21 +394,25 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
             logger.log(Level.INFO, "Plugin skipped: Performance");
         }
 
-        SonarQubePointGenerator sonarGen = new SonarQubePointGenerator(measurementRenderer, customPrefix, build, listener);
+        SonarQubePointGenerator sonarGen = new SonarQubePointGenerator(measurementRenderer, customPrefix, build, currTime, listener);
         if (sonarGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] SonarQube data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, sonarGen, listener);
+        } else {
+            logger.log(Level.INFO, "Plugin skipped: SonarQube");
         }
 
 
-        ChangeLogPointGenerator changeLogGen = new ChangeLogPointGenerator(measurementRenderer, customPrefix, build);
+        ChangeLogPointGenerator changeLogGen = new ChangeLogPointGenerator(measurementRenderer, customPrefix, build, currTime);
         if (changeLogGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Git ChangeLog data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, changeLogGen, listener);
+        } else {
+            logger.log(Level.INFO, "Data source empty: Change Log");
         }
 
         try {
-            PerfPublisherPointGenerator perfPublisherGen = new PerfPublisherPointGenerator(measurementRenderer, customPrefix, build);
+            PerfPublisherPointGenerator perfPublisherGen = new PerfPublisherPointGenerator(measurementRenderer, customPrefix, build, currTime);
             if (perfPublisherGen.hasReport()) {
                 listener.getLogger().println("[InfluxDB Plugin] PerfPublisher data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, perfPublisherGen, listener);
