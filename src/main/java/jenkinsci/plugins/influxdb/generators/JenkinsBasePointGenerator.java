@@ -13,6 +13,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.influxdb.dto.Point;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.StringReader;
@@ -67,6 +69,12 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     public boolean hasReport() {
         return true;
+    }
+
+    @Override
+    public Point.Builder buildPoint(String name, String customPrefix, Run<?, ?> build) {
+        return super.buildPoint(name, customPrefix, build)
+                .time(build.getTimeInMillis(), TimeUnit.MILLISECONDS);
     }
 
     public Point[] generate() {
