@@ -175,6 +175,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         return ipTemp;
     }
 
+    @DataBoundSetter
     public void setSelectedTarget(String target) {
         Preconditions.checkNotNull(target);
         this.selectedTarget = target;
@@ -200,7 +201,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
 
     public long getCustomTimeStamp() {
         if (customTimestamp == 0) {
-            return System.currentTimeMillis();
+            return System.currentTimeMillis() * 1000000;
         } else {
             return customTimestamp;
         }
