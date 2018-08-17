@@ -24,6 +24,9 @@
            <f:entry title="jenkins-env-parameter TagSet" field="jenkinsEnvParameterTag">
                <f:textarea name="publisherBinding.jenkinsEnvParameterTag" value="${publisherBinding.jenkinsEnvParameterTag}"/>
            </f:entry>
+            <f:entry title="customTimestamp" field="customTimestamp">
+               <f:textarea name="publisherBinding.customTimestamp" value="${publisherBinding.customTimestamp}"/>
+           </f:entry>
        </f:advanced>
   </f:section>
 
