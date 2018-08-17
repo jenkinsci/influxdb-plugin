@@ -23,7 +23,35 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
         super(InfluxDbPublisher.class);
         load();
     }
-     
+
+    /** Add target to list of targets
+     *
+     * @param target Target to add
+     */
+    public void addTarget(Target target) {
+        targets.add(target);
+    }
+
+    /** Remove target from list of targets
+     *
+     * @param targetDescription Target description of target to remove.
+     */
+    public void removeTarget(String targetDescription) {
+        Target targetToRemove = null;
+        Iterator<Target> it = targets.iterator();
+        while (it.hasNext()) {
+            Target t = it.next();
+            String description = t.getDescription();
+            if (description.equals(targetDescription)) {
+                targetToRemove = t;
+                break;
+            }
+        }
+        if (targetToRemove != null) {
+            targets.remove(targetToRemove);
+        }
+    }
+
     public Target[] getTargets() {
         Iterator<Target> it = targets.iterator();
         int size = 0;
