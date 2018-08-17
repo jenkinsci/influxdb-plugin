@@ -294,7 +294,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         MeasurementRenderer<Run<?, ?>> measurementRenderer = new ProjectNameRenderer(customPrefix, customProjectName);
 
         // Get the current time for timestamping all point generation and convert to nanoseconds
-        long currTime = System.currentTimeMillis() * 1000000;
+        long currTime = resolveTimestampForPointGenerationInNanoseconds(build);
 
         // get the target from the job's config
         Target target = getTarget();
@@ -423,6 +423,14 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
 
         writeToInflux(target, influxDB, pointsToWrite);
         listener.getLogger().println("[InfluxDB Plugin] Completed.");
+    }
+
+    private long resolveTimestampForPointGenerationInNanoseconds(final Run<?, ?> build) {
+        long timestamp = System.currentTimeMillis();
+        if (getTarget().isJobScheduledTimeAsPointsTimestamp()) {
+            timestamp = build.getTimeInMillis();
+        }
+        return timestamp * 1000000;
     }
 
     private void addPoints(List<Point> pointsToWrite, PointGenerator generator, TaskListener listener) {

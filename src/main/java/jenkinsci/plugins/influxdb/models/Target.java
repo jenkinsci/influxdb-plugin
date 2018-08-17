@@ -8,6 +8,7 @@ public class Target {
     String password;
     String database;
     String retentionPolicy;
+    boolean jobScheduledTimeAsPointsTimestamp;
     boolean exposeExceptions;
     boolean usingJenkinsProxy;
 
@@ -61,6 +62,14 @@ public class Target {
 
     public void setRetentionPolicy(String retentionPolicy) {
         this.retentionPolicy = retentionPolicy;
+    }
+
+    public boolean isJobScheduledTimeAsPointsTimestamp() {
+        return jobScheduledTimeAsPointsTimestamp;
+    }
+
+    public void setJobScheduledTimeAsPointsTimestamp(boolean jobScheduledTimeAsPointsTimestamp) {
+        this.jobScheduledTimeAsPointsTimestamp = jobScheduledTimeAsPointsTimestamp;
     }
 
     public boolean isExposeExceptions() {
