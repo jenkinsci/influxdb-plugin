@@ -14,10 +14,10 @@ import hudson.tasks.Publisher;
 import hudson.util.CopyOnWriteList;
 import net.sf.json.JSONObject;
  
-public final class DescriptorImpl extends BuildStepDescriptor<Publisher> implements ModelObject {
+public final class DescriptorImpl extends BuildStepDescriptor<Publisher> implements ModelObject, java.io.Serializable {
  
     public static final String DISPLAY_NAME = "Publish build data to InfluxDb target";
-    private CopyOnWriteList<Target> targets = new CopyOnWriteList<Target>();
+    private transient CopyOnWriteList<Target> targets = new CopyOnWriteList<Target>();
  
     public DescriptorImpl() {
         super(InfluxDbPublisher.class);

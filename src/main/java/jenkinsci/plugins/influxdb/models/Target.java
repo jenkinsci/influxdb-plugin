@@ -1,6 +1,6 @@
 package jenkinsci.plugins.influxdb.models;
  
-public class Target {
+public class Target implements java.io.Serializable {
  
     String description;
     String url;
