@@ -11,6 +11,8 @@ public class Target implements java.io.Serializable {
     boolean jobScheduledTimeAsPointsTimestamp;
     boolean exposeExceptions;
     boolean usingJenkinsProxy;
+    boolean globalListener;
+    String globalListenerFilter;
 
     public Target(){
         //nop
@@ -86,6 +88,22 @@ public class Target implements java.io.Serializable {
 
     public void setUsingJenkinsProxy(boolean usingJenkinsProxy) {
         this.usingJenkinsProxy = usingJenkinsProxy;
+    }
+
+    public boolean isGlobalListener() {
+        return globalListener;
+    }
+
+    public void setGlobalListener(boolean globalListener) {
+        this.globalListener = globalListener;
+    }
+
+    public String getGlobalListenerFilter() {
+        return globalListenerFilter;
+    }
+
+    public void setGlobalListenerFilter(String globalListenerFilter) {
+        this.globalListenerFilter = globalListenerFilter;
     }
 
     @Override

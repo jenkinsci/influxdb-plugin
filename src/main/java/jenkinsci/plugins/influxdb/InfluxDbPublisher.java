@@ -26,11 +26,9 @@ import org.influxdb.dto.Point;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -288,27 +286,28 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     }
 
     @Override
-    public void perform(Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener)
+    public void perform(@Nonnull Run<?, ?> build, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener)
             throws InterruptedException, IOException {
-
-        MeasurementRenderer<Run<?, ?>> measurementRenderer = new ProjectNameRenderer(customPrefix, customProjectName);
 
         // Get the current time for timestamping all point generation and convert to nanoseconds
         long currTime = resolveTimestampForPointGenerationInNanoseconds(build);
 
-        // get the target from the job's config
+        // Gets the target from the job's config
         Target target = getTarget();
-        if (target==null) {
+        if (target == null) {
             throw new RuntimeException("Target was null!");
         }
 
-        // prepare a meaningful logmessage
-        String logMessage = "[InfluxDB Plugin] Publishing data to: " + target.toString();
-
-        // write to jenkins logger
-        logger.log(Level.INFO, logMessage);
-        // write to jenkins console
-        listener.getLogger().println(logMessage);
+        // Preparing the service
+        InfluxDbPublicationService publicationService = new InfluxDbPublicationService(
+                Collections.singletonList(target),
+                customProjectName,
+                customPrefix,
+                customData,
+                customDataTags, customDataMapTags, customDataMap,
+                currTime,
+                jenkinsEnvParameterField,
+                jenkinsEnvParameterTag, measurementName);
 
         // use proxy if checked
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
@@ -330,99 +329,9 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
             builder.build();
         }
 
-        // connect to InfluxDB
-        InfluxDB influxDB = Strings.isNullOrEmpty(target.getUsername()) ? InfluxDBFactory.connect(target.getUrl(), builder) : InfluxDBFactory.connect(target.getUrl(), target.getUsername(), target.getPassword(), builder);
-        List<Point> pointsToWrite = new ArrayList<Point>();
+        // Publishes the metrics
+        publicationService.perform(build, listener);
 
-        // finally write to InfluxDB
-        JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build, currTime, listener, jenkinsEnvParameterField, jenkinsEnvParameterTag, measurementName);
-        addPoints(pointsToWrite, jGen, listener);
-
-        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, customPrefix, build, currTime, customData, customDataTags, measurementName);
-        if (cdGen.hasReport()) {
-            listener.getLogger().println("[InfluxDB Plugin] Custom data found. Writing to InfluxDB...");
-            addPoints(pointsToWrite, cdGen, listener);
-        } else {
-            logger.log(Level.INFO, "Data source empty: Custom Data");
-        }
-
-        CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, customPrefix, build, currTime, customDataMap, customDataMapTags);
-        if (cdmGen.hasReport()) {
-            listener.getLogger().println("[InfluxDB Plugin] Custom data map found. Writing to InfluxDB...");
-            addPoints(pointsToWrite, cdmGen, listener);
-        } else {
-            logger.log(Level.INFO, "Data source empty: Custom Data Map");
-        }
-
-        try {
-            CoberturaPointGenerator cGen = new CoberturaPointGenerator(measurementRenderer, customPrefix, build, currTime);
-            if (cGen.hasReport()) {
-                listener.getLogger().println("[InfluxDB Plugin] Cobertura data found. Writing to InfluxDB...");
-                addPoints(pointsToWrite, cGen, listener);
-            }
-        } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.INFO, "Plugin skipped: Cobertura");
-        }
-
-        try {
-            RobotFrameworkPointGenerator rfGen = new RobotFrameworkPointGenerator(measurementRenderer, customPrefix, build, currTime);
-            if (rfGen.hasReport()) {
-                listener.getLogger().println("[InfluxDB Plugin] Robot Framework data found. Writing to InfluxDB...");
-                addPoints(pointsToWrite, rfGen, listener);
-            }
-        } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.INFO, "Plugin skipped: Robot Framework");
-        }
-
-        try {
-            JacocoPointGenerator jacoGen = new JacocoPointGenerator(measurementRenderer, customPrefix, build, currTime);
-            if (jacoGen.hasReport()) {
-                listener.getLogger().println("[InfluxDB Plugin] Jacoco data found. Writing to InfluxDB...");
-                addPoints(pointsToWrite, jacoGen, listener);
-            }
-        } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.INFO, "Plugin skipped: JaCoCo");
-        }
-
-        try {
-            PerformancePointGenerator perfGen = new PerformancePointGenerator(measurementRenderer, customPrefix, build, currTime);
-            if (perfGen.hasReport()) {
-                listener.getLogger().println("[InfluxDB Plugin] Performance data found. Writing to InfluxDB...");
-                addPoints(pointsToWrite, perfGen, listener);
-            }
-        } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.INFO, "Plugin skipped: Performance");
-        }
-
-        SonarQubePointGenerator sonarGen = new SonarQubePointGenerator(measurementRenderer, customPrefix, build, currTime, listener);
-        if (sonarGen.hasReport()) {
-            listener.getLogger().println("[InfluxDB Plugin] SonarQube data found. Writing to InfluxDB...");
-            addPoints(pointsToWrite, sonarGen, listener);
-        } else {
-            logger.log(Level.INFO, "Plugin skipped: SonarQube");
-        }
-
-
-        ChangeLogPointGenerator changeLogGen = new ChangeLogPointGenerator(measurementRenderer, customPrefix, build, currTime);
-        if (changeLogGen.hasReport()) {
-            listener.getLogger().println("[InfluxDB Plugin] Git ChangeLog data found. Writing to InfluxDB...");
-            addPoints(pointsToWrite, changeLogGen, listener);
-        } else {
-            logger.log(Level.INFO, "Data source empty: Change Log");
-        }
-
-        try {
-            PerfPublisherPointGenerator perfPublisherGen = new PerfPublisherPointGenerator(measurementRenderer, customPrefix, build, currTime);
-            if (perfPublisherGen.hasReport()) {
-                listener.getLogger().println("[InfluxDB Plugin] PerfPublisher data found. Writing to InfluxDB...");
-                addPoints(pointsToWrite, perfPublisherGen, listener);
-            }
-        } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.INFO, "Plugin skipped: Performance Publisher");
-        }
-
-        writeToInflux(target, influxDB, pointsToWrite);
-        listener.getLogger().println("[InfluxDB Plugin] Completed.");
     }
 
     private long resolveTimestampForPointGenerationInNanoseconds(final Run<?, ?> build) {
@@ -431,35 +340,5 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
             timestamp = build.getTimeInMillis();
         }
         return timestamp * 1000000;
-    }
-
-    private void addPoints(List<Point> pointsToWrite, PointGenerator generator, TaskListener listener) {
-        try {
-            pointsToWrite.addAll(Arrays.asList(generator.generate()));
-        } catch (Exception e) {
-            listener.getLogger().println("[InfluxDB Plugin] Failed to collect data. Ignoring Exception:" + e);
-        }
-    }
-
-    private void writeToInflux(Target target, InfluxDB influxDB, List<Point> pointsToWrite) {
-        /**
-         * build batchpoints for a single write.
-         */
-        try {
-            BatchPoints batchPoints = BatchPoints
-                    .database(target.getDatabase())
-                    .points(pointsToWrite.toArray(new Point[0]))
-                    .retentionPolicy(target.getRetentionPolicy())
-                    .consistency(ConsistencyLevel.ANY)
-                    .build();
-            influxDB.write(batchPoints);
-        } catch (Exception e) {
-            if (target.isExposeExceptions()) {
-                throw new InfluxReportException(e);
-            } else {
-                //Exceptions not exposed by configuration. Just log and ignore.
-                logger.log(Level.WARNING, "Could not report to InfluxDB. Ignoring Exception.", e);
-            }
-        }
     }
 }
