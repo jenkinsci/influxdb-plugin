@@ -35,6 +35,10 @@
                          <f:textbox name="targetBinding.retentionPolicy" value="${currentTarget.retentionPolicy}" default="autogen" />
                       </f:entry>
 
+                      <f:entry title="job scheduled time as points timestamp" field="jobScheduledTimeAsPointsTimestamp" >
+                         <f:checkbox name="targetBinding.jobScheduledTimeAsPointsTimestamp" checked="${currentTarget.jobScheduledTimeAsPointsTimestamp}" default="false" />
+                      </f:entry>
+
                       <f:entry title="exposeExceptions" field="exposeExceptions" >
                          <f:checkbox name="targetBinding.exposeExceptions" checked="${currentTarget.exposeExceptions}" default="true" />
                       </f:entry>

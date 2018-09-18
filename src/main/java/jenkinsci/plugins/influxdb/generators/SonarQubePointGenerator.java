@@ -76,8 +76,19 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 	public void setSonarDetails(String sonarBuildLink) {
 		try {
 			this.sonarProjectName = getSonarProjectName(sonarBuildLink);
-			this.sonarServer = sonarBuildLink.substring(0,
-					sonarBuildLink.indexOf("/dashboard/index/" + this.sonarProjectName));
+			// Use SONAR_HOST_URL environment variable if possible
+			String url = "";
+			try {
+				url = build.getEnvironment(listener).get("SONAR_HOST_URL");
+			} catch (InterruptedException|IOException e) {
+				// handle
+			}
+			if (url != "") {
+				this.sonarServer = url;
+			} else {
+				this.sonarServer = sonarBuildLink.substring(0,
+				sonarBuildLink.indexOf("/dashboard/index/" + this.sonarProjectName));
+			}
 			this.SONAR_ISSUES_URL = sonarServer + SONAR_ISSUES_BASE_URL + sonarProjectName + "&resolved=false&severities=";
 			this.SONAR_METRICS_URL = sonarServer + SONAR_METRICS_BASE_URL + sonarProjectName;
 		} catch (URISyntaxException e) {

@@ -6,6 +6,8 @@ import org.influxdb.dto.Point;
 
 import java.util.Map;
 
+import static jenkinsci.plugins.influxdb.InfluxDbPublisher.DEFAULT_MEASUREMENT_NAME;
+
 public class CustomDataPointGenerator extends AbstractPointGenerator {
 
     public static final String BUILD_TIME = "build_time";
@@ -24,7 +26,7 @@ public class CustomDataPointGenerator extends AbstractPointGenerator {
         this.customData = customData;
         this.customDataTags = customDataTags;
         // Extra logic to retain compatibility with existing "jenkins_custom_data" tables
-        this.measurementName = measurementName.equals("jenkins_data") ? "jenkins_custom_data" : "custom_" + measurementName;
+        this.measurementName = DEFAULT_MEASUREMENT_NAME.equals(measurementName) ? "jenkins_custom_data" : "custom_" + measurementName;
     }
 
     public boolean hasReport() {
