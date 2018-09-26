@@ -172,7 +172,7 @@ public class InfluxDbPublicationService {
             listener.getLogger().println("[InfluxDB Plugin] Custom data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, cdGen, listener);
         } else {
-            logger.log(Level.INFO, "Data source empty: Custom Data");
+            logger.log(Level.FINE, "Data source empty: Custom Data");
         }
 
         CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, customPrefix, build, timestamp, customDataMap, customDataMapTags);
@@ -180,7 +180,7 @@ public class InfluxDbPublicationService {
             listener.getLogger().println("[InfluxDB Plugin] Custom data map found. Writing to InfluxDB...");
             addPoints(pointsToWrite, cdmGen, listener);
         } else {
-            logger.log(Level.INFO, "Data source empty: Custom Data Map");
+            logger.log(Level.FINE, "Data source empty: Custom Data Map");
         }
 
         try {
@@ -190,7 +190,7 @@ public class InfluxDbPublicationService {
                 addPoints(pointsToWrite, cGen, listener);
             }
         } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.INFO, "Plugin skipped: Cobertura");
+            logger.log(Level.FINE, "Plugin skipped: Cobertura");
         }
 
         try {
@@ -200,7 +200,7 @@ public class InfluxDbPublicationService {
                 addPoints(pointsToWrite, rfGen, listener);
             }
         } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.INFO, "Plugin skipped: Robot Framework");
+            logger.log(Level.FINE, "Plugin skipped: Robot Framework");
         }
 
         try {
@@ -210,7 +210,7 @@ public class InfluxDbPublicationService {
                 addPoints(pointsToWrite, jacoGen, listener);
             }
         } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.INFO, "Plugin skipped: JaCoCo");
+            logger.log(Level.FINE, "Plugin skipped: JaCoCo");
         }
 
         try {
@@ -220,7 +220,7 @@ public class InfluxDbPublicationService {
                 addPoints(pointsToWrite, perfGen, listener);
             }
         } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.INFO, "Plugin skipped: Performance");
+            logger.log(Level.FINE, "Plugin skipped: Performance");
         }
 
         SonarQubePointGenerator sonarGen = new SonarQubePointGenerator(measurementRenderer, customPrefix, build, timestamp, listener);
@@ -228,7 +228,7 @@ public class InfluxDbPublicationService {
             listener.getLogger().println("[InfluxDB Plugin] SonarQube data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, sonarGen, listener);
         } else {
-            logger.log(Level.INFO, "Plugin skipped: SonarQube");
+            logger.log(Level.FINE, "Plugin skipped: SonarQube");
         }
 
 
@@ -237,7 +237,7 @@ public class InfluxDbPublicationService {
             listener.getLogger().println("[InfluxDB Plugin] Git ChangeLog data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, changeLogGen, listener);
         } else {
-            logger.log(Level.INFO, "Data source empty: Change Log");
+            logger.log(Level.FINE, "Data source empty: Change Log");
         }
 
         try {
@@ -247,7 +247,7 @@ public class InfluxDbPublicationService {
                 addPoints(pointsToWrite, perfPublisherGen, listener);
             }
         } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.INFO, "Plugin skipped: Performance Publisher");
+            logger.log(Level.FINE, "Plugin skipped: Performance Publisher");
         }
 
         // Writes into each selected target
@@ -255,7 +255,7 @@ public class InfluxDbPublicationService {
             // prepare a meaningful logmessage
             String logMessage = "[InfluxDB Plugin] Publishing data to: " + selectedTargets;
             // write to jenkins logger
-            logger.log(Level.INFO, logMessage);
+            logger.log(Level.FINE, logMessage);
             // write to jenkins console
             listener.getLogger().println(logMessage);
             // connect to InfluxDB
