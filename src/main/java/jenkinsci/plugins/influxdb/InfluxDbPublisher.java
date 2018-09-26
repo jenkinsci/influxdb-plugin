@@ -37,6 +37,8 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     /** The logger. **/
     private static final Logger logger = Logger.getLogger(InfluxDbPublisher.class.getName());
 
+    public static final String DEFAULT_MEASUREMENT_NAME = "jenkins_data";
+
     @Extension(optional = true)
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
@@ -144,7 +146,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
      * becomes "custom_some_measurement".
      * Default custom name remains "jenkins_custom_data"
      */
-    private String measurementName = "jenkins_data";
+    private String measurementName;
 
     @DataBoundConstructor
     public InfluxDbPublisher() {
@@ -251,6 +253,10 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         return measurementName;
     }
 
+    private String getMeasurementNameIfNotBlankOrDefault() {
+        return measurementName != null ? measurementName : DEFAULT_MEASUREMENT_NAME;
+    }
+
     public Target getTarget() {
         Target[] targets = DESCRIPTOR.getTargets();
         if (selectedTarget == null && targets.length > 0) {
@@ -298,6 +304,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
             throw new RuntimeException("Target was null!");
         }
 
+        measurementName = getMeasurementNameIfNotBlankOrDefault();
         // Preparing the service
         InfluxDbPublicationService publicationService = new InfluxDbPublicationService(
                 Collections.singletonList(target),
