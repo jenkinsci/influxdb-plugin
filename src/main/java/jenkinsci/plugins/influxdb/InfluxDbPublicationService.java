@@ -253,7 +253,7 @@ public class InfluxDbPublicationService {
         // Writes into each selected target
         for (Target selectedTarget : selectedTargets) {
             // prepare a meaningful logmessage
-            String logMessage = "[InfluxDB Plugin] Publishing data to: " + selectedTargets;
+            String logMessage = "[InfluxDB Plugin] Publishing data to: " + selectedTarget;
             // write to jenkins logger
             logger.log(Level.FINE, logMessage);
             // write to jenkins console
