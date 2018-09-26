@@ -47,6 +47,14 @@
                          <f:checkbox name="targetBinding.usingJenkinsProxy" checked="${currentTarget.usingJenkinsProxy}" default="false" />
                       </f:entry>
 
+                      <f:entry title="globalListener" field="globalListener" >
+                         <f:checkbox name="targetBinding.globalListener" checked="${currentTarget.globalListener}" default="false" />
+                      </f:entry>
+
+                      <f:entry title="globalListenerFilter" field="globalListenerFilter" >
+                         <f:textbox name="targetBinding.globalListenerFilter" value="${currentTarget.globalListenerFilter}" default="" />
+                      </f:entry>
+
                       <f:entry title="delete target" >
                         <div align="right">
                           <f:repeatableDeleteButton value="delete target"/>
