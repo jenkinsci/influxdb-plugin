@@ -1,6 +1,8 @@
 package jenkinsci.plugins.influxdb;
  
 import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.CheckForNull;
  
@@ -17,7 +19,7 @@ import net.sf.json.JSONObject;
 public final class DescriptorImpl extends BuildStepDescriptor<Publisher> implements ModelObject, java.io.Serializable {
  
     public static final String DISPLAY_NAME = "Publish build data to InfluxDb target";
-    private transient CopyOnWriteList<Target> targets = new CopyOnWriteList<Target>();
+    private List<Target> targets = new CopyOnWriteArrayList<Target>();
  
     public DescriptorImpl() {
         super(InfluxDbPublisher.class);
@@ -62,7 +64,7 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
         return targets.toArray(new Target[size]);
     }
 
-    public void setTargets(CopyOnWriteList newTargets) {
+    public void setTargets(List newTargets) {
         targets = newTargets;
     }
 
@@ -85,7 +87,7 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
  
     @Override
     public boolean configure(StaplerRequest req, JSONObject formData) {
-        targets.replaceBy(req.bindParametersToList(Target.class, "targetBinding."));
+        targets = req.bindParametersToList(Target.class, "targetBinding.");
         save();
         return true;
     }
