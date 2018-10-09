@@ -1,11 +1,13 @@
 package jenkinsci.plugins.influxdb;
  
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.CheckForNull;
- 
+
+import hudson.util.PersistedList;
 import org.kohsuke.stapler.StaplerRequest;
  
 import jenkinsci.plugins.influxdb.models.Target;
@@ -19,7 +21,7 @@ import net.sf.json.JSONObject;
 public final class DescriptorImpl extends BuildStepDescriptor<Publisher> implements ModelObject, java.io.Serializable {
  
     public static final String DISPLAY_NAME = "Publish build data to InfluxDb target";
-    private List<Target> targets = new CopyOnWriteArrayList<Target>();
+    public final PersistedList<Target> targets = new PersistedList<>(this);
  
     public DescriptorImpl() {
         super(InfluxDbPublisher.class);
@@ -55,17 +57,11 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
     }
 
     public Target[] getTargets() {
-        Iterator<Target> it = targets.iterator();
-        int size = 0;
-        while (it.hasNext()) {
-            it.next();
-            size++;
-        }
-        return targets.toArray(new Target[size]);
+        return targets.toArray(new Target[targets.size()]);
     }
 
-    public void setTargets(List newTargets) {
-        targets = newTargets;
+    public void setTargets(List<Target> newTargets) throws IOException {
+        targets.replaceBy(newTargets);
     }
 
     @Override
@@ -87,8 +83,7 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
  
     @Override
     public boolean configure(StaplerRequest req, JSONObject formData) {
-        targets = req.bindParametersToList(Target.class, "targetBinding.");
-        save();
+        req.bindJSON(this, formData);
         return true;
     }
 }
