@@ -35,7 +35,7 @@ public abstract class AbstractPointGenerator implements PointGenerator {
                 .time(timestamp, TimeUnit.NANOSECONDS);
 
         if (customPrefix != null && !customPrefix.isEmpty())
-            builder = builder.tag(CUSTOM_PREFIX, measurementName(customPrefix));
+            builder = builder.tag(CUSTOM_PREFIX, customPrefix);
 
         return builder;
 
