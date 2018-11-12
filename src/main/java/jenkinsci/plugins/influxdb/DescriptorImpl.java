@@ -13,7 +13,6 @@ import hudson.model.AbstractProject;
 import hudson.model.ModelObject;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Publisher;
-import hudson.util.CopyOnWriteList;
 import net.sf.json.JSONObject;
  
 public final class DescriptorImpl extends BuildStepDescriptor<Publisher> implements ModelObject, java.io.Serializable {
