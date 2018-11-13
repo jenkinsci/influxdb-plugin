@@ -1,5 +1,7 @@
 package jenkinsci.plugins.influxdb.models;
- 
+
+import org.kohsuke.stapler.DataBoundConstructor;
+
 public class Target implements java.io.Serializable {
  
     String description;
@@ -16,6 +18,23 @@ public class Target implements java.io.Serializable {
 
     public Target(){
         //nop
+    }
+
+    @DataBoundConstructor
+    public Target(String description, String url, String username, String password, String database,
+            String retentionPolicy, boolean jobScheduledTimeAsPointsTimestamp, boolean exposeExceptions,
+            boolean usingJenkinsProxy, boolean globalListener, String globalListenerFilter) {
+        this.description = description;
+        this.url = url;
+        this.username = username;
+        this.password = password;
+        this.database = database;
+        this.retentionPolicy = retentionPolicy;
+        this.jobScheduledTimeAsPointsTimestamp = jobScheduledTimeAsPointsTimestamp;
+        this.exposeExceptions = exposeExceptions;
+        this.usingJenkinsProxy = usingJenkinsProxy;
+        this.globalListener = globalListener;
+        this.globalListenerFilter = globalListenerFilter;
     }
  
     public String getDescription() {

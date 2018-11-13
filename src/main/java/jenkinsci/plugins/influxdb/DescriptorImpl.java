@@ -1,25 +1,25 @@
 package jenkinsci.plugins.influxdb;
- 
+
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.CheckForNull;
- 
+
 import org.kohsuke.stapler.StaplerRequest;
- 
+
 import jenkinsci.plugins.influxdb.models.Target;
 import hudson.model.AbstractProject;
 import hudson.model.ModelObject;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Publisher;
 import net.sf.json.JSONObject;
- 
+
 public final class DescriptorImpl extends BuildStepDescriptor<Publisher> implements ModelObject, java.io.Serializable {
- 
+
     public static final String DISPLAY_NAME = "Publish build data to InfluxDb target";
     private List<Target> targets = new CopyOnWriteArrayList<Target>();
- 
+
     public DescriptorImpl() {
         super(InfluxDbPublisher.class);
         load();
@@ -71,22 +71,22 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
     public String getDisplayName() {
         return DISPLAY_NAME;
     }
- 
+
     @Override
     public boolean isApplicable(Class<? extends AbstractProject> jobType) {
         return true;
     }
- 
+
     @Override
     public Publisher newInstance(@CheckForNull StaplerRequest req, @Nonnull JSONObject formData) {
         InfluxDbPublisher publisher = new InfluxDbPublisher();
         req.bindParameters(publisher, "publisherBinding.");
         return publisher;
     }
- 
+
     @Override
     public boolean configure(StaplerRequest req, JSONObject formData) {
-        targets = req.bindParametersToList(Target.class, "targetBinding.");
+        targets = req.bindJSONToList(Target.class, formData.get("currentTarget"));
         save();
         return true;
     }
