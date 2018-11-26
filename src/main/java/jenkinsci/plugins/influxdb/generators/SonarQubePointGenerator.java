@@ -83,7 +83,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 			} catch (InterruptedException|IOException e) {
 				// handle
 			}
-			if (url != "") {
+			if (url != null && url != "") {
 				this.sonarServer = url;
 			} else {
 				this.sonarServer = sonarBuildLink.substring(0,
