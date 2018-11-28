@@ -43,7 +43,7 @@ public class SonarQubePointGeneratorTest {
 	public void getSonarProjectNameTest() throws URISyntaxException {
 		String name = "org.namespace:feature%2Fmy-sub-project";
 		String url = "http://sonar.dashboard.com/dashboard/index/" + name;
-		SonarQubePointGenerator gen = new SonarQubePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null);
+		SonarQubePointGenerator gen = new SonarQubePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null, true);
 		assertEquals(name, gen.getSonarProjectName(url));
 	}
 }

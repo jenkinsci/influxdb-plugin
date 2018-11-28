@@ -45,12 +45,12 @@ public class CustomDataMapPointGeneratorTest {
     public void hasReportTest() {
         //check with customDataMap = null
         CustomDataMapPointGenerator cdmGen1 = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
-                currTime, null, null);
+                currTime, null, null, true);
         Assert.assertFalse(cdmGen1.hasReport());
 
         //check with empty customDataMap
         CustomDataMapPointGenerator cdmGen2 = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
-                currTime, Collections.<String, Map<String, Object>>emptyMap(), Collections.<String, Map<String, String>>emptyMap());
+                currTime, Collections.<String, Map<String, Object>>emptyMap(), Collections.<String, Map<String, String>>emptyMap(), true);
         Assert.assertFalse(cdmGen2.hasReport());
     }
 
@@ -79,7 +79,7 @@ public class CustomDataMapPointGeneratorTest {
         List<Point> pointsToWrite = new ArrayList<Point>();
 
         CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
-                currTime, customDataMap, customDataMapTags);
+                currTime, customDataMap, customDataMapTags, true);
         pointsToWrite.addAll(Arrays.asList(cdmGen.generate()));
 
         String lineProtocol1;

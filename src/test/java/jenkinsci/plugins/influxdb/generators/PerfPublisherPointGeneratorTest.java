@@ -63,11 +63,11 @@ public class PerfPublisherPointGeneratorTest {
 
     @Test
     public void hasReportTest() {
-        PerfPublisherPointGenerator generator = new PerfPublisherPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime);
+        PerfPublisherPointGenerator generator = new PerfPublisherPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, true);
         Assert.assertFalse(generator.hasReport());
 
         reports.addReport(new Report());
-        generator = new PerfPublisherPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime);
+        generator = new PerfPublisherPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, true);
         Assert.assertTrue(generator.hasReport());
     }
 
@@ -89,7 +89,7 @@ public class PerfPublisherPointGeneratorTest {
 
         report.addTest(test);
         reports.addReport(report);
-        PerfPublisherPointGenerator generator = new PerfPublisherPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime);
+        PerfPublisherPointGenerator generator = new PerfPublisherPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, true);
         Point[] points = generator.generate();
         
         Assert.assertTrue(points[0].lineProtocol().startsWith("perfpublisher_summary,prefix=test_prefix,project_name=test_prefix_master build_number=11i,number_of_executed_tests=1i"));
