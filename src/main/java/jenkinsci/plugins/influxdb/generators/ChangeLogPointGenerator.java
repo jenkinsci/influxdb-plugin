@@ -26,8 +26,8 @@ public class ChangeLogPointGenerator extends AbstractPointGenerator {
 	private int commitCount = 0;
 
 	public ChangeLogPointGenerator(MeasurementRenderer<Run<?, ?>> projectNameRenderer, String customPrefix,
-			Run<?, ?> build, long timestamp) {
-		super(projectNameRenderer, timestamp);
+			Run<?, ?> build, long timestamp, boolean replaceDashWithUnderscore) {
+		super(projectNameRenderer, timestamp, replaceDashWithUnderscore);
 		this.build = build;
 		this.customPrefix = customPrefix;
 	}

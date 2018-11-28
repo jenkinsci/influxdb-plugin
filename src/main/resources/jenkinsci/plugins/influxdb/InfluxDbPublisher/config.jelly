@@ -24,6 +24,10 @@
            <f:entry title="jenkins-env-parameter TagSet" field="jenkinsEnvParameterTag">
                <f:textarea name="publisherBinding.jenkinsEnvParameterTag" value="${publisherBinding.jenkinsEnvParameterTag}"/>
            </f:entry>
+
+           <f:entry title="Replace dashes with underscore" field="replaceDashWithUnderscore" >
+               <f:checkbox name="targetBinding.replaceDashWithUnderscore" checked="${currentTarget.replaceDashWithUnderscore}" default="true" />
+           </f:entry>
        </f:advanced>
   </f:section>
 

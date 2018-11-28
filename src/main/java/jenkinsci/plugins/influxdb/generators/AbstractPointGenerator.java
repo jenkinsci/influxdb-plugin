@@ -15,12 +15,14 @@ public abstract class AbstractPointGenerator implements PointGenerator {
     public static final String BUILD_NUMBER = "build_number";
     public static final String CUSTOM_PREFIX = "prefix";
     public long timestamp;
+    public boolean replaceDashWithUnderscore;
 
     private MeasurementRenderer projectNameRenderer;
 
-    public AbstractPointGenerator(MeasurementRenderer projectNameRenderer, long timestamp) {
+    public AbstractPointGenerator(MeasurementRenderer projectNameRenderer, long timestamp, boolean replaceDashWithUnderscore) {
         this.projectNameRenderer = Objects.requireNonNull(projectNameRenderer);
         this.timestamp = timestamp;
+        this.replaceDashWithUnderscore = replaceDashWithUnderscore;
     }
 
     @Override

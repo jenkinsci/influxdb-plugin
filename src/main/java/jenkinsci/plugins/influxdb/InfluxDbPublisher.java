@@ -148,6 +148,13 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
      */
     private String measurementName;
 
+
+    /**
+     * Whether or not replace dashes with underscores in tags.
+     * i.e. "my-custom-tag" --> "my_custom_tag"
+     */
+    private boolean replaceDashWithUnderscore;
+
     @DataBoundConstructor
     public InfluxDbPublisher() {
     }
@@ -249,6 +256,15 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         this.measurementName = measurementName;
     }
 
+    public boolean getReplaceDashWithUnderscore() {
+        return replaceDashWithUnderscore;
+    }
+
+    @DataBoundSetter
+    public void setReplaceDashWithUnderscore(boolean replaceDashWithUnderscore) {
+        this.replaceDashWithUnderscore = replaceDashWithUnderscore;
+    }
+
     public String getMeasurementName() {
         return measurementName;
     }
@@ -314,7 +330,8 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
                 customDataTags, customDataMapTags, customDataMap,
                 currTime,
                 jenkinsEnvParameterField,
-                jenkinsEnvParameterTag, measurementName);
+                jenkinsEnvParameterTag, measurementName,
+                replaceDashWithUnderscore);
 
         // use proxy if checked
         OkHttpClient.Builder builder = new OkHttpClient.Builder();

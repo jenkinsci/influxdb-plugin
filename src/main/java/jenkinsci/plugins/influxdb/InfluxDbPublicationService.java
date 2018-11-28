@@ -138,7 +138,13 @@ public class InfluxDbPublicationService {
      */
     private final String measurementName;
 
-    public InfluxDbPublicationService(List<Target> selectedTargets, String customProjectName, String customPrefix, Map<String, Object> customData, Map<String, String> customDataTags, Map<String, Map<String, String>> customDataMapTags, Map<String, Map<String, Object>> customDataMap, long timestamp, String jenkinsEnvParameterField, String jenkinsEnvParameterTag, String measurementName) {
+    /**
+     * Whether or not replace dashes with underscores in tags.
+     * i.e. "my-custom-tag" --> "my_custom_tag"
+     */
+    private boolean replaceDashWithUnderscore;
+
+    public InfluxDbPublicationService(List<Target> selectedTargets, String customProjectName, String customPrefix, Map<String, Object> customData, Map<String, String> customDataTags, Map<String, Map<String, String>> customDataMapTags, Map<String, Map<String, Object>> customDataMap, long timestamp, String jenkinsEnvParameterField, String jenkinsEnvParameterTag, String measurementName, boolean replaceDashWithUnderscore) {
         this.selectedTargets = selectedTargets;
         this.customProjectName = customProjectName;
         this.customPrefix = customPrefix;
@@ -150,6 +156,7 @@ public class InfluxDbPublicationService {
         this.jenkinsEnvParameterField = jenkinsEnvParameterField;
         this.jenkinsEnvParameterTag = jenkinsEnvParameterTag;
         this.measurementName = measurementName;
+        this.replaceDashWithUnderscore = replaceDashWithUnderscore;
     }
 
     public void perform(Run<?, ?> build, TaskListener listener) {

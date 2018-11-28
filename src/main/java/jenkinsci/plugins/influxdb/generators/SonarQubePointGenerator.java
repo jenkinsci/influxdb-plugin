@@ -51,8 +51,8 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 	private final TaskListener listener;
 
 	public SonarQubePointGenerator(MeasurementRenderer<Run<?, ?>> measurementRenderer, String customPrefix,
-			Run<?, ?> build, long timestamp, TaskListener listener) {
-		super(measurementRenderer, timestamp);
+			Run<?, ?> build, long timestamp, TaskListener listener, boolean replaceDashWithUnderscore) {
+		super(measurementRenderer, timestamp, replaceDashWithUnderscore);
 		this.build = build;
 		this.customPrefix = customPrefix;
 		this.listener = listener;

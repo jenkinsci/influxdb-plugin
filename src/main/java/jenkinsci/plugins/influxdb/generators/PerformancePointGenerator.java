@@ -26,8 +26,9 @@ public class PerformancePointGenerator extends AbstractPointGenerator {
     private final String customPrefix;
     private final PerformanceBuildAction performanceBuildAction;
 
-    public PerformancePointGenerator(MeasurementRenderer<Run<?,?>> measurementRenderer, String customPrefix, Run<?, ?> build, long timestamp) {
-        super(measurementRenderer, timestamp);
+    public PerformancePointGenerator(MeasurementRenderer<Run<?,?>> measurementRenderer, String customPrefix, Run<?, ?> build,
+                                     long timestamp, boolean replaceDashWithUnderscore) {
+        super(measurementRenderer, timestamp, replaceDashWithUnderscore);
         this.build = build;
         this.customPrefix = customPrefix;
         performanceBuildAction = build.getAction(PerformanceBuildAction.class);

@@ -54,7 +54,8 @@ public class GlobalRunListener extends RunListener<Run<?, ?>> {
                         System.currentTimeMillis() * 1000000,
                         null,
                         null,
-                        "jenkins_data"
+                        "jenkins_data",
+                        true
                 );
                 // Publication
                 publicationService.perform(build, listener);

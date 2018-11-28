@@ -35,8 +35,9 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     private final Map<String, RobotTagResult> tagResults;
     private MeasurementRenderer<Run<?,?>> projectNameRenderer;
 
-    public RobotFrameworkPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix, Run<?, ?> build, long timestamp) {
-        super(projectNameRenderer, timestamp);
+    public RobotFrameworkPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix,
+                                        Run<?, ?> build, long timestamp, boolean replaceDashWithUnderscore) {
+        super(projectNameRenderer, timestamp, replaceDashWithUnderscore);
         this.projectNameRenderer = projectNameRenderer;
         this.build = build;
         this.customPrefix = customPrefix;

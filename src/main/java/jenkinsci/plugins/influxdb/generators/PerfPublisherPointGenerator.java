@@ -19,8 +19,9 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
     private final PerfPublisherBuildAction performanceBuildAction;
     private final TimeGenerator timeGenerator;
 
-    public PerfPublisherPointGenerator(MeasurementRenderer<Run<?,?>> measurementRenderer, String customPrefix, Run<?, ?> build, long timestamp) {
-        super(measurementRenderer, timestamp);
+    public PerfPublisherPointGenerator(MeasurementRenderer<Run<?,?>> measurementRenderer, String customPrefix, Run<?, ?> build,
+                                       long timestamp, boolean replaceDashWithUnderscore) {
+        super(measurementRenderer, timestamp, replaceDashWithUnderscore);
         this.build = build;
         this.customPrefix = customPrefix;
         performanceBuildAction = build.getAction(PerfPublisherBuildAction.class);
