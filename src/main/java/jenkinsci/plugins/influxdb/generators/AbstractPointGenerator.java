@@ -28,16 +28,25 @@ public abstract class AbstractPointGenerator implements PointGenerator {
     @Override
     public Point.Builder buildPoint(String name, String customPrefix, Run<?, ?> build, long timestamp) {
         final String renderedProjectName = projectNameRenderer.render(build);
+
+        String projectTagName;
+        if (this.replaceDashWithUnderscore) {
+            projectTagName = renderedProjectName;
+        } else {
+            projectTagName = customPrefix + "_" + build.getDisplayName();
+        }
+
         Point.Builder builder = Point
                 .measurement(name)
                 .addField(PROJECT_NAME, renderedProjectName)
                 .addField(PROJECT_PATH, build.getParent().getRelativeNameFrom(Jenkins.getInstance()))
                 .addField(BUILD_NUMBER, build.getNumber())
-                .tag(PROJECT_NAME, renderedProjectName)
                 .time(timestamp, TimeUnit.NANOSECONDS);
 
         if (customPrefix != null && !customPrefix.isEmpty())
-            builder = builder.tag(CUSTOM_PREFIX, customPrefix);
+            builder.tag(CUSTOM_PREFIX, this.replaceDashWithUnderscore ? measurementName(customPrefix) : customPrefix);
+
+        builder.tag(PROJECT_NAME, projectTagName);
 
         return builder;
 
