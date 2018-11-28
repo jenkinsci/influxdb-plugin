@@ -171,10 +171,10 @@ public class InfluxDbPublicationService {
         List<Point> pointsToWrite = new ArrayList<Point>();
 
         // Basic metrics
-        JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build, timestamp, listener, jenkinsEnvParameterField, jenkinsEnvParameterTag, measurementName);
+        JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build, timestamp, listener, jenkinsEnvParameterField, jenkinsEnvParameterTag, measurementName, replaceDashWithUnderscore);
         addPoints(pointsToWrite, jGen, listener);
 
-        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, customPrefix, build, timestamp, customData, customDataTags, measurementName);
+        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, customPrefix, build, timestamp, customData, customDataTags, measurementName, replaceDashWithUnderscore);
         if (cdGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Custom data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, cdGen, listener);
@@ -182,7 +182,7 @@ public class InfluxDbPublicationService {
             logger.log(Level.FINE, "Data source empty: Custom Data");
         }
 
-        CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, customPrefix, build, timestamp, customDataMap, customDataMapTags);
+        CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, customPrefix, build, timestamp, customDataMap, customDataMapTags, replaceDashWithUnderscore);
         if (cdmGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Custom data map found. Writing to InfluxDB...");
             addPoints(pointsToWrite, cdmGen, listener);
@@ -191,7 +191,7 @@ public class InfluxDbPublicationService {
         }
 
         try {
-            CoberturaPointGenerator cGen = new CoberturaPointGenerator(measurementRenderer, customPrefix, build, timestamp);
+            CoberturaPointGenerator cGen = new CoberturaPointGenerator(measurementRenderer, customPrefix, build, timestamp, replaceDashWithUnderscore);
             if (cGen.hasReport()) {
                 listener.getLogger().println("[InfluxDB Plugin] Cobertura data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, cGen, listener);
@@ -201,7 +201,7 @@ public class InfluxDbPublicationService {
         }
 
         try {
-            RobotFrameworkPointGenerator rfGen = new RobotFrameworkPointGenerator(measurementRenderer, customPrefix, build, timestamp);
+            RobotFrameworkPointGenerator rfGen = new RobotFrameworkPointGenerator(measurementRenderer, customPrefix, build, timestamp, replaceDashWithUnderscore);
             if (rfGen.hasReport()) {
                 listener.getLogger().println("[InfluxDB Plugin] Robot Framework data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, rfGen, listener);
@@ -211,7 +211,7 @@ public class InfluxDbPublicationService {
         }
 
         try {
-            JacocoPointGenerator jacoGen = new JacocoPointGenerator(measurementRenderer, customPrefix, build, timestamp);
+            JacocoPointGenerator jacoGen = new JacocoPointGenerator(measurementRenderer, customPrefix, build, timestamp, replaceDashWithUnderscore);
             if (jacoGen.hasReport()) {
                 listener.getLogger().println("[InfluxDB Plugin] Jacoco data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, jacoGen, listener);
@@ -221,7 +221,7 @@ public class InfluxDbPublicationService {
         }
 
         try {
-            PerformancePointGenerator perfGen = new PerformancePointGenerator(measurementRenderer, customPrefix, build, timestamp);
+            PerformancePointGenerator perfGen = new PerformancePointGenerator(measurementRenderer, customPrefix, build, timestamp, replaceDashWithUnderscore);
             if (perfGen.hasReport()) {
                 listener.getLogger().println("[InfluxDB Plugin] Performance data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, perfGen, listener);
@@ -230,7 +230,7 @@ public class InfluxDbPublicationService {
             logger.log(Level.FINE, "Plugin skipped: Performance");
         }
 
-        SonarQubePointGenerator sonarGen = new SonarQubePointGenerator(measurementRenderer, customPrefix, build, timestamp, listener);
+        SonarQubePointGenerator sonarGen = new SonarQubePointGenerator(measurementRenderer, customPrefix, build, timestamp, listener, replaceDashWithUnderscore);
         if (sonarGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] SonarQube data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, sonarGen, listener);
@@ -239,7 +239,7 @@ public class InfluxDbPublicationService {
         }
 
 
-        ChangeLogPointGenerator changeLogGen = new ChangeLogPointGenerator(measurementRenderer, customPrefix, build, timestamp);
+        ChangeLogPointGenerator changeLogGen = new ChangeLogPointGenerator(measurementRenderer, customPrefix, build, timestamp, replaceDashWithUnderscore);
         if (changeLogGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Git ChangeLog data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, changeLogGen, listener);
@@ -248,7 +248,7 @@ public class InfluxDbPublicationService {
         }
 
         try {
-            PerfPublisherPointGenerator perfPublisherGen = new PerfPublisherPointGenerator(measurementRenderer, customPrefix, build, timestamp);
+            PerfPublisherPointGenerator perfPublisherGen = new PerfPublisherPointGenerator(measurementRenderer, customPrefix, build, timestamp, replaceDashWithUnderscore);
             if (perfPublisherGen.hasReport()) {
                 listener.getLogger().println("[InfluxDB Plugin] PerfPublisher data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, perfPublisherGen, listener);
