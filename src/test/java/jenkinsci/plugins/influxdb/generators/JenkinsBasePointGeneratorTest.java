@@ -23,11 +23,11 @@ import static org.junit.Assert.assertThat;
  * @author Damien Coraboeuf <damien.coraboeuf@gmail.com>
  */
 public class JenkinsBasePointGeneratorTest {
-    public static final String JOB_NAME = "master";
-    public static final int BUILD_NUMBER = 11;
-    public static final String CUSTOM_PREFIX = "test_prefix";
+    private static final String JOB_NAME = "master";
+    private static final int BUILD_NUMBER = 11;
+    private static final String CUSTOM_PREFIX = "test_prefix";
 
-    public static final String JENKINS_ENV_PARAMETER_FIELD =
+    private static final String JENKINS_ENV_PARAMETER_FIELD =
                     "testKey1=testValueField\n" +
                     "testKey2=${incompleteEnvValueField\n" +
                     "testEnvKeyField1=${testEnvValueField}\n" +
@@ -35,14 +35,14 @@ public class JenkinsBasePointGeneratorTest {
     private static final String JENKINS_ENV_VALUE_FIELD = "testEnvValueField";
     private static final String JENKINS_ENV_RESOLVED_VALUE_FIELD = "resolvedEnvValueField";
 
-    public static final String JENKINS_ENV_PARAMETER_TAG =
+    private static final String JENKINS_ENV_PARAMETER_TAG =
                     "testKey1=testValueTag\n" +
                     "testKey2=${incompleteEnvValueTag\n" +
                     "testEnvKeyTag1=${testEnvValueTag}\n" +
                     "testEnvKeyTag2=PREFIX_${testEnvValueTag}_${testEnvValueTag}_SUFFIX";
     private static final String JENKINS_ENV_VALUE_TAG = "testEnvValueTag";
     private static final String JENKINS_ENV_RESOLVED_VALUE_TAG = "resolvedEnvValueTag";
-    public static final String MEASUREMENT_NAME = "jenkins_data";
+    private static final String MEASUREMENT_NAME = "jenkins_data";
 
     private Run<?, ?> build;
     private MeasurementRenderer<Run<?, ?>> measurementRenderer;
@@ -177,5 +177,21 @@ public class JenkinsBasePointGeneratorTest {
         String lineProtocol = generatedPoints[0].lineProtocol();
 
         Assert.assertTrue(lineProtocol.startsWith(customMeasurement));
+    }
+
+    @Test
+    public void dashes_are_not_replaced_by_underscores() {
+        String customPrefix = "my-custom-prefix";
+        measurementRenderer = new ProjectNameRenderer(customPrefix, null);
+
+        JenkinsBasePointGenerator jenkinsBasePointGenerator =
+                new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build, currTime,
+                        listener, JENKINS_ENV_PARAMETER_FIELD, JENKINS_ENV_PARAMETER_TAG,
+                        MEASUREMENT_NAME, false);
+        Point[] generatedPoints = jenkinsBasePointGenerator.generate();
+        String lineProtocol = generatedPoints[0].lineProtocol();
+
+        assertThat(lineProtocol, containsString("jenkins_data,build_result=?,prefix=" + customPrefix + ",project_name=" + customPrefix+"_"+JOB_NAME));
+
     }
 }
