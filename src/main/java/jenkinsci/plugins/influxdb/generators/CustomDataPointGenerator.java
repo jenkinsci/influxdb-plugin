@@ -35,8 +35,9 @@ public class CustomDataPointGenerator extends AbstractPointGenerator {
     }
 
     public Point[] generate() {
-        long startTime = build.getTimeInMillis();
-        long dt = timestamp - startTime;
+        long startTime = timestamp / 1000000;
+        long currTime = System.currentTimeMillis();
+        long dt = currTime - startTime;
 
         Point.Builder pointBuilder = buildPoint(measurementName(measurementName), customPrefix, build)
                 .addField(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
