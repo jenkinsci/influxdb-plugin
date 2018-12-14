@@ -138,7 +138,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 			conn.setRequestProperty("Accept", "application/json");
 
 			if (conn.getResponseCode() != 200) {
-				throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
+				throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode() + " from URL : " + conn.getURL());
 			}
 
 			BufferedReader rd = new BufferedReader(new InputStreamReader((conn.getInputStream())));
