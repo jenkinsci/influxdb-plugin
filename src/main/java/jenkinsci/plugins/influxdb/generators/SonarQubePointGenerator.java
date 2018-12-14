@@ -87,7 +87,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 				this.sonarServer = url;
 			} else {
 				this.sonarServer = sonarBuildLink.substring(0,
-				sonarBuildLink.indexOf("/dashboard/index/" + this.sonarProjectName));
+				sonarBuildLink.indexOf("/dashboard?id=" + this.sonarProjectName));
 			}
 			this.SONAR_ISSUES_URL = sonarServer + SONAR_ISSUES_BASE_URL + sonarProjectName + "&resolved=false&severities=";
 			this.SONAR_METRICS_URL = sonarServer + SONAR_METRICS_BASE_URL + sonarProjectName;
@@ -138,7 +138,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 			conn.setRequestProperty("Accept", "application/json");
 
 			if (conn.getResponseCode() != 200) {
-				throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
+				throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode() + " from URL : " + conn.getURL());
 			}
 
 			BufferedReader rd = new BufferedReader(new InputStreamReader((conn.getInputStream())));
@@ -184,7 +184,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
 	protected String getSonarProjectName(String url) throws URISyntaxException {
 		URI uri = new URI(url);
-		String[] projectUrl = uri.getRawPath().split("/");
+		String[] projectUrl = uri.getRawQuery().split("id=");
 		if (projectUrl.length > 1) {
 			return projectUrl[projectUrl.length - 1];
 		} else
