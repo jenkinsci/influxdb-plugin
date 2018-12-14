@@ -35,7 +35,7 @@ public class CustomDataPointGenerator extends AbstractPointGenerator {
     }
 
     public Point[] generate() {
-        long startTime = timestamp / 1000000;
+        long startTime = build.getTimeInMillis();
         long currTime = System.currentTimeMillis();
         long dt = currTime - startTime;
 
@@ -45,7 +45,7 @@ public class CustomDataPointGenerator extends AbstractPointGenerator {
 
         if (customDataTags != null) {
             if (customDataTags.size() > 0) {
-                pointBuilder = pointBuilder.tag(customDataTags);
+                pointBuilder.tag(customDataTags);
             }
         }
 
