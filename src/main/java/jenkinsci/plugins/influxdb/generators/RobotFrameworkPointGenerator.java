@@ -33,15 +33,13 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     private final Run<?, ?> build;
     private final String customPrefix;
     private final Map<String, RobotTagResult> tagResults;
-    private MeasurementRenderer<Run<?,?>> projectNameRenderer;
 
     public RobotFrameworkPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix,
                                         Run<?, ?> build, long timestamp, boolean replaceDashWithUnderscore) {
         super(projectNameRenderer, timestamp, replaceDashWithUnderscore);
-        this.projectNameRenderer = projectNameRenderer;
         this.build = build;
         this.customPrefix = customPrefix;
-        tagResults = new Hashtable<String, RobotTagResult>();
+        tagResults = new Hashtable<>();
     }
 
     public boolean hasReport() {
@@ -52,16 +50,16 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     public Point[] generate() {
         RobotBuildAction robotBuildAction = build.getAction(RobotBuildAction.class);
 
-        List<Point> pointsList = new ArrayList<Point>();
+        List<Point> pointsList = new ArrayList<>();
         
         pointsList.add(generateOverviewPoint(robotBuildAction));
         pointsList.addAll(generateSubPoints(robotBuildAction.getResult()));
         
-        return pointsList.toArray(new Point[pointsList.size()]);
+        return pointsList.toArray(new Point[0]);
     }
 
     private Point generateOverviewPoint(RobotBuildAction robotBuildAction) {
-        Point point = buildPoint(measurementName("rf_results"), customPrefix, build)
+        return buildPoint(measurementName("rf_results"), customPrefix, build)
             .addField(RF_FAILED, robotBuildAction.getResult().getOverallFailed())
             .addField(RF_PASSED, robotBuildAction.getResult().getOverallPassed())
             .addField(RF_TOTAL, robotBuildAction.getResult().getOverallTotal())
@@ -73,12 +71,10 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
             .addField(RF_DURATION, robotBuildAction.getResult().getDuration())
             .addField(RF_SUITES, robotBuildAction.getResult().getAllSuites().size())
             .build();
-
-        return point;
     }
 
     private List<Point> generateSubPoints(RobotResult robotResult) {
-        List<Point> subPoints = new ArrayList<Point>();
+        List<Point> subPoints = new ArrayList<>();
         TimeGenerator suiteResultTime = new TimeGenerator(timestamp);
         for(RobotSuiteResult suiteResult : robotResult.getAllSuites()) {
             long caseTimeStamp = suiteResultTime.next();
@@ -142,7 +138,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
         protected RobotTagResult(String name) {
             this.name = name;
         }
-        protected final List<String> testCases = new ArrayList<String>();
+        protected final List<String> testCases = new ArrayList<>();
         protected int failed = 0;
         protected int passed = 0;
         protected int criticalFailed = 0;
@@ -167,7 +163,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateTagPoint(RobotTagResult tagResult, long timestamp) {
-        Point point = buildPoint(measurementName("tag_point"), customPrefix, build, timestamp)
+        return buildPoint(measurementName("tag_point"), customPrefix, build, timestamp)
             .tag(RF_TAG_NAME, tagResult.name)
             .addField(RF_TAG_NAME, tagResult.name)
             .addField(RF_CRITICAL_FAILED, tagResult.criticalFailed)
@@ -178,12 +174,10 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
             .addField(RF_TOTAL, tagResult.passed + tagResult.failed)
             .addField(RF_DURATION, tagResult.duration)
             .build();
-
-        return point;
     }
 
     private Point generateSuitePoint(RobotSuiteResult suiteResult, long timestamp) {
-        Point point = buildPoint(measurementName("suite_result"), customPrefix, build, timestamp)
+        return buildPoint(measurementName("suite_result"), customPrefix, build, timestamp)
             .tag(RF_SUITE_NAME, suiteResult.getName())
             .addField(RF_SUITE_NAME, suiteResult.getName())
             .addField(RF_TESTCASES, suiteResult.getAllCases().size())
@@ -195,8 +189,6 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
             .addField(RF_TOTAL, suiteResult.getTotal())
             .addField(RF_DURATION, suiteResult.getDuration())
             .build();
-
-        return point;
     }
 
 }
