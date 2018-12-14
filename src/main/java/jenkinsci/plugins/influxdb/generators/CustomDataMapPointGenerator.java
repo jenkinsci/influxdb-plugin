@@ -8,12 +8,10 @@ import java.util.*;
 
 public class CustomDataMapPointGenerator extends AbstractPointGenerator {
 
-    public static final String BUILD_TIME = "build_time";
-
     private final Run<?, ?> build;
     private final String customPrefix;
-    Map<String, Map<String, Object>> customDataMap;
-    Map<String, Map<String, String>> customDataMapTags;
+    private Map<String, Map<String, Object>> customDataMap;
+    private Map<String, Map<String, String>> customDataMapTags;
 
     public CustomDataMapPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix,
                                        Run<?, ?> build, long timestamp, Map<String, Map<String, Object>> customDataMap,
@@ -30,7 +28,7 @@ public class CustomDataMapPointGenerator extends AbstractPointGenerator {
     }
 
     public Point[] generate() {
-        List<Point> customPoints = new ArrayList<Point>();
+        List<Point> customPoints = new ArrayList<>();
         Set<String> customKeys = customDataMap.keySet();
 
         for (String key : customKeys) {
@@ -41,7 +39,7 @@ public class CustomDataMapPointGenerator extends AbstractPointGenerator {
                 Map<String, String> customTags = customDataMapTags.get(key);
                 if (customTags != null) {
                     if (customTags.size() > 0){
-                        pointBuilder = pointBuilder.tag(customTags);
+                        pointBuilder.tag(customTags);
                     }
                 }
             }
@@ -50,7 +48,7 @@ public class CustomDataMapPointGenerator extends AbstractPointGenerator {
 
             customPoints.add(point);
         }
-        return customPoints.toArray(new Point[customPoints.size()]);
+        return customPoints.toArray(new Point[0]);
     }
 
 }
