@@ -1,5 +1,12 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Map;
+import java.util.Properties;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
 import hudson.EnvVars;
 import hudson.model.Cause;
 import hudson.model.Result;
@@ -9,12 +16,18 @@ import hudson.tasks.test.AbstractTestResultAction;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import org.apache.commons.lang3.StringUtils;
 import org.influxdb.dto.Point;
+import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 public class JenkinsBasePointGenerator extends AbstractPointGenerator {
+
+    /**
+     * The logger.
+     **/
+    private static final Logger logger = Logger.getLogger(JenkinsBasePointGenerator.class.getName());
 
     public static final String BUILD_TIME = "build_time";
     public static final String BUILD_STATUS_MESSAGE = "build_status_message";
@@ -121,7 +134,35 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             point.fields(fieldMap);
         }
 
-        return new Point[] {point.build()};
+        setServiceIdTag(point);
+
+        return new Point[]{point.build()};
+    }
+
+    private void setServiceIdTag(Point.Builder point) {
+        try {
+            if (setServiceTagFromRun(build, point)) {
+                return;
+            }
+            Cause.UpstreamCause cause = build.getCause(Cause.UpstreamCause.class);
+            while (cause != null) {
+                if (cause.getUpstreamRun() != null && setServiceTagFromRun(cause.getUpstreamRun(), point)) {
+                    return;
+                }
+                cause = cause.getUpstreamRun().getCause(Cause.UpstreamCause.class);
+            }
+        } catch (Exception e) {
+            logger.warning("Could not retrieve service_id, " + e);
+        }
+    }
+
+    private boolean setServiceTagFromRun(Run<?, ?> build, Point.Builder point) throws IOException {
+        String serviceId = new RunWrapper(build, false).getBuildVariables().get("SERVICE_ID");
+        if (serviceId != null) {
+            point.tag("service_id", serviceId);
+            return true;
+        }
+        return false;
     }
 
     private String getBuildEnv(String buildEnv) {
