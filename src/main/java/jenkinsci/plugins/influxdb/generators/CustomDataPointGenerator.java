@@ -10,13 +10,13 @@ import static jenkinsci.plugins.influxdb.InfluxDbPublisher.DEFAULT_MEASUREMENT_N
 
 public class CustomDataPointGenerator extends AbstractPointGenerator {
 
-    public static final String BUILD_TIME = "build_time";
+    private static final String BUILD_TIME = "build_time";
 
     private final Run<?, ?> build;
     private final String customPrefix;
     private final String measurementName;
-    Map<String, Object> customData;
-    Map<String, String> customDataTags;
+    private Map<String, Object> customData;
+    private Map<String, String> customDataTags;
 
     public CustomDataPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix,
                                     Run<?, ?> build, long timestamp, Map customData,

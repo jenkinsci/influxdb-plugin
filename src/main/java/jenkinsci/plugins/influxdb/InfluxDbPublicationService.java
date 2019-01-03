@@ -168,7 +168,7 @@ public class InfluxDbPublicationService {
         MeasurementRenderer<Run<?, ?>> measurementRenderer = new ProjectNameRenderer(customPrefix, customProjectName);
 
         // Points to write
-        List<Point> pointsToWrite = new ArrayList<Point>();
+        List<Point> pointsToWrite = new ArrayList<>();
 
         // Basic metrics
         JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build, timestamp, listener, jenkinsEnvParameterField, jenkinsEnvParameterTag, measurementName, replaceDashWithUnderscore);

@@ -12,15 +12,15 @@ import java.util.*;
 
 public class PerformancePointGenerator extends AbstractPointGenerator {
 
-    public static final String PERFORMANCE_ERROR_PERCENT = "error_percent"; // failed / size * 100
-    public static final String PERFORMANCE_ERROR_COUNT = "error_count";     // Amount of failed samples
-    public static final String PERFORMANCE_AVERAGE = "average"; // Total duration / size
-    public static final String PERFORMANCE_90PERCENTILE = "90Percentile";   // 90 Percentile duration
-    public static final String PERFORMANCE_MEDIAN = "median";   //median duration
-    public static final String PERFORMANCE_MAX = "max";     // max duration
-    public static final String PERFORMANCE_MIN = "min";     // min duration
-    public static final String PERFORMANCE_TOTAL_TRAFFIC = "total_traffic";
-    public static final String PERFORMANCE_SIZE = "size";   // Size of all samples
+    private static final String PERFORMANCE_ERROR_PERCENT = "error_percent"; // failed / size * 100
+    private static final String PERFORMANCE_ERROR_COUNT = "error_count";     // Amount of failed samples
+    private static final String PERFORMANCE_AVERAGE = "average"; // Total duration / size
+    private static final String PERFORMANCE_90PERCENTILE = "90Percentile";   // 90 Percentile duration
+    private static final String PERFORMANCE_MEDIAN = "median";   //median duration
+    private static final String PERFORMANCE_MAX = "max";     // max duration
+    private static final String PERFORMANCE_MIN = "min";     // min duration
+    private static final String PERFORMANCE_TOTAL_TRAFFIC = "total_traffic";
+    private static final String PERFORMANCE_SIZE = "size";   // Size of all samples
 
     private final Run<?, ?> build;
     private final String customPrefix;
