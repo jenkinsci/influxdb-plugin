@@ -1,6 +1,5 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import com.influxdb.client.write.Point;
 import hudson.EnvVars;
 import hudson.model.Cause;
 import hudson.model.Result;
@@ -9,12 +8,21 @@ import hudson.model.TaskListener;
 import hudson.tasks.test.AbstractTestResultAction;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang3.StringUtils;
+import org.influxdb.dto.Point;
+import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 public class JenkinsBasePointGenerator extends AbstractPointGenerator {
+
+    /**
+     * The logger.
+     **/
+    private static final Logger logger = Logger.getLogger(JenkinsBasePointGenerator.class.getName());
 
     public static final String BUILD_TIME = "build_time";
     public static final String BUILD_STATUS_MESSAGE = "build_status_message";
@@ -90,20 +98,20 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         Point point = buildPoint(measurementName, customPrefix, build);
 
         point.addField(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
-            .addField(BUILD_SCHEDULED_TIME, build.getTimeInMillis())
-            .addField(BUILD_EXEC_TIME, build.getStartTimeInMillis())
-            .addField(BUILD_MEASURED_TIME, currTime)
-            .addField(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
-            .addField(BUILD_RESULT, result)
-            .addField(BUILD_RESULT_ORDINAL, ordinal)
-            .addField(BUILD_IS_SUCCESSFUL, ordinal < 2)
-            .addField(BUILD_AGENT_NAME, getBuildEnv("NODE_NAME"))
-            .addField(BUILD_BRANCH_NAME, getBuildEnv("BRANCH_NAME"))
-            .addField(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
-            .addField(PROJECT_LAST_SUCCESSFUL, getLastSuccessfulBuild())
-            .addField(PROJECT_LAST_STABLE, getLastStableBuild())
-            .addField(BUILD_CAUSER , getCauseShortDescription())
-            .addTag(BUILD_RESULT, result);
+                .addField(BUILD_SCHEDULED_TIME, build.getTimeInMillis())
+                .addField(BUILD_EXEC_TIME, build.getStartTimeInMillis())
+                .addField(BUILD_MEASURED_TIME, currTime)
+                .addField(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
+                .addField(BUILD_RESULT, result)
+                .addField(BUILD_RESULT_ORDINAL, ordinal)
+                .addField(BUILD_IS_SUCCESSFUL, ordinal < 2)
+                .addField(BUILD_AGENT_NAME, getBuildEnv("NODE_NAME"))
+                .addField(BUILD_BRANCH_NAME, getBuildEnv("BRANCH_NAME"))
+                .addField(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
+                .addField(PROJECT_LAST_SUCCESSFUL, getLastSuccessfulBuild())
+                .addField(PROJECT_LAST_STABLE, getLastStableBuild())
+                .addField(BUILD_CAUSER, getCauseShortDescription())
+                .addTag(BUILD_RESULT, result);
 
         if (hasTestResults(build)) {
             point.addField(TESTS_FAILED, build.getAction(AbstractTestResultAction.class).getFailCount());
@@ -121,7 +129,35 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             point.addFields(fieldMap);
         }
 
-        return new Point[] {point};
+        setServiceIdTag(point);
+
+        return new Point[]{point};
+    }
+
+    private void setServiceIdTag(Point.Builder point) {
+        try {
+            if (setServiceTagFromRun(build, point)) {
+                return;
+            }
+            Cause.UpstreamCause cause = build.getCause(Cause.UpstreamCause.class);
+            while (cause != null) {
+                if (cause.getUpstreamRun() != null && setServiceTagFromRun(cause.getUpstreamRun(), point)) {
+                    return;
+                }
+                cause = cause.getUpstreamRun().getCause(Cause.UpstreamCause.class);
+            }
+        } catch (Exception e) {
+            logger.warning("Could not retrieve service_id, " + e);
+        }
+    }
+
+    private boolean setServiceTagFromRun(Run<?, ?> build, Point.Builder point) throws IOException {
+        String serviceId = new RunWrapper(build, false).getBuildVariables().get("SERVICE_ID");
+        if (serviceId != null) {
+            point.tag("service_id", serviceId);
+            return true;
+        }
+        return false;
     }
 
     private String getBuildEnv(String buildEnv) {

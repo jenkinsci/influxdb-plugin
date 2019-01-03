@@ -218,6 +218,20 @@ THE SOFTWARE.
             <version>8.05</version>
             <optional>true</optional>
         </dependency>
+
+        <dependency>
+            <groupId>org.jenkins-ci.plugins.workflow</groupId>
+            <artifactId>workflow-support</artifactId>
+            <version>2.13</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.9</version>
+        </dependency>
+
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>robot</artifactId>
