@@ -69,7 +69,7 @@ public class JenkinsBasePointGeneratorTest {
         Mockito.when(executor.getOwner()).thenReturn(computer);
         Mockito.when(computer.getName()).thenReturn("slave-1");
         Mockito.when(job.getName()).thenReturn(JOB_NAME);
-        Mockito.when(job.getRelativeNameFrom(Mockito.any(Jenkins.class))).thenReturn("folder/" + JOB_NAME);
+        Mockito.when(job.getRelativeNameFrom(Mockito.nullable(Jenkins.class))).thenReturn("folder/" + JOB_NAME);
         Mockito.when(job.getBuildHealth()).thenReturn(new HealthReport());
         Mockito.when(mockedEnvVars.get(JENKINS_ENV_VALUE_FIELD)).thenReturn(JENKINS_ENV_RESOLVED_VALUE_FIELD);
         Mockito.when(mockedEnvVars.get(JENKINS_ENV_VALUE_TAG)).thenReturn(JENKINS_ENV_RESOLVED_VALUE_TAG);
