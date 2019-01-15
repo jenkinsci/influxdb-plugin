@@ -15,7 +15,7 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Publisher;
 import net.sf.json.JSONObject;
 
-public class DescriptorImpl extends BuildStepDescriptor<Publisher> implements ModelObject, java.io.Serializable {
+public final class DescriptorImpl extends BuildStepDescriptor<Publisher> implements ModelObject, java.io.Serializable {
 
     private static final String DISPLAY_NAME = "Publish build data to InfluxDb target";
     private List<Target> targets = new CopyOnWriteArrayList<>();
