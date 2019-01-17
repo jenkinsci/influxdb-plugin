@@ -35,9 +35,8 @@ public class CustomDataMapPointGeneratorTest {
         Mockito.when(build.getNumber()).thenReturn(BUILD_NUMBER);
         Mockito.when(build.getParent()).thenReturn(job);
         Mockito.when(job.getName()).thenReturn(JOB_NAME);
-        Mockito.when(job.getRelativeNameFrom(Mockito.any(Jenkins.class))).thenReturn("folder/" + JOB_NAME);
+        Mockito.when(job.getRelativeNameFrom(Mockito.nullable(Jenkins.class))).thenReturn("folder/" + JOB_NAME);
 
-        
         currTime = System.currentTimeMillis();
     }
 

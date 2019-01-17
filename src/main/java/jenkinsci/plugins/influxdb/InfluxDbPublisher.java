@@ -311,14 +311,14 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     public void perform(@Nonnull Run<?, ?> build, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener)
             throws InterruptedException, IOException {
 
-        // Get the current time for timestamping all point generation and convert to nanoseconds
-        long currTime = resolveTimestampForPointGenerationInNanoseconds(build);
-
         // Gets the target from the job's config
         Target target = getTarget();
         if (target == null) {
             throw new RuntimeException("Target was null!");
         }
+
+        // Get the current time for timestamping all point generation and convert to nanoseconds
+        long currTime = resolveTimestampForPointGenerationInNanoseconds(build);
 
         measurementName = getMeasurementNameIfNotBlankOrDefault();
         // Preparing the service
