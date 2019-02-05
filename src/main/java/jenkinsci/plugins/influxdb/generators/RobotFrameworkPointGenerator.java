@@ -15,33 +15,31 @@ import java.util.Map;
 
 public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
 
-    public static final String RF_NAME = "rf_name";
-    public static final String RF_FAILED = "rf_failed";
-    public static final String RF_PASSED = "rf_passed";
-    public static final String RF_TOTAL = "rf_total";
-    public static final String RF_CRITICAL_FAILED = "rf_critical_failed";
-    public static final String RF_CRITICAL_PASSED = "rf_critical_passed";
-    public static final String RF_CRITICAL_TOTAL = "rf_critical_total";
-    public static final String RF_CRITICAL_PASS_PERCENTAGE = "rf_critical_pass_percentage";
-    public static final String RF_PASS_PERCENTAGE = "rf_pass_percentage";
-    public static final String RF_DURATION = "rf_duration";
-    public static final String RF_SUITES = "rf_suites";
-    public static final String RF_SUITE_NAME = "rf_suite_name";
-    public static final String RF_TESTCASES = "rf_testcases";
-    public static final String RF_TAG_NAME = "rf_tag_name";
+    private static final String RF_NAME = "rf_name";
+    private static final String RF_FAILED = "rf_failed";
+    private static final String RF_PASSED = "rf_passed";
+    private static final String RF_TOTAL = "rf_total";
+    private static final String RF_CRITICAL_FAILED = "rf_critical_failed";
+    private static final String RF_CRITICAL_PASSED = "rf_critical_passed";
+    private static final String RF_CRITICAL_TOTAL = "rf_critical_total";
+    private static final String RF_CRITICAL_PASS_PERCENTAGE = "rf_critical_pass_percentage";
+    private static final String RF_PASS_PERCENTAGE = "rf_pass_percentage";
+    private static final String RF_DURATION = "rf_duration";
+    private static final String RF_SUITES = "rf_suites";
+    private static final String RF_SUITE_NAME = "rf_suite_name";
+    private static final String RF_TESTCASES = "rf_testcases";
+    private static final String RF_TAG_NAME = "rf_tag_name";
 
     private final Run<?, ?> build;
     private final String customPrefix;
     private final Map<String, RobotTagResult> tagResults;
-    private MeasurementRenderer<Run<?,?>> projectNameRenderer;
 
     public RobotFrameworkPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix,
                                         Run<?, ?> build, long timestamp, boolean replaceDashWithUnderscore) {
         super(projectNameRenderer, timestamp, replaceDashWithUnderscore);
-        this.projectNameRenderer = projectNameRenderer;
         this.build = build;
         this.customPrefix = customPrefix;
-        tagResults = new Hashtable<String, RobotTagResult>();
+        tagResults = new Hashtable<>();
     }
 
     public boolean hasReport() {
@@ -52,16 +50,16 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     public Point[] generate() {
         RobotBuildAction robotBuildAction = build.getAction(RobotBuildAction.class);
 
-        List<Point> pointsList = new ArrayList<Point>();
+        List<Point> pointsList = new ArrayList<>();
         
         pointsList.add(generateOverviewPoint(robotBuildAction));
         pointsList.addAll(generateSubPoints(robotBuildAction.getResult()));
         
-        return pointsList.toArray(new Point[pointsList.size()]);
+        return pointsList.toArray(new Point[0]);
     }
 
     private Point generateOverviewPoint(RobotBuildAction robotBuildAction) {
-        Point point = buildPoint(measurementName("rf_results"), customPrefix, build)
+        return buildPoint(measurementName("rf_results"), customPrefix, build)
             .addField(RF_FAILED, robotBuildAction.getResult().getOverallFailed())
             .addField(RF_PASSED, robotBuildAction.getResult().getOverallPassed())
             .addField(RF_TOTAL, robotBuildAction.getResult().getOverallTotal())
@@ -73,12 +71,10 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
             .addField(RF_DURATION, robotBuildAction.getResult().getDuration())
             .addField(RF_SUITES, robotBuildAction.getResult().getAllSuites().size())
             .build();
-
-        return point;
     }
 
     private List<Point> generateSubPoints(RobotResult robotResult) {
-        List<Point> subPoints = new ArrayList<Point>();
+        List<Point> subPoints = new ArrayList<>();
         TimeGenerator suiteResultTime = new TimeGenerator(timestamp);
         for(RobotSuiteResult suiteResult : robotResult.getAllSuites()) {
             long caseTimeStamp = suiteResultTime.next();
@@ -122,13 +118,13 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     private Point generateCasePoint(RobotCaseResult caseResult, long timestamp) {
         Point point = buildPoint(measurementName("testcase_point"), customPrefix, build, timestamp)
             .tag(RF_NAME, caseResult.getName())
-            .field(RF_NAME, caseResult.getName())
-            .field(RF_SUITE_NAME, caseResult.getParent().getName())
-            .field(RF_CRITICAL_FAILED, caseResult.getCriticalFailed())
-            .field(RF_CRITICAL_PASSED, caseResult.getCriticalPassed())
-            .field(RF_FAILED, caseResult.getFailed())
-            .field(RF_PASSED, caseResult.getPassed())
-            .field(RF_DURATION, caseResult.getDuration())
+            .addField(RF_NAME, caseResult.getName())
+            .addField(RF_SUITE_NAME, caseResult.getParent().getName())
+            .addField(RF_CRITICAL_FAILED, caseResult.getCriticalFailed())
+            .addField(RF_CRITICAL_PASSED, caseResult.getCriticalPassed())
+            .addField(RF_FAILED, caseResult.getFailed())
+            .addField(RF_PASSED, caseResult.getPassed())
+            .addField(RF_DURATION, caseResult.getDuration())
             .build();
 
         for(String tag : caseResult.getTags()) {
@@ -142,7 +138,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
         protected RobotTagResult(String name) {
             this.name = name;
         }
-        protected final List<String> testCases = new ArrayList<String>();
+        protected final List<String> testCases = new ArrayList<>();
         protected int failed = 0;
         protected int passed = 0;
         protected int criticalFailed = 0;
@@ -167,36 +163,32 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateTagPoint(RobotTagResult tagResult, long timestamp) {
-        Point point = buildPoint(measurementName("tag_point"), customPrefix, build, timestamp)
+        return buildPoint(measurementName("tag_point"), customPrefix, build, timestamp)
             .tag(RF_TAG_NAME, tagResult.name)
-            .field(RF_TAG_NAME, tagResult.name)
-            .field(RF_CRITICAL_FAILED, tagResult.criticalFailed)
-            .field(RF_CRITICAL_PASSED, tagResult.criticalPassed)
-            .field(RF_CRITICAL_TOTAL, tagResult.criticalPassed + tagResult.criticalFailed)
-            .field(RF_FAILED, tagResult.failed)
-            .field(RF_PASSED, tagResult.passed)
-            .field(RF_TOTAL, tagResult.passed + tagResult.failed)
-            .field(RF_DURATION, tagResult.duration)
+            .addField(RF_TAG_NAME, tagResult.name)
+            .addField(RF_CRITICAL_FAILED, tagResult.criticalFailed)
+            .addField(RF_CRITICAL_PASSED, tagResult.criticalPassed)
+            .addField(RF_CRITICAL_TOTAL, tagResult.criticalPassed + tagResult.criticalFailed)
+            .addField(RF_FAILED, tagResult.failed)
+            .addField(RF_PASSED, tagResult.passed)
+            .addField(RF_TOTAL, tagResult.passed + tagResult.failed)
+            .addField(RF_DURATION, tagResult.duration)
             .build();
-
-        return point;
     }
 
     private Point generateSuitePoint(RobotSuiteResult suiteResult, long timestamp) {
-        Point point = buildPoint(measurementName("suite_result"), customPrefix, build, timestamp)
+        return buildPoint(measurementName("suite_result"), customPrefix, build, timestamp)
             .tag(RF_SUITE_NAME, suiteResult.getName())
-            .field(RF_SUITE_NAME, suiteResult.getName())
-            .field(RF_TESTCASES, suiteResult.getAllCases().size())
-            .field(RF_CRITICAL_FAILED, suiteResult.getCriticalFailed())
-            .field(RF_CRITICAL_PASSED, suiteResult.getCriticalPassed())
-            .field(RF_CRITICAL_TOTAL, suiteResult.getCriticalTotal())
-            .field(RF_FAILED, suiteResult.getFailed())
-            .field(RF_PASSED, suiteResult.getPassed())
-            .field(RF_TOTAL, suiteResult.getTotal())
-            .field(RF_DURATION, suiteResult.getDuration())
+            .addField(RF_SUITE_NAME, suiteResult.getName())
+            .addField(RF_TESTCASES, suiteResult.getAllCases().size())
+            .addField(RF_CRITICAL_FAILED, suiteResult.getCriticalFailed())
+            .addField(RF_CRITICAL_PASSED, suiteResult.getCriticalPassed())
+            .addField(RF_CRITICAL_TOTAL, suiteResult.getCriticalTotal())
+            .addField(RF_FAILED, suiteResult.getFailed())
+            .addField(RF_PASSED, suiteResult.getPassed())
+            .addField(RF_TOTAL, suiteResult.getTotal())
+            .addField(RF_DURATION, suiteResult.getDuration())
             .build();
-
-        return point;
     }
 
 }

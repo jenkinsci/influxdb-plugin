@@ -17,7 +17,6 @@ import org.influxdb.dto.Point;
 
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import hudson.EnvVars;
 import hudson.util.IOUtils;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import net.sf.json.JSONArray;
@@ -25,21 +24,21 @@ import net.sf.json.JSONObject;
 
 public class SonarQubePointGenerator extends AbstractPointGenerator {
 
-	public static final String BUILD_DISPLAY_NAME = "display_name";
-	public static final String SONARQUBE_LINES_OF_CODE = "lines_of_code";
-	public static final String SONARQUBE_COMPLEXITY = "complexity";
-	public static final String SONARQUBE_CRTITCAL_ISSUES = "critical_issues";
-	public static final String SONARQUBE_MAJOR_ISSUES = "major_issues";
-	public static final String SONARQUBE_MINOR_ISSUES = "minor_issues";
-	public static final String SONARQUBE_INFO_ISSUES = "info_issues";
-	public static final String SONARQUBE_BLOCKER_ISSUES = "blocker_issues";
+	private static final String BUILD_DISPLAY_NAME = "display_name";
+	private static final String SONARQUBE_LINES_OF_CODE = "lines_of_code";
+	private static final String SONARQUBE_COMPLEXITY = "complexity";
+	private static final String SONARQUBE_CRTITCAL_ISSUES = "critical_issues";
+	private static final String SONARQUBE_MAJOR_ISSUES = "major_issues";
+	private static final String SONARQUBE_MINOR_ISSUES = "minor_issues";
+	private static final String SONARQUBE_INFO_ISSUES = "info_issues";
+	private static final String SONARQUBE_BLOCKER_ISSUES = "blocker_issues";
 
-	public static final String URL_PATTERN_IN_LOGS = ".*" + Pattern.quote("ANALYSIS SUCCESSFUL, you can browse ")
+	private static final String URL_PATTERN_IN_LOGS = ".*" + Pattern.quote("ANALYSIS SUCCESSFUL, you can browse ")
 			+ "(.*)";
 
-	public static final String SONAR_ISSUES_BASE_URL = "/api/issues/search?ps=500&projectKeys=";
+	private static final String SONAR_ISSUES_BASE_URL = "/api/issues/search?ps=500&projectKeys=";
 
-	public static final String SONAR_METRICS_BASE_URL = "/api/measures/component?metricKeys=ncloc,complexity,violations&componentKey=";
+	private static final String SONAR_METRICS_BASE_URL = "/api/measures/component?metricKeys=ncloc,complexity,violations&componentKey=";
 
 	private String SONAR_ISSUES_URL;
 	private String SONAR_METRICS_URL;
@@ -107,7 +106,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 					.addField(SONARQUBE_MAJOR_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "MAJOR"))
 					.addField(SONARQUBE_MINOR_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "MINOR"))
 					.addField(SONARQUBE_INFO_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "INFO"))
-					.addField(SONARQUBE_LINES_OF_CODE, getLinesofCode(this.SONAR_METRICS_URL)).build();
+					.addField(SONARQUBE_LINES_OF_CODE, getLinesOfCode(this.SONAR_METRICS_URL)).build();
 		} catch (IOException e) {
 			// handle
 		}
@@ -191,19 +190,19 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 			return "";
 	}
 
-	public int getLinesofCode(String url) throws IOException {
+	public int getLinesOfCode(String url) throws IOException {
 		String output = getResult(url);
 		JSONObject metricsObjects = JSONObject.fromObject(output);
-		int linesofcodeCount = 0;
+		int linesOfCodeCount = 0;
 		JSONArray array = metricsObjects.getJSONObject("component").getJSONArray("measures");
 		for (int i = 0; i < array.size(); i++) {
 			JSONObject metricsObject = array.getJSONObject(i);
 			if (metricsObject.get("metric").equals("ncloc")) {
-				linesofcodeCount = metricsObject.getInt("value");
+				linesOfCodeCount = metricsObject.getInt("value");
 			}
 		}
 
-		return linesofcodeCount;
+		return linesOfCodeCount;
 	}
 
 	public int getSonarIssues(String url, String severity) throws IOException {

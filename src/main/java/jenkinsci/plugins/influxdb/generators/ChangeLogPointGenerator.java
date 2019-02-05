@@ -12,7 +12,7 @@ import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 
 public class ChangeLogPointGenerator extends AbstractPointGenerator {
     
-	public static final String BUILD_DISPLAY_NAME = "display_name";
+	private static final String BUILD_DISPLAY_NAME = "display_name";
 
 	private final Run<?, ?> build;
 	private final String customPrefix;
@@ -35,9 +35,7 @@ public class ChangeLogPointGenerator extends AbstractPointGenerator {
 	public boolean hasReport() {
 		if (build instanceof AbstractBuild) {
 			getChangeLog(build);
-			if (this.getCommitCount() > 0) {
-				return true;
-			}
+			return (this.getCommitCount() > 0);
 		}
 		return false;
 	}
@@ -85,15 +83,15 @@ public class ChangeLogPointGenerator extends AbstractPointGenerator {
 	}
 
 	private String getMessages() {
-	    return this.messages.length() > 0 ? this.messages.substring(0, this.messages.length() - 2).toString(): "";
+	    return this.messages.length() > 0 ? this.messages.substring(0, this.messages.length() - 2) : "";
 	}
 
 	private String getCulprits() {
-		return this.culprits.length() > 0 ? this.culprits.substring(0, this.culprits.length() - 2).toString(): "";
+		return this.culprits.length() > 0 ? this.culprits.substring(0, this.culprits.length() - 2) : "";
 	}
 	
 	private String getAffectedPaths() {
-		return this.affectedPaths.length() > 0 ? this.affectedPaths.substring(0, this.affectedPaths.length() - 2).toString(): "";
+		return this.affectedPaths.length() > 0 ? this.affectedPaths.substring(0, this.affectedPaths.length() - 2) : "";
 	}
 
 	private int getCommitCount() {

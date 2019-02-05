@@ -1,7 +1,6 @@
 package jenkinsci.plugins.influxdb.generators;
 
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
-import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.influxdb.dto.Point;
 
 import hudson.model.Run;
@@ -12,13 +11,13 @@ import hudson.plugins.cobertura.targets.CoverageResult;
 
 public class CoberturaPointGenerator extends AbstractPointGenerator {
 
-    public static final String COBERTURA_PACKAGE_COVERAGE_RATE = "cobertura_package_coverage_rate";
-    public static final String COBERTURA_CLASS_COVERAGE_RATE = "cobertura_class_coverage_rate";
-    public static final String COBERTURA_LINE_COVERAGE_RATE = "cobertura_line_coverage_rate";
-    public static final String COBERTURA_BRANCH_COVERAGE_RATE = "cobertura_branch_coverage_rate";
-    public static final String COBERTURA_NUMBER_OF_PACKAGES = "cobertura_number_of_packages";
-    public static final String COBERTURA_NUMBER_OF_SOURCEFILES = "cobertura_number_of_sourcefiles";
-    public static final String COBERTURA_NUMBER_OF_CLASSES = "cobertura_number_of_classes";
+    private static final String COBERTURA_PACKAGE_COVERAGE_RATE = "cobertura_package_coverage_rate";
+    private static final String COBERTURA_CLASS_COVERAGE_RATE = "cobertura_class_coverage_rate";
+    private static final String COBERTURA_LINE_COVERAGE_RATE = "cobertura_line_coverage_rate";
+    private static final String COBERTURA_BRANCH_COVERAGE_RATE = "cobertura_branch_coverage_rate";
+    private static final String COBERTURA_NUMBER_OF_PACKAGES = "cobertura_number_of_packages";
+    private static final String COBERTURA_NUMBER_OF_SOURCEFILES = "cobertura_number_of_sourcefiles";
+    private static final String COBERTURA_NUMBER_OF_CLASSES = "cobertura_number_of_classes";
 
     private final Run<?, ?> build;
     private final CoberturaBuildAction coberturaBuildAction;
