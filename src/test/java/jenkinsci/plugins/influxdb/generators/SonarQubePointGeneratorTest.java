@@ -23,6 +23,7 @@ public class SonarQubePointGeneratorTest {
     private Job job;
 
     private MeasurementRenderer<Run<?, ?>> measurementRenderer;
+    private String sonarUrl = "http://sonar.dashboard.com";
 
     private long currTime;
 
@@ -40,9 +41,17 @@ public class SonarQubePointGeneratorTest {
     }
 
     @Test
+    public void getSonarProjectNameFromNewSonarQubeTest() throws URISyntaxException {
+        String name = "org.namespace:feature%2Fmy-sub-project";
+        String url = sonarUrl + "/dashboard?id=" + name;
+        SonarQubePointGenerator gen = new SonarQubePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null, true);
+        assertEquals(name, gen.getSonarProjectName(url));
+    }
+
+    @Test
     public void getSonarProjectNameTest() throws URISyntaxException {
         String name = "org.namespace:feature%2Fmy-sub-project";
-        String url = "http://sonar.dashboard.com/dashboard?id=" + name;
+        String url = sonarUrl + "/dashboard/index/" + name;
         SonarQubePointGenerator gen = new SonarQubePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null, true);
         assertEquals(name, gen.getSonarProjectName(url));
     }

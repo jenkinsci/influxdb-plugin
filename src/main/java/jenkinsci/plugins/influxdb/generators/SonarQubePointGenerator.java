@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.net.HttpURLConnection;
@@ -85,8 +86,13 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 			if (url != null && url != "") {
 				this.sonarServer = url;
 			} else {
-				this.sonarServer = sonarBuildLink.substring(0,
-				sonarBuildLink.indexOf("/dashboard?id=" + this.sonarProjectName));
+				if (sonarBuildLink.indexOf("/dashboard?id=" + this.sonarProjectName) > 0) {
+					this.sonarServer = sonarBuildLink.substring(0,
+							sonarBuildLink.indexOf("/dashboard?id=" + this.sonarProjectName));
+				} else {
+					this.sonarServer = sonarBuildLink.substring(0,
+							sonarBuildLink.indexOf("/dashboard/index/" + this.sonarProjectName));
+				}
 			}
 			this.SONAR_ISSUES_URL = sonarServer + SONAR_ISSUES_BASE_URL + sonarProjectName + "&resolved=false&severities=";
 			this.SONAR_METRICS_URL = sonarServer + SONAR_METRICS_BASE_URL + sonarProjectName;
@@ -123,7 +129,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 				String token = build.getEnvironment(listener).get("SONAR_AUTH_TOKEN");
 				if (token != null) {
 					token = token + ":";
-					String encoding = Base64.encodeBase64String(token.getBytes("UTF-8"));
+					String encoding = Base64.encodeBase64String(token.getBytes(StandardCharsets.UTF_8));
 					auth = "Basic " + encoding;
 				}
 			} catch (InterruptedException|IOException e) {
@@ -148,14 +154,8 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
 			conn.disconnect();
 
-		} catch (MalformedURLException e) {
-
-			e.printStackTrace();
-
 		} catch (IOException e) {
-
 			e.printStackTrace();
-
 		}
 
 		return result.toString();
@@ -182,12 +182,15 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 	}
 
 	protected String getSonarProjectName(String url) throws URISyntaxException {
+		//String sonarVersion = getResult("api/server/version");
 		URI uri = new URI(url);
-		String[] projectUrl = uri.getRawQuery().split("id=");
-		if (projectUrl.length > 1) {
-			return projectUrl[projectUrl.length - 1];
-		} else
-			return "";
+		String[] projectUrl;
+		try {
+			projectUrl = uri.getRawQuery().split("id=");
+		} catch (NullPointerException e) {
+			projectUrl = uri.getRawPath().split("/");
+		}
+		return projectUrl.length > 1 ? projectUrl[projectUrl.length - 1] : "";
 	}
 
 	public int getLinesOfCode(String url) throws IOException {
