@@ -55,27 +55,27 @@ public class CustomDataMapPointGeneratorTest {
 
     @Test
     public void generateTest() {
-        Map<String, Object> customData1 = new HashMap<String, Object>();
+        Map<String, Object> customData1 = new HashMap<>();
         customData1.put("test1", 11);
         customData1.put("test2", 22);
 
 
-        Map<String, Object> customData2 = new HashMap<String, Object>();
+        Map<String, Object> customData2 = new HashMap<>();
         customData2.put("test3", 33);
         customData2.put("test4", 44);
 
 
-        Map<String, Map<String, Object>> customDataMap = new HashMap<String, Map<String, Object>>();
+        Map<String, Map<String, Object>> customDataMap = new HashMap<>();
         customDataMap.put("series1", customData1);
         customDataMap.put("series2", customData2);
 
-        Map<String, Map<String, String>> customDataMapTags = new HashMap<String, Map<String, String>>();
-        Map<String, String> customTags = new HashMap<String, String>();
+        Map<String, Map<String, String>> customDataMapTags = new HashMap<>();
+        Map<String, String> customTags = new HashMap<>();
         customTags.put("build_result", "SUCCESS");
         customDataMapTags.put("series1", customTags);
 
 
-        List<Point> pointsToWrite = new ArrayList<Point>();
+        List<Point> pointsToWrite = new ArrayList<>();
 
         CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
                 currTime, customDataMap, customDataMapTags, true);

@@ -55,15 +55,15 @@ public class CustomDataPointGeneratorTest {
     @Test
     public void generateTest() {
 
-        Map<String, Object> customData = new HashMap<String, Object>();
+        Map<String, Object> customData = new HashMap<>();
         customData.put("test1", 11);
         customData.put("test2", 22);
 
-        Map<String, String> customDataTags = new HashMap<String, String>();
+        Map<String, String> customDataTags = new HashMap<>();
         customDataTags.put("tag1", "myTag");
 
 
-        List<Point> pointsToWrite = new ArrayList<Point>();
+        List<Point> pointsToWrite = new ArrayList<>();
 
         CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, customData, customDataTags, MEASUREMENT_NAME, true);
         pointsToWrite.addAll(Arrays.asList(cdGen.generate()));
@@ -76,13 +76,13 @@ public class CustomDataPointGeneratorTest {
     @Test
     public void custom_measurement_included() {
         String customMeasurement = "custom_measurement";
-        Map<String, Object> customData = new HashMap<String, Object>();
+        Map<String, Object> customData = new HashMap<>();
         customData.put("test1", 11);
 
-        Map<String, String> customDataTags = new HashMap<String, String>();
+        Map<String, String> customDataTags = new HashMap<>();
         customDataTags.put("tag1", "myTag");
 
-        List<Point> pointsToWrite = new ArrayList<Point>();
+        List<Point> pointsToWrite = new ArrayList<>();
 
         CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, customData, customDataTags, customMeasurement, true);
         pointsToWrite.addAll(Arrays.asList(cdGen.generate()));
