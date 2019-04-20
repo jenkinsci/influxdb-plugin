@@ -82,7 +82,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 			} catch (InterruptedException|IOException e) {
 				// handle
 			}
-			if (url != null && url != "") {
+			if (url != null && !url.isEmpty()) {
 				this.sonarServer = url;
 			} else {
 				if (sonarBuildLink.indexOf("/dashboard?id=" + this.sonarProjectName) > 0) {
@@ -136,7 +136,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 			}
 			URL url = new URL(request);
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			if (auth != "")
+			if (!auth.isEmpty())
 				conn.setRequestProperty("Authorization", auth);
 			conn.setRequestMethod("GET");
 			conn.setRequestProperty("Accept", "application/json");
