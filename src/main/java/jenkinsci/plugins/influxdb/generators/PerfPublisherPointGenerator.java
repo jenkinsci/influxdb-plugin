@@ -52,7 +52,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
             pointsList.addAll(generateTestMetricsPoints(test));
         }
 
-        return pointsList.toArray(new Point[pointsList.size()]);
+        return pointsList.toArray(new Point[0]);
     }
 
     private Point generateSummaryPoint(ReportContainer reports) {

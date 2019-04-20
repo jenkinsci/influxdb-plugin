@@ -1,6 +1,5 @@
 package jenkinsci.plugins.influxdb;
 
-import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -52,13 +51,7 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
     }
 
     public Target[] getTargets() {
-        Iterator<Target> it = targets.iterator();
-        int size = 0;
-        while (it.hasNext()) {
-            it.next();
-            size++;
-        }
-        return targets.toArray(new Target[size]);
+        return targets.toArray(new Target[0]);
     }
 
     public void setTargets(List newTargets) {
