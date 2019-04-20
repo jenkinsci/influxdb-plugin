@@ -42,8 +42,8 @@ public class PerformancePointGenerator extends AbstractPointGenerator {
 
         List<Point> pointsList = new ArrayList<>();
 
-        for (String key : reportMap.keySet()) {
-            pointsList.add(generateReportPoint(reportMap.get(key)));
+        for (PerformanceReport report : reportMap.values()) {
+            pointsList.add(generateReportPoint(report));
         }
 
         return pointsList.toArray(new Point[0]);
