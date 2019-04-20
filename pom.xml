@@ -28,7 +28,7 @@ THE SOFTWARE.
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>2.7</version>
+        <version>3.42</version>
     </parent>
 
     <artifactId>influxdb</artifactId>
@@ -47,8 +47,8 @@ THE SOFTWARE.
     </scm>
 
     <properties>
-        <jenkins.version>2.7</jenkins.version>
-        <findbugs.failOnError>false</findbugs.failOnError>
+        <jenkins.version>2.60.3</jenkins.version>
+        <spotbugs.failOnError>false</spotbugs.failOnError>
         <java.level>8</java.level>
     </properties>
 
@@ -72,27 +72,42 @@ THE SOFTWARE.
         </pluginRepository>
     </pluginRepositories>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.jenkins-ci.main</groupId>
-            <artifactId>jenkins-war</artifactId>
-            <type>war</type>
-            <version>${jenkins.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.main</groupId>
-            <artifactId>jenkins-core</artifactId>
-            <version>${jenkins.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.main</groupId>
-            <artifactId>jenkins-test-harness</artifactId>
-            <version>${jenkins.version}</version>
-            <scope>test</scope>
-        </dependency>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.jenkins-ci.plugins</groupId>
+                <artifactId>structs</artifactId>
+                <version>1.10</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jenkins-ci</groupId>
+                <artifactId>symbol-annotation</artifactId>
+                <version>1.10</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>1.5.12</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-container-default</artifactId>
+                <version>1.0-alpha-30</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.reporting</groupId>
+                <artifactId>maven-reporting-api</artifactId>
+                <version>3.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.doxia</groupId>
+                <artifactId>doxia-sink-api</artifactId>
+                <version>1.1.2</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
+    <dependencies>
         <!-- Required for Jenkins 2.7 or else it will complain about com.google.common.escape.Escapers not defined -->
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -161,7 +176,7 @@ THE SOFTWARE.
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>jacoco</artifactId>
-            <version>1.0.9</version>
+            <version>1.0.12</version>
             <optional>true</optional>
         </dependency>
 
@@ -200,21 +215,6 @@ THE SOFTWARE.
         </dependency>
 
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <version>1.16</version>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo.signature</groupId>
-                <artifactId>java18</artifactId>
-                <version>1.0</version>
-            </plugin>
-        </plugins>
-    </build>
 
     <!-- The current maintainers of the plugin-->
     <developers>
