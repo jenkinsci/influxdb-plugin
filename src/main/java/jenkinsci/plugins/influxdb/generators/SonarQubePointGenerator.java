@@ -119,7 +119,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 	}
 
 	public String getResult(String request) throws IOException {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		
 		try 
 		{
