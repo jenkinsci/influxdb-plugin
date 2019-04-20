@@ -59,11 +59,9 @@ public class CustomDataMapPointGeneratorTest {
         customData1.put("test1", 11);
         customData1.put("test2", 22);
 
-
         Map<String, Object> customData2 = new HashMap<>();
         customData2.put("test3", 33);
         customData2.put("test4", 44);
-
 
         Map<String, Map<String, Object>> customDataMap = new HashMap<>();
         customDataMap.put("series1", customData1);
@@ -74,21 +72,18 @@ public class CustomDataMapPointGeneratorTest {
         customTags.put("build_result", "SUCCESS");
         customDataMapTags.put("series1", customTags);
 
-
-        List<Point> pointsToWrite = new ArrayList<>();
-
         CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
                 currTime, customDataMap, customDataMapTags, true);
-        pointsToWrite.addAll(Arrays.asList(cdmGen.generate()));
+        Point[] pointsToWrite = cdmGen.generate();
 
         String lineProtocol1;
         String lineProtocol2;
-        if (pointsToWrite.get(0).lineProtocol().startsWith("series1"))  {
-            lineProtocol1 = pointsToWrite.get(0).lineProtocol();
-            lineProtocol2 = pointsToWrite.get(1).lineProtocol();
+        if (pointsToWrite[0].lineProtocol().startsWith("series1"))  {
+            lineProtocol1 = pointsToWrite[0].lineProtocol();
+            lineProtocol2 = pointsToWrite[1].lineProtocol();
         } else {
-            lineProtocol1 = pointsToWrite.get(1).lineProtocol();
-            lineProtocol2 = pointsToWrite.get(0).lineProtocol();
+            lineProtocol1 = pointsToWrite[1].lineProtocol();
+            lineProtocol2 = pointsToWrite[0].lineProtocol();
         }
         Assert.assertTrue(lineProtocol1.startsWith("series1,build_result=SUCCESS,prefix=test_prefix,project_name=test_prefix_master build_number=11i,project_name=\"test_prefix_master\",project_path=\"folder/master\",test1=11i,test2=22i"));
         Assert.assertTrue(lineProtocol2.startsWith("series2,prefix=test_prefix,project_name=test_prefix_master build_number=11i,project_name=\"test_prefix_master\",project_path=\"folder/master\",test3=33i,test4=44i"));
