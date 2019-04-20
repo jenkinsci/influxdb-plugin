@@ -30,7 +30,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     /* BUILD_RESULT BUILD_RESULT_ORDINAL BUILD_IS_SUCCESSFUL - explanation
      * SUCCESS   0 true  - The build had no errors.
-     * UNSTABLE  1 true  - The build hadsome errors but they were not fatal. For example, some tests failed.
+     * UNSTABLE  1 true  - The build had some errors but they were not fatal. For example, some tests failed.
      * FAILURE   2 false - The build had a fatal error.
      * NOT_BUILT 3 false - The module was not built.
      * ABORTED   4 false - The build was manually aborted.

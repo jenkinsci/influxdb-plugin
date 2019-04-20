@@ -98,7 +98,7 @@ public class JenkinsBasePointGeneratorTest {
     }
 
     @Test
-    public void sheduled_and_start_and_end_time_present() {
+    public void scheduled_and_start_and_end_time_present() {
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(measurementRenderer, StringUtils.EMPTY, build, currTime, listener, StringUtils.EMPTY, StringUtils.EMPTY, MEASUREMENT_NAME, true);
         Point[] generatedPoints = generator.generate();
 

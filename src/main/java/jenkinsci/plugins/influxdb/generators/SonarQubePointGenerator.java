@@ -28,7 +28,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 	private static final String BUILD_DISPLAY_NAME = "display_name";
 	private static final String SONARQUBE_LINES_OF_CODE = "lines_of_code";
 	private static final String SONARQUBE_COMPLEXITY = "complexity";
-	private static final String SONARQUBE_CRTITCAL_ISSUES = "critical_issues";
+	private static final String SONARQUBE_CRITICAL_ISSUES = "critical_issues";
 	private static final String SONARQUBE_MAJOR_ISSUES = "major_issues";
 	private static final String SONARQUBE_MINOR_ISSUES = "minor_issues";
 	private static final String SONARQUBE_INFO_ISSUES = "info_issues";
@@ -107,7 +107,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		try {
 			point = buildPoint(measurementName("sonarqube_data"), customPrefix, build)
 					.addField(BUILD_DISPLAY_NAME, build.getDisplayName())
-					.addField(SONARQUBE_CRTITCAL_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "CRITICAL"))
+					.addField(SONARQUBE_CRITICAL_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "CRITICAL"))
 					.addField(SONARQUBE_BLOCKER_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "BLOCKER"))
 					.addField(SONARQUBE_MAJOR_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "MAJOR"))
 					.addField(SONARQUBE_MINOR_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "MINOR"))
