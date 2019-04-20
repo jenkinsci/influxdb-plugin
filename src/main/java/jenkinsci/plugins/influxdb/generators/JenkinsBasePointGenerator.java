@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import hudson.EnvVars;
 import hudson.model.Executor;
+import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.test.AbstractTestResultAction;
@@ -81,12 +82,13 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         // as something not predefined
         String result;
         int ordinal;
-        if (build.getResult() == null) {
+        Result buildResult = build.getResult();
+        if (buildResult == null) {
             result = "?";
             ordinal = 5;
         } else {
-            result = build.getResult().toString();
-            ordinal = build.getResult().ordinal;
+            result = buildResult.toString();
+            ordinal = buildResult.ordinal;
         }
 
         Point.Builder point = buildPoint(measurementName(measurementName), customPrefix, build);
