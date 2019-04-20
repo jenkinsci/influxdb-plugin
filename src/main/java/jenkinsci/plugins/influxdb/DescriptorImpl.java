@@ -39,12 +39,10 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
      */
     public void removeTarget(String targetDescription) {
         Target targetToRemove = null;
-        Iterator<Target> it = targets.iterator();
-        while (it.hasNext()) {
-            Target t = it.next();
-            String description = t.getDescription();
+        for (Target target : targets) {
+            String description = target.getDescription();
             if (description.equals(targetDescription)) {
-                targetToRemove = t;
+                targetToRemove = target;
                 break;
             }
         }
