@@ -145,10 +145,11 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 				throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode() + " from URL : " + conn.getURL());
 			}
 
-			BufferedReader rd = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-			String line = "";
-			while ((line = rd.readLine()) != null) {
-				result.append(line);
+			try (BufferedReader rd = new BufferedReader(new InputStreamReader((conn.getInputStream())))) {
+				String line;
+				while ((line = rd.readLine()) != null) {
+					result.append(line);
+				}
 			}
 
 			conn.disconnect();
