@@ -10,9 +10,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.net.HttpURLConnection;
 import java.lang.InterruptedException;
+import java.util.Base64;
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.influxdb.dto.Point;
 
@@ -129,7 +129,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 				String token = build.getEnvironment(listener).get("SONAR_AUTH_TOKEN");
 				if (token != null) {
 					token = token + ":";
-					String encoding = Base64.encodeBase64String(token.getBytes(StandardCharsets.UTF_8));
+					String encoding = Base64.getEncoder().encodeToString(token.getBytes(StandardCharsets.UTF_8));
 					auth = "Basic " + encoding;
 				}
 			} catch (InterruptedException|IOException e) {
