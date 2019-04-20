@@ -5,7 +5,6 @@ import org.influxdb.dto.Point;
 
 import hudson.model.Run;
 import hudson.plugins.performance.actions.PerformanceBuildAction;
-import hudson.plugins.performance.PerformanceReportMap;
 import hudson.plugins.performance.reports.PerformanceReport;
 
 import java.util.*;

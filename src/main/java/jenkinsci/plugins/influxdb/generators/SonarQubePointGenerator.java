@@ -11,7 +11,6 @@ import java.util.regex.Pattern;
 import java.net.HttpURLConnection;
 import java.lang.InterruptedException;
 import java.util.Base64;
-import java.net.MalformedURLException;
 import java.net.URL;
 import org.apache.commons.lang3.StringUtils;
 import org.influxdb.dto.Point;

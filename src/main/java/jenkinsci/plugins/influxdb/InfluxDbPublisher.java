@@ -1,7 +1,6 @@
 package jenkinsci.plugins.influxdb;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -13,23 +12,14 @@ import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 import jenkins.model.Jenkins;
 import jenkins.tasks.SimpleBuildStep;
-import jenkinsci.plugins.influxdb.generators.*;
 import jenkinsci.plugins.influxdb.models.Target;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
-import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import okhttp3.*;
-import org.influxdb.InfluxDB;
-import org.influxdb.InfluxDB.ConsistencyLevel;
-import org.influxdb.InfluxDBFactory;
-import org.influxdb.dto.BatchPoints;
-import org.influxdb.dto.Point;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
