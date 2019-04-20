@@ -49,7 +49,7 @@ public class CustomDataMapPointGeneratorTest {
 
         //check with empty customDataMap
         CustomDataMapPointGenerator cdmGen2 = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
-                currTime, Collections.<String, Map<String, Object>>emptyMap(), Collections.<String, Map<String, String>>emptyMap(), true);
+                currTime, Collections.emptyMap(), Collections.emptyMap(), true);
         Assert.assertFalse(cdmGen2.hasReport());
     }
 
