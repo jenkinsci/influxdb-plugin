@@ -60,6 +60,4 @@ public abstract class AbstractPointGenerator implements PointGenerator {
         //influx discourages "-" in measurement names.
         return measurement.replaceAll("-", "_");
     }
-
-
 }

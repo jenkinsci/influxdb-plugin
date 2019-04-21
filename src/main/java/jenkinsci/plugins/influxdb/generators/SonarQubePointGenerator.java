@@ -98,7 +98,6 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		} catch (URISyntaxException e) {
 			//
 		}
-
 	}
 
 	public Point[] generate() {
@@ -121,8 +120,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 	public String getResult(String request) throws IOException {
 		StringBuilder result = new StringBuilder();
 		
-		try 
-		{
+		try {
 			String auth = "";
 			try {
 				String token = build.getEnvironment(listener).get("SONAR_AUTH_TOKEN");
@@ -153,7 +151,6 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 			}
 
 			conn.disconnect();
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -212,5 +209,4 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		String output = getResult(url + severity);
 		return JSONObject.fromObject(output).getInt("total");
 	}
-
 }

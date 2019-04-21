@@ -78,7 +78,7 @@ public class CustomDataMapPointGeneratorTest {
 
         String lineProtocol1;
         String lineProtocol2;
-        if (pointsToWrite[0].lineProtocol().startsWith("series1"))  {
+        if (pointsToWrite[0].lineProtocol().startsWith("series1")) {
             lineProtocol1 = pointsToWrite[0].lineProtocol();
             lineProtocol2 = pointsToWrite[1].lineProtocol();
         } else {

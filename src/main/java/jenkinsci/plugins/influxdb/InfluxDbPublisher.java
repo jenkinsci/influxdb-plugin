@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
+public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
 
     /** The logger. **/
     private static final Logger logger = Logger.getLogger(InfluxDbPublisher.class.getName());

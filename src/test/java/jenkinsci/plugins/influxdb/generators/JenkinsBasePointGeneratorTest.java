@@ -73,7 +73,7 @@ public class JenkinsBasePointGeneratorTest {
         Mockito.when(job.getBuildHealth()).thenReturn(new HealthReport());
         Mockito.when(mockedEnvVars.get(JENKINS_ENV_VALUE_FIELD)).thenReturn(JENKINS_ENV_RESOLVED_VALUE_FIELD);
         Mockito.when(mockedEnvVars.get(JENKINS_ENV_VALUE_TAG)).thenReturn(JENKINS_ENV_RESOLVED_VALUE_TAG);
-        
+
         currTime = System.currentTimeMillis();
     }
 

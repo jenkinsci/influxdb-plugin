@@ -3,7 +3,7 @@ package jenkinsci.plugins.influxdb.models;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 public class Target implements java.io.Serializable {
- 
+
     private String description;
     private String url;
     private String username;
@@ -16,7 +16,7 @@ public class Target implements java.io.Serializable {
     private boolean globalListener;
     private String globalListenerFilter;
 
-    public Target(){
+    public Target() {
         //nop
     }
 
@@ -36,43 +36,43 @@ public class Target implements java.io.Serializable {
         this.globalListener = globalListener;
         this.globalListenerFilter = globalListenerFilter;
     }
- 
+
     public String getDescription() {
         return description;
     }
- 
+
     public void setDescription(String description) {
         this.description = description;
     }
- 
+
     public String getUrl() {
         return url;
     }
- 
+
     public void setUrl(String url) {
         this.url = url;
     }
- 
+
     public String getUsername() {
         return username;
     }
- 
+
     public void setUsername(String username) {
         this.username = username;
     }
- 
+
     public String getPassword() {
         return password;
     }
- 
+
     public void setPassword(String password) {
         this.password = password;
     }
- 
+
     public String getDatabase() {
         return database;
     }
- 
+
     public void setDatabase(String database) {
         this.database = database;
     }

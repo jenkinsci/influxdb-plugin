@@ -40,7 +40,6 @@ public class ChangeLogPointGenerator extends AbstractPointGenerator {
 	}
 
 	public Point[] generate() {
-		
 		Point.Builder point = buildPoint(measurementName("changelog_data"), customPrefix, build);
 
 		point.addField(BUILD_DISPLAY_NAME, build.getDisplayName())
@@ -75,7 +74,6 @@ public class ChangeLogPointGenerator extends AbstractPointGenerator {
 			
 			this.commitCount += 1;
 		}
-        
 	}
 
 	private String getMessages() {

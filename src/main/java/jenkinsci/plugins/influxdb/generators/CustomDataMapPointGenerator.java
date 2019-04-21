@@ -37,7 +37,7 @@ public class CustomDataMapPointGenerator extends AbstractPointGenerator {
             if (customDataMapTags != null) {
                 Map<String, String> customTags = customDataMapTags.get(entry.getKey());
                 if (customTags != null) {
-                    if (customTags.size() > 0){
+                    if (customTags.size() > 0) {
                         pointBuilder.tag(customTags);
                     }
                 }

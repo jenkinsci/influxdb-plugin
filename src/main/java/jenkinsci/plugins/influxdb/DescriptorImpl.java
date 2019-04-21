@@ -24,7 +24,8 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
         load();
     }
 
-    /** Add target to list of targets
+    /**
+     * Add target to list of targets
      *
      * @param target Target to add
      */
@@ -32,7 +33,8 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
         targets.add(target);
     }
 
-    /** Remove target from list of targets
+    /**
+     * Remove target from list of targets
      *
      * @param targetDescription Target description of target to remove.
      */

@@ -20,7 +20,7 @@ public class CustomDataPointGenerator extends AbstractPointGenerator {
 
     public CustomDataPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix,
                                     Run<?, ?> build, long timestamp, Map customData,
-                                    Map<String, String> customDataTags, String measurementName, boolean replaceDashWithUnderscore ) {
+                                    Map<String, String> customDataTags, String measurementName, boolean replaceDashWithUnderscore) {
         super(projectNameRenderer, timestamp, replaceDashWithUnderscore);
         this.build = build;
         this.customPrefix = customPrefix;
