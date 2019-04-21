@@ -37,17 +37,7 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
      * @param targetDescription Target description of target to remove.
      */
     public void removeTarget(String targetDescription) {
-        Target targetToRemove = null;
-        for (Target target : targets) {
-            String description = target.getDescription();
-            if (description.equals(targetDescription)) {
-                targetToRemove = target;
-                break;
-            }
-        }
-        if (targetToRemove != null) {
-            targets.remove(targetToRemove);
-        }
+        targets.removeIf(target -> target.getDescription().equals(targetDescription));
     }
 
     public Target[] getTargets() {
