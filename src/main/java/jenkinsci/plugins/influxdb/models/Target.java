@@ -4,17 +4,17 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 public class Target implements java.io.Serializable {
  
-    String description;
-    String url;
-    String username;
-    String password;
-    String database;
-    String retentionPolicy;
-    boolean jobScheduledTimeAsPointsTimestamp;
-    boolean exposeExceptions;
-    boolean usingJenkinsProxy;
-    boolean globalListener;
-    String globalListenerFilter;
+    private String description;
+    private String url;
+    private String username;
+    private String password;
+    private String database;
+    private String retentionPolicy;
+    private boolean jobScheduledTimeAsPointsTimestamp;
+    private boolean exposeExceptions;
+    private boolean usingJenkinsProxy;
+    private boolean globalListener;
+    private String globalListenerFilter;
 
     public Target(){
         //nop

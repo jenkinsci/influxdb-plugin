@@ -11,17 +11,17 @@ package jenkinsci.plugins.influxdb;
  */
 public class Server {
 
-    String host;
+    private String host;
 
-    String port;
+    private String port;
 
-    String description;
+    private String description;
 
-    String user;
+    private String user;
 
-    String password;
+    private String password;
 
-    String databaseName;
+    private String databaseName;
 
     public String getHost() {
         return host;
