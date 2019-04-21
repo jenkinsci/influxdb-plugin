@@ -39,12 +39,12 @@ public class Server {
         return user;
     }
 
-    public String getDatabaseName() {
-        return databaseName;
-    }
-
     public String getPassword() {
         return password;
+    }
+
+    public String getDatabaseName() {
+        return databaseName;
     }
 
     public void setHost(String host) {
@@ -59,14 +59,12 @@ public class Server {
         this.description = description;
     }
 
+    public void setUser(String user) {
+        this.user = user;
+    }
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-
-    public void setUser(String user) {
-        this.user = user;
     }
 
     public void setDatabaseName(String databaseName) {
