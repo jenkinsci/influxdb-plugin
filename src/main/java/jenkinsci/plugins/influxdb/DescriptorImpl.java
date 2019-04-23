@@ -2,10 +2,9 @@ package jenkinsci.plugins.influxdb;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.CheckForNull;
 
 import org.jenkinsci.Symbol;
+import hudson.util.ListBoxModel;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -19,7 +18,7 @@ import net.sf.json.JSONObject;
 @Symbol("influxDbPublisher")
 public final class DescriptorImpl extends BuildStepDescriptor<Publisher> implements ModelObject, java.io.Serializable {
 
-    private static final String DISPLAY_NAME = "Publish build data to InfluxDb target";
+    private static final String DISPLAY_NAME = "Publish build data to InfluxDB";
     private List<Target> targets = new CopyOnWriteArrayList<>();
 
     public DescriptorImpl() {
@@ -65,16 +64,18 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
     }
 
     @Override
-    public Publisher newInstance(@CheckForNull StaplerRequest req, @Nonnull JSONObject formData) {
-        InfluxDbPublisher publisher = new InfluxDbPublisher();
-        req.bindParameters(publisher, "publisherBinding.");
-        return publisher;
-    }
-
-    @Override
     public boolean configure(StaplerRequest req, JSONObject formData) {
-        targets = req.bindJSONToList(Target.class, formData.get("currentTarget"));
+        targets.clear();
+        targets.addAll(req.bindJSONToList(Target.class, formData.get("targets")));
         save();
         return true;
+    }
+
+    public ListBoxModel doFillSelectedTargetItems() {
+        ListBoxModel model = new ListBoxModel();
+        for (Target target : targets) {
+            model.add(target.getDescription());
+        }
+        return model;
     }
 }

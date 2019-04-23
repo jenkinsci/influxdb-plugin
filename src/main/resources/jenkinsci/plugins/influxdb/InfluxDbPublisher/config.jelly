@@ -1,34 +1,23 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-   
-  <f:entry title="influxdb target">
-    <select class="setting-input" name="publisherBinding.selectedTarget" >
-        <j:forEach var="currentTarget" items="${descriptor.targets}">
-            <j:set var="targetDescription" value="${currentTarget.description}" />
-            <f:option selected="${targetDescription==instance.selectedTarget}" value="${targetDescription}">${currentTarget.description}</f:option>
-        </j:forEach>
-    </select>
-  </f:entry>
-
-  <f:section title="Advanced Settings">
-       <f:advanced>
-          <f:entry title="custom-prefix" field="customPrefix" >
-              <f:textbox name="publisherBinding.customPrefix" value="${publisherBinding.customPrefix}"/>
-          </f:entry>
-          <f:entry title="custom-project-name" field="customProjectName" >
-              <f:textbox name="publisherBinding.customProjectName" value="${publisherBinding.customProjectName}"/>
-          </f:entry>
-           <f:entry title="jenkins-env-parameter FieldSet" field="jenkinsEnvParameterField">
-               <f:textarea name="publisherBinding.jenkinsEnvParameterField" value="${publisherBinding.jenkinsEnvParameterField}"/>
-           </f:entry>
-           <f:entry title="jenkins-env-parameter TagSet" field="jenkinsEnvParameterTag">
-               <f:textarea name="publisherBinding.jenkinsEnvParameterTag" value="${publisherBinding.jenkinsEnvParameterTag}"/>
-           </f:entry>
-
-           <f:entry title="Replace dashes with underscore" field="replaceDashWithUnderscore" >
-               <f:checkbox name="publisherBinding.replaceDashWithUnderscore" checked="${publisherBinding.replaceDashWithUnderscore}" default="false" />
-           </f:entry>
-       </f:advanced>
-  </f:section>
-
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+    <f:entry title="InfluxDB Target" field="selectedTarget">
+        <f:select/>
+    </f:entry>
+    <f:advanced>
+        <f:entry title="Custom Prefix" field="customPrefix">
+            <f:textbox/>
+        </f:entry>
+        <f:entry title="Custom Project Name" field="customProjectName">
+            <f:textbox/>
+        </f:entry>
+        <f:entry title="Jenkins Environment Field Set" field="jenkinsEnvParameterField">
+            <f:textarea/>
+        </f:entry>
+        <f:entry title="Jenkins Environment Tag Set" field="jenkinsEnvParameterTag">
+            <f:textarea/>
+        </f:entry>
+        <f:entry title="Replace dashes with underscores" field="replaceDashWithUnderscore">
+            <f:checkbox default="false"/>
+        </f:entry>
+    </f:advanced>
 </j:jelly>
