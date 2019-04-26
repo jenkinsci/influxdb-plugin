@@ -21,7 +21,7 @@ public class ProjectNameRenderer implements MeasurementRenderer<Run<?, ?>> {
 
     protected String projectName(String prefix, String projectName, Run<?, ?> build) {
         if (this.customProjectName == null) {
-           this.customProjectName = build.getParent().getName();
+            this.customProjectName = build.getParent().getName();
         }
         return Joiner
                 .on("_")

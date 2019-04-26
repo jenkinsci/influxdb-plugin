@@ -5,7 +5,6 @@ import org.influxdb.dto.Point;
 
 import hudson.model.Run;
 import hudson.plugins.performance.actions.PerformanceBuildAction;
-import hudson.plugins.performance.PerformanceReportMap;
 import hudson.plugins.performance.reports.PerformanceReport;
 
 import java.util.*;
@@ -41,13 +40,13 @@ public class PerformancePointGenerator extends AbstractPointGenerator {
     public Point[] generate() {
         Map<String, PerformanceReport> reportMap = performanceBuildAction.getPerformanceReportMap().getPerformanceReportMap();
 
-        List<Point> pointsList = new ArrayList<Point>();
+        List<Point> pointsList = new ArrayList<>();
 
-        for (String key : reportMap.keySet()) {
-            pointsList.add(generateReportPoint(reportMap.get(key)));
+        for (PerformanceReport report : reportMap.values()) {
+            pointsList.add(generateReportPoint(report));
         }
 
-        return pointsList.toArray(new Point[pointsList.size()]);
+        return pointsList.toArray(new Point[0]);
     }
 
     private Point generateReportPoint(PerformanceReport performanceReport) {

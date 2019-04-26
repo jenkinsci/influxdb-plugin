@@ -1,7 +1,6 @@
 package jenkinsci.plugins.influxdb.generators;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 import org.influxdb.dto.Point;
 
@@ -41,7 +40,6 @@ public class ChangeLogPointGenerator extends AbstractPointGenerator {
 	}
 
 	public Point[] generate() {
-		
 		Point.Builder point = buildPoint(measurementName("changelog_data"), customPrefix, build);
 
 		point.addField(BUILD_DISPLAY_NAME, build.getDisplayName())
@@ -62,13 +60,10 @@ public class ChangeLogPointGenerator extends AbstractPointGenerator {
 
 		AbstractBuild<?,?> abstractBuild = (AbstractBuild<?,?>) run;
 		ChangeLogSet<? extends ChangeLogSet.Entry> changeset = abstractBuild.getChangeSet();
-		Iterator<? extends ChangeLogSet.Entry> itrChangeSet = changeset.iterator();
-		while (itrChangeSet.hasNext()) {
-			ChangeLogSet.Entry str = itrChangeSet.next();
+		for (ChangeLogSet.Entry str : changeset) {
 			Collection<? extends ChangeLogSet.AffectedFile> affectedFiles = str.getAffectedFiles();
-			Iterator<? extends ChangeLogSet.AffectedFile> affectedFilesItr = affectedFiles.iterator();
-			while (affectedFilesItr.hasNext()) {
-				this.affectedPaths.append(affectedFilesItr.next().getPath());
+			for (ChangeLogSet.AffectedFile affectedFile : affectedFiles) {
+				this.affectedPaths.append(affectedFile.getPath());
 				this.affectedPaths.append(", ");
 			}
 			this.messages.append(str.getMsg());
@@ -79,7 +74,6 @@ public class ChangeLogPointGenerator extends AbstractPointGenerator {
 			
 			this.commitCount += 1;
 		}
-        
 	}
 
 	private String getMessages() {

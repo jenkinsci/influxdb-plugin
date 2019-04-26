@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class PerfPublisherPointGenerator extends AbstractPointGenerator {
+
     private final Run<?, ?> build;
     private final String customPrefix;
     private final PerfPublisherBuildAction performanceBuildAction;
@@ -52,7 +53,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
             pointsList.addAll(generateTestMetricsPoints(test));
         }
 
-        return pointsList.toArray(new Point[pointsList.size()]);
+        return pointsList.toArray(new Point[0]);
     }
 
     private Point generateSummaryPoint(ReportContainer reports) {
@@ -76,7 +77,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
 
         // performance
         if (reports.getBestPerformanceTest().isPerformance()) {
-                builder.addField("best_performance_test_value", reports.getBestPerformanceTestValue())
+            builder.addField("best_performance_test_value", reports.getBestPerformanceTestValue())
                     .addField("best_performance_test_name", reports.getBestPerformanceTestName())
                     .addField("worst_performance_test_value", reports.getWorstPerformanceTestValue())
                     .addField("worst_performance_test_name", reports.getWorstPerformanceTestName())
@@ -99,8 +100,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
 
         List<Point> pointsList = new ArrayList<>();
 
-        for (Map.Entry<String, Double> entry : reports.getAverageValuePerMetrics().entrySet())
-        {
+        for (Map.Entry<String, Double> entry : reports.getAverageValuePerMetrics().entrySet()) {
             String metricName = entry.getKey();
             Point point = buildPoint(measurementName("perfpublisher_metric"), customPrefix, build)
                     .addField("metric_name", metricName)

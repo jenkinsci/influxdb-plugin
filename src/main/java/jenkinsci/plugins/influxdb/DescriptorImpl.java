@@ -1,6 +1,5 @@
 package jenkinsci.plugins.influxdb;
 
-import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -25,7 +24,8 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
         load();
     }
 
-    /** Add target to list of targets
+    /**
+     * Add target to list of targets
      *
      * @param target Target to add
      */
@@ -33,34 +33,17 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
         targets.add(target);
     }
 
-    /** Remove target from list of targets
+    /**
+     * Remove target from list of targets
      *
      * @param targetDescription Target description of target to remove.
      */
     public void removeTarget(String targetDescription) {
-        Target targetToRemove = null;
-        Iterator<Target> it = targets.iterator();
-        while (it.hasNext()) {
-            Target t = it.next();
-            String description = t.getDescription();
-            if (description.equals(targetDescription)) {
-                targetToRemove = t;
-                break;
-            }
-        }
-        if (targetToRemove != null) {
-            targets.remove(targetToRemove);
-        }
+        targets.removeIf(target -> target.getDescription().equals(targetDescription));
     }
 
     public Target[] getTargets() {
-        Iterator<Target> it = targets.iterator();
-        int size = 0;
-        while (it.hasNext()) {
-            it.next();
-            size++;
-        }
-        return targets.toArray(new Target[size]);
+        return targets.toArray(new Target[0]);
     }
 
     public void setTargets(List newTargets) {
