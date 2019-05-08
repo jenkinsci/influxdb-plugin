@@ -221,6 +221,16 @@ public class InfluxDbPublicationService {
         }
 
         try {
+            CheckmarxPointGenerator cxGen = new CheckmarxPointGenerator(measurementRenderer, customPrefix, build, timestamp, replaceDashWithUnderscore);
+            if (cxGen.hasReport()) {
+                listener.getLogger().println("[InfluxDB Plugin] Checkmarx data found. Writing to InfluxDB...");
+                addPoints(pointsToWrite, cxGen, listener);
+            }
+        } catch (NoClassDefFoundError ignore) {
+            logger.log(Level.FINE, "Plugin skipped: Checkmarx");
+        }
+
+        try {
             PerformancePointGenerator perfGen = new PerformancePointGenerator(measurementRenderer, customPrefix, build, timestamp, replaceDashWithUnderscore);
             if (perfGen.hasReport()) {
                 listener.getLogger().println("[InfluxDB Plugin] Performance data found. Writing to InfluxDB...");
