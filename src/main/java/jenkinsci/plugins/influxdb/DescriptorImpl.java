@@ -5,6 +5,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.CheckForNull;
 
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest;
 
 import jenkinsci.plugins.influxdb.models.Target;
@@ -46,8 +47,9 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
         return targets.toArray(new Target[0]);
     }
 
-    public void setTargets(List newTargets) {
-        targets = newTargets;
+    @DataBoundSetter
+    public void setTargets(List<Target> targets) {
+        this.targets = targets;
     }
 
     @Override
