@@ -44,7 +44,6 @@ public class InfluxDbPublicationService {
      */
     private String customPrefix;
 
-
     /**
      * custom data, especially in pipelines, where additional information is calculated
      * or retrieved by Groovy functions which should be sent to InfluxDB
@@ -57,7 +56,6 @@ public class InfluxDbPublicationService {
      * inside a pipeline script
      */
     private Map<String, Object> customData;
-
 
     /**
      * custom data tags, especially in pipelines, where additional information is calculated
@@ -88,7 +86,6 @@ public class InfluxDbPublicationService {
      *       customDataMap: myCustomDataMap,
      *       customDataMapTags: myCustomDataMapTags])
      */
-
     private final Map<String, Map<String, String>> customDataMapTags;
 
     /**
@@ -160,7 +157,6 @@ public class InfluxDbPublicationService {
     }
 
     public void perform(Run<?, ?> build, TaskListener listener) {
-
         // Logging
         listener.getLogger().println("[InfluxDB Plugin] Collecting data for publication in InfluxDB...");
 
@@ -237,7 +233,6 @@ public class InfluxDbPublicationService {
         } else {
             logger.log(Level.FINE, "Plugin skipped: SonarQube");
         }
-
 
         ChangeLogPointGenerator changeLogGen = new ChangeLogPointGenerator(measurementRenderer, customPrefix, build, timestamp, replaceDashWithUnderscore);
         if (changeLogGen.hasReport()) {

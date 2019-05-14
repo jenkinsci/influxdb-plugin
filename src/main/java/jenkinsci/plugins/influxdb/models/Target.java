@@ -1,22 +1,25 @@
 package jenkinsci.plugins.influxdb.models;
 
+import hudson.Extension;
+import hudson.model.AbstractDescribableImpl;
+import hudson.model.Descriptor;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-public class Target implements java.io.Serializable {
- 
-    String description;
-    String url;
-    String username;
-    String password;
-    String database;
-    String retentionPolicy;
-    boolean jobScheduledTimeAsPointsTimestamp;
-    boolean exposeExceptions;
-    boolean usingJenkinsProxy;
-    boolean globalListener;
-    String globalListenerFilter;
+public class Target extends AbstractDescribableImpl<Target> implements java.io.Serializable {
 
-    public Target(){
+    private String description;
+    private String url;
+    private String username;
+    private String password;
+    private String database;
+    private String retentionPolicy;
+    private boolean jobScheduledTimeAsPointsTimestamp;
+    private boolean exposeExceptions;
+    private boolean usingJenkinsProxy;
+    private boolean globalListener;
+    private String globalListenerFilter;
+
+    public Target() {
         //nop
     }
 
@@ -36,43 +39,43 @@ public class Target implements java.io.Serializable {
         this.globalListener = globalListener;
         this.globalListenerFilter = globalListenerFilter;
     }
- 
+
     public String getDescription() {
         return description;
     }
- 
+
     public void setDescription(String description) {
         this.description = description;
     }
- 
+
     public String getUrl() {
         return url;
     }
- 
+
     public void setUrl(String url) {
         this.url = url;
     }
- 
+
     public String getUsername() {
         return username;
     }
- 
+
     public void setUsername(String username) {
         this.username = username;
     }
- 
+
     public String getPassword() {
         return password;
     }
- 
+
     public void setPassword(String password) {
         this.password = password;
     }
- 
+
     public String getDatabase() {
         return database;
     }
- 
+
     public void setDatabase(String database) {
         this.database = database;
     }
@@ -130,4 +133,7 @@ public class Target implements java.io.Serializable {
         return "[url=" + this.url + ", description=" + this.description + ", username=" + this.username
                 + ", password=*****, database=" + this.database + "]";
     }
+
+    @Extension
+    public static class DescriptorImpl extends Descriptor<Target> {}
 }

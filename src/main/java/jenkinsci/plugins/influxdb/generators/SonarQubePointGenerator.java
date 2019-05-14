@@ -10,9 +10,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.net.HttpURLConnection;
 import java.lang.InterruptedException;
-import java.net.MalformedURLException;
+import java.util.Base64;
 import java.net.URL;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.influxdb.dto.Point;
 
@@ -28,7 +27,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 	private static final String BUILD_DISPLAY_NAME = "display_name";
 	private static final String SONARQUBE_LINES_OF_CODE = "lines_of_code";
 	private static final String SONARQUBE_COMPLEXITY = "complexity";
-	private static final String SONARQUBE_CRTITCAL_ISSUES = "critical_issues";
+	private static final String SONARQUBE_CRITICAL_ISSUES = "critical_issues";
 	private static final String SONARQUBE_MAJOR_ISSUES = "major_issues";
 	private static final String SONARQUBE_MINOR_ISSUES = "minor_issues";
 	private static final String SONARQUBE_INFO_ISSUES = "info_issues";
@@ -83,7 +82,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 			} catch (InterruptedException|IOException e) {
 				// handle
 			}
-			if (url != null && url != "") {
+			if (url != null && !url.isEmpty()) {
 				this.sonarServer = url;
 			} else {
 				if (sonarBuildLink.indexOf("/dashboard?id=" + this.sonarProjectName) > 0) {
@@ -99,7 +98,6 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		} catch (URISyntaxException e) {
 			//
 		}
-
 	}
 
 	public Point[] generate() {
@@ -107,7 +105,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		try {
 			point = buildPoint(measurementName("sonarqube_data"), customPrefix, build)
 					.addField(BUILD_DISPLAY_NAME, build.getDisplayName())
-					.addField(SONARQUBE_CRTITCAL_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "CRITICAL"))
+					.addField(SONARQUBE_CRITICAL_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "CRITICAL"))
 					.addField(SONARQUBE_BLOCKER_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "BLOCKER"))
 					.addField(SONARQUBE_MAJOR_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "MAJOR"))
 					.addField(SONARQUBE_MINOR_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "MINOR"))
@@ -120,16 +118,15 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 	}
 
 	public String getResult(String request) throws IOException {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		
-		try 
-		{
+		try {
 			String auth = "";
 			try {
 				String token = build.getEnvironment(listener).get("SONAR_AUTH_TOKEN");
 				if (token != null) {
 					token = token + ":";
-					String encoding = Base64.encodeBase64String(token.getBytes(StandardCharsets.UTF_8));
+					String encoding = Base64.getEncoder().encodeToString(token.getBytes(StandardCharsets.UTF_8));
 					auth = "Basic " + encoding;
 				}
 			} catch (InterruptedException|IOException e) {
@@ -137,7 +134,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 			}
 			URL url = new URL(request);
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			if (auth != "")
+			if (!auth.isEmpty())
 				conn.setRequestProperty("Authorization", auth);
 			conn.setRequestMethod("GET");
 			conn.setRequestProperty("Accept", "application/json");
@@ -146,14 +143,14 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 				throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode() + " from URL : " + conn.getURL());
 			}
 
-			BufferedReader rd = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-			String line = "";
-			while ((line = rd.readLine()) != null) {
-				result.append(line);
+			try (BufferedReader rd = new BufferedReader(new InputStreamReader((conn.getInputStream())))) {
+				String line;
+				while ((line = rd.readLine()) != null) {
+					result.append(line);
+				}
 			}
 
 			conn.disconnect();
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -212,5 +209,4 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		String output = getResult(url + severity);
 		return JSONObject.fromObject(output).getInt("total");
 	}
-
 }

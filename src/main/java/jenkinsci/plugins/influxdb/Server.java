@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package jenkinsci.plugins.influxdb;
 
 /**
@@ -11,17 +7,17 @@ package jenkinsci.plugins.influxdb;
  */
 public class Server {
 
-    String host;
+    private String host;
 
-    String port;
+    private String port;
 
-    String description;
+    private String description;
 
-    String user;
+    private String user;
 
-    String password;
+    private String password;
 
-    String databaseName;
+    private String databaseName;
 
     public String getHost() {
         return host;
@@ -39,12 +35,12 @@ public class Server {
         return user;
     }
 
-    public String getDatabaseName() {
-        return databaseName;
-    }
-
     public String getPassword() {
         return password;
+    }
+
+    public String getDatabaseName() {
+        return databaseName;
     }
 
     public void setHost(String host) {
@@ -59,14 +55,12 @@ public class Server {
         this.description = description;
     }
 
+    public void setUser(String user) {
+        this.user = user;
+    }
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-
-    public void setUser(String user) {
-        this.user = user;
     }
 
     public void setDatabaseName(String databaseName) {

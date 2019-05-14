@@ -10,8 +10,8 @@ public class CustomDataMapPointGenerator extends AbstractPointGenerator {
 
     private final Run<?, ?> build;
     private final String customPrefix;
-    private Map<String, Map<String, Object>> customDataMap;
-    private Map<String, Map<String, String>> customDataMapTags;
+    private final Map<String, Map<String, Object>> customDataMap;
+    private final Map<String, Map<String, String>> customDataMapTags;
 
     public CustomDataMapPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix,
                                        Run<?, ?> build, long timestamp, Map<String, Map<String, Object>> customDataMap,
@@ -29,16 +29,15 @@ public class CustomDataMapPointGenerator extends AbstractPointGenerator {
 
     public Point[] generate() {
         List<Point> customPoints = new ArrayList<>();
-        Set<String> customKeys = customDataMap.keySet();
 
-        for (String key : customKeys) {
-            Point.Builder pointBuilder = buildPoint(measurementName(key), customPrefix, build)
-                    .fields(customDataMap.get(key));
+        for (Map.Entry<String, Map<String, Object>> entry : customDataMap.entrySet()) {
+            Point.Builder pointBuilder = buildPoint(measurementName(entry.getKey()), customPrefix, build)
+                    .fields(entry.getValue());
 
             if (customDataMapTags != null) {
-                Map<String, String> customTags = customDataMapTags.get(key);
+                Map<String, String> customTags = customDataMapTags.get(entry.getKey());
                 if (customTags != null) {
-                    if (customTags.size() > 0){
+                    if (customTags.size() > 0) {
                         pointBuilder.tag(customTags);
                     }
                 }
