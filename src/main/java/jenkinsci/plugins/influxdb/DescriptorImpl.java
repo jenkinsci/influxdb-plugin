@@ -1,11 +1,11 @@
 package jenkinsci.plugins.influxdb;
 
-import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.CheckForNull;
 
+import org.jenkinsci.Symbol;
+import hudson.util.ListBoxModel;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest;
 
 import jenkinsci.plugins.influxdb.models.Target;
@@ -15,9 +15,10 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Publisher;
 import net.sf.json.JSONObject;
 
+@Symbol("influxDbPublisher")
 public final class DescriptorImpl extends BuildStepDescriptor<Publisher> implements ModelObject, java.io.Serializable {
 
-    private static final String DISPLAY_NAME = "Publish build data to InfluxDb target";
+    private static final String DISPLAY_NAME = "Publish build data to InfluxDB";
     private List<Target> targets = new CopyOnWriteArrayList<>();
 
     public DescriptorImpl() {
@@ -25,7 +26,8 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
         load();
     }
 
-    /** Add target to list of targets
+    /**
+     * Add target to list of targets
      *
      * @param target Target to add
      */
@@ -33,38 +35,22 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
         targets.add(target);
     }
 
-    /** Remove target from list of targets
+    /**
+     * Remove target from list of targets
      *
      * @param targetDescription Target description of target to remove.
      */
     public void removeTarget(String targetDescription) {
-        Target targetToRemove = null;
-        Iterator<Target> it = targets.iterator();
-        while (it.hasNext()) {
-            Target t = it.next();
-            String description = t.getDescription();
-            if (description.equals(targetDescription)) {
-                targetToRemove = t;
-                break;
-            }
-        }
-        if (targetToRemove != null) {
-            targets.remove(targetToRemove);
-        }
+        targets.removeIf(target -> target.getDescription().equals(targetDescription));
     }
 
     public Target[] getTargets() {
-        Iterator<Target> it = targets.iterator();
-        int size = 0;
-        while (it.hasNext()) {
-            it.next();
-            size++;
-        }
-        return targets.toArray(new Target[size]);
+        return targets.toArray(new Target[0]);
     }
 
-    public void setTargets(List newTargets) {
-        targets = newTargets;
+    @DataBoundSetter
+    public void setTargets(List<Target> targets) {
+        this.targets = targets;
     }
 
     @Override
@@ -78,16 +64,18 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
     }
 
     @Override
-    public Publisher newInstance(@CheckForNull StaplerRequest req, @Nonnull JSONObject formData) {
-        InfluxDbPublisher publisher = new InfluxDbPublisher();
-        req.bindParameters(publisher, "publisherBinding.");
-        return publisher;
-    }
-
-    @Override
     public boolean configure(StaplerRequest req, JSONObject formData) {
-        targets = req.bindJSONToList(Target.class, formData.get("currentTarget"));
+        targets.clear();
+        targets.addAll(req.bindJSONToList(Target.class, formData.get("targets")));
         save();
         return true;
+    }
+
+    public ListBoxModel doFillSelectedTargetItems() {
+        ListBoxModel model = new ListBoxModel();
+        for (Target target : targets) {
+            model.add(target.getDescription());
+        }
+        return model;
     }
 }

@@ -1,6 +1,7 @@
 package jenkinsci.plugins.influxdb.generators;
 
 public class TimeGenerator {
+
     private final long currentTime;
     private long nanoOffSet = 0;
 

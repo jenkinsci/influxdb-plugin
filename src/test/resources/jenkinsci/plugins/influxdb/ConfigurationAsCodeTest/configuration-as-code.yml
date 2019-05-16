@@ -1,0 +1,14 @@
+unclassified:
+  influxDbPublisher:
+    targets:
+    - database: "some_database"
+      description: "some description"
+      exposeExceptions: true
+      globalListener: true
+      globalListenerFilter: "some filter"
+      jobScheduledTimeAsPointsTimestamp: true
+      password: "some password"
+      retentionPolicy: "some_policy"
+      url: "http://some/url"
+      username: "some username"
+      usingJenkinsProxy: true

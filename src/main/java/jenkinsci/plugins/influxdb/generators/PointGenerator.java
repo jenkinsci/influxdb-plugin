@@ -5,9 +5,9 @@ import org.influxdb.dto.Point;
 
 public interface PointGenerator {
 
-    public boolean hasReport();
+    boolean hasReport();
 
-    public Point[] generate();
+    Point[] generate();
 
     /**
      * Initializes a basic build point with the basic data already set with a specified timestamp.
