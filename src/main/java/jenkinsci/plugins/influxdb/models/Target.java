@@ -1,5 +1,6 @@
 package jenkinsci.plugins.influxdb.models;
 
+import com.google.common.base.Objects;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
@@ -130,8 +131,12 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
 
     @Override
     public String toString() {
-        return "[url=" + this.url + ", description=" + this.description + ", username=" + this.username
-                + ", password=*****, database=" + this.database + "]";
+        return Objects.toStringHelper(Target.class)
+                .add("description", description)
+                .add("url", url)
+                .add("username", username)
+                .add("database", database)
+                .toString();
     }
 
     @Extension

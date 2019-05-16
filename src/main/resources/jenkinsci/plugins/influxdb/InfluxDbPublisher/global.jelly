@@ -1,70 +1,49 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-   
-    <f:section title="influxdb target">
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+    <f:section title="InfluxDB Targets">
         <f:entry>
-  
-             <f:repeatable
-                var="currentTarget"
-                items="${descriptor.targets}"
-                add="new influxdb target">
-    
-                <table width="100%" >
-             
-                      <f:entry title="description">
-                        <f:textbox name="targetBinding.description" value="${currentTarget.description}" />
-                      </f:entry>
-             
-                      <f:entry title="url" field="url">
-                        <f:textbox name="targetBinding.url"   value="${currentTarget.url}" />
-                      </f:entry>
-             
-                      <f:entry title="username" field="username">
-                        <f:textbox name="targetBinding.username"  value="${currentTarget.username}"/>
-                      </f:entry>
-             
-                      <f:entry title="password" field="password">
-                        <f:password name="targetBinding.password"  value="${currentTarget.password}"/>
-                      </f:entry>
-             
-                      <f:entry title="database" field="database" >
-                        <f:textbox name="targetBinding.database" value="${currentTarget.database}" />
-                      </f:entry>
-
-                      <f:entry title="retentionPolicy" field="retentionPolicy" >
-                         <f:textbox name="targetBinding.retentionPolicy" value="${currentTarget.retentionPolicy}" default="autogen" />
-                      </f:entry>
-
-                      <f:entry title="job scheduled time as points timestamp" field="jobScheduledTimeAsPointsTimestamp" >
-                         <f:checkbox name="targetBinding.jobScheduledTimeAsPointsTimestamp" checked="${currentTarget.jobScheduledTimeAsPointsTimestamp}" default="false" />
-                      </f:entry>
-
-                      <f:entry title="exposeExceptions" field="exposeExceptions" >
-                         <f:checkbox name="targetBinding.exposeExceptions" checked="${currentTarget.exposeExceptions}" default="true" />
-                      </f:entry>
-
-                      <f:entry title="Use Jenkins Proxy" field="usingJenkinsProxy" >
-                         <f:checkbox name="targetBinding.usingJenkinsProxy" checked="${currentTarget.usingJenkinsProxy}" default="false" />
-                      </f:entry>
-
-                      <f:entry title="globalListener" field="globalListener" >
-                         <f:checkbox name="targetBinding.globalListener" checked="${currentTarget.globalListener}" default="false" />
-                      </f:entry>
-
-                      <f:entry title="globalListenerFilter" field="globalListenerFilter" >
-                         <f:textbox name="targetBinding.globalListenerFilter" value="${currentTarget.globalListenerFilter}" default="" />
-                      </f:entry>
-
-                      <f:entry title="delete target" >
+            <f:repeatable name="targets" var="instance" items="${descriptor.targets}">
+                <table width="100%">
+                    <f:entry title="Description" field="description">
+                        <f:textbox/>
+                    </f:entry>
+                    <f:entry title="URL" field="url">
+                        <f:textbox/>
+                    </f:entry>
+                    <f:entry title="Username" field="username">
+                        <f:textbox/>
+                    </f:entry>
+                    <f:entry title="Password" field="password">
+                        <f:password/>
+                    </f:entry>
+                    <f:entry title="Database" field="database">
+                        <f:textbox/>
+                    </f:entry>
+                    <f:entry title="Retention Policy" field="retentionPolicy">
+                        <f:textbox default="autogen"/>
+                    </f:entry>
+                    <f:entry title="Job scheduled time as timestamp" field="jobScheduledTimeAsPointsTimestamp">
+                        <f:checkbox default="false"/>
+                    </f:entry>
+                    <f:entry title="Expose Exceptions" field="exposeExceptions">
+                        <f:checkbox default="true"/>
+                    </f:entry>
+                    <f:entry title="Use Jenkins Proxy" field="usingJenkinsProxy">
+                        <f:checkbox default="false"/>
+                    </f:entry>
+                    <f:entry title="Global Listener" field="globalListener">
+                        <f:checkbox default="false"/>
+                    </f:entry>
+                    <f:entry title="Global Listener Filter" field="globalListenerFilter">
+                        <f:textbox/>
+                    </f:entry>
+                    <f:entry title="">
                         <div align="right">
-                          <f:repeatableDeleteButton value="delete target"/>
+                            <f:repeatableDeleteButton/>
                         </div>
-                      </f:entry>
-
-                  </table>
-                             
+                    </f:entry>
+                </table>
             </f:repeatable>
-             
         </f:entry>
     </f:section>
 </j:jelly>
