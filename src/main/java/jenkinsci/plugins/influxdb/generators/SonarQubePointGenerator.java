@@ -42,8 +42,6 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
 	private String SONAR_ISSUES_URL;
 	private String SONAR_METRICS_URL;
-	private String sonarServer;
-	private String sonarProjectName;
 
 	private final Run<?, ?> build;
 	private final String customPrefix;
@@ -72,9 +70,9 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		return false;
 	}
 
-	public void setSonarDetails(String sonarBuildLink) {
+	private void setSonarDetails(String sonarBuildLink) {
 		try {
-			this.sonarProjectName = getSonarProjectName(sonarBuildLink);
+			String sonarProjectName = getSonarProjectName(sonarBuildLink);
 			// Use SONAR_HOST_URL environment variable if possible
 			String url = "";
 			try {
@@ -82,15 +80,16 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 			} catch (InterruptedException|IOException e) {
 				// handle
 			}
+			String sonarServer;
 			if (url != null && !url.isEmpty()) {
-				this.sonarServer = url;
+				sonarServer = url;
 			} else {
-				if (sonarBuildLink.indexOf("/dashboard?id=" + this.sonarProjectName) > 0) {
-					this.sonarServer = sonarBuildLink.substring(0,
-							sonarBuildLink.indexOf("/dashboard?id=" + this.sonarProjectName));
+				if (sonarBuildLink.indexOf("/dashboard?id=" + sonarProjectName) > 0) {
+					sonarServer = sonarBuildLink.substring(0,
+							sonarBuildLink.indexOf("/dashboard?id=" + sonarProjectName));
 				} else {
-					this.sonarServer = sonarBuildLink.substring(0,
-							sonarBuildLink.indexOf("/dashboard/index/" + this.sonarProjectName));
+					sonarServer = sonarBuildLink.substring(0,
+							sonarBuildLink.indexOf("/dashboard/index/" + sonarProjectName));
 				}
 			}
 			this.SONAR_ISSUES_URL = sonarServer + SONAR_ISSUES_BASE_URL + sonarProjectName + "&resolved=false&severities=";
@@ -117,7 +116,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		return new Point[] { point };
 	}
 
-	public String getResult(String request) throws IOException {
+	private String getResult(String request) throws IOException {
 		StringBuilder result = new StringBuilder();
 		
 		try {
@@ -178,7 +177,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		return url;
 	}
 
-	protected String getSonarProjectName(String url) throws URISyntaxException {
+	String getSonarProjectName(String url) throws URISyntaxException {
 		//String sonarVersion = getResult("api/server/version");
 		URI uri = new URI(url);
 		String[] projectUrl;
@@ -190,7 +189,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		return projectUrl.length > 1 ? projectUrl[projectUrl.length - 1] : "";
 	}
 
-	public int getLinesOfCode(String url) throws IOException {
+	private int getLinesOfCode(String url) throws IOException {
 		String output = getResult(url);
 		JSONObject metricsObjects = JSONObject.fromObject(output);
 		int linesOfCodeCount = 0;
@@ -205,7 +204,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		return linesOfCodeCount;
 	}
 
-	public int getSonarIssues(String url, String severity) throws IOException {
+	private int getSonarIssues(String url, String severity) throws IOException {
 		String output = getResult(url + severity);
 		return JSONObject.fromObject(output).getInt("total");
 	}
