@@ -17,7 +17,6 @@ import org.influxdb.dto.Point;
 
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import hudson.util.IOUtils;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -158,22 +157,17 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		return result.toString();
 	}
 
-	@SuppressWarnings("deprecation")
 	private String getSonarProjectURLFromBuildLogs(Run<?, ?> build) throws IOException {
-		BufferedReader br = null;
 		String url = null;
-		try {
-			br = new BufferedReader(build.getLogReader());
-			String strLine;
+		try (BufferedReader br = new BufferedReader(build.getLogReader())) {
+			String line;
 			Pattern p = Pattern.compile(URL_PATTERN_IN_LOGS);
-			while ((strLine = br.readLine()) != null) {
-				Matcher match = p.matcher(strLine);
+			while ((line = br.readLine()) != null) {
+				Matcher match = p.matcher(line);
 				if (match.matches()) {
 					url = match.group(1);
 				}
 			}
-		} finally {
-			IOUtils.closeQuietly(br);
 		}
 		return url;
 	}
