@@ -10,10 +10,8 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
-import jenkins.model.Jenkins;
 import jenkins.tasks.SimpleBuildStep;
 import jenkinsci.plugins.influxdb.models.Target;
-import okhttp3.*;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
@@ -323,29 +321,8 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
                 jenkinsEnvParameterTag, measurementName,
                 replaceDashWithUnderscore);
 
-        // use proxy if checked
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        if (target.isUsingJenkinsProxy()) {
-            builder.proxy(Jenkins.getInstance().proxy.createProxy(target.getUrl()));
-            if (Jenkins.getInstance().proxy.getUserName() != null) {
-                builder.proxyAuthenticator(new Authenticator() {
-                    @Override
-                    public Request authenticate(Route route, Response response) throws IOException {
-                        if (response.request().header("Proxy-Authorization") != null) {
-                            return null; // Give up, we've already failed to authenticate.
-                        }
-
-                        String credential = Credentials.basic(Jenkins.getInstance().proxy.getUserName(), Jenkins.getInstance().proxy.getPassword());
-                        return response.request().newBuilder().header("Proxy-Authorization", credential).build();
-                    }
-                });
-            }
-            builder.build();
-        }
-
         // Publishes the metrics
         publicationService.perform(build, listener);
-
     }
 
     private long resolveTimestampForPointGenerationInNanoseconds(final Run<?, ?> build) {
