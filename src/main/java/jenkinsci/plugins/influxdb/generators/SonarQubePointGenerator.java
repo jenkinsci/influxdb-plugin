@@ -40,8 +40,8 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
 	private static final String SONAR_METRICS_BASE_URL = "/api/measures/component?metricKeys=ncloc,complexity,violations&componentKey=";
 
-	private String SONAR_ISSUES_URL;
-	private String SONAR_METRICS_URL;
+	private String sonarIssuesUrl;
+	private String sonarMetricsUrl;
 
 	private final Run<?, ?> build;
 	private final String customPrefix;
@@ -92,8 +92,8 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 							sonarBuildLink.indexOf("/dashboard/index/" + sonarProjectName));
 				}
 			}
-			this.SONAR_ISSUES_URL = sonarServer + SONAR_ISSUES_BASE_URL + sonarProjectName + "&resolved=false&severities=";
-			this.SONAR_METRICS_URL = sonarServer + SONAR_METRICS_BASE_URL + sonarProjectName;
+			sonarIssuesUrl = sonarServer + SONAR_ISSUES_BASE_URL + sonarProjectName + "&resolved=false&severities=";
+			sonarMetricsUrl = sonarServer + SONAR_METRICS_BASE_URL + sonarProjectName;
 		} catch (URISyntaxException e) {
 			//
 		}
@@ -104,12 +104,13 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		try {
 			point = buildPoint(measurementName("sonarqube_data"), customPrefix, build)
 					.addField(BUILD_DISPLAY_NAME, build.getDisplayName())
-					.addField(SONARQUBE_CRITICAL_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "CRITICAL"))
-					.addField(SONARQUBE_BLOCKER_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "BLOCKER"))
-					.addField(SONARQUBE_MAJOR_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "MAJOR"))
-					.addField(SONARQUBE_MINOR_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "MINOR"))
-					.addField(SONARQUBE_INFO_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "INFO"))
-					.addField(SONARQUBE_LINES_OF_CODE, getLinesOfCode(this.SONAR_METRICS_URL)).build();
+					.addField(SONARQUBE_CRITICAL_ISSUES, getSonarIssues(sonarIssuesUrl, "CRITICAL"))
+					.addField(SONARQUBE_BLOCKER_ISSUES, getSonarIssues(sonarIssuesUrl, "BLOCKER"))
+					.addField(SONARQUBE_MAJOR_ISSUES, getSonarIssues(sonarIssuesUrl, "MAJOR"))
+					.addField(SONARQUBE_MINOR_ISSUES, getSonarIssues(sonarIssuesUrl, "MINOR"))
+					.addField(SONARQUBE_INFO_ISSUES, getSonarIssues(sonarIssuesUrl, "INFO"))
+					.addField(SONARQUBE_LINES_OF_CODE, getLinesOfCode(sonarMetricsUrl))
+					.build();
 		} catch (IOException e) {
 			// handle
 		}
