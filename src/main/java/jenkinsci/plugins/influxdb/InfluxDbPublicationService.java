@@ -3,6 +3,7 @@ package jenkinsci.plugins.influxdb;
 import com.google.common.base.Strings;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import hudson.util.Secret;
 import jenkinsci.plugins.influxdb.generators.*;
 import jenkinsci.plugins.influxdb.models.Target;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
@@ -263,7 +264,7 @@ public class InfluxDbPublicationService {
             // connect to InfluxDB
             InfluxDB influxDB = Strings.isNullOrEmpty(selectedTarget.getUsername()) ?
                     InfluxDBFactory.connect(selectedTarget.getUrl()) :
-                    InfluxDBFactory.connect(selectedTarget.getUrl(), selectedTarget.getUsername(), selectedTarget.getPassword());
+                    InfluxDBFactory.connect(selectedTarget.getUrl(), selectedTarget.getUsername(), Secret.toString(selectedTarget.getPassword()));
             // Sending points to the target
             writeToInflux(selectedTarget, influxDB, pointsToWrite);
         }

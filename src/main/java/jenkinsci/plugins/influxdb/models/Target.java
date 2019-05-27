@@ -4,6 +4,7 @@ import com.google.common.base.Objects;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
+import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 public class Target extends AbstractDescribableImpl<Target> implements java.io.Serializable {
@@ -11,7 +12,7 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
     private String description;
     private String url;
     private String username;
-    private String password;
+    private Secret password;
     private String database;
     private String retentionPolicy;
     private boolean jobScheduledTimeAsPointsTimestamp;
@@ -25,7 +26,7 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
     }
 
     @DataBoundConstructor
-    public Target(String description, String url, String username, String password, String database,
+    public Target(String description, String url, String username, Secret password, String database,
             String retentionPolicy, boolean jobScheduledTimeAsPointsTimestamp, boolean exposeExceptions,
             boolean usingJenkinsProxy, boolean globalListener, String globalListenerFilter) {
         this.description = description;
@@ -65,12 +66,12 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
         this.username = username;
     }
 
-    public String getPassword() {
+    public Secret getPassword() {
         return password;
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = Secret.fromString(password);
     }
 
     public String getDatabase() {

@@ -6,6 +6,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import hudson.util.Secret;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -34,7 +35,7 @@ public class ConfigurationAsCodeTest {
         assertThat(target.getDescription(), equalTo("some description"));
         assertThat(target.getUrl(), equalTo("http://some/url"));
         assertThat(target.getUsername(), equalTo("some username"));
-        assertThat(target.getPassword(), equalTo("some password"));
+        assertThat(target.getPassword(), equalTo(Secret.fromString("some password")));
         assertThat(target.getDatabase(), equalTo("some_database"));
         assertThat(target.getRetentionPolicy(), equalTo("some_policy"));
         assertThat(target.isJobScheduledTimeAsPointsTimestamp(), equalTo(true));
@@ -70,7 +71,8 @@ public class ConfigurationAsCodeTest {
         InputStream yamlStream = getClass().getResourceAsStream(getClass().getSimpleName() + "/configuration-as-code.yml");
         String expectedYaml = IOUtils.toString(yamlStream, "UTF-8")
                 .replaceAll("\r\n?", "\n")
-                .replace("unclassified:\n", "");
+                .replace("unclassified:\n", "")
+                .replace("some password", target.getPassword().getEncryptedValue());
 
         assertThat(exportedYaml, containsString(expectedYaml));
     }
