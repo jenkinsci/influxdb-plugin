@@ -10,7 +10,7 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.test.AbstractTestResultAction;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.influxdb.dto.Point;
 
