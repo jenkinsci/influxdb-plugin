@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
+import hudson.EnvVars;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
@@ -311,11 +312,15 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
         long currTime = resolveTimestampForPointGenerationInNanoseconds(build);
 
         measurementName = getMeasurementNameIfNotBlankOrDefault();
+        final EnvVars env = build.getEnvironment(listener);
+        String expandedCustomPrefix = env.expand(customPrefix);
+        String expandedCustomProjectName = env.expand(customProjectName);
+
         // Preparing the service
         InfluxDbPublicationService publicationService = new InfluxDbPublicationService(
                 Collections.singletonList(target),
-                customProjectName,
-                customPrefix,
+                expandedCustomProjectName,
+                expandedCustomPrefix,
                 customData,
                 customDataTags, customDataMapTags, customDataMap,
                 currTime,
