@@ -32,8 +32,10 @@ public abstract class AbstractPointGenerator implements PointGenerator {
         String projectTagName;
         if (this.replaceDashWithUnderscore) {
             projectTagName = renderedProjectName;
-        } else {
+        } else if (customPrefix != null){
             projectTagName = customPrefix + "_" + build.getParent().getName();
+        } else {
+            projectTagName = build.getParent().getName();
         }
 
         Point.Builder builder = Point
