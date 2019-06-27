@@ -51,7 +51,7 @@ public class ChangeLogPointGenerator extends AbstractPointGenerator {
 		return new Point[] { point.build() };
 	}
 
-	public void getChangeLog(Run<?, ?> run) {
+	private void getChangeLog(Run<?, ?> run) {
 		this.affectedPaths = new StringBuilder();
 
 		this.messages = new StringBuilder();

@@ -2,22 +2,22 @@ package jenkinsci.plugins.influxdb.generators;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.net.HttpURLConnection;
 import java.lang.InterruptedException;
-import java.util.Base64;
-import java.net.URL;
+
+import okhttp3.Credentials;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.influxdb.dto.Point;
 
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import hudson.util.IOUtils;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -40,10 +40,10 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
 	private static final String SONAR_METRICS_BASE_URL = "/api/measures/component?metricKeys=ncloc,complexity,violations&componentKey=";
 
-	private String SONAR_ISSUES_URL;
-	private String SONAR_METRICS_URL;
-	private String sonarServer;
-	private String sonarProjectName;
+	private static final OkHttpClient httpClient = new OkHttpClient();
+
+	private String sonarIssuesUrl;
+	private String sonarMetricsUrl;
 
 	private final Run<?, ?> build;
 	private final String customPrefix;
@@ -72,29 +72,30 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		return false;
 	}
 
-	public void setSonarDetails(String sonarBuildLink) {
+	private void setSonarDetails(String sonarBuildLink) {
 		try {
-			this.sonarProjectName = getSonarProjectName(sonarBuildLink);
+			String sonarProjectName = getSonarProjectName(sonarBuildLink);
 			// Use SONAR_HOST_URL environment variable if possible
 			String url = "";
 			try {
 				url = build.getEnvironment(listener).get("SONAR_HOST_URL");
-			} catch (InterruptedException|IOException e) {
+			} catch (InterruptedException | IOException e) {
 				// handle
 			}
+			String sonarServer;
 			if (url != null && !url.isEmpty()) {
-				this.sonarServer = url;
+				sonarServer = url;
 			} else {
-				if (sonarBuildLink.indexOf("/dashboard?id=" + this.sonarProjectName) > 0) {
-					this.sonarServer = sonarBuildLink.substring(0,
-							sonarBuildLink.indexOf("/dashboard?id=" + this.sonarProjectName));
+				if (sonarBuildLink.indexOf("/dashboard?id=" + sonarProjectName) > 0) {
+					sonarServer = sonarBuildLink.substring(0,
+							sonarBuildLink.indexOf("/dashboard?id=" + sonarProjectName));
 				} else {
-					this.sonarServer = sonarBuildLink.substring(0,
-							sonarBuildLink.indexOf("/dashboard/index/" + this.sonarProjectName));
+					sonarServer = sonarBuildLink.substring(0,
+							sonarBuildLink.indexOf("/dashboard/index/" + sonarProjectName));
 				}
 			}
-			this.SONAR_ISSUES_URL = sonarServer + SONAR_ISSUES_BASE_URL + sonarProjectName + "&resolved=false&severities=";
-			this.SONAR_METRICS_URL = sonarServer + SONAR_METRICS_BASE_URL + sonarProjectName;
+			sonarIssuesUrl = sonarServer + SONAR_ISSUES_BASE_URL + sonarProjectName + "&resolved=false&severities=";
+			sonarMetricsUrl = sonarServer + SONAR_METRICS_BASE_URL + sonarProjectName;
 		} catch (URISyntaxException e) {
 			//
 		}
@@ -105,80 +106,60 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		try {
 			point = buildPoint(measurementName("sonarqube_data"), customPrefix, build)
 					.addField(BUILD_DISPLAY_NAME, build.getDisplayName())
-					.addField(SONARQUBE_CRITICAL_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "CRITICAL"))
-					.addField(SONARQUBE_BLOCKER_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "BLOCKER"))
-					.addField(SONARQUBE_MAJOR_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "MAJOR"))
-					.addField(SONARQUBE_MINOR_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "MINOR"))
-					.addField(SONARQUBE_INFO_ISSUES, getSonarIssues(this.SONAR_ISSUES_URL, "INFO"))
-					.addField(SONARQUBE_LINES_OF_CODE, getLinesOfCode(this.SONAR_METRICS_URL)).build();
+					.addField(SONARQUBE_CRITICAL_ISSUES, getSonarIssues(sonarIssuesUrl, "CRITICAL"))
+					.addField(SONARQUBE_BLOCKER_ISSUES, getSonarIssues(sonarIssuesUrl, "BLOCKER"))
+					.addField(SONARQUBE_MAJOR_ISSUES, getSonarIssues(sonarIssuesUrl, "MAJOR"))
+					.addField(SONARQUBE_MINOR_ISSUES, getSonarIssues(sonarIssuesUrl, "MINOR"))
+					.addField(SONARQUBE_INFO_ISSUES, getSonarIssues(sonarIssuesUrl, "INFO"))
+					.addField(SONARQUBE_LINES_OF_CODE, getLinesOfCode(sonarMetricsUrl))
+					.build();
 		} catch (IOException e) {
 			// handle
 		}
 		return new Point[] { point };
 	}
 
-	public String getResult(String request) throws IOException {
-		StringBuilder result = new StringBuilder();
-		
+	private String getResult(String url) throws IOException {
+		Request.Builder requestBuilder = new Request.Builder()
+				.get()
+				.url(url)
+				.header("Accept", "application/json");
+
 		try {
-			String auth = "";
-			try {
-				String token = build.getEnvironment(listener).get("SONAR_AUTH_TOKEN");
-				if (token != null) {
-					token = token + ":";
-					String encoding = Base64.getEncoder().encodeToString(token.getBytes(StandardCharsets.UTF_8));
-					auth = "Basic " + encoding;
-				}
-			} catch (InterruptedException|IOException e) {
-				// handle
+			String token = build.getEnvironment(listener).get("SONAR_AUTH_TOKEN");
+			if (token != null) {
+				String credential = Credentials.basic(token, "", StandardCharsets.UTF_8);
+				requestBuilder.header("Authorization", credential);
 			}
-			URL url = new URL(request);
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			if (!auth.isEmpty())
-				conn.setRequestProperty("Authorization", auth);
-			conn.setRequestMethod("GET");
-			conn.setRequestProperty("Accept", "application/json");
-
-			if (conn.getResponseCode() != 200) {
-				throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode() + " from URL : " + conn.getURL());
-			}
-
-			try (BufferedReader rd = new BufferedReader(new InputStreamReader((conn.getInputStream())))) {
-				String line;
-				while ((line = rd.readLine()) != null) {
-					result.append(line);
-				}
-			}
-
-			conn.disconnect();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (InterruptedException | IOException e) {
+			// handle
 		}
 
-		return result.toString();
+		try (Response response = httpClient.newCall(requestBuilder.build()).execute()) {
+			if (response.code() != 200) {
+				throw new RuntimeException("Failed : HTTP error code : " + response.code() + " from URL : " + url);
+			}
+
+			return response.body().string();
+		}
 	}
 
-	@SuppressWarnings("deprecation")
 	private String getSonarProjectURLFromBuildLogs(Run<?, ?> build) throws IOException {
-		BufferedReader br = null;
 		String url = null;
-		try {
-			br = new BufferedReader(build.getLogReader());
-			String strLine;
+		try (BufferedReader br = new BufferedReader(build.getLogReader())) {
+			String line;
 			Pattern p = Pattern.compile(URL_PATTERN_IN_LOGS);
-			while ((strLine = br.readLine()) != null) {
-				Matcher match = p.matcher(strLine);
+			while ((line = br.readLine()) != null) {
+				Matcher match = p.matcher(line);
 				if (match.matches()) {
 					url = match.group(1);
 				}
 			}
-		} finally {
-			IOUtils.closeQuietly(br);
 		}
 		return url;
 	}
 
-	protected String getSonarProjectName(String url) throws URISyntaxException {
+	String getSonarProjectName(String url) throws URISyntaxException {
 		//String sonarVersion = getResult("api/server/version");
 		URI uri = new URI(url);
 		String[] projectUrl;
@@ -190,7 +171,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		return projectUrl.length > 1 ? projectUrl[projectUrl.length - 1] : "";
 	}
 
-	public int getLinesOfCode(String url) throws IOException {
+	private int getLinesOfCode(String url) throws IOException {
 		String output = getResult(url);
 		JSONObject metricsObjects = JSONObject.fromObject(output);
 		int linesOfCodeCount = 0;
@@ -205,7 +186,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 		return linesOfCodeCount;
 	}
 
-	public int getSonarIssues(String url, String severity) throws IOException {
+	private int getSonarIssues(String url, String severity) throws IOException {
 		String output = getResult(url + severity);
 		return JSONObject.fromObject(output).getInt("total");
 	}
