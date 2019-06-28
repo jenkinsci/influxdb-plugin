@@ -131,11 +131,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     private String getBuildAgentName() {
         Executor executor = build.getExecutor();
-        if (executor != null) {
-            return executor.getOwner().getName();
-        } else {
-            return "";
-        }
+        return executor != null ? executor.getOwner().getName() : "";
     }
 
     private boolean hasTestResults(Run<?, ?> build) {
@@ -151,17 +147,13 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     }
 
     private int getLastSuccessfulBuild() {
-        if (build.getParent().getLastSuccessfulBuild() != null)
-            return build.getParent().getLastSuccessfulBuild().getNumber();
-        else
-            return 0;
+        Run<?, ?> lastSuccessfulBuild = build.getParent().getLastSuccessfulBuild();
+        return lastSuccessfulBuild != null ? lastSuccessfulBuild.getNumber() : 0;
     }
 
     private int getLastStableBuild() {
-        if (build.getParent().getLastStableBuild() != null)
-            return build.getParent().getLastStableBuild().getNumber();
-        else
-            return 0;
+        Run<?, ?> lastStableBuild = build.getParent().getLastStableBuild();
+        return lastStableBuild != null ? lastStableBuild.getNumber() : 0;
     }
 
     private Properties parsePropertiesString(String propertiesString) {
