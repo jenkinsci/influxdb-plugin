@@ -62,7 +62,7 @@ public abstract class AbstractPointGenerator implements PointGenerator {
     }
 
     protected String measurementName(String measurement) {
-        //influx discourages "-" in measurement names.
+        // InfluxDB discourages "-" in measurement names.
         return measurement.replaceAll("-", "_");
     }
 }

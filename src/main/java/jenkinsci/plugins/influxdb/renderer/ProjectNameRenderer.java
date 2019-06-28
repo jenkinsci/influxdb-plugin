@@ -33,7 +33,7 @@ public class ProjectNameRenderer implements MeasurementRenderer<Run<?, ?>> {
     }
 
     protected String measurementName(String measurement) {
-        // InfluxDB disallows "-" in measurement names.
+        // InfluxDB discourages "-" in measurement names.
         return measurement.replaceAll("-", "_");
     }
 }
