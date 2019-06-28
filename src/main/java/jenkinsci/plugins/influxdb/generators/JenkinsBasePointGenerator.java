@@ -13,10 +13,17 @@ import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.test.AbstractTestResultAction;
+import jenkins.metrics.impl.TimeInQueueAction;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import org.apache.commons.lang3.StringUtils;
 import org.influxdb.dto.Point;
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import java.util.List;
 import java.util.Map;
@@ -57,6 +64,8 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     public static final String TESTS_FAILED = "tests_failed";
     public static final String TESTS_SKIPPED = "tests_skipped";
     public static final String TESTS_TOTAL = "tests_total";
+    private static final Pattern SRINFLUXFIELD = Pattern.compile("SRINFLUXFIELD_");
+    private static final Pattern SRINFLUXFIEL_PREFIX = Pattern.compile("SRINFLUXFIELD_.*");
 
     private final Run<?, ?> build;
     private final String customPrefix;
@@ -103,20 +112,20 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         Point.Builder point = buildPoint(measurementName, customPrefix, build);
 
         point.addField(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
-            .addField(BUILD_SCHEDULED_TIME, build.getTimeInMillis())
-            .addField(BUILD_EXEC_TIME, build.getStartTimeInMillis())
-            .addField(BUILD_MEASURED_TIME, currTime)
-            .addField(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
-            .addField(BUILD_RESULT, result)
-            .addField(BUILD_RESULT_ORDINAL, ordinal)
-            .addField(BUILD_IS_SUCCESSFUL, ordinal < 2)
+                .addField(BUILD_SCHEDULED_TIME, build.getTimeInMillis())
+                .addField(BUILD_EXEC_TIME, build.getStartTimeInMillis())
+                .addField(BUILD_MEASURED_TIME, currTime)
+                .addField(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
+                .addField(BUILD_RESULT, result)
+                .addField(BUILD_RESULT_ORDINAL, ordinal)
+                .addField(BUILD_IS_SUCCESSFUL, ordinal < 2)
             .addField(BUILD_AGENT_NAME, getBuildEnv("NODE_NAME"))
             .addField(BUILD_BRANCH_NAME, getBuildEnv("BRANCH_NAME"))
-            .addField(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
-            .addField(PROJECT_LAST_SUCCESSFUL, getLastSuccessfulBuild())
-            .addField(PROJECT_LAST_STABLE, getLastStableBuild())
+                .addField(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
+                .addField(PROJECT_LAST_SUCCESSFUL, getLastSuccessfulBuild())
+                .addField(PROJECT_LAST_STABLE, getLastStableBuild())
             .addField(BUILD_CAUSER , getCauseShortDescription())
-            .tag(BUILD_RESULT, result);
+                .tag(BUILD_RESULT, result);
 
         if (hasTestResults(build)) {
             point.addField(TESTS_FAILED, build.getAction(AbstractTestResultAction.class).getFailCount());
@@ -125,7 +134,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         }
 
         if (hasMetricsPlugin(build)) {
-            point.addField(TIME_IN_QUEUE, build.getAction(jenkins.metrics.impl.TimeInQueueAction.class).getQueuingDurationMillis());
+            point.addField(TIME_IN_QUEUE, build.getAction(TimeInQueueAction.class).getQueuingDurationMillis());
         }
 
         if (StringUtils.isNotBlank(jenkinsEnvParameterField)) {
@@ -135,8 +144,30 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         }
 
         setServiceIdTag(point);
+        setSrFields(point);
 
         return new Point[]{point.build()};
+    }
+
+    private void setSrFields(Point.Builder point) {
+        try {
+            Map<String, String> buildVariables = new RunWrapper(build, false).getBuildVariables();
+            for (Map.Entry<String, String> entry : buildVariables.entrySet()) {
+                String key = entry.getKey();
+                if (!SRINFLUXFIEL_PREFIX.matcher(key).matches()) {
+                    continue;
+                }
+
+                String fieldKey = SRINFLUXFIELD.matcher(key).replaceAll("").toLowerCase();
+                if (key.endsWith("_DURATION")) {
+                    point.addField(fieldKey, Double.parseDouble(entry.getValue()));
+                } else {
+                    point.addField(fieldKey, entry.getValue());
+                }
+            }
+        } catch (Exception e) {
+            logger.warning("Could not add SR fields, " + e);
+        }
     }
 
     private void setServiceIdTag(Point.Builder point) {
@@ -176,7 +207,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     private boolean hasMetricsPlugin(Run<?, ?> build) {
         try {
-            return build.getAction(jenkins.metrics.impl.TimeInQueueAction.class) != null;
+            return build.getAction(TimeInQueueAction.class) != null;
         } catch (NoClassDefFoundError e) {
             return false;
         }
