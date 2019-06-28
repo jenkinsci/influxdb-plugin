@@ -156,7 +156,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
         if (ipTemp == null) {
             Target[] targets = DESCRIPTOR.getTargets();
             if (targets.length > 0) {
-                //ipTemp = targets[0].getUrl() + "," + targets[0].getDatabase();
                 ipTemp = targets[0].getDescription();
             }
         }
