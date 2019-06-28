@@ -27,7 +27,7 @@ public abstract class AbstractPointGenerator implements PointGenerator {
 
     @Override
     public Point.Builder buildPoint(String name, String customPrefix, Run<?, ?> build, long timestamp) {
-        final String renderedProjectName = projectNameRenderer.render(build);
+        String renderedProjectName = projectNameRenderer.render(build);
 
         String projectTagName;
         if (this.replaceDashWithUnderscore) {
