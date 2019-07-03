@@ -38,10 +38,12 @@ public abstract class AbstractPointGenerator implements PointGenerator {
             projectTagName = build.getParent().getName();
         }
 
+        String projectPath = build.getParent().getRelativeNameFrom(Jenkins.getInstance());
+
         Point.Builder builder = Point
                 .measurement(name)
                 .addField(PROJECT_NAME, renderedProjectName)
-                .addField(PROJECT_PATH, build.getParent().getRelativeNameFrom(Jenkins.getInstance()))
+                .addField(PROJECT_PATH, projectPath)
                 .addField(BUILD_NUMBER, build.getNumber())
                 .time(timestamp, TimeUnit.NANOSECONDS);
 
@@ -49,6 +51,7 @@ public abstract class AbstractPointGenerator implements PointGenerator {
             builder.tag(CUSTOM_PREFIX, this.replaceDashWithUnderscore ? measurementName(customPrefix) : customPrefix);
 
         builder.tag(PROJECT_NAME, projectTagName);
+        builder.tag(PROJECT_PATH, projectPath);
 
         return builder;
 
