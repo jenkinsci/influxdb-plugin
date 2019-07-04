@@ -130,7 +130,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
      * custom measurement name used for all measurement types
      * Overrides the default measurement names.
      * Default value is "jenkins_data"
-     * 
+     *
      * For custom data, prepends "custom_", i.e. "some_measurement"
      * becomes "custom_some_measurement".
      * Default custom name remains "jenkins_custom_data"
