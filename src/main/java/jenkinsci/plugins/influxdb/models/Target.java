@@ -1,10 +1,10 @@
 package jenkinsci.plugins.influxdb.models;
 
-import com.google.common.base.Objects;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import hudson.util.Secret;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 public class Target extends AbstractDescribableImpl<Target> implements java.io.Serializable {
@@ -132,11 +132,11 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(Target.class)
-                .add("description", description)
-                .add("url", url)
-                .add("username", username)
-                .add("database", database)
+        return new ToStringBuilder(this)
+                .append("description", description)
+                .append("url", url)
+                .append("username", username)
+                .append("database", database)
                 .toString();
     }
 
