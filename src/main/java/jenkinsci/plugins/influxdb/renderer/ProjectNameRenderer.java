@@ -1,8 +1,11 @@
 package jenkinsci.plugins.influxdb.renderer;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
 import hudson.model.Run;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ProjectNameRenderer implements MeasurementRenderer<Run<?, ?>> {
 
@@ -10,8 +13,8 @@ public class ProjectNameRenderer implements MeasurementRenderer<Run<?, ?>> {
     private String customProjectName;
 
     public ProjectNameRenderer(String customPrefix, String customProjectName) {
-        this.customPrefix = Strings.emptyToNull(customPrefix);
-        this.customProjectName = Strings.emptyToNull(customProjectName);
+        this.customPrefix = StringUtils.trimToNull(customPrefix);
+        this.customProjectName = StringUtils.trimToNull(customProjectName);
     }
 
     @Override
@@ -21,12 +24,12 @@ public class ProjectNameRenderer implements MeasurementRenderer<Run<?, ?>> {
 
     protected String projectName(String prefix, String projectName, Run<?, ?> build) {
         if (projectName == null) {
-            projectName = build.getParent().getName();
+            projectName = StringUtils.trimToNull(build.getParent().getName());
         }
-        return Joiner
-                .on("_")
-                .skipNulls()
-                .join(Strings.emptyToNull(prefix), Strings.emptyToNull(projectName));
+
+        return Stream.of(prefix, projectName)
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining("_"));
     }
 
     protected String measurementName(String measurement) {
