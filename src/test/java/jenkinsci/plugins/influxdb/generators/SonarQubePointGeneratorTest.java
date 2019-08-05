@@ -1,26 +1,23 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import static org.junit.Assert.assertEquals;
-
-import java.net.URISyntaxException;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-
 import hudson.model.Job;
 import hudson.model.Run;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class SonarQubePointGeneratorTest {
 
-    public static final String JOB_NAME = "master";
-    public static final int BUILD_NUMBER = 11;
-    public static final String CUSTOM_PREFIX = "test_prefix";
+    private static final String JOB_NAME = "master";
+    private static final int BUILD_NUMBER = 11;
+    private static final String CUSTOM_PREFIX = "test_prefix";
 
     private Run build;
-    private Job job;
 
     private MeasurementRenderer<Run<?, ?>> measurementRenderer;
     private String sonarUrl = "http://sonar.dashboard.com";
@@ -30,7 +27,7 @@ public class SonarQubePointGeneratorTest {
     @Before
     public void before() {
         build = Mockito.mock(Run.class);
-        job = Mockito.mock(Job.class);
+        Job job = Mockito.mock(Job.class);
         measurementRenderer = new ProjectNameRenderer(CUSTOM_PREFIX, null);
 
         Mockito.when(build.getNumber()).thenReturn(BUILD_NUMBER);
@@ -41,18 +38,18 @@ public class SonarQubePointGeneratorTest {
     }
 
     @Test
-    public void getSonarProjectNameFromNewSonarQubeTest() throws URISyntaxException {
+    public void getSonarProjectNameFromNewSonarQube() throws Exception {
         String name = "org.namespace:feature%2Fmy-sub-project";
         String url = sonarUrl + "/dashboard?id=" + name;
         SonarQubePointGenerator gen = new SonarQubePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null, true);
-        assertEquals(name, gen.getSonarProjectName(url));
+        assertThat(gen.getSonarProjectName(url), is(name));
     }
 
     @Test
-    public void getSonarProjectNameTest() throws URISyntaxException {
+    public void getSonarProjectName() throws Exception {
         String name = "org.namespace:feature%2Fmy-sub-project";
         String url = sonarUrl + "/dashboard/index/" + name;
         SonarQubePointGenerator gen = new SonarQubePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null, true);
-        assertEquals(name, gen.getSonarProjectName(url));
+        assertThat(gen.getSonarProjectName(url), is(name));
     }
 }

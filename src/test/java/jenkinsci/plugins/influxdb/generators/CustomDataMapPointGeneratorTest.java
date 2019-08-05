@@ -6,21 +6,25 @@ import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.influxdb.dto.Point;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
+import static org.junit.Assert.assertThat;
 
 public class CustomDataMapPointGeneratorTest {
 
-    public static final String JOB_NAME = "master";
-    public static final int BUILD_NUMBER = 11;
-    public static final String CUSTOM_PREFIX = "test_prefix";
+    private static final String JOB_NAME = "master";
+    private static final int BUILD_NUMBER = 11;
+    private static final String CUSTOM_PREFIX = "test_prefix";
 
     private Run<?,?> build;
-    private Job job;
 
     private MeasurementRenderer<Run<?, ?>> measurementRenderer;
 
@@ -29,7 +33,7 @@ public class CustomDataMapPointGeneratorTest {
     @Before
     public void before() {
         build = Mockito.mock(Run.class);
-        job = Mockito.mock(Job.class);
+        Job job = Mockito.mock(Job.class);
         measurementRenderer = new ProjectNameRenderer(CUSTOM_PREFIX, null);
 
         Mockito.when(build.getNumber()).thenReturn(BUILD_NUMBER);
@@ -41,20 +45,20 @@ public class CustomDataMapPointGeneratorTest {
     }
 
     @Test
-    public void hasReportTest() {
+    public void hasReport() {
         //check with customDataMap = null
         CustomDataMapPointGenerator cdmGen1 = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
                 currTime, null, null, true);
-        Assert.assertFalse(cdmGen1.hasReport());
+        assertThat(cdmGen1.hasReport(), is(false));
 
         //check with empty customDataMap
         CustomDataMapPointGenerator cdmGen2 = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
                 currTime, Collections.emptyMap(), Collections.emptyMap(), true);
-        Assert.assertFalse(cdmGen2.hasReport());
+        assertThat(cdmGen2.hasReport(), is(false));
     }
 
     @Test
-    public void generateTest() {
+    public void generate() {
         Map<String, Object> customData1 = new HashMap<>();
         customData1.put("test1", 11);
         customData1.put("test2", 22);
@@ -85,7 +89,7 @@ public class CustomDataMapPointGeneratorTest {
             lineProtocol1 = pointsToWrite[1].lineProtocol();
             lineProtocol2 = pointsToWrite[0].lineProtocol();
         }
-        Assert.assertTrue(lineProtocol1.startsWith("series1,build_result=SUCCESS,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master build_number=11i,project_name=\"test_prefix_master\",project_path=\"folder/master\",test1=11i,test2=22i"));
-        Assert.assertTrue(lineProtocol2.startsWith("series2,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master build_number=11i,project_name=\"test_prefix_master\",project_path=\"folder/master\",test3=33i,test4=44i"));
+        assertThat(lineProtocol1, startsWith("series1,build_result=SUCCESS,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master build_number=11i,project_name=\"test_prefix_master\",project_path=\"folder/master\",test1=11i,test2=22i"));
+        assertThat(lineProtocol2, startsWith("series2,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master build_number=11i,project_name=\"test_prefix_master\",project_path=\"folder/master\",test3=33i,test4=44i"));
     }
 }
