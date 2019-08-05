@@ -20,17 +20,17 @@ public class ProjectNameRenderer implements MeasurementRenderer<Run<?, ?>> {
     }
 
     protected String projectName(String prefix, String projectName, Run<?, ?> build) {
-        if (this.customProjectName == null) {
-            this.customProjectName = build.getParent().getName();
+        if (projectName == null) {
+            projectName = build.getParent().getName();
         }
         return Joiner
                 .on("_")
                 .skipNulls()
-                .join(Strings.emptyToNull(prefix), Strings.emptyToNull(this.customProjectName));
+                .join(Strings.emptyToNull(prefix), Strings.emptyToNull(projectName));
     }
 
     protected String measurementName(String measurement) {
-        //influx disallows "-" in measurement names.
+        // InfluxDB disallows "-" in measurement names.
         return measurement.replaceAll("-", "_");
     }
 }
