@@ -56,4 +56,17 @@ public class ProjectNameRendererTest {
         String renderedProjectName = projectNameRenderer.render(build);
         Assert.assertTrue(renderedProjectName.startsWith("master"));
     }
+
+    @Test
+    public void nullProjectNameWithNullPrefix_NoSideEffects() {
+        ProjectNameRenderer projectNameRenderer = new ProjectNameRenderer(null, null);
+
+        Mockito.when(job.getName()).thenReturn("job 1");
+        String renderedProjectName1 = projectNameRenderer.render(build);
+        Assert.assertTrue(renderedProjectName1.startsWith("job 1"));
+
+        Mockito.when(job.getName()).thenReturn("job 2");
+        String renderedProjectName2 = projectNameRenderer.render(build);
+        Assert.assertTrue(renderedProjectName2.startsWith("job 2"));
+    }
 }
