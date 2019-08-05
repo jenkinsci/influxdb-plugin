@@ -1,12 +1,12 @@
 package jenkinsci.plugins.influxdb;
 
+import hudson.util.Secret;
 import io.jenkins.plugins.casc.ConfigurationAsCode;
 import jenkinsci.plugins.influxdb.models.Target;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
-import hudson.util.Secret;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -53,7 +53,7 @@ public class ConfigurationAsCodeTest {
         target.setDescription("some description");
         target.setUrl("http://some/url");
         target.setUsername("some username");
-        target.setPassword("some password");
+        target.setPassword(Secret.fromString("some password"));
         target.setDatabase("some_database");
         target.setRetentionPolicy("some_policy");
         target.setJobScheduledTimeAsPointsTimestamp(true);
