@@ -1,8 +1,5 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import hudson.EnvVars;
 import hudson.model.Executor;
 import hudson.model.Result;
@@ -14,11 +11,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.influxdb.dto.Point;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
@@ -178,18 +175,16 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         return properties;
     }
 
-    private Map<String, Object> resolveEnvParameterAndTransformToMap(final Properties properties) {
-        ImmutableMap<String, String> propertiesMap = Maps.fromProperties(properties);
-        return Maps.transformValues(propertiesMap, new Function<String, Object>() {
-            @Nullable
-            @Override
-            public Object apply(@Nullable String value) {
-                if (containsEnvParameter(value)) {
-                    return resolveEnvParameter(value);
-                }
-                return value;
-            }
-        });
+    private Map<String, String> resolveEnvParameterAndTransformToMap(final Properties properties) {
+        return properties.entrySet().stream().collect(
+                Collectors.toMap(
+                        e -> e.getKey().toString(),
+                        e -> {
+                            String value = e.getValue().toString();
+                            return containsEnvParameter(value) ? resolveEnvParameter(value) : value;
+                        }
+                )
+        );
     }
 
     private boolean containsEnvParameter(final String value) {
