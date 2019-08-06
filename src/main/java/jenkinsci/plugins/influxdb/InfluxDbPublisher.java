@@ -1,6 +1,5 @@
 package jenkinsci.plugins.influxdb;
 
-import com.google.common.base.Preconditions;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -166,7 +165,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
 
     @DataBoundSetter
     public void setSelectedTarget(String target) {
-        Preconditions.checkNotNull(target);
+        Objects.requireNonNull(target);
         this.selectedTarget = target;
     }
 

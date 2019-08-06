@@ -1,6 +1,5 @@
 package jenkinsci.plugins.influxdb;
 
-import com.google.common.base.Strings;
 import hudson.ProxyConfiguration;
 import hudson.model.Run;
 import hudson.model.TaskListener;
@@ -12,6 +11,7 @@ import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
+import org.apache.commons.lang3.StringUtils;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDB.ConsistencyLevel;
 import org.influxdb.InfluxDBFactory;
@@ -278,7 +278,7 @@ public class InfluxDbPublicationService {
             }
 
             OkHttpClient.Builder httpClient = createHttpClient(url, target.isUsingJenkinsProxy());
-            InfluxDB influxDB = Strings.isNullOrEmpty(target.getUsername()) ?
+            InfluxDB influxDB = StringUtils.isEmpty(target.getUsername()) ?
                     InfluxDBFactory.connect(target.getUrl(), httpClient) :
                     InfluxDBFactory.connect(target.getUrl(), target.getUsername(), Secret.toString(target.getPassword()), httpClient);
             writeToInflux(target, influxDB, pointsToWrite);
