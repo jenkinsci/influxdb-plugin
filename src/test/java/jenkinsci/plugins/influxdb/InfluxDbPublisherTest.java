@@ -34,7 +34,7 @@ public class InfluxDbPublisherTest {
     private TaskListener listener;
 
     @Test
-    public void emptyTargetTest() throws Exception {
+    public void emptyTarget() throws Exception {
         exception.expect(RuntimeException.class);
         exception.expectMessage("Target was null!");
 

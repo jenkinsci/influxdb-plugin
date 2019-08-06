@@ -14,7 +14,7 @@ import java.util.Collections;
 
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ConfigurationAsCodeTest {
@@ -32,17 +32,17 @@ public class ConfigurationAsCodeTest {
         assertThat(globalConfig.getTargets(), arrayWithSize(1));
 
         Target target = globalConfig.getTargets()[0];
-        assertThat(target.getDescription(), equalTo("some description"));
-        assertThat(target.getUrl(), equalTo("http://some/url"));
-        assertThat(target.getUsername(), equalTo("some username"));
-        assertThat(target.getPassword(), equalTo(Secret.fromString("some password")));
-        assertThat(target.getDatabase(), equalTo("some_database"));
-        assertThat(target.getRetentionPolicy(), equalTo("some_policy"));
-        assertThat(target.isJobScheduledTimeAsPointsTimestamp(), equalTo(true));
-        assertThat(target.isExposeExceptions(), equalTo(true));
-        assertThat(target.isUsingJenkinsProxy(), equalTo(true));
-        assertThat(target.isGlobalListener(), equalTo(true));
-        assertThat(target.getGlobalListenerFilter(), equalTo("some filter"));
+        assertThat(target.getDescription(), is("some description"));
+        assertThat(target.getUrl(), is("http://some/url"));
+        assertThat(target.getUsername(), is("some username"));
+        assertThat(target.getPassword(), is(Secret.fromString("some password")));
+        assertThat(target.getDatabase(), is("some_database"));
+        assertThat(target.getRetentionPolicy(), is("some_policy"));
+        assertThat(target.isJobScheduledTimeAsPointsTimestamp(), is(true));
+        assertThat(target.isExposeExceptions(), is(true));
+        assertThat(target.isUsingJenkinsProxy(), is(true));
+        assertThat(target.isGlobalListener(), is(true));
+        assertThat(target.getGlobalListenerFilter(), is("some filter"));
     }
 
     @Test
