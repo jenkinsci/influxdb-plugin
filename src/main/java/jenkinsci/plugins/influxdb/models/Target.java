@@ -70,8 +70,8 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = Secret.fromString(password);
+    public void setPassword(Secret password) {
+        this.password = password;
     }
 
     public String getDatabase() {
