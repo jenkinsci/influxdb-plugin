@@ -50,6 +50,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private final TaskListener listener;
 
     private String sonarBuildLink = null;
+    private String token = null;
 
     public SonarQubePointGenerator(MeasurementRenderer<Run<?, ?>> measurementRenderer, String customPrefix,
             Run<?, ?> build, long timestamp, TaskListener listener, boolean replaceDashWithUnderscore) {
@@ -77,15 +78,17 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             String url = "";
             try {
                 url = build.getEnvironment(listener).get("SONAR_HOST_URL");
-                String logMessage = "[InfluxDB Plugin] INFO: Using SonarQube host URL found in environment variable SONAR_HOST_URL";
-                listener.getLogger().println(logMessage);
             } catch (InterruptedException | IOException e) {
                 // handle
             }
             String sonarServer;
             if (url != null && !url.isEmpty()) {
                 sonarServer = url;
+                String logMessage = "[InfluxDB Plugin] INFO: Using SonarQube host URL found in environment variable SONAR_HOST_URL.";
+                listener.getLogger().println(logMessage);
             } else {
+                String logMessage = "[InfluxDB Plugin] INFO: No SonarQube host URL found in environment variable SONAR_HOST_URL. Using build log instead.";
+                listener.getLogger().println(logMessage);
                 if (sonarBuildLink.indexOf("/dashboard?id=" + sonarProjectName) > 0) {
                     sonarServer = sonarBuildLink.substring(0,
                             sonarBuildLink.indexOf("/dashboard?id=" + sonarProjectName));
@@ -98,6 +101,19 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             sonarMetricsUrl = sonarServer + SONAR_METRICS_BASE_URL + sonarProjectName;
         } catch (URISyntaxException e) {
             //
+        }
+
+        try {
+            token = build.getEnvironment(listener).get("SONAR_AUTH_TOKEN");
+            if (token != null) {
+                String logMessage = "[InfluxDB Plugin] INFO: Using SonarQube auth token found in environment variable SONAR_AUTH_TOKEN";
+                listener.getLogger().println(logMessage);
+            } else {
+                String logMessage = "[InfluxDB Plugin] WARNING: No SonarQube auth token found in environment variable SONAR_AUTH_TOKEN. Depending on access rights, this might result in a HTTP/401.";
+                listener.getLogger().println(logMessage);
+            }
+        } catch (InterruptedException | IOException e) {
+            // handle
         }
     }
 
@@ -127,19 +143,9 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                 .url(url)
                 .header("Accept", "application/json");
 
-        try {
-            String token = build.getEnvironment(listener).get("SONAR_AUTH_TOKEN");
-            if (token != null) {
-                String logMessage = "[InfluxDB Plugin] INFO: Using SonarQube auth token found in environment variable SONAR_AUTH_TOKEN";
-                listener.getLogger().println(logMessage);
-                String credential = Credentials.basic(token, "", StandardCharsets.UTF_8);
-                requestBuilder.header("Authorization", credential);
-            } else {
-                String logMessage = "[InfluxDB Plugin] WARNING: No SonarQube auth token found in environment variable SONAR_AUTH_TOKEN. Depending on access rights, this might result in a HTTP/401.";
-                listener.getLogger().println(logMessage);
-            }
-        } catch (InterruptedException | IOException e) {
-            // handle
+        if (token != null) {
+            String credential = Credentials.basic(token, "", StandardCharsets.UTF_8);
+            requestBuilder.header("Authorization", credential);
         }
 
         try (Response response = httpClient.newCall(requestBuilder.build()).execute()) {
