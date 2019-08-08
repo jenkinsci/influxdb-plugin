@@ -49,6 +49,8 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private final String customPrefix;
     private final TaskListener listener;
 
+    private String sonarBuildLink = null;
+
     public SonarQubePointGenerator(MeasurementRenderer<Run<?, ?>> measurementRenderer, String customPrefix,
             Run<?, ?> build, long timestamp, TaskListener listener, boolean replaceDashWithUnderscore) {
         super(measurementRenderer, timestamp, replaceDashWithUnderscore);
@@ -58,13 +60,9 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     }
 
     public boolean hasReport() {
-        String sonarBuildLink = null;
         try {
             sonarBuildLink = getSonarProjectURLFromBuildLogs(build);
-            if (!StringUtils.isEmpty(sonarBuildLink)) {
-                setSonarDetails(sonarBuildLink);
-                return true;
-            }
+            return !StringUtils.isEmpty(sonarBuildLink);
         } catch (IOException e) {
             //
         }
@@ -104,6 +102,8 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     }
 
     public Point[] generate() {
+        setSonarDetails(sonarBuildLink);
+
         Point point = null;
         try {
             point = buildPoint(measurementName("sonarqube_data"), customPrefix, build)
