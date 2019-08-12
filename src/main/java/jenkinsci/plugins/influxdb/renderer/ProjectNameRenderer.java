@@ -34,6 +34,6 @@ public class ProjectNameRenderer implements MeasurementRenderer<Run<?, ?>> {
 
     private String measurementName(String measurement) {
         // InfluxDB discourages "-" in measurement names.
-        return measurement.replaceAll("-", "_");
+        return measurement.replace('-', '_');
     }
 }
