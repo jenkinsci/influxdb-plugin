@@ -2,6 +2,7 @@ package jenkinsci.plugins.influxdb;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 import org.jenkinsci.Symbol;
 import hudson.util.ListBoxModel;
@@ -44,6 +45,7 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
         targets.removeIf(target -> target.getDescription().equals(targetDescription));
     }
 
+    @Nonnull
     public Target[] getTargets() {
         return targets.toArray(new Target[0]);
     }

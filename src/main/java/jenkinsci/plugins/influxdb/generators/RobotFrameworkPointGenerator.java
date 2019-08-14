@@ -135,18 +135,18 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     }
 
     private static final class RobotTagResult {
-        protected final String name;
 
-        protected RobotTagResult(String name) {
+        private final String name;
+        private final List<String> testCases = new ArrayList<>();
+        private int failed = 0;
+        private int passed = 0;
+        private int criticalFailed = 0;
+        private int criticalPassed = 0;
+        private long duration = 0;
+
+        private RobotTagResult(String name) {
             this.name = name;
         }
-
-        protected final List<String> testCases = new ArrayList<>();
-        protected int failed = 0;
-        protected int passed = 0;
-        protected int criticalFailed = 0;
-        protected int criticalPassed = 0;
-        protected long duration = 0;
     }
 
     private void markTagResult(String tag, RobotCaseResult caseResult) {

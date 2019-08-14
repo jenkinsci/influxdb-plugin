@@ -221,7 +221,7 @@ public class InfluxDbPublicationService {
         try {
             JacocoPointGenerator jacoGen = new JacocoPointGenerator(measurementRenderer, customPrefix, build, timestamp, replaceDashWithUnderscore);
             if (jacoGen.hasReport()) {
-                listener.getLogger().println("[InfluxDB Plugin] Jacoco data found. Writing to InfluxDB...");
+                listener.getLogger().println("[InfluxDB Plugin] JaCoCo data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, jacoGen, listener);
             }
         } catch (NoClassDefFoundError ignore) {
@@ -248,7 +248,7 @@ public class InfluxDbPublicationService {
 
         ChangeLogPointGenerator changeLogGen = new ChangeLogPointGenerator(measurementRenderer, customPrefix, build, timestamp, replaceDashWithUnderscore);
         if (changeLogGen.hasReport()) {
-            listener.getLogger().println("[InfluxDB Plugin] Git ChangeLog data found. Writing to InfluxDB...");
+            listener.getLogger().println("[InfluxDB Plugin] Change Log data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, changeLogGen, listener);
         } else {
             logger.log(Level.FINE, "Data source empty: Change Log");
@@ -257,7 +257,7 @@ public class InfluxDbPublicationService {
         try {
             PerfPublisherPointGenerator perfPublisherGen = new PerfPublisherPointGenerator(measurementRenderer, customPrefix, build, timestamp, replaceDashWithUnderscore);
             if (perfPublisherGen.hasReport()) {
-                listener.getLogger().println("[InfluxDB Plugin] PerfPublisher data found. Writing to InfluxDB...");
+                listener.getLogger().println("[InfluxDB Plugin] Performance Publisher data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, perfPublisherGen, listener);
             }
         } catch (NoClassDefFoundError ignore) {

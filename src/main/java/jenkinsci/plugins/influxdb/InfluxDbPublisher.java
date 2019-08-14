@@ -156,7 +156,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
         if (ipTemp == null) {
             Target[] targets = DESCRIPTOR.getTargets();
             if (targets.length > 0) {
-                //ipTemp = targets[0].getUrl() + "," + targets[0].getDatabase();
                 ipTemp = targets[0].getDescription();
             }
         }
@@ -309,7 +308,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
         long currTime = resolveTimestampForPointGenerationInNanoseconds(build);
 
         measurementName = getMeasurementNameIfNotBlankOrDefault();
-        final EnvVars env = build.getEnvironment(listener);
+        EnvVars env = build.getEnvironment(listener);
         String expandedCustomPrefix = env.expand(customPrefix);
         String expandedCustomProjectName = env.expand(customProjectName);
 
@@ -329,7 +328,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
         publicationService.perform(build, listener);
     }
 
-    private long resolveTimestampForPointGenerationInNanoseconds(final Run<?, ?> build) {
+    private long resolveTimestampForPointGenerationInNanoseconds(Run<?, ?> build) {
         long timestamp = System.currentTimeMillis();
         if (getTarget().isJobScheduledTimeAsPointsTimestamp()) {
             timestamp = build.getTimeInMillis();

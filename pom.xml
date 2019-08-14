@@ -28,7 +28,7 @@ THE SOFTWARE.
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>3.42</version>
+        <version>3.48</version>
     </parent>
 
     <artifactId>influxdb</artifactId>
@@ -37,7 +37,7 @@ THE SOFTWARE.
     <packaging>hpi</packaging>
 
     <name>InfluxDB Plugin</name>
-    <description>Plugin for pushing time series data to influxdb, inspired by https://github.com/jrajala-eficode/jenkins-ci.influxdb-plugin and http://christoph-burmeister.eu/?p=2906</description>
+    <description>Plugin for pushing time series data to InfluxDB, inspired by https://github.com/jrajala-eficode/jenkins-ci.influxdb-plugin and http://christoph-burmeister.eu/?p=2906</description>
 
     <scm>
         <connection>scm:git:ssh://github.com/jenkinsci/influxdb-plugin.git</connection>
@@ -216,7 +216,7 @@ THE SOFTWARE.
 
     </dependencies>
 
-    <!-- The current maintainers of the plugin-->
+    <!-- The current maintainers of the plugin -->
     <developers>
         <developer>
             <id>aleksisimell</id>
