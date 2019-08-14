@@ -27,22 +27,21 @@ public abstract class AbstractPointGenerator implements PointGenerator {
 
     @Override
     public Point.Builder buildPoint(String name, String customPrefix, Run<?, ?> build, long timestamp) {
-        String renderedProjectName = projectNameRenderer.render(build);
+        String projectName;
 
-        String projectTagName;
         if (this.replaceDashWithUnderscore) {
-            projectTagName = renderedProjectName;
-        } else if (customPrefix != null){
-            projectTagName = customPrefix + "_" + build.getParent().getName();
+            projectName = projectNameRenderer.render(build);
+        } else if (customPrefix != null) {
+            projectName = customPrefix + "_" + build.getParent().getName();
         } else {
-            projectTagName = build.getParent().getName();
+            projectName = build.getParent().getName();
         }
 
         String projectPath = build.getParent().getRelativeNameFrom(Jenkins.getInstance());
 
         Point.Builder builder = Point
                 .measurement(name)
-                .addField(PROJECT_NAME, renderedProjectName)
+                .addField(PROJECT_NAME, projectName)
                 .addField(PROJECT_PATH, projectPath)
                 .addField(BUILD_NUMBER, build.getNumber())
                 .time(timestamp, TimeUnit.NANOSECONDS);
@@ -50,11 +49,10 @@ public abstract class AbstractPointGenerator implements PointGenerator {
         if (customPrefix != null && !customPrefix.isEmpty())
             builder.tag(CUSTOM_PREFIX, this.replaceDashWithUnderscore ? measurementName(customPrefix) : customPrefix);
 
-        builder.tag(PROJECT_NAME, projectTagName);
+        builder.tag(PROJECT_NAME, projectName);
         builder.tag(PROJECT_PATH, projectPath);
 
         return builder;
-
     }
 
     public Point.Builder buildPoint(String name, String customPrefix, Run<?, ?> build) {
