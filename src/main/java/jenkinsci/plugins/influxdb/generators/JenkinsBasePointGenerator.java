@@ -131,11 +131,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     private String getBuildAgentName() {
         Executor executor = build.getExecutor();
-        if (executor != null) {
-            return executor.getOwner().getName();
-        } else {
-            return "";
-        }
+        return executor != null ? executor.getOwner().getName() : "";
     }
 
     private boolean hasTestResults(Run<?, ?> build) {
@@ -151,21 +147,17 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     }
 
     private int getLastSuccessfulBuild() {
-        if (build.getParent().getLastSuccessfulBuild() != null)
-            return build.getParent().getLastSuccessfulBuild().getNumber();
-        else
-            return 0;
+        Run<?, ?> lastSuccessfulBuild = build.getParent().getLastSuccessfulBuild();
+        return lastSuccessfulBuild != null ? lastSuccessfulBuild.getNumber() : 0;
     }
 
     private int getLastStableBuild() {
-        if (build.getParent().getLastStableBuild() != null)
-            return build.getParent().getLastStableBuild().getNumber();
-        else
-            return 0;
+        Run<?, ?> lastStableBuild = build.getParent().getLastStableBuild();
+        return lastStableBuild != null ? lastStableBuild.getNumber() : 0;
     }
 
-    private Properties parsePropertiesString(final String propertiesString) {
-        final Properties properties = new Properties();
+    private Properties parsePropertiesString(String propertiesString) {
+        Properties properties = new Properties();
         try {
             StringReader reader = new StringReader(propertiesString);
             properties.load(reader);
@@ -175,7 +167,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         return properties;
     }
 
-    private Map<String, String> resolveEnvParameterAndTransformToMap(final Properties properties) {
+    private Map<String, String> resolveEnvParameterAndTransformToMap(Properties properties) {
         return properties.entrySet().stream().collect(
                 Collectors.toMap(
                         e -> e.getKey().toString(),
@@ -187,11 +179,11 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         );
     }
 
-    private boolean containsEnvParameter(final String value) {
+    private boolean containsEnvParameter(String value) {
         return StringUtils.length(value) > 3 && StringUtils.contains(value, "${");
     }
 
-    private String resolveEnvParameter(final String stringValue) {
+    private String resolveEnvParameter(String stringValue) {
         try {
             EnvVars envVars = build.getEnvironment(listener);
             return StrSubstitutor.replace(stringValue, envVars);

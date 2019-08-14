@@ -22,7 +22,7 @@ public class ProjectNameRenderer implements MeasurementRenderer<Run<?, ?>> {
         return measurementName(projectName(customPrefix, customProjectName, input));
     }
 
-    protected String projectName(String prefix, String projectName, Run<?, ?> build) {
+    private String projectName(String prefix, String projectName, Run<?, ?> build) {
         if (projectName == null) {
             projectName = StringUtils.trimToNull(build.getParent().getName());
         }
@@ -32,8 +32,8 @@ public class ProjectNameRenderer implements MeasurementRenderer<Run<?, ?>> {
                 .collect(Collectors.joining("_"));
     }
 
-    protected String measurementName(String measurement) {
-        // InfluxDB disallows "-" in measurement names.
-        return measurement.replaceAll("-", "_");
+    private String measurementName(String measurement) {
+        // InfluxDB discourages "-" in measurement names.
+        return measurement.replace('-', '_');
     }
 }
