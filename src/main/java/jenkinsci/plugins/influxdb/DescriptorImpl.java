@@ -19,7 +19,7 @@ import net.sf.json.JSONObject;
 @Symbol("influxDbPublisher")
 public final class DescriptorImpl extends BuildStepDescriptor<Publisher> implements ModelObject, java.io.Serializable {
 
-    private static final String DISPLAY_NAME = "Publish build data to InfluxDB";
+    private static final String DISPLAY_NAME = "Publish build data to InfluxDB.";
     private List<Target> targets = new CopyOnWriteArrayList<>();
 
     public DescriptorImpl() {

@@ -43,7 +43,7 @@ public class InfluxDbPublisherTest {
         PowerMockito.whenNew(DescriptorImpl.class).withNoArguments().thenReturn(descriptorMock);
 
         try {
-            new InfluxDbPublisher().perform(build, workspace, launcher, listener);
+            new InfluxDbPublisher("").perform(build, workspace, launcher, listener);
         } catch (NullPointerException e) {
             Assert.fail("NullPointerException raised");
         }
