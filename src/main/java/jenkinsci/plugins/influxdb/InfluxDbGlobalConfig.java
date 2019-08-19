@@ -57,7 +57,7 @@ public class InfluxDbGlobalConfig extends GlobalConfiguration {
 
     @Override
     public boolean configure(StaplerRequest req, JSONObject formData) {
-        targets.clear();
+        targets = new CopyOnWriteArrayList<>();
         targets.addAll(req.bindJSONToList(Target.class, formData.get("targets")));
         save();
         return true;
