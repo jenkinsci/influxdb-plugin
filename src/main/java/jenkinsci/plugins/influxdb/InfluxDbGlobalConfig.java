@@ -37,6 +37,7 @@ public class InfluxDbGlobalConfig extends GlobalConfiguration {
         save();
     }
 
+    @SuppressWarnings("deprecation")
     @Initializer(after = InitMilestone.JOB_LOADED)
     public void migrateTargets() {
         if (targetsMigrated) {
@@ -45,8 +46,8 @@ public class InfluxDbGlobalConfig extends GlobalConfiguration {
         Optional<DescriptorImpl> optionalDescriptor = ExtensionList.lookup(DescriptorImpl.class).stream().findFirst();
 
         optionalDescriptor.ifPresent(publisher -> {
-            if (publisher.getTargets().length > 0) {
-                this.targets = Arrays.asList(publisher.getTargets());
+            if (publisher.getDeprecatedTargets().length > 0) {
+                this.targets = Arrays.asList(publisher.getDeprecatedTargets());
                 save();
             }
             publisher.removeDeprecatedTargets();
@@ -69,5 +70,23 @@ public class InfluxDbGlobalConfig extends GlobalConfiguration {
             model.add(target.getDescription());
         }
         return model;
+    }
+
+    /**
+     * Add target to list of targets
+     *
+     * @param target Target to add
+     */
+    public void addTarget(Target target) {
+        targets.add(target);
+    }
+
+    /**
+     * Remove target from list of targets
+     *
+     * @param targetDescription Target description of target to remove.
+     */
+    public void removeTarget(String targetDescription) {
+        targets.removeIf(target -> target.getDescription().equals(targetDescription));
     }
 }

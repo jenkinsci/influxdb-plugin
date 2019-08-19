@@ -22,37 +22,33 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
     private static final String DISPLAY_NAME = "Publish build data to InfluxDB.";
     private List<Target> targets = new CopyOnWriteArrayList<>();
 
-    DescriptorImpl() {
+    public DescriptorImpl() {
         super(InfluxDbPublisher.class);
         load();
     }
 
-    /**
-     * Add target to list of targets
-     *
-     * @param target Target to add
-     */
     public void addTarget(Target target) {
-        targets.add(target);
+        InfluxDbGlobalConfig.getInstance().addTarget(target);
     }
 
-    /**
-     * Remove target from list of targets
-     *
-     * @param targetDescription Target description of target to remove.
-     */
     public void removeTarget(String targetDescription) {
-        targets.removeIf(target -> target.getDescription().equals(targetDescription));
+        InfluxDbGlobalConfig.getInstance().removeTarget(targetDescription);
     }
 
     @Nonnull
-    public Target[] getTargets() {
+    @Deprecated
+    public Target[] getDeprecatedTargets() {
         return targets.toArray(new Target[0]);
     }
 
     @DataBoundSetter
-    public void setTargets(List<Target> targets) {
+    @Deprecated
+    public void setDeprecatedTargets(List<Target> targets) {
         this.targets = targets;
+    }
+
+    public Target[] getTargets() {
+        return InfluxDbGlobalConfig.getInstance().getTargets();
     }
 
     @Nonnull
@@ -76,7 +72,7 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
 
     public ListBoxModel doFillSelectedTargetItems() {
         ListBoxModel model = new ListBoxModel();
-        for (Target target : targets) {
+        for (Target target : getTargets()) {
             model.add(target.getDescription());
         }
         return model;

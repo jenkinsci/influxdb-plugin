@@ -6,8 +6,6 @@ import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import hudson.tasks.BuildStepDescriptor;
-import hudson.tasks.Publisher;
 import hudson.util.ListBoxModel;
 import jenkinsci.plugins.influxdb.models.Target;
 import net.sf.json.JSONObject;
@@ -40,15 +38,15 @@ public class InfluxDbStep extends Step {
     private String measurementName;
     private boolean replaceDashWithUnderscore;
 
-    private static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
-
+    @Extension(optional = true)
+    public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
     @DataBoundConstructor
-    public InfluxDbStep(String selectedTarget, Map<String, Object> customData, Map<String, Map<String, Object>> customDataMap, String customPrefix) {
+    public InfluxDbStep() {}
+
+//    @DataBoundConstructor
+    public InfluxDbStep(String selectedTarget) {
         this.selectedTarget = selectedTarget;
-        this.customData = customData;
-        this.customDataMap = customDataMap;
-        this.customPrefix = customPrefix;
     }
 
     public String getSelectedTarget() {
@@ -187,19 +185,15 @@ public class InfluxDbStep extends Step {
 
         @Nonnull
         public Target[] getTargets() {
-            return targets.toArray(new Target[0]);
-        }
-
-        @DataBoundSetter
-        public void setTargets(List<Target> targets) {
-            this.targets = targets;
+            return InfluxDbGlobalConfig.getInstance().getTargets();
         }
 
         public void addTarget(Target target) {
-            targets.add(target);
+            InfluxDbGlobalConfig.getInstance().addTarget(target);
         }
+
         public void removeTarget(String targetDescription) {
-            targets.removeIf(target -> target.getDescription().equals(targetDescription));
+            InfluxDbGlobalConfig.getInstance().removeTarget(targetDescription);
         }
 
         @Override
@@ -227,7 +221,7 @@ public class InfluxDbStep extends Step {
 
         public ListBoxModel doFillSelectedTargetItems() {
             ListBoxModel model = new ListBoxModel();
-            for (Target target : targets) {
+            for (Target target : getTargets()) {
                 model.add(target.getDescription());
             }
             return model;
