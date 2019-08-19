@@ -22,7 +22,7 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
     private static final String DISPLAY_NAME = "Publish build data to InfluxDB.";
     private List<Target> targets = new CopyOnWriteArrayList<>();
 
-    public DescriptorImpl() {
+    DescriptorImpl() {
         super(InfluxDbPublisher.class);
         load();
     }
@@ -55,6 +55,7 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
         this.targets = targets;
     }
 
+    @Nonnull
     @Override
     public String getDisplayName() {
         return DISPLAY_NAME;
@@ -79,5 +80,9 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
             model.add(target.getDescription());
         }
         return model;
+    }
+
+    void removeDeprecatedTargets() {
+        this.targets = new CopyOnWriteArrayList<>();
     }
 }
