@@ -23,10 +23,10 @@ import java.util.Set;
 public class InfluxDbStep extends Step {
 
     private String selectedTarget;
-    private String customProjectName;
-    private String customPrefix;
-    private String jenkinsEnvParameterField;
-    private String jenkinsEnvParameterTag;
+    private String customProjectName = "";
+    private String customPrefix = "";
+    private String jenkinsEnvParameterField = "";
+    private String jenkinsEnvParameterTag = "";
     private Map<String, Object> customData;
     private Map<String, String> customDataTags;
     private Map<String, Map<String, Object>> customDataMap;
@@ -37,10 +37,9 @@ public class InfluxDbStep extends Step {
     @Extension(optional = true)
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
-    @DataBoundConstructor
     public InfluxDbStep() {}
 
-//    @DataBoundConstructor
+    @DataBoundConstructor
     public InfluxDbStep(String selectedTarget) {
         this.selectedTarget = selectedTarget;
     }
@@ -56,7 +55,6 @@ public class InfluxDbStep extends Step {
         return ipTemp;
     }
 
-    @DataBoundSetter
     public void setSelectedTarget(String target) {
         Objects.requireNonNull(target);
         this.selectedTarget = target;
@@ -168,7 +166,6 @@ public class InfluxDbStep extends Step {
     public StepExecution start(StepContext context) throws Exception {
         return new InfluxDbStepExecution(this, context);
     }
-
 
     @Extension
     public static final class DescriptorImpl extends StepDescriptor {
