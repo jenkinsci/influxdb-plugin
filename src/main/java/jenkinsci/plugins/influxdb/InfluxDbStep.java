@@ -8,21 +8,17 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.util.ListBoxModel;
 import jenkinsci.plugins.influxdb.models.Target;
-import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.workflow.steps.Step;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.jenkinsci.plugins.workflow.steps.StepExecution;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
-import org.kohsuke.stapler.StaplerRequest;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class InfluxDbStep extends Step {
 
@@ -177,8 +173,6 @@ public class InfluxDbStep extends Step {
     @Extension
     public static final class DescriptorImpl extends StepDescriptor {
 
-        private List<Target> targets = new CopyOnWriteArrayList<>();
-
         public DescriptorImpl() {
             load();
         }
@@ -198,7 +192,7 @@ public class InfluxDbStep extends Step {
 
         @Override
         public String getFunctionName() {
-            return "influxdb";
+            return "influxDbPublisher";
         }
 
         @Override
@@ -209,14 +203,6 @@ public class InfluxDbStep extends Step {
         @Override
         public Set<? extends Class<?>> getRequiredContext() {
             return ImmutableSet.of(Run.class, FilePath.class, Launcher.class, TaskListener.class);
-        }
-
-        @Override
-        public boolean configure(StaplerRequest req, JSONObject formData) {
-            targets.clear();
-            targets.addAll(req.bindJSONToList(Target.class, formData.get("targets")));
-            save();
-            return true;
         }
 
         public ListBoxModel doFillSelectedTargetItems() {

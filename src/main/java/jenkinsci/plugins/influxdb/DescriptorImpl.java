@@ -7,16 +7,14 @@ import javax.annotation.Nonnull;
 import org.jenkinsci.Symbol;
 import hudson.util.ListBoxModel;
 import org.kohsuke.stapler.DataBoundSetter;
-import org.kohsuke.stapler.StaplerRequest;
 
 import jenkinsci.plugins.influxdb.models.Target;
 import hudson.model.AbstractProject;
 import hudson.model.ModelObject;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Publisher;
-import net.sf.json.JSONObject;
 
-@Symbol("influxDbPublisher")
+//@Symbol("influxDbPublisher")
 public final class DescriptorImpl extends BuildStepDescriptor<Publisher> implements ModelObject, java.io.Serializable {
 
     private static final String DISPLAY_NAME = "Publish build data to InfluxDB.";
@@ -59,14 +57,6 @@ public final class DescriptorImpl extends BuildStepDescriptor<Publisher> impleme
 
     @Override
     public boolean isApplicable(Class<? extends AbstractProject> jobType) {
-        return true;
-    }
-
-    @Override
-    public boolean configure(StaplerRequest req, JSONObject formData) {
-        targets.clear();
-        targets.addAll(req.bindJSONToList(Target.class, formData.get("targets")));
-        save();
         return true;
     }
 
