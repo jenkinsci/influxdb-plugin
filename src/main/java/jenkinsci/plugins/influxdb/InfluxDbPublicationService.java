@@ -242,7 +242,7 @@ public class InfluxDbPublicationService {
         SonarQubePointGenerator sonarGen = new SonarQubePointGenerator(measurementRenderer, customPrefix, build, timestamp, listener, replaceDashWithUnderscore);
         if (sonarGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] SonarQube data found. Writing to InfluxDB...");
-
+            sonarGen.setEnv(env);
             addPoints(pointsToWrite, sonarGen, listener);
         } else {
             logger.log(Level.FINE, "Plugin skipped: SonarQube");
