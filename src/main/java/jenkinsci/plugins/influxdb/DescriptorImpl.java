@@ -4,7 +4,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 
-import org.jenkinsci.Symbol;
 import hudson.util.ListBoxModel;
 import org.kohsuke.stapler.DataBoundSetter;
 
@@ -14,7 +13,6 @@ import hudson.model.ModelObject;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Publisher;
 
-//@Symbol("influxDbPublisher")
 public final class DescriptorImpl extends BuildStepDescriptor<Publisher> implements ModelObject, java.io.Serializable {
 
     private static final String DISPLAY_NAME = "Publish build data to InfluxDB.";

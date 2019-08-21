@@ -149,27 +149,9 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
     public InfluxDbPublisher() {
     }
 
-//    @DataBoundConstructor
     public InfluxDbPublisher(String target) {
         this.selectedTarget = target;
     }
-
-//    public InfluxDbPublisher(String target, String customProjectName, String customPrefix, String jenkinsEnvParameterField,
-//                             String jenkinsEnvParameterTag, Map<String, Object> customData, Map<String, String> customDataTags,
-//                             Map<String, Map<String, Object>> customDataMap, Map<String, Map<String, String>> customDataMapTags,
-//                             String measurementName, boolean replaceDashWithUnderscore) {
-//        this.selectedTarget = target;
-//        this.customProjectName = customProjectName;
-//        this.customPrefix = customPrefix;
-//        this.jenkinsEnvParameterField = jenkinsEnvParameterField;
-//        this.jenkinsEnvParameterTag = jenkinsEnvParameterTag;
-//        this.customData = customData;
-//        this.customDataTags = customDataTags;
-//        this.customDataMap = customDataMap;
-//        this.customDataMapTags = customDataMapTags;
-//        this.measurementName = measurementName;
-//        this.replaceDashWithUnderscore = replaceDashWithUnderscore;
-//    }
 
     public String getSelectedTarget() {
         String ipTemp = selectedTarget;
