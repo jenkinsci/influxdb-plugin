@@ -143,6 +143,8 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
      */
     private boolean replaceDashWithUnderscore;
 
+    private EnvVars env;
+
     @DataBoundConstructor
     public InfluxDbPublisher() {
     }
@@ -292,6 +294,10 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
         return null;
     }
 
+    public void setEnv(EnvVars env) {
+        this.env = env;
+    }
+
     //@Override
     public boolean prebuild(Run<?, ?> build, TaskListener listener) {
         return true;
@@ -326,7 +332,10 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
         long currTime = resolveTimestampForPointGenerationInNanoseconds(build);
 
         measurementName = getMeasurementNameIfNotBlankOrDefault();
-        EnvVars env = build.getEnvironment(listener);
+        if (env == null) {
+            env = build.getEnvironment(listener);
+        }
+
         String expandedCustomPrefix = env.expand(customPrefix);
         String expandedCustomProjectName = env.expand(customProjectName);
 
@@ -343,7 +352,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
                 replaceDashWithUnderscore);
 
         // Publishes the metrics
-        publicationService.perform(build, listener);
+        publicationService.perform(build, listener, env);
     }
 
     private long resolveTimestampForPointGenerationInNanoseconds(Run<?, ?> build) {

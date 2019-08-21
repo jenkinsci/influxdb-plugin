@@ -1,5 +1,6 @@
 package jenkinsci.plugins.influxdb;
 
+import hudson.EnvVars;
 import hudson.ProxyConfiguration;
 import hudson.model.Run;
 import hudson.model.TaskListener;
@@ -168,7 +169,7 @@ public class InfluxDbPublicationService {
         this.replaceDashWithUnderscore = replaceDashWithUnderscore;
     }
 
-    public void perform(Run<?, ?> build, TaskListener listener) {
+    public void perform(Run<?, ?> build, TaskListener listener, EnvVars env) {
         // Logging
         listener.getLogger().println("[InfluxDB Plugin] Collecting data for publication in InfluxDB...");
 
@@ -241,6 +242,7 @@ public class InfluxDbPublicationService {
         SonarQubePointGenerator sonarGen = new SonarQubePointGenerator(measurementRenderer, customPrefix, build, timestamp, listener, replaceDashWithUnderscore);
         if (sonarGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] SonarQube data found. Writing to InfluxDB...");
+
             addPoints(pointsToWrite, sonarGen, listener);
         } else {
             logger.log(Level.FINE, "Plugin skipped: SonarQube");
