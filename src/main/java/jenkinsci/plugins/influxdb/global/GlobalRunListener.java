@@ -1,5 +1,6 @@
 package jenkinsci.plugins.influxdb.global;
 
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.model.AbstractProject;
 import hudson.model.Job;
@@ -13,6 +14,7 @@ import jenkinsci.plugins.influxdb.models.Target;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -56,8 +58,16 @@ public class GlobalRunListener extends RunListener<Run<?, ?>> {
                     "jenkins_data",
                     true
             );
+
+            EnvVars env;
+            try {
+                env = build.getEnvironment(listener);
+            } catch (IOException | InterruptedException e) {
+                env = new EnvVars();
+            }
+
             // Publication
-            publicationService.perform(build, listener);
+            publicationService.perform(build, listener, env);
         }
     }
 

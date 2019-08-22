@@ -1,5 +1,5 @@
 unclassified:
-  influxDbPublisher:
+  influxDbGlobalConfig:
     targets:
     - database: "some_database"
       description: "some description"

@@ -24,7 +24,7 @@ public class ConfigurationAsCodeTest {
 
     @Test
     public void should_support_jcasc_from_yaml() throws Exception {
-        DescriptorImpl globalConfig = j.jenkins.getDescriptorByType(DescriptorImpl.class);
+        InfluxDbGlobalConfig globalConfig = InfluxDbGlobalConfig.getInstance();
 
         String yamlUrl = getClass().getResource(getClass().getSimpleName() + "/configuration-as-code.yml").toString();
         ConfigurationAsCode.get().configure(yamlUrl);
@@ -47,7 +47,7 @@ public class ConfigurationAsCodeTest {
 
     @Test
     public void should_support_jcasc_to_yaml() throws Exception {
-        DescriptorImpl globalConfig = j.jenkins.getDescriptorByType(DescriptorImpl.class);
+        InfluxDbGlobalConfig globalConfig = InfluxDbGlobalConfig.getInstance();
 
         Target target = new Target();
         target.setDescription("some description");

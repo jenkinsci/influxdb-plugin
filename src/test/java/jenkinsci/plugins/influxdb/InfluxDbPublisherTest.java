@@ -13,12 +13,14 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
 
 @RunWith(PowerMockRunner.class)
+@PowerMockIgnore({"com.sun.org.apache.xerces.", "javax.xml.", "org.xml.", "org.w3c.", "javax.activation.*"})
 @PrepareForTest(InfluxDbPublisher.class)
 public class InfluxDbPublisherTest {
 
@@ -38,12 +40,12 @@ public class InfluxDbPublisherTest {
         exception.expect(RuntimeException.class);
         exception.expectMessage("Target was null!");
 
-        DescriptorImpl descriptorMock = Mockito.mock(DescriptorImpl.class);
+        InfluxDbPublisher.DescriptorImpl descriptorMock = Mockito.mock(InfluxDbPublisher.DescriptorImpl.class);
         Mockito.when(descriptorMock.getTargets()).thenReturn(new Target[0]);
-        PowerMockito.whenNew(DescriptorImpl.class).withNoArguments().thenReturn(descriptorMock);
+        PowerMockito.whenNew(InfluxDbPublisher.DescriptorImpl.class).withNoArguments().thenReturn(descriptorMock);
 
         try {
-            new InfluxDbPublisher().perform(build, workspace, launcher, listener);
+            new InfluxDbPublisher("").perform(build, workspace, launcher, listener);
         } catch (NullPointerException e) {
             Assert.fail("NullPointerException raised");
         }

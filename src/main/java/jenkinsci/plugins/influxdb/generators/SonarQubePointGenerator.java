@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.lang.InterruptedException;
 
+import hudson.EnvVars;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -52,6 +53,8 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private String sonarBuildLink = null;
     private String token = null;
 
+    private EnvVars env = null;
+
     public SonarQubePointGenerator(MeasurementRenderer<Run<?, ?>> measurementRenderer, String customPrefix,
             Run<?, ?> build, long timestamp, TaskListener listener, boolean replaceDashWithUnderscore) {
         super(measurementRenderer, timestamp, replaceDashWithUnderscore);
@@ -71,16 +74,16 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         return false;
     }
 
+    public void setEnv(EnvVars env) {
+        this.env = env;
+    }
+
     private void setSonarDetails(String sonarBuildLink) {
         try {
             String sonarProjectName = getSonarProjectName(sonarBuildLink);
             // Use SONAR_HOST_URL environment variable if possible
-            String url = "";
-            try {
-                url = build.getEnvironment(listener).get("SONAR_HOST_URL");
-            } catch (InterruptedException | IOException e) {
-                // handle
-            }
+            String url = env.get("SONAR_HOST_URL");
+
             String sonarServer;
             if (url != null && !url.isEmpty()) {
                 sonarServer = url;
@@ -103,17 +106,13 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             //
         }
 
-        try {
-            token = build.getEnvironment(listener).get("SONAR_AUTH_TOKEN");
-            if (token != null) {
-                String logMessage = "[InfluxDB Plugin] INFO: Using SonarQube auth token found in environment variable SONAR_AUTH_TOKEN";
-                listener.getLogger().println(logMessage);
-            } else {
-                String logMessage = "[InfluxDB Plugin] WARNING: No SonarQube auth token found in environment variable SONAR_AUTH_TOKEN. Depending on access rights, this might result in a HTTP/401.";
-                listener.getLogger().println(logMessage);
-            }
-        } catch (InterruptedException | IOException e) {
-            // handle
+        token = env.get("SONAR_AUTH_TOKEN");
+        if (token != null) {
+            String logMessage = "[InfluxDB Plugin] INFO: Using SonarQube auth token found in environment variable SONAR_AUTH_TOKEN";
+            listener.getLogger().println(logMessage);
+        } else {
+            String logMessage = "[InfluxDB Plugin] WARNING: No SonarQube auth token found in environment variable SONAR_AUTH_TOKEN. Depending on access rights, this might result in a HTTP/401.";
+            listener.getLogger().println(logMessage);
         }
     }
 
