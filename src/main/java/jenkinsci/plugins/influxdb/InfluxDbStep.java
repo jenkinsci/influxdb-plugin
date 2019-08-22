@@ -7,6 +7,7 @@ import hudson.Launcher;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.util.ListBoxModel;
+import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.models.Target;
 import org.jenkinsci.plugins.workflow.steps.Step;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
@@ -16,6 +17,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -34,9 +36,6 @@ public class InfluxDbStep extends Step {
     private String measurementName;
     private boolean replaceDashWithUnderscore;
 
-    @Extension(optional = true)
-    public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
-
     public InfluxDbStep() {}
 
     @DataBoundConstructor
@@ -45,9 +44,9 @@ public class InfluxDbStep extends Step {
     }
 
     public String getSelectedTarget() {
-        String ipTemp = selectedTarget;
+                String ipTemp = selectedTarget;
         if (ipTemp == null) {
-            Target[] targets = DESCRIPTOR.getTargets();
+            Target[] targets = Jenkins.getInstance().getDescriptorByType(DescriptorImpl.class).getTargets();
             if (targets.length > 0) {
                 ipTemp = targets[0].getDescription();
             }
@@ -149,7 +148,7 @@ public class InfluxDbStep extends Step {
     }
 
     public Target getTarget() {
-        Target[] targets = DESCRIPTOR.getTargets();
+        Target[] targets = Jenkins.getInstance().getDescriptorByType(DescriptorImpl.class).getTargets();
         if (selectedTarget == null && targets.length > 0) {
             return targets[0];
         }
@@ -167,12 +166,8 @@ public class InfluxDbStep extends Step {
         return new InfluxDbStepExecution(this, context);
     }
 
-    @Extension
-    public static final class DescriptorImpl extends StepDescriptor {
-
-        public DescriptorImpl() {
-            load();
-        }
+    @Extension(optional = true)
+    public static final class DescriptorImpl extends StepDescriptor implements Serializable {
 
         @Nonnull
         public Target[] getTargets() {
