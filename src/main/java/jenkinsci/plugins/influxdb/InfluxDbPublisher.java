@@ -4,12 +4,15 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.EnvVars;
+import hudson.model.AbstractProject;
+import hudson.model.ModelObject;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
+import hudson.util.ListBoxModel;
 import jenkins.tasks.SimpleBuildStep;
 import jenkinsci.plugins.influxdb.models.Target;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -18,6 +21,7 @@ import org.kohsuke.stapler.DataBoundSetter;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
@@ -344,4 +348,54 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
         }
         return timestamp * 1000000;
     }
+
+    public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> implements ModelObject {
+
+        private static final String DISPLAY_NAME = "Publish build data to InfluxDB.";
+        private List<Target> targets = new CopyOnWriteArrayList<>();
+
+        public DescriptorImpl() {
+            load();
+        }
+
+        @Nonnull
+        @Deprecated
+        public Target[] getDeprecatedTargets() {
+            return targets.toArray(new Target[0]);
+        }
+
+        @DataBoundSetter
+        @Deprecated
+        public void setDeprecatedTargets(List<Target> targets) {
+            this.targets = targets;
+        }
+
+        public Target[] getTargets() {
+            return InfluxDbGlobalConfig.getInstance().getTargets();
+        }
+
+        @Nonnull
+        @Override
+        public String getDisplayName() {
+            return DISPLAY_NAME;
+        }
+
+        @Override
+        public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+            return true;
+        }
+
+        public ListBoxModel doFillSelectedTargetItems() {
+            ListBoxModel model = new ListBoxModel();
+            for (Target target : getTargets()) {
+                model.add(target.getDescription());
+            }
+            return model;
+        }
+
+        void removeDeprecatedTargets() {
+            this.targets = new CopyOnWriteArrayList<>();
+        }
+    }
+
 }

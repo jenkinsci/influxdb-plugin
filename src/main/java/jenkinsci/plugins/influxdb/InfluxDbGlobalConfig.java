@@ -43,7 +43,7 @@ public class InfluxDbGlobalConfig extends GlobalConfiguration {
         if (targetsMigrated) {
             return;
         }
-        Optional<DescriptorImpl> optionalDescriptor = ExtensionList.lookup(DescriptorImpl.class).stream().findFirst();
+        Optional<InfluxDbPublisher.DescriptorImpl> optionalDescriptor = ExtensionList.lookup(InfluxDbPublisher.DescriptorImpl.class).stream().findFirst();
 
         optionalDescriptor.ifPresent(publisher -> {
             if (publisher.getDeprecatedTargets().length > 0) {

@@ -38,9 +38,9 @@ public class InfluxDbPublisherTest {
         exception.expect(RuntimeException.class);
         exception.expectMessage("Target was null!");
 
-        DescriptorImpl descriptorMock = Mockito.mock(DescriptorImpl.class);
+        InfluxDbPublisher.DescriptorImpl descriptorMock = Mockito.mock(InfluxDbPublisher.DescriptorImpl.class);
         Mockito.when(descriptorMock.getTargets()).thenReturn(new Target[0]);
-        PowerMockito.whenNew(DescriptorImpl.class).withNoArguments().thenReturn(descriptorMock);
+        PowerMockito.whenNew(InfluxDbPublisher.DescriptorImpl.class).withNoArguments().thenReturn(descriptorMock);
 
         try {
             new InfluxDbPublisher("").perform(build, workspace, launcher, listener);
