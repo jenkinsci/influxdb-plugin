@@ -20,7 +20,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.io.File;
 
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"com.sun.org.apache.xerces.", "javax.xml.", "org.xml.", "org.w3c.", "javax.activation.*"})
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "org.w3c.*", "javax.activation.*"})
 @PrepareForTest(InfluxDbPublisher.class)
 public class InfluxDbPublisherTest {
 
