@@ -134,8 +134,6 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     private String getBuildAgentName() {
         String s = env.get("NODE_NAME");
         return s == null ? "" : s;
-//        Executor executor = build.getExecutor();
-//        return executor != null ? executor.getOwner().getName() : "";
     }
 
     private boolean hasTestResults(Run<?, ?> build) {
