@@ -52,11 +52,12 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     private final String jenkinsEnvParameterField;
     private final String jenkinsEnvParameterTag;
     private final String measurementName;
+    private EnvVars env;
 
     public JenkinsBasePointGenerator(MeasurementRenderer<Run<?, ?>> projectNameRenderer, String customPrefix,
                                      Run<?, ?> build, long timestamp, TaskListener listener,
                                      String jenkinsEnvParameterField, String jenkinsEnvParameterTag,
-                                     String measurementName, boolean replaceDashWithUnderscore) {
+                                     String measurementName, boolean replaceDashWithUnderscore, EnvVars env) {
         super(projectNameRenderer, timestamp, replaceDashWithUnderscore);
         this.build = build;
         this.customPrefix = customPrefix;
@@ -64,6 +65,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         this.jenkinsEnvParameterField = jenkinsEnvParameterField;
         this.jenkinsEnvParameterTag = jenkinsEnvParameterTag;
         this.measurementName = measurementName;
+        this.env = env;
     }
 
     public boolean hasReport() {
@@ -130,8 +132,8 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     }
 
     private String getBuildAgentName() {
-        Executor executor = build.getExecutor();
-        return executor != null ? executor.getOwner().getName() : "";
+        String s = env.get("NODE_NAME");
+        return s == null ? "" : s;
     }
 
     private boolean hasTestResults(Run<?, ?> build) {
