@@ -21,6 +21,16 @@ public class InfluxDbStepExecution extends SynchronousNonBlockingStepExecution<V
     @Override protected Void run() throws Exception {
         FilePath workspace = getContext().get(FilePath.class);
         InfluxDbPublisher publisher = new InfluxDbPublisher(step.getSelectedTarget());
+        publisher.setCustomData(step.getCustomData());
+        publisher.setCustomDataMap(step.getCustomDataMap());
+        publisher.setCustomDataMapTags(step.getCustomDataMapTags());
+        publisher.setCustomDataTags(step.getCustomDataTags());
+        publisher.setCustomPrefix(step.getCustomPrefix());
+        publisher.setCustomProjectName(step.getCustomProjectName());
+        publisher.setJenkinsEnvParameterField(step.getJenkinsEnvParameterField());
+        publisher.setJenkinsEnvParameterTag(step.getJenkinsEnvParameterTag());
+        publisher.setMeasurementName(step.getMeasurementName());
+        publisher.setReplaceDashWithUnderscore(step.getReplaceDashWithUnderscore());
         publisher.setEnv(getContext().get(EnvVars.class));
 
         publisher.perform(getContext().get(Run.class), workspace, getContext().get(Launcher.class), getContext().get(TaskListener.class));

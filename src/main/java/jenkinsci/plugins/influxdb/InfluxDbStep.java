@@ -25,10 +25,10 @@ import java.util.Set;
 public class InfluxDbStep extends Step {
 
     private String selectedTarget;
-    private String customProjectName = "";
-    private String customPrefix = "";
-    private String jenkinsEnvParameterField = "";
-    private String jenkinsEnvParameterTag = "";
+    private String customProjectName;
+    private String customPrefix;
+    private String jenkinsEnvParameterField;
+    private String jenkinsEnvParameterTag;
     private Map<String, Object> customData;
     private Map<String, String> customDataTags;
     private Map<String, Map<String, Object>> customDataMap;
