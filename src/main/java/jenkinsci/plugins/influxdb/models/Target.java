@@ -1,27 +1,32 @@
 package jenkinsci.plugins.influxdb.models;
 
+import hudson.Extension;
+import hudson.model.AbstractDescribableImpl;
+import hudson.model.Descriptor;
+import hudson.util.Secret;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-public class Target implements java.io.Serializable {
- 
-    String description;
-    String url;
-    String username;
-    String password;
-    String database;
-    String retentionPolicy;
-    boolean jobScheduledTimeAsPointsTimestamp;
-    boolean exposeExceptions;
-    boolean usingJenkinsProxy;
-    boolean globalListener;
-    String globalListenerFilter;
+public class Target extends AbstractDescribableImpl<Target> implements java.io.Serializable {
 
-    public Target(){
+    private String description;
+    private String url;
+    private String username;
+    private Secret password;
+    private String database;
+    private String retentionPolicy;
+    private boolean jobScheduledTimeAsPointsTimestamp;
+    private boolean exposeExceptions;
+    private boolean usingJenkinsProxy;
+    private boolean globalListener;
+    private String globalListenerFilter;
+
+    public Target() {
         //nop
     }
 
     @DataBoundConstructor
-    public Target(String description, String url, String username, String password, String database,
+    public Target(String description, String url, String username, Secret password, String database,
             String retentionPolicy, boolean jobScheduledTimeAsPointsTimestamp, boolean exposeExceptions,
             boolean usingJenkinsProxy, boolean globalListener, String globalListenerFilter) {
         this.description = description;
@@ -36,43 +41,43 @@ public class Target implements java.io.Serializable {
         this.globalListener = globalListener;
         this.globalListenerFilter = globalListenerFilter;
     }
- 
+
     public String getDescription() {
         return description;
     }
- 
+
     public void setDescription(String description) {
         this.description = description;
     }
- 
+
     public String getUrl() {
         return url;
     }
- 
+
     public void setUrl(String url) {
         this.url = url;
     }
- 
+
     public String getUsername() {
         return username;
     }
- 
+
     public void setUsername(String username) {
         this.username = username;
     }
- 
-    public String getPassword() {
+
+    public Secret getPassword() {
         return password;
     }
- 
-    public void setPassword(String password) {
+
+    public void setPassword(Secret password) {
         this.password = password;
     }
- 
+
     public String getDatabase() {
         return database;
     }
- 
+
     public void setDatabase(String database) {
         this.database = database;
     }
@@ -127,7 +132,14 @@ public class Target implements java.io.Serializable {
 
     @Override
     public String toString() {
-        return "[url=" + this.url + ", description=" + this.description + ", username=" + this.username
-                + ", password=*****, database=" + this.database + "]";
+        return new ToStringBuilder(this)
+                .append("description", description)
+                .append("url", url)
+                .append("username", username)
+                .append("database", database)
+                .toString();
     }
+
+    @Extension
+    public static class DescriptorImpl extends Descriptor<Target> {}
 }

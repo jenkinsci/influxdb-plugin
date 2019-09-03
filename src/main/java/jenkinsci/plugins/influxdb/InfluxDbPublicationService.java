@@ -1,18 +1,26 @@
 package jenkinsci.plugins.influxdb;
 
-import com.google.common.base.Strings;
+import hudson.EnvVars;
+import hudson.ProxyConfiguration;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import hudson.util.Secret;
+import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.generators.*;
 import jenkinsci.plugins.influxdb.models.Target;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
+import okhttp3.Credentials;
+import okhttp3.OkHttpClient;
+import org.apache.commons.lang3.StringUtils;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDB.ConsistencyLevel;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.BatchPoints;
 import org.influxdb.dto.Point;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +34,11 @@ public class InfluxDbPublicationService {
      * The logger.
      **/
     private static final Logger logger = Logger.getLogger(InfluxDbPublicationService.class.getName());
+
+    /**
+     * Shared HTTP client which can make use of connection and thread pooling.
+     */
+    private static final OkHttpClient httpClient = new OkHttpClient();
 
     /**
      * List of targets to write to
@@ -44,7 +57,6 @@ public class InfluxDbPublicationService {
      */
     private String customPrefix;
 
-
     /**
      * custom data, especially in pipelines, where additional information is calculated
      * or retrieved by Groovy functions which should be sent to InfluxDB
@@ -57,7 +69,6 @@ public class InfluxDbPublicationService {
      * inside a pipeline script
      */
     private Map<String, Object> customData;
-
 
     /**
      * custom data tags, especially in pipelines, where additional information is calculated
@@ -88,7 +99,6 @@ public class InfluxDbPublicationService {
      *       customDataMap: myCustomDataMap,
      *       customDataMapTags: myCustomDataMapTags])
      */
-
     private final Map<String, Map<String, String>> customDataMapTags;
 
     /**
@@ -159,8 +169,7 @@ public class InfluxDbPublicationService {
         this.replaceDashWithUnderscore = replaceDashWithUnderscore;
     }
 
-    public void perform(Run<?, ?> build, TaskListener listener) {
-
+    public void perform(Run<?, ?> build, TaskListener listener, EnvVars env) {
         // Logging
         listener.getLogger().println("[InfluxDB Plugin] Collecting data for publication in InfluxDB...");
 
@@ -171,7 +180,7 @@ public class InfluxDbPublicationService {
         List<Point> pointsToWrite = new ArrayList<>();
 
         // Basic metrics
-        JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build, timestamp, listener, jenkinsEnvParameterField, jenkinsEnvParameterTag, measurementName, replaceDashWithUnderscore);
+        JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build, timestamp, listener, jenkinsEnvParameterField, jenkinsEnvParameterTag, measurementName, replaceDashWithUnderscore, env);
         addPoints(pointsToWrite, jGen, listener);
 
         CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, customPrefix, build, timestamp, customData, customDataTags, measurementName, replaceDashWithUnderscore);
@@ -213,7 +222,7 @@ public class InfluxDbPublicationService {
         try {
             JacocoPointGenerator jacoGen = new JacocoPointGenerator(measurementRenderer, customPrefix, build, timestamp, replaceDashWithUnderscore);
             if (jacoGen.hasReport()) {
-                listener.getLogger().println("[InfluxDB Plugin] Jacoco data found. Writing to InfluxDB...");
+                listener.getLogger().println("[InfluxDB Plugin] JaCoCo data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, jacoGen, listener);
             }
         } catch (NoClassDefFoundError ignore) {
@@ -243,15 +252,15 @@ public class InfluxDbPublicationService {
         SonarQubePointGenerator sonarGen = new SonarQubePointGenerator(measurementRenderer, customPrefix, build, timestamp, listener, replaceDashWithUnderscore);
         if (sonarGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] SonarQube data found. Writing to InfluxDB...");
+            sonarGen.setEnv(env);
             addPoints(pointsToWrite, sonarGen, listener);
         } else {
             logger.log(Level.FINE, "Plugin skipped: SonarQube");
         }
 
-
         ChangeLogPointGenerator changeLogGen = new ChangeLogPointGenerator(measurementRenderer, customPrefix, build, timestamp, replaceDashWithUnderscore);
         if (changeLogGen.hasReport()) {
-            listener.getLogger().println("[InfluxDB Plugin] Git ChangeLog data found. Writing to InfluxDB...");
+            listener.getLogger().println("[InfluxDB Plugin] Change Log data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, changeLogGen, listener);
         } else {
             logger.log(Level.FINE, "Data source empty: Change Log");
@@ -260,30 +269,33 @@ public class InfluxDbPublicationService {
         try {
             PerfPublisherPointGenerator perfPublisherGen = new PerfPublisherPointGenerator(measurementRenderer, customPrefix, build, timestamp, replaceDashWithUnderscore);
             if (perfPublisherGen.hasReport()) {
-                listener.getLogger().println("[InfluxDB Plugin] PerfPublisher data found. Writing to InfluxDB...");
+                listener.getLogger().println("[InfluxDB Plugin] Performance Publisher data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, perfPublisherGen, listener);
             }
         } catch (NoClassDefFoundError ignore) {
             logger.log(Level.FINE, "Plugin skipped: Performance Publisher");
         }
 
-        // Writes into each selected target
-        for (Target selectedTarget : selectedTargets) {
-            // prepare a meaningful logmessage
-            String logMessage = "[InfluxDB Plugin] Publishing data to: " + selectedTarget;
-            // write to jenkins logger
+        for (Target target : selectedTargets) {
+            String logMessage = "[InfluxDB Plugin] Publishing data to: " + target;
             logger.log(Level.FINE, logMessage);
-            // write to jenkins console
             listener.getLogger().println(logMessage);
-            // connect to InfluxDB
-            InfluxDB influxDB = Strings.isNullOrEmpty(selectedTarget.getUsername()) ?
-                    InfluxDBFactory.connect(selectedTarget.getUrl()) :
-                    InfluxDBFactory.connect(selectedTarget.getUrl(), selectedTarget.getUsername(), selectedTarget.getPassword());
-            // Sending points to the target
-            writeToInflux(selectedTarget, influxDB, pointsToWrite);
+
+            URL url;
+            try {
+                url = new URL(target.getUrl());
+            } catch (MalformedURLException e) {
+                listener.getLogger().println("[InfluxDB Plugin] Skipping target due to invalid URL: " + target.getUrl());
+                continue;
+            }
+
+            OkHttpClient.Builder httpClient = createHttpClient(url, target.isUsingJenkinsProxy());
+            InfluxDB influxDB = StringUtils.isEmpty(target.getUsername()) ?
+                    InfluxDBFactory.connect(target.getUrl(), httpClient) :
+                    InfluxDBFactory.connect(target.getUrl(), target.getUsername(), Secret.toString(target.getPassword()), httpClient);
+            writeToInflux(target, influxDB, pointsToWrite);
         }
 
-        // We're done
         listener.getLogger().println("[InfluxDB Plugin] Completed.");
     }
 
@@ -293,6 +305,25 @@ public class InfluxDbPublicationService {
         } catch (Exception e) {
             listener.getLogger().println("[InfluxDB Plugin] Failed to collect data. Ignoring Exception:" + e);
         }
+    }
+
+    private OkHttpClient.Builder createHttpClient(URL url, boolean useProxy) {
+        OkHttpClient.Builder builder = httpClient.newBuilder();
+        ProxyConfiguration proxyConfig = Jenkins.getInstance().proxy;
+        if (useProxy && proxyConfig != null) {
+            builder.proxy(proxyConfig.createProxy(url.getHost()));
+            if (proxyConfig.getUserName() != null) {
+                builder.proxyAuthenticator((route, response) -> {
+                    if (response.request().header("Proxy-Authorization") != null) {
+                        return null; // Give up, we've already failed to authenticate.
+                    }
+
+                    String credential = Credentials.basic(proxyConfig.getUserName(), proxyConfig.getPassword());
+                    return response.request().newBuilder().header("Proxy-Authorization", credential).build();
+                });
+            }
+        }
+        return builder;
     }
 
     private void writeToInflux(Target target, InfluxDB influxDB, List<Point> pointsToWrite) {

@@ -10,7 +10,6 @@ import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.influxdb.dto.Point;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -20,15 +19,18 @@ import org.mockito.stubbing.Answer;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
+import static org.junit.Assert.assertThat;
+
 /**
- * TODO: add description
- *
  * @author Eugene Schava <eschava@gmail.com>
  */
 public class PerfPublisherPointGeneratorTest {
-    public static final String JOB_NAME = "master";
-    public static final int BUILD_NUMBER = 11;
-    public static final String CUSTOM_PREFIX = "test_prefix";
+
+    private static final String JOB_NAME = "master";
+    private static final int BUILD_NUMBER = 11;
+    private static final String CUSTOM_PREFIX = "test_prefix";
 
     private Run<?,?> build;
     private MeasurementRenderer<Run<?, ?>> measurementRenderer;
@@ -62,17 +64,17 @@ public class PerfPublisherPointGeneratorTest {
     }
 
     @Test
-    public void hasReportTest() {
+    public void hasReport() {
         PerfPublisherPointGenerator generator = new PerfPublisherPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, true);
-        Assert.assertFalse(generator.hasReport());
+        assertThat(generator.hasReport(), is(false));
 
         reports.addReport(new Report());
         generator = new PerfPublisherPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, true);
-        Assert.assertTrue(generator.hasReport());
+        assertThat(generator.hasReport(), is(true));
     }
 
     @Test
-    public void generateTest() {
+    public void generate() {
         Report report = new Report();
 
         hudson.plugins.PerfPublisher.Report.Test test = new hudson.plugins.PerfPublisher.Report.Test();
@@ -91,10 +93,10 @@ public class PerfPublisherPointGeneratorTest {
         reports.addReport(report);
         PerfPublisherPointGenerator generator = new PerfPublisherPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, true);
         Point[] points = generator.generate();
-        
-        Assert.assertTrue(points[0].lineProtocol().startsWith("perfpublisher_summary,prefix=test_prefix,project_name=test_prefix_master build_number=11i,number_of_executed_tests=1i"));
-        Assert.assertTrue(points[1].lineProtocol().startsWith("perfpublisher_metric,prefix=test_prefix,project_name=test_prefix_master average=50.0,best=50.0,build_number=11i,metric_name=\"metric1\",project_name=\"test_prefix_master\",project_path=\"folder/master\",worst=50.0"));
-        Assert.assertTrue(points[2].lineProtocol().startsWith("perfpublisher_test,prefix=test_prefix,project_name=test_prefix_master,test_name=test.txt build_number=11i,executed=true,project_name=\"test_prefix_master\",project_path=\"folder/master\",successful=false,test_name=\"test.txt\""));
-        Assert.assertTrue(points[3].lineProtocol().startsWith("perfpublisher_test_metric,prefix=test_prefix,project_name=test_prefix_master,test_name=test.txt build_number=11i,metric_name=\"metric1\",project_name=\"test_prefix_master\",project_path=\"folder/master\",relevant=true,test_name=\"test.txt\",unit=\"ms\",value=50.0"));
+
+        assertThat(points[0].lineProtocol(), startsWith("perfpublisher_summary,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master build_number=11i,number_of_executed_tests=1i"));
+        assertThat(points[1].lineProtocol(), startsWith("perfpublisher_metric,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master average=50.0,best=50.0,build_number=11i,metric_name=\"metric1\",project_name=\"test_prefix_master\",project_path=\"folder/master\",worst=50.0"));
+        assertThat(points[2].lineProtocol(), startsWith("perfpublisher_test,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master,test_name=test.txt build_number=11i,executed=true,project_name=\"test_prefix_master\",project_path=\"folder/master\",successful=false,test_name=\"test.txt\""));
+        assertThat(points[3].lineProtocol(), startsWith("perfpublisher_test_metric,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master,test_name=test.txt build_number=11i,metric_name=\"metric1\",project_name=\"test_prefix_master\",project_path=\"folder/master\",relevant=true,test_name=\"test.txt\",unit=\"ms\",value=50.0"));
     }
 }

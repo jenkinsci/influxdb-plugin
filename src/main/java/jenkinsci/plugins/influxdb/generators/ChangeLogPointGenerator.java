@@ -1,7 +1,6 @@
 package jenkinsci.plugins.influxdb.generators;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 import org.influxdb.dto.Point;
 
@@ -11,90 +10,85 @@ import hudson.scm.ChangeLogSet;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 
 public class ChangeLogPointGenerator extends AbstractPointGenerator {
-    
-	private static final String BUILD_DISPLAY_NAME = "display_name";
 
-	private final Run<?, ?> build;
-	private final String customPrefix;
-	
-	private StringBuilder affectedPaths;
+    private static final String BUILD_DISPLAY_NAME = "display_name";
 
-	private StringBuilder messages;
+    private final Run<?, ?> build;
+    private final String customPrefix;
 
-	private StringBuilder culprits;
+    private StringBuilder affectedPaths;
 
-	private int commitCount = 0;
+    private StringBuilder messages;
 
-	public ChangeLogPointGenerator(MeasurementRenderer<Run<?, ?>> projectNameRenderer, String customPrefix,
-			Run<?, ?> build, long timestamp, boolean replaceDashWithUnderscore) {
-		super(projectNameRenderer, timestamp, replaceDashWithUnderscore);
-		this.build = build;
-		this.customPrefix = customPrefix;
-	}
+    private StringBuilder culprits;
 
-	public boolean hasReport() {
-		if (build instanceof AbstractBuild) {
-			getChangeLog(build);
-			return (this.getCommitCount() > 0);
-		}
-		return false;
-	}
+    private int commitCount = 0;
 
-	public Point[] generate() {
-		
-		Point.Builder point = buildPoint(measurementName("changelog_data"), customPrefix, build);
+    public ChangeLogPointGenerator(MeasurementRenderer<Run<?, ?>> projectNameRenderer, String customPrefix,
+            Run<?, ?> build, long timestamp, boolean replaceDashWithUnderscore) {
+        super(projectNameRenderer, timestamp, replaceDashWithUnderscore);
+        this.build = build;
+        this.customPrefix = customPrefix;
+    }
 
-		point.addField(BUILD_DISPLAY_NAME, build.getDisplayName())
-				.addField("commit_messages", this.getMessages())
-				.addField("culprits", this.getCulprits())
-				.addField("affected_paths", this.getAffectedPaths())
-				.addField("commit_count", this.getCommitCount());
+    public boolean hasReport() {
+        if (build instanceof AbstractBuild) {
+            getChangeLog(build);
+            return (this.getCommitCount() > 0);
+        }
+        return false;
+    }
 
-		return new Point[] { point.build() };
-	}
+    public Point[] generate() {
+        Point.Builder point = buildPoint(measurementName("changelog_data"), customPrefix, build);
 
-	public void getChangeLog(Run<?, ?> run) {
-		this.affectedPaths = new StringBuilder();
+        point.addField(BUILD_DISPLAY_NAME, build.getDisplayName())
+                .addField("commit_messages", this.getMessages())
+                .addField("culprits", this.getCulprits())
+                .addField("affected_paths", this.getAffectedPaths())
+                .addField("commit_count", this.getCommitCount());
 
-		this.messages = new StringBuilder();
+        return new Point[] { point.build() };
+    }
 
-		this.culprits = new StringBuilder();
+    private void getChangeLog(Run<?, ?> run) {
+        this.affectedPaths = new StringBuilder();
 
-		AbstractBuild<?,?> abstractBuild = (AbstractBuild<?,?>) run;
-		ChangeLogSet<? extends ChangeLogSet.Entry> changeset = abstractBuild.getChangeSet();
-		Iterator<? extends ChangeLogSet.Entry> itrChangeSet = changeset.iterator();
-		while (itrChangeSet.hasNext()) {
-			ChangeLogSet.Entry str = itrChangeSet.next();
-			Collection<? extends ChangeLogSet.AffectedFile> affectedFiles = str.getAffectedFiles();
-			Iterator<? extends ChangeLogSet.AffectedFile> affectedFilesItr = affectedFiles.iterator();
-			while (affectedFilesItr.hasNext()) {
-				this.affectedPaths.append(affectedFilesItr.next().getPath());
-				this.affectedPaths.append(", ");
-			}
-			this.messages.append(str.getMsg());
-			this.messages.append(", ");
-			
-			this.culprits.append(str.getAuthor().getFullName());
-			this.culprits.append(", ");
-			
-			this.commitCount += 1;
-		}
-        
-	}
+        this.messages = new StringBuilder();
 
-	private String getMessages() {
-	    return this.messages.length() > 0 ? this.messages.substring(0, this.messages.length() - 2) : "";
-	}
+        this.culprits = new StringBuilder();
 
-	private String getCulprits() {
-		return this.culprits.length() > 0 ? this.culprits.substring(0, this.culprits.length() - 2) : "";
-	}
-	
-	private String getAffectedPaths() {
-		return this.affectedPaths.length() > 0 ? this.affectedPaths.substring(0, this.affectedPaths.length() - 2) : "";
-	}
+        AbstractBuild<?,?> abstractBuild = (AbstractBuild<?,?>) run;
+        ChangeLogSet<? extends ChangeLogSet.Entry> changeset = abstractBuild.getChangeSet();
+        for (ChangeLogSet.Entry str : changeset) {
+            Collection<? extends ChangeLogSet.AffectedFile> affectedFiles = str.getAffectedFiles();
+            for (ChangeLogSet.AffectedFile affectedFile : affectedFiles) {
+                this.affectedPaths.append(affectedFile.getPath());
+                this.affectedPaths.append(", ");
+            }
+            this.messages.append(str.getMsg());
+            this.messages.append(", ");
 
-	private int getCommitCount() {
+            this.culprits.append(str.getAuthor().getFullName());
+            this.culprits.append(", ");
+
+            this.commitCount += 1;
+        }
+    }
+
+    private String getMessages() {
+        return this.messages.length() > 0 ? this.messages.substring(0, this.messages.length() - 2) : "";
+    }
+
+    private String getCulprits() {
+        return this.culprits.length() > 0 ? this.culprits.substring(0, this.culprits.length() - 2) : "";
+    }
+
+    private String getAffectedPaths() {
+        return this.affectedPaths.length() > 0 ? this.affectedPaths.substring(0, this.affectedPaths.length() - 2) : "";
+    }
+
+    private int getCommitCount() {
         return this.commitCount;
-	}
+    }
 }

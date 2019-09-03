@@ -1,38 +1,30 @@
 package jenkinsci.plugins.influxdb;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
+import hudson.EnvVars;
+import hudson.model.AbstractProject;
+import hudson.model.ModelObject;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
-import jenkins.model.Jenkins;
+import hudson.util.ListBoxModel;
 import jenkins.tasks.SimpleBuildStep;
-import jenkinsci.plugins.influxdb.generators.*;
 import jenkinsci.plugins.influxdb.models.Target;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
-import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
-import okhttp3.*;
-import org.influxdb.InfluxDB;
-import org.influxdb.InfluxDB.ConsistencyLevel;
-import org.influxdb.InfluxDBFactory;
-import org.influxdb.dto.BatchPoints;
-import org.influxdb.dto.Point;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Level;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
-public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
+public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
 
     /** The logger. **/
     private static final Logger logger = Logger.getLogger(InfluxDbPublisher.class.getName());
@@ -141,7 +133,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
      * custom measurement name used for all measurement types
      * Overrides the default measurement names.
      * Default value is "jenkins_data"
-     * 
+     *
      * For custom data, prepends "custom_", i.e. "some_measurement"
      * becomes "custom_some_measurement".
      * Default custom name remains "jenkins_custom_data"
@@ -155,10 +147,12 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
      */
     private boolean replaceDashWithUnderscore;
 
-    @DataBoundConstructor
+    private EnvVars env;
+
     public InfluxDbPublisher() {
     }
 
+    @DataBoundConstructor
     public InfluxDbPublisher(String target) {
         this.selectedTarget = target;
     }
@@ -168,7 +162,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         if (ipTemp == null) {
             Target[] targets = DESCRIPTOR.getTargets();
             if (targets.length > 0) {
-                //ipTemp = targets[0].getUrl() + "," + targets[0].getDatabase();
                 ipTemp = targets[0].getDescription();
             }
         }
@@ -177,7 +170,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
 
     @DataBoundSetter
     public void setSelectedTarget(String target) {
-        Preconditions.checkNotNull(target);
+        Objects.requireNonNull(target);
         this.selectedTarget = target;
     }
 
@@ -256,6 +249,10 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         this.measurementName = measurementName;
     }
 
+    public String getMeasurementName() {
+        return measurementName;
+    }
+
     public boolean getReplaceDashWithUnderscore() {
         return replaceDashWithUnderscore;
     }
@@ -263,10 +260,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
     @DataBoundSetter
     public void setReplaceDashWithUnderscore(boolean replaceDashWithUnderscore) {
         this.replaceDashWithUnderscore = replaceDashWithUnderscore;
-    }
-
-    public String getMeasurementName() {
-        return measurementName;
     }
 
     private String getMeasurementNameIfNotBlankOrDefault() {
@@ -285,6 +278,10 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
             }
         }
         return null;
+    }
+
+    public void setEnv(EnvVars env) {
+        this.env = env;
     }
 
     //@Override
@@ -321,11 +318,18 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
         long currTime = resolveTimestampForPointGenerationInNanoseconds(build);
 
         measurementName = getMeasurementNameIfNotBlankOrDefault();
+        if (env == null) {
+            env = build.getEnvironment(listener);
+        }
+
+        String expandedCustomPrefix = env.expand(customPrefix);
+        String expandedCustomProjectName = env.expand(customProjectName);
+
         // Preparing the service
         InfluxDbPublicationService publicationService = new InfluxDbPublicationService(
                 Collections.singletonList(target),
-                customProjectName,
-                customPrefix,
+                expandedCustomProjectName,
+                expandedCustomPrefix,
                 customData,
                 customDataTags, customDataMapTags, customDataMap,
                 currTime,
@@ -333,36 +337,65 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep{
                 jenkinsEnvParameterTag, measurementName,
                 replaceDashWithUnderscore);
 
-        // use proxy if checked
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        if (target.isUsingJenkinsProxy()) {
-            builder.proxy(Jenkins.getInstance().proxy.createProxy(target.getUrl()));
-            if (Jenkins.getInstance().proxy.getUserName() != null) {
-                builder.proxyAuthenticator(new Authenticator() {
-                    @Override
-                    public Request authenticate(Route route, Response response) throws IOException {
-                        if (response.request().header("Proxy-Authorization") != null) {
-                            return null; // Give up, we've already failed to authenticate.
-                        }
-
-                        String credential = Credentials.basic(Jenkins.getInstance().proxy.getUserName(), Jenkins.getInstance().proxy.getPassword());
-                        return response.request().newBuilder().header("Proxy-Authorization", credential).build();
-                    }
-                });
-            }
-            builder.build();
-        }
-
         // Publishes the metrics
-        publicationService.perform(build, listener);
-
+        publicationService.perform(build, listener, env);
     }
 
-    private long resolveTimestampForPointGenerationInNanoseconds(final Run<?, ?> build) {
+    private long resolveTimestampForPointGenerationInNanoseconds(Run<?, ?> build) {
         long timestamp = System.currentTimeMillis();
         if (getTarget().isJobScheduledTimeAsPointsTimestamp()) {
             timestamp = build.getTimeInMillis();
         }
         return timestamp * 1000000;
     }
+
+    public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> implements ModelObject {
+
+        private static final String DISPLAY_NAME = "Publish build data to InfluxDB.";
+        private List<Target> targets = new CopyOnWriteArrayList<>();
+
+        public DescriptorImpl() {
+            load();
+        }
+
+        @Nonnull
+        @Deprecated
+        public Target[] getDeprecatedTargets() {
+            return targets.toArray(new Target[0]);
+        }
+
+        @DataBoundSetter
+        @Deprecated
+        public void setDeprecatedTargets(List<Target> targets) {
+            this.targets = targets;
+        }
+
+        public Target[] getTargets() {
+            return InfluxDbGlobalConfig.getInstance().getTargets();
+        }
+
+        @Nonnull
+        @Override
+        public String getDisplayName() {
+            return DISPLAY_NAME;
+        }
+
+        @Override
+        public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+            return true;
+        }
+
+        public ListBoxModel doFillSelectedTargetItems() {
+            ListBoxModel model = new ListBoxModel();
+            for (Target target : getTargets()) {
+                model.add(target.getDescription());
+            }
+            return model;
+        }
+
+        void removeDeprecatedTargets() {
+            this.targets = new CopyOnWriteArrayList<>();
+        }
+    }
+
 }

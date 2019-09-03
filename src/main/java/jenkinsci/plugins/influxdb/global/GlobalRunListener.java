@@ -1,5 +1,6 @@
 package jenkinsci.plugins.influxdb.global;
 
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.model.AbstractProject;
 import hudson.model.Job;
@@ -13,6 +14,7 @@ import jenkinsci.plugins.influxdb.models.Target;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -30,36 +32,42 @@ public class GlobalRunListener extends RunListener<Run<?, ?>> {
         String path = build.getParent().getRelativeNameFrom(Jenkins.getInstance());
         // Gets the list of targets from the configuration
         Target[] targets = InfluxDbPublisher.DESCRIPTOR.getTargets();
-        if (targets != null) {
-            // Selects the targets eligible as global listeners and which match the build path
-            List<Target> selectedTargets = new ArrayList<>();
-            for (Target target : targets) {
-                // Checks if the target matches the path to the project
-                // Skip build if it already publishes information on this target
-                if (isTargetMatchingPath(target, path) && !isPublicationInBuild(target, build)) {
-                    selectedTargets.add(target);
-                }
+        // Selects the targets eligible as global listeners and which match the build path
+        List<Target> selectedTargets = new ArrayList<>();
+        for (Target target : targets) {
+            // Checks if the target matches the path to the project
+            // Skip build if it already publishes information on this target
+            if (isTargetMatchingPath(target, path) && !isPublicationInBuild(target, build)) {
+                selectedTargets.add(target);
             }
-            // If some targets are selected
-            if (!selectedTargets.isEmpty()) {
-                // Creates the publication service
-                InfluxDbPublicationService publicationService = new InfluxDbPublicationService(
-                        selectedTargets,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        System.currentTimeMillis() * 1000000,
-                        null,
-                        null,
-                        "jenkins_data",
-                        true
-                );
-                // Publication
-                publicationService.perform(build, listener);
+        }
+        // If some targets are selected
+        if (!selectedTargets.isEmpty()) {
+            // Creates the publication service
+            InfluxDbPublicationService publicationService = new InfluxDbPublicationService(
+                    selectedTargets,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    System.currentTimeMillis() * 1000000,
+                    null,
+                    null,
+                    "jenkins_data",
+                    true
+            );
+
+            EnvVars env;
+            try {
+                env = build.getEnvironment(listener);
+            } catch (IOException | InterruptedException e) {
+                env = new EnvVars();
             }
+
+            // Publication
+            publicationService.perform(build, listener, env);
         }
     }
 

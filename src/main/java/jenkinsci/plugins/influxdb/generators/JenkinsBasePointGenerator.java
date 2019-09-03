@@ -1,23 +1,21 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import hudson.EnvVars;
 import hudson.model.Executor;
+import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.test.AbstractTestResultAction;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.influxdb.dto.Point;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
@@ -30,7 +28,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     /* BUILD_RESULT BUILD_RESULT_ORDINAL BUILD_IS_SUCCESSFUL - explanation
      * SUCCESS   0 true  - The build had no errors.
-     * UNSTABLE  1 true  - The build hadsome errors but they were not fatal. For example, some tests failed.
+     * UNSTABLE  1 true  - The build had some errors but they were not fatal. For example, some tests failed.
      * FAILURE   2 false - The build had a fatal error.
      * NOT_BUILT 3 false - The module was not built.
      * ABORTED   4 false - The build was manually aborted.
@@ -54,11 +52,12 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     private final String jenkinsEnvParameterField;
     private final String jenkinsEnvParameterTag;
     private final String measurementName;
+    private EnvVars env;
 
     public JenkinsBasePointGenerator(MeasurementRenderer<Run<?, ?>> projectNameRenderer, String customPrefix,
                                      Run<?, ?> build, long timestamp, TaskListener listener,
                                      String jenkinsEnvParameterField, String jenkinsEnvParameterTag,
-                                     String measurementName, boolean replaceDashWithUnderscore ) {
+                                     String measurementName, boolean replaceDashWithUnderscore, EnvVars env) {
         super(projectNameRenderer, timestamp, replaceDashWithUnderscore);
         this.build = build;
         this.customPrefix = customPrefix;
@@ -66,6 +65,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         this.jenkinsEnvParameterField = jenkinsEnvParameterField;
         this.jenkinsEnvParameterTag = jenkinsEnvParameterTag;
         this.measurementName = measurementName;
+        this.env = env;
     }
 
     public boolean hasReport() {
@@ -81,12 +81,13 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         // as something not predefined
         String result;
         int ordinal;
-        if (build.getResult() == null) {
+        Result buildResult = build.getResult();
+        if (buildResult == null) {
             result = "?";
             ordinal = 5;
         } else {
-            result = build.getResult().toString();
-            ordinal = build.getResult().ordinal;
+            result = buildResult.toString();
+            ordinal = buildResult.ordinal;
         }
 
         Point.Builder point = buildPoint(measurementName(measurementName), customPrefix, build);
@@ -131,12 +132,8 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     }
 
     private String getBuildAgentName() {
-        Executor executor = build.getExecutor();
-        if (executor != null) {
-            return executor.getOwner().getName();
-        } else {
-            return "";
-        }
+        String s = env.get("NODE_NAME");
+        return s == null ? "" : s;
     }
 
     private boolean hasTestResults(Run<?, ?> build) {
@@ -152,21 +149,17 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     }
 
     private int getLastSuccessfulBuild() {
-        if (build.getParent().getLastSuccessfulBuild() != null)
-            return build.getParent().getLastSuccessfulBuild().getNumber();
-        else
-            return 0;
+        Run<?, ?> lastSuccessfulBuild = build.getParent().getLastSuccessfulBuild();
+        return lastSuccessfulBuild != null ? lastSuccessfulBuild.getNumber() : 0;
     }
 
     private int getLastStableBuild() {
-        if (build.getParent().getLastStableBuild() != null)
-            return build.getParent().getLastStableBuild().getNumber();
-        else
-            return 0;
+        Run<?, ?> lastStableBuild = build.getParent().getLastStableBuild();
+        return lastStableBuild != null ? lastStableBuild.getNumber() : 0;
     }
 
-    private Properties parsePropertiesString(final String propertiesString) {
-        final Properties properties = new Properties();
+    private Properties parsePropertiesString(String propertiesString) {
+        Properties properties = new Properties();
         try {
             StringReader reader = new StringReader(propertiesString);
             properties.load(reader);
@@ -176,25 +169,23 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         return properties;
     }
 
-    private Map<String, Object> resolveEnvParameterAndTransformToMap(final Properties properties) {
-        ImmutableMap<String, String> propertiesMap = Maps.fromProperties(properties);
-        return Maps.transformValues(propertiesMap, new Function<String, Object>() {
-            @Nullable
-            @Override
-            public Object apply(@Nullable String value) {
-                if (containsEnvParameter(value)) {
-                    return resolveEnvParameter(value);
-                }
-                return value;
-            }
-        });
+    private Map<String, String> resolveEnvParameterAndTransformToMap(Properties properties) {
+        return properties.entrySet().stream().collect(
+                Collectors.toMap(
+                        e -> e.getKey().toString(),
+                        e -> {
+                            String value = e.getValue().toString();
+                            return containsEnvParameter(value) ? resolveEnvParameter(value) : value;
+                        }
+                )
+        );
     }
 
-    private boolean containsEnvParameter(final String value) {
+    private boolean containsEnvParameter(String value) {
         return StringUtils.length(value) > 3 && StringUtils.contains(value, "${");
     }
 
-    private String resolveEnvParameter(final String stringValue) {
+    private String resolveEnvParameter(String stringValue) {
         try {
             EnvVars envVars = build.getEnvironment(listener);
             return StrSubstitutor.replace(stringValue, envVars);
