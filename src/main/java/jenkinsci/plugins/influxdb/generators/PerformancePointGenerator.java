@@ -64,5 +64,4 @@ public class PerformancePointGenerator extends AbstractPointGenerator {
 
         return point;
     }
-
 }

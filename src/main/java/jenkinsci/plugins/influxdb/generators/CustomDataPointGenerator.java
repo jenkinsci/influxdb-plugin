@@ -53,5 +53,4 @@ public class CustomDataPointGenerator extends AbstractPointGenerator {
 
         return new Point[] {point};
     }
-
 }
