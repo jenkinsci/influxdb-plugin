@@ -50,12 +50,12 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     public Point[] generate() {
         RobotBuildAction robotBuildAction = build.getAction(RobotBuildAction.class);
 
-        List<Point> pointsList = new ArrayList<>();
+        List<Point> points = new ArrayList<>();
 
-        pointsList.add(generateOverviewPoint(robotBuildAction));
-        pointsList.addAll(generateSubPoints(robotBuildAction.getResult()));
+        points.add(generateOverviewPoint(robotBuildAction));
+        points.addAll(generateSubPoints(robotBuildAction.getResult()));
 
-        return pointsList.toArray(new Point[0]);
+        return points.toArray(new Point[0]);
     }
 
     private Point generateOverviewPoint(RobotBuildAction robotBuildAction) {

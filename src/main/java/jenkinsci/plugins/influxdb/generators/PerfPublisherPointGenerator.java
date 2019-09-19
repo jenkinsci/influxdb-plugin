@@ -43,17 +43,17 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
     public Point[] generate() {
         ReportContainer reports = performanceBuildAction.getReports();
 
-        List<Point> pointsList = new ArrayList<>();
+        List<Point> points = new ArrayList<>();
 
-        pointsList.add(generateSummaryPoint(reports));
-        pointsList.addAll(generateMetricsPoints(reports));
+        points.add(generateSummaryPoint(reports));
+        points.addAll(generateMetricsPoints(reports));
 
         for (Test test : reports.getTests()) {
-            pointsList.add(generateTestPoint(test));
-            pointsList.addAll(generateTestMetricsPoints(test));
+            points.add(generateTestPoint(test));
+            points.addAll(generateTestMetricsPoints(test));
         }
 
-        return pointsList.toArray(new Point[0]);
+        return points.toArray(new Point[0]);
     }
 
     private Point generateSummaryPoint(ReportContainer reports) {
@@ -97,8 +97,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
     }
 
     private List<Point> generateMetricsPoints(ReportContainer reports) {
-
-        List<Point> pointsList = new ArrayList<>();
+        List<Point> points = new ArrayList<>();
 
         for (Map.Entry<String, Double> entry : reports.getAverageValuePerMetrics().entrySet()) {
             String metricName = entry.getKey();
@@ -108,9 +107,10 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
                     .addField("worst", reports.getWorstValuePerMetrics().get(metricName))
                     .addField("best", reports.getBestValuePerMetrics().get(metricName))
                     .build();
-            pointsList.add(point);
+            points.add(point);
         }
-        return pointsList;
+
+        return points;
     }
 
     private Point generateTestPoint(Test test) {
@@ -140,7 +140,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
     }
 
     private List<Point> generateTestMetricsPoints(Test test) {
-        List<Point> pointsList = new ArrayList<>();
+        List<Point> points = new ArrayList<>();
 
         for (Map.Entry<String, Metric> entry : test.getMetrics().entrySet()) {
             String metricName = entry.getKey();
@@ -155,8 +155,9 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
                     .addField("relevant", metric.isRelevant())
                     .build();
 
-            pointsList.add(point);
+            points.add(point);
         }
-        return pointsList;
+
+        return points;
     }
 }

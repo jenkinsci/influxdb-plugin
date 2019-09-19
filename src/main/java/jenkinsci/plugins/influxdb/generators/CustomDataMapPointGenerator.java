@@ -28,7 +28,7 @@ public class CustomDataMapPointGenerator extends AbstractPointGenerator {
     }
 
     public Point[] generate() {
-        List<Point> customPoints = new ArrayList<>();
+        List<Point> points = new ArrayList<>();
 
         for (Map.Entry<String, Map<String, Object>> entry : customDataMap.entrySet()) {
             Point.Builder pointBuilder = buildPoint(measurementName(entry.getKey()), customPrefix, build)
@@ -45,9 +45,9 @@ public class CustomDataMapPointGenerator extends AbstractPointGenerator {
 
             Point point = pointBuilder.build();
 
-            customPoints.add(point);
+            points.add(point);
         }
-        return customPoints.toArray(new Point[0]);
-    }
 
+        return points.toArray(new Point[0]);
+    }
 }
