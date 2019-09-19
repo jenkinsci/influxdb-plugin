@@ -53,7 +53,7 @@ public class CustomDataPointGeneratorTest {
         assertThat(cdGen1.hasReport(), is(false));
 
         //check with empty customDataMap
-        CustomDataPointGenerator cdGen2 = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, Collections.<String, Map<String, Object>>emptyMap(), null, MEASUREMENT_NAME, true);
+        CustomDataPointGenerator cdGen2 = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, Collections.emptyMap(), null, MEASUREMENT_NAME, true);
         assertThat(cdGen2.hasReport(), is(false));
     }
 
