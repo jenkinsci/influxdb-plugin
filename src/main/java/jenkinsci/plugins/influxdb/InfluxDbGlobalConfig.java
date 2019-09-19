@@ -29,7 +29,7 @@ public class InfluxDbGlobalConfig extends GlobalConfiguration {
     }
 
     public Target[] getTargets() {
-        return this.targets.toArray(new Target[0]);
+        return targets.toArray(new Target[0]);
     }
 
     public void setTargets(List<Target> targets) {
@@ -47,7 +47,7 @@ public class InfluxDbGlobalConfig extends GlobalConfiguration {
 
         optionalDescriptor.ifPresent(publisher -> {
             if (publisher.getDeprecatedTargets().length > 0) {
-                this.targets = Arrays.asList(publisher.getDeprecatedTargets());
+                targets = Arrays.asList(publisher.getDeprecatedTargets());
                 save();
             }
             publisher.removeDeprecatedTargets();

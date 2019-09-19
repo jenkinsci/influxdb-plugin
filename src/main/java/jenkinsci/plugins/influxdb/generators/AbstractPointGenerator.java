@@ -30,7 +30,7 @@ public abstract class AbstractPointGenerator implements PointGenerator {
     public Point.Builder buildPoint(String name, String customPrefix, Run<?, ?> build, long timestamp) {
         String projectName;
 
-        if (this.replaceDashWithUnderscore) {
+        if (replaceDashWithUnderscore) {
             projectName = projectNameRenderer.render(build);
         } else if (customPrefix != null) {
             projectName = customPrefix + "_" + build.getParent().getName();
