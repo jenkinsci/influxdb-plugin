@@ -46,8 +46,9 @@ public abstract class AbstractPointGenerator implements PointGenerator {
                 .addField(BUILD_NUMBER, build.getNumber())
                 .time(timestamp, TimeUnit.NANOSECONDS);
 
-        if (customPrefix != null && !customPrefix.isEmpty())
-            builder.tag(CUSTOM_PREFIX, this.replaceDashWithUnderscore ? measurementName(customPrefix) : customPrefix);
+        if (customPrefix != null && !customPrefix.isEmpty()) {
+            builder.tag(CUSTOM_PREFIX, replaceDashWithUnderscore ? measurementName(customPrefix) : customPrefix);
+        }
 
         builder.tag(PROJECT_NAME, projectName);
         builder.tag(PROJECT_PATH, projectPath);

@@ -120,17 +120,21 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
                 .addField("successful", test.isSuccessfull())
                 .addField("executed", test.isExecuted());
 
-        if (test.getMessage() != null)
+        if (test.getMessage() != null) {
             builder.addField("message", test.getMessage());
+        }
 
-        if (test.isCompileTime())
+        if (test.isCompileTime()) {
             builder.addField("compile_time", test.getCompileTime().getMeasure());
+        }
 
-        if (test.isExecutionTime())
+        if (test.isExecutionTime()) {
             builder.addField("execution_time", test.getExecutionTime().getMeasure());
+        }
 
-        if (test.isPerformance())
+        if (test.isPerformance()) {
             builder.addField("performance", test.getPerformance().getMeasure());
+        }
 
         return builder.build();
     }
