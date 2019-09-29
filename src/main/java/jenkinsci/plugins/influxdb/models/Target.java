@@ -3,9 +3,11 @@ package jenkinsci.plugins.influxdb.models;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
+import hudson.util.FormValidation;
 import hudson.util.Secret;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 
 public class Target extends AbstractDescribableImpl<Target> implements java.io.Serializable {
 
@@ -141,5 +143,18 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
     }
 
     @Extension
-    public static class DescriptorImpl extends Descriptor<Target> {}
+    public static class DescriptorImpl extends Descriptor<Target> {
+
+        public FormValidation doCheckDescription(@QueryParameter String value) {
+            return FormValidation.validateRequired(value);
+        }
+
+        public FormValidation doCheckUrl(@QueryParameter String value) {
+            return FormValidation.validateRequired(value);
+        }
+
+        public FormValidation doCheckDatabase(@QueryParameter String value) {
+            return FormValidation.validateRequired(value);
+        }
+    }
 }
