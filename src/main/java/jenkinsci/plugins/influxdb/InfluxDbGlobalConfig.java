@@ -4,7 +4,6 @@ import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.init.InitMilestone;
 import hudson.init.Initializer;
-import hudson.util.ListBoxModel;
 import jenkins.model.GlobalConfiguration;
 import jenkinsci.plugins.influxdb.models.Target;
 import net.sf.json.JSONObject;
@@ -62,14 +61,6 @@ public class InfluxDbGlobalConfig extends GlobalConfiguration {
         targets.addAll(req.bindJSONToList(Target.class, formData.get("targets")));
         save();
         return true;
-    }
-
-    public ListBoxModel doFillSelectedTargetItems() {
-        ListBoxModel model = new ListBoxModel();
-        for (Target target : targets) {
-            model.add(target.getDescription());
-        }
-        return model;
     }
 
     /**
