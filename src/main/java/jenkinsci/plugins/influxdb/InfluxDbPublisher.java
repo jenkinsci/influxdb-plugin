@@ -1,9 +1,9 @@
 package jenkinsci.plugins.influxdb;
 
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.EnvVars;
 import hudson.model.AbstractProject;
 import hudson.model.ModelObject;
 import hudson.model.Run;
@@ -20,129 +20,139 @@ import org.kohsuke.stapler.DataBoundSetter;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Logger;
 
 public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
-
-    /** The logger. **/
-    private static final Logger logger = Logger.getLogger(InfluxDbPublisher.class.getName());
 
     public static final String DEFAULT_MEASUREMENT_NAME = "jenkins_data";
 
     @Extension(optional = true)
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
+    /**
+     * Target to write to.
+     */
     private String selectedTarget;
 
     /**
-     * custom project name, overrides the project name with the specified value
+     * Custom project name, overrides the project name with the specified value.
      */
     private String customProjectName;
 
     /**
-     * custom prefix, for example in multi branch pipelines, where every build is named
+     * Custom prefix, for example in multi-branch pipelines, where every build is named
      * after the branch built and thus you have different builds called 'master' that report
      * different metrics.
      */
     private String customPrefix;
 
     /**
-     * Jenkins parameter/s which will be added as FieldSet to measurement 'jenkins_data'.
-     * If parameter-value has a $-prefix, it will be resolved from current jenkins-job environment-properties.
-     */
-    private String jenkinsEnvParameterField;
-
-    /**
-     * Jenkins parameter/s which will be added as TagSet to  measurement 'jenkins_data'.
-     * If parameter-value has a $-prefix, it will be resolved from current jenkins-job environment-properties.
-     */
-    private String jenkinsEnvParameterTag;
-
-    /**
-     * custom data, especially in pipelines, where additional information is calculated
-     * or retrieved by Groovy functions which should be sent to InfluxDB
-     * This can easily be done by calling
-     *
-     *   def myDataMap = [:]
-     *   myDataMap['myKey'] = 'myValue'
-     *   step([$class: 'InfluxDbPublisher', target: myTarget, customPrefix: 'myPrefix', customData: myDataMap])
-     *
-     * inside a pipeline script
+     * Custom data, especially in pipelines, where additional information is calculated
+     * or retrieved by Groovy functions which should be sent to InfluxDB.
+     * <p>
+     * Inside a pipeline script this can easily be done by calling:
+     * <pre>{@code
+     * def myDataMap = [:]
+     * myDataMap['myKey'] = 'myValue'
+     * step([$class: 'InfluxDbPublisher',
+     *       target: myTarget,
+     *       customPrefix: 'myPrefix',
+     *       customData: myDataMap])
+     * }</pre>
      */
     private Map<String, Object> customData;
 
-
     /**
-     * custom data tags, especially in pipelines, where additional information is calculated
-     * or retrieved by Groovy functions which should be sent to InfluxDB
-     * This can easily be done by calling
-     *
-     *   def myDataMapTags = [:]
-     *   myDataMapTags['myKey'] = 'myValue'
-     *   step([$class: 'InfluxDbPublisher', target: myTarget, customPrefix: 'myPrefix', customData: myDataMap, customDataTags: myDataMapTags])
-     *
-     * inside a pipeline script
+     * Custom data tags, especially in pipelines, where additional information is calculated
+     * or retrieved by Groovy functions which should be sent to InfluxDB.
+     * <p>
+     * Inside a pipeline script this can easily be done by calling:
+     * <pre>{@code
+     * def myDataMapTags = [:]
+     * myDataMapTags['myKey'] = 'myValue'
+     * step([$class: 'InfluxDbPublisher',
+     *       target: myTarget,
+     *       customPrefix: 'myPrefix',
+     *       customData: myDataMap,
+     *       customDataTags: myDataMapTags])
+     * }</pre>
      */
     private Map<String, String> customDataTags;
 
     /**
-     * custom data maps, especially in pipelines, where additional information is calculated
-     * or retrieved by Groovy functions which should be sent to InfluxDB.
-     *
-     * This goes beyond customData since it allows to define multiple customData measurements
-     * where the name of the measurement is defined as the key of the customDataMap.
-     *
+     * Custom tags that are sent to all measurements defined in customDataMaps.
+     * <p>
      * Example for a pipeline script:
-     *
-     *   def myDataMap1 = [:]
-     *   def myDataMap2 = [:]
-     *   def myCustomDataMap = [:]
-     *   myDataMap1["myMap1Key1"] = 11 //first value of first map
-     *   myDataMap1["myMap1Key2"] = 12 //second value of first map
-     *   myDataMap2["myMap2Key1"] = 21 //first value of second map
-     *   myDataMap2["myMap2Key2"] = 22 //second value of second map
-     *   myCustomDataMap["series1"] = myDataMap1
-     *   myCustomDataMap["series2"] = myDataMap2
-     *   step([$class: 'InfluxDbPublisher', target: myTarget, customPrefix: 'myPrefix', customDataMap: myCustomDataMap])
-     *
-     */
-    private Map<String, Map<String, Object>> customDataMap;
-
-    /**
-     * custom tags that are sent to all measurements defined in customDataMaps.
-     *
-     * Example for a pipeline script:
-     *
+     * <pre>{@code
      * def myCustomDataMapTags = [:]
      * def myCustomTags = [:]
-     * myCustomTags["buildResult"] = currentBuild.result
-     * myCustomTags["NODE_LABELS"] = env.NODE_LABELS
-     * myCustomDataMapTags["series1"] = myCustomTags
+     * myCustomTags['buildResult'] = currentBuild.result
+     * myCustomTags['NODE_LABELS'] = env.NODE_LABELS
+     * myCustomDataMapTags['series1'] = myCustomTags
      * step([$class: 'InfluxDbPublisher',
      *       target: myTarget,
      *       customPrefix: 'myPrefix',
      *       customDataMap: myCustomDataMap,
      *       customDataMapTags: myCustomDataMapTags])
+     * }</pre>
      */
-
     private Map<String, Map<String, String>> customDataMapTags;
 
     /**
-     * custom measurement name used for all measurement types
-     * Overrides the default measurement names.
+     * Custom data maps, especially in pipelines, where additional information is calculated
+     * or retrieved by Groovy functions which should be sent to InfluxDB.
+     * <p>
+     * This goes beyond {@code customData} since it allows to define multiple {@code customData} measurements
+     * where the name of the measurement is defined as the key of the {@code customDataMap}.
+     * <p>
+     * Example for a pipeline script:
+     * <pre>{@code
+     * def myDataMap1 = [:]
+     * def myDataMap2 = [:]
+     * def myCustomDataMap = [:]
+     * myDataMap1['myMap1Key1'] = 11 // first value of first map
+     * myDataMap1['myMap1Key2'] = 12 // second value of first map
+     * myDataMap2['myMap2Key1'] = 21 // first value of second map
+     * myDataMap2['myMap2Key2'] = 22 // second value of second map
+     * myCustomDataMap['series1'] = myDataMap1
+     * myCustomDataMap['series2'] = myDataMap2
+     * step([$class: 'InfluxDbPublisher',
+     *       target: myTarget,
+     *       customPrefix: 'myPrefix',
+     *       customDataMap: myCustomDataMap])
+     * }</pre>
+     */
+    private Map<String, Map<String, Object>> customDataMap;
+
+    /**
+     * Jenkins parameter(s) which will be added as field set to measurement 'jenkins_data'.
+     * If parameter value has a $-prefix, it will be resolved from current Jenkins job environment properties.
+     */
+    private String jenkinsEnvParameterField;
+
+    /**
+     * Jenkins parameter(s) which will be added as tag set to  measurement 'jenkins_data'.
+     * If parameter value has a $-prefix, it will be resolved from current Jenkins job environment properties.
+     */
+    private String jenkinsEnvParameterTag;
+
+    /**
+     * Custom measurement name used for all measurement types,
+     * overrides the default measurement names.
      * Default value is "jenkins_data"
-     *
+     * <p>
      * For custom data, prepends "custom_", i.e. "some_measurement"
      * becomes "custom_some_measurement".
-     * Default custom name remains "jenkins_custom_data"
+     * Default custom name remains "jenkins_custom_data".
      */
     private String measurementName;
 
-
     /**
-     * Whether or not replace dashes with underscores in tags.
+     * Whether to replace dashes with underscores in tags.
      * i.e. "my-custom-tag" --> "my_custom_tag"
      */
     private boolean replaceDashWithUnderscore;
@@ -210,18 +220,13 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
         this.jenkinsEnvParameterTag = jenkinsEnvParameterTag;
     }
 
-    @DataBoundSetter
-    public void setCustomData(Map<String, Object> customData) {
-        this.customData = customData;
-    }
-
     public Map<String, Object> getCustomData() {
         return customData;
     }
 
     @DataBoundSetter
-    public void setCustomDataTags(Map<String, String> customDataTags) {
-        this.customDataTags = customDataTags;
+    public void setCustomData(Map<String, Object> customData) {
+        this.customData = customData;
     }
 
     public Map<String, String> getCustomDataTags() {
@@ -229,8 +234,8 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
     }
 
     @DataBoundSetter
-    public void setCustomDataMap(Map<String, Map<String, Object>> customDataMap) {
-        this.customDataMap = customDataMap;
+    public void setCustomDataTags(Map<String, String> customDataTags) {
+        this.customDataTags = customDataTags;
     }
 
     public Map<String, Map<String, Object>> getCustomDataMap() {
@@ -238,19 +243,26 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
     }
 
     @DataBoundSetter
+    public void setCustomDataMap(Map<String, Map<String, Object>> customDataMap) {
+        this.customDataMap = customDataMap;
+    }
+
+    public Map<String, Map<String, String>> getCustomDataMapTags() {
+        return customDataMapTags;
+    }
+
+    @DataBoundSetter
     public void setCustomDataMapTags(Map<String, Map<String, String>> customDataMapTags) {
         this.customDataMapTags = customDataMapTags;
     }
 
-    public Map<String, Map<String, String>> getCustomDataMapTags() { return customDataMapTags; }
+    public String getMeasurementName() {
+        return measurementName;
+    }
 
     @DataBoundSetter
     public void setMeasurementName(String measurementName) {
         this.measurementName = measurementName;
-    }
-
-    public String getMeasurementName() {
-        return measurementName;
     }
 
     public boolean getReplaceDashWithUnderscore() {
@@ -331,10 +343,13 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
                 expandedCustomProjectName,
                 expandedCustomPrefix,
                 customData,
-                customDataTags, customDataMapTags, customDataMap,
+                customDataTags,
+                customDataMapTags,
+                customDataMap,
                 currTime,
                 jenkinsEnvParameterField,
-                jenkinsEnvParameterTag, measurementName,
+                jenkinsEnvParameterTag,
+                measurementName,
                 replaceDashWithUnderscore);
 
         // Publishes the metrics
@@ -342,10 +357,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
     }
 
     private long resolveTimestampForPointGenerationInNanoseconds(Run<?, ?> build) {
-        long timestamp = System.currentTimeMillis();
-        if (getTarget().isJobScheduledTimeAsPointsTimestamp()) {
-            timestamp = build.getTimeInMillis();
-        }
+        long timestamp = getTarget().isJobScheduledTimeAsPointsTimestamp() ? build.getTimeInMillis() : System.currentTimeMillis();
         return timestamp * 1000000;
     }
 
@@ -397,5 +409,4 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
             this.targets = new CopyOnWriteArrayList<>();
         }
     }
-
 }
