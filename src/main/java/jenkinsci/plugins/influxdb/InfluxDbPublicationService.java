@@ -335,7 +335,7 @@ public class InfluxDbPublicationService {
         try {
             BatchPoints batchPoints = BatchPoints
                     .database(target.getDatabase())
-                    .points(pointsToWrite.toArray(new Point[0]))
+                    .points(pointsToWrite)
                     .retentionPolicy(target.getRetentionPolicy())
                     .consistency(ConsistencyLevel.ANY)
                     .build();
