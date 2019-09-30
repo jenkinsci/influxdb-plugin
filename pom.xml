@@ -51,6 +51,7 @@ THE SOFTWARE.
         <workflow.version>2.12</workflow.version>
         <spotbugs.failOnError>false</spotbugs.failOnError>
         <java.level>8</java.level>
+        <hpi.compatibleSinceVersion>2.0</hpi.compatibleSinceVersion>
     </properties>
 
     <licenses>
