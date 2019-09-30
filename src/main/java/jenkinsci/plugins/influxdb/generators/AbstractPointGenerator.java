@@ -14,10 +14,11 @@ public abstract class AbstractPointGenerator implements PointGenerator {
     public static final String PROJECT_PATH = "project_path";
     public static final String BUILD_NUMBER = "build_number";
     public static final String CUSTOM_PREFIX = "prefix";
-    public long timestamp;
-    public boolean replaceDashWithUnderscore;
 
-    private MeasurementRenderer projectNameRenderer;
+    protected final long timestamp;
+    protected final boolean replaceDashWithUnderscore;
+
+    private final MeasurementRenderer projectNameRenderer;
 
     public AbstractPointGenerator(MeasurementRenderer projectNameRenderer, long timestamp, boolean replaceDashWithUnderscore) {
         this.projectNameRenderer = Objects.requireNonNull(projectNameRenderer);
@@ -29,7 +30,7 @@ public abstract class AbstractPointGenerator implements PointGenerator {
     public Point.Builder buildPoint(String name, String customPrefix, Run<?, ?> build, long timestamp) {
         String projectName;
 
-        if (this.replaceDashWithUnderscore) {
+        if (replaceDashWithUnderscore) {
             projectName = projectNameRenderer.render(build);
         } else if (customPrefix != null) {
             projectName = customPrefix + "_" + build.getParent().getName();
@@ -46,8 +47,9 @@ public abstract class AbstractPointGenerator implements PointGenerator {
                 .addField(BUILD_NUMBER, build.getNumber())
                 .time(timestamp, TimeUnit.NANOSECONDS);
 
-        if (customPrefix != null && !customPrefix.isEmpty())
-            builder.tag(CUSTOM_PREFIX, this.replaceDashWithUnderscore ? measurementName(customPrefix) : customPrefix);
+        if (customPrefix != null && !customPrefix.isEmpty()) {
+            builder.tag(CUSTOM_PREFIX, replaceDashWithUnderscore ? measurementName(customPrefix) : customPrefix);
+        }
 
         builder.tag(PROJECT_NAME, projectName);
         builder.tag(PROJECT_PATH, projectPath);

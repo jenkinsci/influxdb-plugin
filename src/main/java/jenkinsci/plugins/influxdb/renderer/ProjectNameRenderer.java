@@ -9,8 +9,8 @@ import java.util.stream.Stream;
 
 public class ProjectNameRenderer implements MeasurementRenderer<Run<?, ?>> {
 
-    private String customPrefix;
-    private String customProjectName;
+    private final String customPrefix;
+    private final String customProjectName;
 
     public ProjectNameRenderer(String customPrefix, String customProjectName) {
         this.customPrefix = StringUtils.trimToNull(customPrefix);

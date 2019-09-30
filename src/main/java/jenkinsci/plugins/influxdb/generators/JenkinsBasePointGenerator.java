@@ -106,7 +106,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             .addField(PROJECT_LAST_STABLE, getLastStableBuild())
             .tag(BUILD_RESULT, result);
 
-        if(hasTestResults(build)) {
+        if (hasTestResults(build)) {
             point.addField(TESTS_FAILED, build.getAction(AbstractTestResultAction.class).getFailCount());
             point.addField(TESTS_SKIPPED, build.getAction(AbstractTestResultAction.class).getSkipCount());
             point.addField(TESTS_TOTAL, build.getAction(AbstractTestResultAction.class).getTotalCount());

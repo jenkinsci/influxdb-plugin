@@ -50,12 +50,12 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     public Point[] generate() {
         RobotBuildAction robotBuildAction = build.getAction(RobotBuildAction.class);
 
-        List<Point> pointsList = new ArrayList<>();
+        List<Point> points = new ArrayList<>();
 
-        pointsList.add(generateOverviewPoint(robotBuildAction));
-        pointsList.addAll(generateSubPoints(robotBuildAction.getResult()));
+        points.add(generateOverviewPoint(robotBuildAction));
+        points.addAll(generateSubPoints(robotBuildAction.getResult()));
 
-        return pointsList.toArray(new Point[0]);
+        return points.toArray(new Point[0]);
     }
 
     private Point generateOverviewPoint(RobotBuildAction robotBuildAction) {
@@ -76,6 +76,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     private List<Point> generateSubPoints(RobotResult robotResult) {
         List<Point> subPoints = new ArrayList<>();
         TimeGenerator suiteResultTime = new TimeGenerator(timestamp);
+
         for (RobotSuiteResult suiteResult : robotResult.getAllSuites()) {
             long caseTimeStamp = suiteResultTime.next();
             subPoints.add(generateSuitePoint(suiteResult, caseTimeStamp));
@@ -89,7 +90,6 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
                 }
                 subPoints.add(casePoint);
             }
-
         }
 
         TimeGenerator tagTime = new TimeGenerator(timestamp);
@@ -192,5 +192,4 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
             .addField(RF_DURATION, suiteResult.getDuration())
             .build();
     }
-
 }

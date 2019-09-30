@@ -1,51 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
     <f:section title="InfluxDB Targets">
         <f:entry>
-            <f:repeatable name="targets" var="instance" items="${instance.targets}">
-                <table width="100%">
-                    <f:entry title="Description" field="description">
-                        <f:textbox/>
-                    </f:entry>
-                    <f:entry title="URL" field="url">
-                        <f:textbox/>
-                    </f:entry>
-                    <f:entry title="Username" field="username">
-                        <f:textbox/>
-                    </f:entry>
-                    <f:entry title="Password" field="password">
-                        <f:password/>
-                    </f:entry>
-                    <f:entry title="Database" field="database">
-                        <f:textbox/>
-                    </f:entry>
-                    <f:entry title="Retention Policy" field="retentionPolicy">
-                        <f:textbox default="autogen"/>
-                    </f:entry>
-                    <f:entry title="Job scheduled time as timestamp" field="jobScheduledTimeAsPointsTimestamp">
-                        <f:checkbox default="false"/>
-                    </f:entry>
-                    <f:entry title="Expose Exceptions" field="exposeExceptions">
-                        <f:checkbox default="true"/>
-                    </f:entry>
-                    <f:entry title="Use Jenkins Proxy" field="usingJenkinsProxy">
-                        <f:checkbox default="false"/>
-                    </f:entry>
-                    <f:entry title="Global Listener" field="globalListener">
-                        <f:checkbox default="false"/>
-                    </f:entry>
-                    <f:entry title="Global Listener Filter" field="globalListenerFilter">
-                        <f:textbox/>
-                    </f:entry>
-                    <f:entry title="">
-                        <div align="right">
-                            <f:repeatableDeleteButton/>
-                        </div>
-                    </f:entry>
-                </table>
-            </f:repeatable>
+            <f:repeatableProperty field="targets">
+                <f:entry title="">
+                    <div align="right">
+                        <f:repeatableDeleteButton/>
+                    </div>
+                </f:entry>
+            </f:repeatableProperty>
         </f:entry>
     </f:section>
 </j:jelly>
