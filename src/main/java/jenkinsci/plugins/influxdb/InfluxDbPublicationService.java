@@ -210,25 +210,25 @@ public class InfluxDbPublicationService {
     }
 
     private void generateJenkinsBaseData(Run<?, ?> build, TaskListener listener, MeasurementRenderer<Run<?, ?>> measurementRenderer, List<Point> pointsToWrite, EnvVars env) {
-        JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build, timestamp, listener, jenkinsEnvParameterField, jenkinsEnvParameterTag, measurementName, env);
-        addPoints(pointsToWrite, jGen, listener);
+        JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build, timestamp, listener, jenkinsEnvParameterField, jenkinsEnvParameterTag, measurementName, env);
+        addPoints(pointsToWrite, generator, listener);
     }
 
     private void generateCustomData1(Run<?, ?> build, TaskListener listener, MeasurementRenderer<Run<?, ?>> measurementRenderer, List<Point> pointsToWrite) {
-        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, customPrefix, build, timestamp, customData, customDataTags, measurementName);
-        if (cdGen.hasReport()) {
+        CustomDataPointGenerator generator = new CustomDataPointGenerator(measurementRenderer, customPrefix, build, timestamp, customData, customDataTags, measurementName);
+        if (generator.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Custom data found. Writing to InfluxDB...");
-            addPoints(pointsToWrite, cdGen, listener);
+            addPoints(pointsToWrite, generator, listener);
         } else {
             logger.log(Level.FINE, "Data source empty: Custom Data");
         }
     }
 
     private void generateCustomData2(Run<?, ?> build, TaskListener listener, MeasurementRenderer<Run<?, ?>> measurementRenderer, List<Point> pointsToWrite) {
-        CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, customPrefix, build, timestamp, customDataMap, customDataMapTags);
-        if (cdmGen.hasReport()) {
+        CustomDataMapPointGenerator generator = new CustomDataMapPointGenerator(measurementRenderer, customPrefix, build, timestamp, customDataMap, customDataMapTags);
+        if (generator.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Custom data map found. Writing to InfluxDB...");
-            addPoints(pointsToWrite, cdmGen, listener);
+            addPoints(pointsToWrite, generator, listener);
         } else {
             logger.log(Level.FINE, "Data source empty: Custom Data Map");
         }
@@ -236,10 +236,10 @@ public class InfluxDbPublicationService {
 
     private void generateCoberturaData(Run<?, ?> build, TaskListener listener, MeasurementRenderer<Run<?, ?>> measurementRenderer, List<Point> pointsToWrite) {
         try {
-            CoberturaPointGenerator cGen = new CoberturaPointGenerator(measurementRenderer, customPrefix, build, timestamp);
-            if (cGen.hasReport()) {
+            CoberturaPointGenerator generator = new CoberturaPointGenerator(measurementRenderer, customPrefix, build, timestamp);
+            if (generator.hasReport()) {
                 listener.getLogger().println("[InfluxDB Plugin] Cobertura data found. Writing to InfluxDB...");
-                addPoints(pointsToWrite, cGen, listener);
+                addPoints(pointsToWrite, generator, listener);
             }
         } catch (NoClassDefFoundError ignore) {
             logger.log(Level.FINE, "Plugin skipped: Cobertura");
@@ -248,10 +248,10 @@ public class InfluxDbPublicationService {
 
     private void generateRobotFrameworkData(Run<?, ?> build, TaskListener listener, MeasurementRenderer<Run<?, ?>> measurementRenderer, List<Point> pointsToWrite) {
         try {
-            RobotFrameworkPointGenerator rfGen = new RobotFrameworkPointGenerator(measurementRenderer, customPrefix, build, timestamp);
-            if (rfGen.hasReport()) {
+            RobotFrameworkPointGenerator generator = new RobotFrameworkPointGenerator(measurementRenderer, customPrefix, build, timestamp);
+            if (generator.hasReport()) {
                 listener.getLogger().println("[InfluxDB Plugin] Robot Framework data found. Writing to InfluxDB...");
-                addPoints(pointsToWrite, rfGen, listener);
+                addPoints(pointsToWrite, generator, listener);
             }
         } catch (NoClassDefFoundError ignore) {
             logger.log(Level.FINE, "Plugin skipped: Robot Framework");
@@ -260,10 +260,10 @@ public class InfluxDbPublicationService {
 
     private void generateJacocoData(Run<?, ?> build, TaskListener listener, MeasurementRenderer<Run<?, ?>> measurementRenderer, List<Point> pointsToWrite) {
         try {
-            JacocoPointGenerator jacoGen = new JacocoPointGenerator(measurementRenderer, customPrefix, build, timestamp);
-            if (jacoGen.hasReport()) {
+            JacocoPointGenerator generator = new JacocoPointGenerator(measurementRenderer, customPrefix, build, timestamp);
+            if (generator.hasReport()) {
                 listener.getLogger().println("[InfluxDB Plugin] JaCoCo data found. Writing to InfluxDB...");
-                addPoints(pointsToWrite, jacoGen, listener);
+                addPoints(pointsToWrite, generator, listener);
             }
         } catch (NoClassDefFoundError ignore) {
             logger.log(Level.FINE, "Plugin skipped: JaCoCo");
@@ -272,10 +272,10 @@ public class InfluxDbPublicationService {
 
     private void generatePerformanceData(Run<?, ?> build, TaskListener listener, MeasurementRenderer<Run<?, ?>> measurementRenderer, List<Point> pointsToWrite) {
         try {
-            PerformancePointGenerator perfGen = new PerformancePointGenerator(measurementRenderer, customPrefix, build, timestamp);
-            if (perfGen.hasReport()) {
+            PerformancePointGenerator generator = new PerformancePointGenerator(measurementRenderer, customPrefix, build, timestamp);
+            if (generator.hasReport()) {
                 listener.getLogger().println("[InfluxDB Plugin] Performance data found. Writing to InfluxDB...");
-                addPoints(pointsToWrite, perfGen, listener);
+                addPoints(pointsToWrite, generator, listener);
             }
         } catch (NoClassDefFoundError ignore) {
             logger.log(Level.FINE, "Plugin skipped: Performance");
@@ -283,21 +283,21 @@ public class InfluxDbPublicationService {
     }
 
     private void generateSonarQubeData(Run<?, ?> build, TaskListener listener, MeasurementRenderer<Run<?, ?>> measurementRenderer, List<Point> pointsToWrite, EnvVars env) {
-        SonarQubePointGenerator sonarGen = new SonarQubePointGenerator(measurementRenderer, customPrefix, build, timestamp, listener);
-        if (sonarGen.hasReport()) {
+        SonarQubePointGenerator generator = new SonarQubePointGenerator(measurementRenderer, customPrefix, build, timestamp, listener);
+        if (generator.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] SonarQube data found. Writing to InfluxDB...");
-            sonarGen.setEnv(env);
-            addPoints(pointsToWrite, sonarGen, listener);
+            generator.setEnv(env);
+            addPoints(pointsToWrite, generator, listener);
         } else {
             logger.log(Level.FINE, "Plugin skipped: SonarQube");
         }
     }
 
     private void generateChangeLogData(Run<?, ?> build, TaskListener listener, MeasurementRenderer<Run<?, ?>> measurementRenderer, List<Point> pointsToWrite) {
-        ChangeLogPointGenerator changeLogGen = new ChangeLogPointGenerator(measurementRenderer, customPrefix, build, timestamp);
-        if (changeLogGen.hasReport()) {
+        ChangeLogPointGenerator generator = new ChangeLogPointGenerator(measurementRenderer, customPrefix, build, timestamp);
+        if (generator.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Change Log data found. Writing to InfluxDB...");
-            addPoints(pointsToWrite, changeLogGen, listener);
+            addPoints(pointsToWrite, generator, listener);
         } else {
             logger.log(Level.FINE, "Data source empty: Change Log");
         }
@@ -305,10 +305,10 @@ public class InfluxDbPublicationService {
 
     private void generatePerfPublisherData(Run<?, ?> build, TaskListener listener, MeasurementRenderer<Run<?, ?>> measurementRenderer, List<Point> pointsToWrite) {
         try {
-            PerfPublisherPointGenerator perfPublisherGen = new PerfPublisherPointGenerator(measurementRenderer, customPrefix, build, timestamp);
-            if (perfPublisherGen.hasReport()) {
+            PerfPublisherPointGenerator generator = new PerfPublisherPointGenerator(measurementRenderer, customPrefix, build, timestamp);
+            if (generator.hasReport()) {
                 listener.getLogger().println("[InfluxDB Plugin] Performance Publisher data found. Writing to InfluxDB...");
-                addPoints(pointsToWrite, perfPublisherGen, listener);
+                addPoints(pointsToWrite, generator, listener);
             }
         } catch (NoClassDefFoundError ignore) {
             logger.log(Level.FINE, "Plugin skipped: Performance Publisher");
