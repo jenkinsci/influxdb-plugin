@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+    <f:entry field="changelog">
+        <f:checkbox default="true" title="Change Log"/>
+    </f:entry>
+    <f:entry field="cobertura">
+        <f:checkbox default="true" title="Cobertura"/>
+    </f:entry>
+    <f:entry field="robotFramework">
+        <f:checkbox default="true" title="Robot Framework"/>
+    </f:entry>
+    <f:entry field="jacoco">
+        <f:checkbox default="true" title="JaCoCo"/>
+    </f:entry>
+    <f:entry field="sonarqube">
+        <f:checkbox default="true" title="SonarQube"/>
+    </f:entry>
+    <f:entry field="performance">
+        <f:checkbox default="true" title="Performance"/>
+    </f:entry>
+    <f:entry field="perfPublisher">
+        <f:checkbox default="true" title="PerfPublisher"/>
+    </f:entry>
+</j:jelly>

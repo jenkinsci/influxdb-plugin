@@ -34,4 +34,7 @@
     <f:entry title="Global Listener Filter" field="globalListenerFilter">
         <f:textbox/>
     </f:entry>
+    <f:entry title="Data to publish">
+        <f:property field="data"/>
+    </f:entry>
 </j:jelly>

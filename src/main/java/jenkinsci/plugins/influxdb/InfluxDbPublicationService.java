@@ -1,12 +1,14 @@
 package jenkinsci.plugins.influxdb;
 
 import hudson.EnvVars;
+import hudson.PluginWrapper;
 import hudson.ProxyConfiguration;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.util.Secret;
 import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.generators.*;
+import jenkinsci.plugins.influxdb.models.DataToggles;
 import jenkinsci.plugins.influxdb.models.Target;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
@@ -25,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -235,83 +238,97 @@ public class InfluxDbPublicationService {
     }
 
     private void generateCoberturaData(Run<?, ?> build, TaskListener listener, MeasurementRenderer<Run<?, ?>> measurementRenderer, List<Point> pointsToWrite) {
-        try {
-            CoberturaPointGenerator generator = new CoberturaPointGenerator(measurementRenderer, customPrefix, build, timestamp);
-            if (generator.hasReport()) {
-                listener.getLogger().println("[InfluxDB Plugin] Cobertura data found. Writing to InfluxDB...");
-                addPoints(pointsToWrite, generator, listener);
+        if (isCollectData("cobertura", DataToggles::isCobertura)) {
+            try {
+                CoberturaPointGenerator generator = new CoberturaPointGenerator(measurementRenderer, customPrefix, build, timestamp);
+                if (generator.hasReport()) {
+                    listener.getLogger().println("[InfluxDB Plugin] Cobertura data found. Writing to InfluxDB...");
+                    addPoints(pointsToWrite, generator, listener);
+                }
+            } catch (NoClassDefFoundError ignore) {
+                logger.log(Level.FINE, "Plugin skipped: Cobertura");
             }
-        } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.FINE, "Plugin skipped: Cobertura");
         }
     }
 
     private void generateRobotFrameworkData(Run<?, ?> build, TaskListener listener, MeasurementRenderer<Run<?, ?>> measurementRenderer, List<Point> pointsToWrite) {
-        try {
-            RobotFrameworkPointGenerator generator = new RobotFrameworkPointGenerator(measurementRenderer, customPrefix, build, timestamp);
-            if (generator.hasReport()) {
-                listener.getLogger().println("[InfluxDB Plugin] Robot Framework data found. Writing to InfluxDB...");
-                addPoints(pointsToWrite, generator, listener);
+        if (isCollectData("robot", DataToggles::isRobotFramework)) {
+            try {
+                RobotFrameworkPointGenerator generator = new RobotFrameworkPointGenerator(measurementRenderer, customPrefix, build, timestamp);
+                if (generator.hasReport()) {
+                    listener.getLogger().println("[InfluxDB Plugin] Robot Framework data found. Writing to InfluxDB...");
+                    addPoints(pointsToWrite, generator, listener);
+                }
+            } catch (NoClassDefFoundError ignore) {
+                logger.log(Level.FINE, "Plugin skipped: Robot Framework");
             }
-        } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.FINE, "Plugin skipped: Robot Framework");
         }
     }
 
     private void generateJacocoData(Run<?, ?> build, TaskListener listener, MeasurementRenderer<Run<?, ?>> measurementRenderer, List<Point> pointsToWrite) {
-        try {
-            JacocoPointGenerator generator = new JacocoPointGenerator(measurementRenderer, customPrefix, build, timestamp);
-            if (generator.hasReport()) {
-                listener.getLogger().println("[InfluxDB Plugin] JaCoCo data found. Writing to InfluxDB...");
-                addPoints(pointsToWrite, generator, listener);
+        if (isCollectData("jacoco", DataToggles::isJacoco)) {
+            try {
+                JacocoPointGenerator generator = new JacocoPointGenerator(measurementRenderer, customPrefix, build, timestamp);
+                if (generator.hasReport()) {
+                    listener.getLogger().println("[InfluxDB Plugin] JaCoCo data found. Writing to InfluxDB...");
+                    addPoints(pointsToWrite, generator, listener);
+                }
+            } catch (NoClassDefFoundError ignore) {
+                logger.log(Level.FINE, "Plugin skipped: JaCoCo");
             }
-        } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.FINE, "Plugin skipped: JaCoCo");
         }
     }
 
     private void generatePerformanceData(Run<?, ?> build, TaskListener listener, MeasurementRenderer<Run<?, ?>> measurementRenderer, List<Point> pointsToWrite) {
-        try {
-            PerformancePointGenerator generator = new PerformancePointGenerator(measurementRenderer, customPrefix, build, timestamp);
-            if (generator.hasReport()) {
-                listener.getLogger().println("[InfluxDB Plugin] Performance data found. Writing to InfluxDB...");
-                addPoints(pointsToWrite, generator, listener);
+        if (isCollectData("performance", DataToggles::isPerformance)) {
+            try {
+                PerformancePointGenerator generator = new PerformancePointGenerator(measurementRenderer, customPrefix, build, timestamp);
+                if (generator.hasReport()) {
+                    listener.getLogger().println("[InfluxDB Plugin] Performance data found. Writing to InfluxDB...");
+                    addPoints(pointsToWrite, generator, listener);
+                }
+            } catch (NoClassDefFoundError ignore) {
+                logger.log(Level.FINE, "Plugin skipped: Performance");
             }
-        } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.FINE, "Plugin skipped: Performance");
         }
     }
 
     private void generateSonarQubeData(Run<?, ?> build, TaskListener listener, MeasurementRenderer<Run<?, ?>> measurementRenderer, List<Point> pointsToWrite, EnvVars env) {
-        SonarQubePointGenerator generator = new SonarQubePointGenerator(measurementRenderer, customPrefix, build, timestamp, listener);
-        if (generator.hasReport()) {
-            listener.getLogger().println("[InfluxDB Plugin] SonarQube data found. Writing to InfluxDB...");
-            generator.setEnv(env);
-            addPoints(pointsToWrite, generator, listener);
-        } else {
-            logger.log(Level.FINE, "Plugin skipped: SonarQube");
+        if (isCollectData(null, DataToggles::isSonarqube)) {
+            SonarQubePointGenerator generator = new SonarQubePointGenerator(measurementRenderer, customPrefix, build, timestamp, listener);
+            if (generator.hasReport()) {
+                listener.getLogger().println("[InfluxDB Plugin] SonarQube data found. Writing to InfluxDB...");
+                generator.setEnv(env);
+                addPoints(pointsToWrite, generator, listener);
+            } else {
+                logger.log(Level.FINE, "Plugin skipped: SonarQube");
+            }
         }
     }
 
     private void generateChangeLogData(Run<?, ?> build, TaskListener listener, MeasurementRenderer<Run<?, ?>> measurementRenderer, List<Point> pointsToWrite) {
-        ChangeLogPointGenerator generator = new ChangeLogPointGenerator(measurementRenderer, customPrefix, build, timestamp);
-        if (generator.hasReport()) {
-            listener.getLogger().println("[InfluxDB Plugin] Change Log data found. Writing to InfluxDB...");
-            addPoints(pointsToWrite, generator, listener);
-        } else {
-            logger.log(Level.FINE, "Data source empty: Change Log");
+        if (isCollectData(null, DataToggles::isChangelog)) {
+            ChangeLogPointGenerator generator = new ChangeLogPointGenerator(measurementRenderer, customPrefix, build, timestamp);
+            if (generator.hasReport()) {
+                listener.getLogger().println("[InfluxDB Plugin] Change Log data found. Writing to InfluxDB...");
+                addPoints(pointsToWrite, generator, listener);
+            } else {
+                logger.log(Level.FINE, "Data source empty: Change Log");
+            }
         }
     }
 
     private void generatePerfPublisherData(Run<?, ?> build, TaskListener listener, MeasurementRenderer<Run<?, ?>> measurementRenderer, List<Point> pointsToWrite) {
-        try {
-            PerfPublisherPointGenerator generator = new PerfPublisherPointGenerator(measurementRenderer, customPrefix, build, timestamp);
-            if (generator.hasReport()) {
-                listener.getLogger().println("[InfluxDB Plugin] Performance Publisher data found. Writing to InfluxDB...");
-                addPoints(pointsToWrite, generator, listener);
+        if (isCollectData("perfpublisher", DataToggles::isPerfPublisher)) {
+            try {
+                PerfPublisherPointGenerator generator = new PerfPublisherPointGenerator(measurementRenderer, customPrefix, build, timestamp);
+                if (generator.hasReport()) {
+                    listener.getLogger().println("[InfluxDB Plugin] Performance Publisher data found. Writing to InfluxDB...");
+                    addPoints(pointsToWrite, generator, listener);
+                }
+            } catch (NoClassDefFoundError ignore) {
+                logger.log(Level.FINE, "Plugin skipped: Performance Publisher");
             }
-        } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.FINE, "Plugin skipped: Performance Publisher");
         }
 
         for (Target target : selectedTargets) {
@@ -351,6 +368,16 @@ public class InfluxDbPublicationService {
         } catch (Exception e) {
             listener.getLogger().println("[InfluxDB Plugin] Failed to collect data. Ignoring Exception:" + e);
         }
+    }
+
+    private boolean isCollectData(String pluginName, Predicate<DataToggles> isEnabled) {
+        if (pluginName != null) {
+            PluginWrapper plugin = Jenkins.getInstance().getPluginManager().getPlugin(pluginName);
+            if (plugin == null || !plugin.isActive()) {
+                return false;
+            }
+        }
+        return selectedTargets.stream().map(Target::getData).anyMatch(isEnabled);
     }
 
     private OkHttpClient.Builder createHttpClient(URL url, boolean useProxy) {

@@ -8,6 +8,7 @@ import hudson.util.Secret;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.DataBoundSetter;
 
 public class Target extends AbstractDescribableImpl<Target> implements java.io.Serializable {
 
@@ -22,6 +23,7 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
     private boolean usingJenkinsProxy;
     private boolean globalListener;
     private String globalListenerFilter;
+    private DataToggles data;
 
     public Target() {
         //nop
@@ -42,12 +44,14 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
         this.usingJenkinsProxy = usingJenkinsProxy;
         this.globalListener = globalListener;
         this.globalListenerFilter = globalListenerFilter;
+        this.data = new DataToggles();
     }
 
     public String getDescription() {
         return description;
     }
 
+    @DataBoundSetter
     public void setDescription(String description) {
         this.description = description;
     }
@@ -56,6 +60,7 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
         return url;
     }
 
+    @DataBoundSetter
     public void setUrl(String url) {
         this.url = url;
     }
@@ -64,6 +69,7 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
         return username;
     }
 
+    @DataBoundSetter
     public void setUsername(String username) {
         this.username = username;
     }
@@ -72,6 +78,7 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
         return password;
     }
 
+    @DataBoundSetter
     public void setPassword(Secret password) {
         this.password = password;
     }
@@ -80,6 +87,7 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
         return database;
     }
 
+    @DataBoundSetter
     public void setDatabase(String database) {
         this.database = database;
     }
@@ -88,6 +96,7 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
         return retentionPolicy;
     }
 
+    @DataBoundSetter
     public void setRetentionPolicy(String retentionPolicy) {
         this.retentionPolicy = retentionPolicy;
     }
@@ -96,6 +105,7 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
         return jobScheduledTimeAsPointsTimestamp;
     }
 
+    @DataBoundSetter
     public void setJobScheduledTimeAsPointsTimestamp(boolean jobScheduledTimeAsPointsTimestamp) {
         this.jobScheduledTimeAsPointsTimestamp = jobScheduledTimeAsPointsTimestamp;
     }
@@ -104,6 +114,7 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
         return exposeExceptions;
     }
 
+    @DataBoundSetter
     public void setExposeExceptions(boolean exposeExceptions) {
         this.exposeExceptions = exposeExceptions;
     }
@@ -112,6 +123,7 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
         return usingJenkinsProxy;
     }
 
+    @DataBoundSetter
     public void setUsingJenkinsProxy(boolean usingJenkinsProxy) {
         this.usingJenkinsProxy = usingJenkinsProxy;
     }
@@ -120,6 +132,7 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
         return globalListener;
     }
 
+    @DataBoundSetter
     public void setGlobalListener(boolean globalListener) {
         this.globalListener = globalListener;
     }
@@ -128,8 +141,26 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
         return globalListenerFilter;
     }
 
+    @DataBoundSetter
     public void setGlobalListenerFilter(String globalListenerFilter) {
         this.globalListenerFilter = globalListenerFilter;
+    }
+
+    public DataToggles getData() {
+        return data;
+    }
+
+    @DataBoundSetter
+    public void setData(DataToggles data) {
+        this.data = data;
+    }
+
+    private Object readResolve() {
+        // handle old config file without a "data" element
+        if (data == null) {
+            data = new DataToggles();
+        }
+        return this;
     }
 
     @Override
