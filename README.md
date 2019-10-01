@@ -1,6 +1,6 @@
 # InfluxDB Jenkins Plugin
 
-[![Jenkins.io Build Status](https://ci.jenkins.io/buildStatus/icon?job=Plugins%2Finfluxdb-query-plugin%2Fmaster)](https://ci.jenkins.io/job/Plugins/job/influxdb-query-plugin/job/master/)
+[![Jenkins.io Build Status](https://ci.jenkins.io/buildStatus/icon?job=Plugins%2Finfluxdb-plugin%2Fmaster)](https://ci.jenkins.io/job/Plugins/job/influxdb-plugin/job/master/)
 
 By Eficode Ltd (https://github.com/eficode).
 
