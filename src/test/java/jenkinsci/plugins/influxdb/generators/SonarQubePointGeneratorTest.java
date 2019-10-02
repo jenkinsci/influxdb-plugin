@@ -52,4 +52,15 @@ public class SonarQubePointGeneratorTest {
         SonarQubePointGenerator gen = new SonarQubePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null, true);
         assertThat(gen.getSonarProjectName(url), is(name));
     }
+
+    @Test
+    public void getSonarProjectMetric() throws Exception {
+        String name = "org.namespace:feature%2Fmy-sub-project";
+        String metric_key = "code_smells";
+        String url = sonarUrl + "/api/measures/component?componentKey=" + name + "&metricKeys=" + metric_key;
+        SonarQubePointGenerator gen = new SonarQubePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null, true);
+        assertThat(gen.getSonarMetric(url, metric_key), is(metric_key));
+    }
+
+    
 }

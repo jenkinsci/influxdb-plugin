@@ -33,14 +33,22 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private static final String SONARQUBE_MINOR_ISSUES = "minor_issues";
     private static final String SONARQUBE_INFO_ISSUES = "info_issues";
     private static final String SONARQUBE_BLOCKER_ISSUES = "blocker_issues";
+    private static final String SONARQUBE_CODE_SMELLS = "code_smells";
+    private static final String SONARQUBE_BUGS = "bugs";
+    private static final String SONARQUBE_COVERAGE = "coverage";
+    private static final String SONARQUBE_VULNERABILITIES = "vulnerabilities";
+    private static final String SONARQUBE_BRANCH_COVERAGE = "branch_coverage";
+    private static final String SONARQUBE_LINE_COVERAGE = "line_coverage";
+    private static final String SONARQUBE_LINES_TO_COVER = "lines_to_cover";
+    private static final String SONARQUBE_DUPLICATED_LINES_DENSITY = "duplicated_lines_density";
 
     private static final String URL_PATTERN_IN_LOGS = ".*" + Pattern.quote("ANALYSIS SUCCESSFUL, you can browse ")
             + "(.*)";
 
     private static final String SONAR_ISSUES_BASE_URL = "/api/issues/search?ps=500&projectKeys=";
 
-    private static final String SONAR_METRICS_BASE_URL = "/api/measures/component?metricKeys=ncloc,complexity,violations&componentKey=";
-
+    private static final String SONAR_METRICS_BASE_URL = "/api/measures/component?componentKey=";
+    private static final String SONAR_METRICS_BASE_METRIC = "&metricKeys=";
     private static final OkHttpClient httpClient = new OkHttpClient();
 
     private String sonarIssuesUrl;
@@ -128,7 +136,16 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                     .addField(SONARQUBE_MAJOR_ISSUES, getSonarIssues(sonarIssuesUrl, "MAJOR"))
                     .addField(SONARQUBE_MINOR_ISSUES, getSonarIssues(sonarIssuesUrl, "MINOR"))
                     .addField(SONARQUBE_INFO_ISSUES, getSonarIssues(sonarIssuesUrl, "INFO"))
-                    .addField(SONARQUBE_LINES_OF_CODE, getLinesOfCode(sonarMetricsUrl))
+                    .addField(SONARQUBE_LINES_OF_CODE, getSonarMetric(sonarMetricsUrl, SONARQUBE_LINES_OF_CODE))
+                    .addField(SONARQUBE_CODE_SMELLS, getSonarMetric(sonarMetricsUrl, SONARQUBE_CODE_SMELLS))
+                    .addField(SONARQUBE_BUGS, getSonarMetric(sonarMetricsUrl, SONARQUBE_BUGS))
+                    .addField(SONARQUBE_COVERAGE, getSonarMetric(sonarMetricsUrl, SONARQUBE_COVERAGE))
+                    .addField(SONARQUBE_VULNERABILITIES, getSonarMetric(sonarMetricsUrl, SONARQUBE_VULNERABILITIES))
+                    .addField(SONARQUBE_BRANCH_COVERAGE, getSonarMetric(sonarMetricsUrl, SONARQUBE_BRANCH_COVERAGE))
+                    .addField(SONARQUBE_LINE_COVERAGE, getSonarMetric(sonarMetricsUrl, SONARQUBE_LINE_COVERAGE))
+                    .addField(SONARQUBE_LINES_TO_COVER, getSonarMetric(sonarMetricsUrl, SONARQUBE_LINES_TO_COVER))
+                    .addField(SONARQUBE_DUPLICATED_LINES_DENSITY, getSonarMetric(sonarMetricsUrl, SONARQUBE_DUPLICATED_LINES_DENSITY))
+                    .addField(SONARQUBE_COMPLEXITY, getSonarMetric(sonarMetricsUrl, SONARQUBE_COMPLEXITY))
                     .build();
         } catch (IOException e) {
             // handle
@@ -183,19 +200,15 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         return projectUrl.length > 1 ? projectUrl[projectUrl.length - 1] : "";
     }
 
-    private int getLinesOfCode(String url) throws IOException {
-        String output = getResult(url);
+    public float getSonarMetric(String url, String metric) throws IOException {
+        String output = getResult(url + SONAR_METRICS_BASE_METRIC + metric);
         JSONObject metricsObjects = JSONObject.fromObject(output);
-        int linesOfCodeCount = 0;
         JSONArray array = metricsObjects.getJSONObject("component").getJSONArray("measures");
-        for (int i = 0; i < array.size(); i++) {
-            JSONObject metricsObject = array.getJSONObject(i);
-            if (metricsObject.get("metric").equals("ncloc")) {
-                linesOfCodeCount = metricsObject.getInt("value");
-            }
-        }
-
-        return linesOfCodeCount;
+        JSONObject metricsObject = array.getJSONObject(0);
+        try {
+            return Float.parseFloat(metricsObject.getString("value"));
+        } catch (NumberFormatException exp) {}
+        return -1;
     }
 
     private int getSonarIssues(String url, String severity) throws IOException {
