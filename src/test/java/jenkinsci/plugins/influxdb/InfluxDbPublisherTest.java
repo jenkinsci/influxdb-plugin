@@ -18,6 +18,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
+import java.util.Collections;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "org.w3c.*", "javax.activation.*"})
@@ -41,7 +42,7 @@ public class InfluxDbPublisherTest {
         exception.expectMessage("Target was null!");
 
         InfluxDbPublisher.DescriptorImpl descriptorMock = Mockito.mock(InfluxDbPublisher.DescriptorImpl.class);
-        Mockito.when(descriptorMock.getTargets()).thenReturn(new Target[0]);
+        Mockito.when(descriptorMock.getTargets()).thenReturn(Collections.emptyList());
         PowerMockito.whenNew(InfluxDbPublisher.DescriptorImpl.class).withNoArguments().thenReturn(descriptorMock);
 
         try {

@@ -10,6 +10,7 @@ import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -27,8 +28,8 @@ public class InfluxDbGlobalConfig extends GlobalConfiguration {
         return GlobalConfiguration.all().get(InfluxDbGlobalConfig.class);
     }
 
-    public Target[] getTargets() {
-        return targets.toArray(new Target[0]);
+    public List<Target> getTargets() {
+        return Collections.unmodifiableList(targets);
     }
 
     public void setTargets(List<Target> targets) {

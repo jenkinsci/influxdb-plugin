@@ -31,7 +31,7 @@ public class GlobalRunListener extends RunListener<Run<?, ?>> {
         // Gets the full path of the build's project
         String path = build.getParent().getRelativeNameFrom(Jenkins.getInstance());
         // Gets the list of targets from the configuration
-        Target[] targets = InfluxDbPublisher.DESCRIPTOR.getTargets();
+        List<Target> targets = InfluxDbPublisher.DESCRIPTOR.getTargets();
         // Selects the targets eligible as global listeners and which match the build path
         List<Target> selectedTargets = new ArrayList<>();
         for (Target target : targets) {

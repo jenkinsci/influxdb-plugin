@@ -18,6 +18,7 @@ import org.kohsuke.stapler.DataBoundSetter;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -44,11 +45,11 @@ public class InfluxDbStep extends Step {
     }
 
     public String getSelectedTarget() {
-                String ipTemp = selectedTarget;
+        String ipTemp = selectedTarget;
         if (ipTemp == null) {
-            Target[] targets = Jenkins.getInstance().getDescriptorByType(DescriptorImpl.class).getTargets();
-            if (targets.length > 0) {
-                ipTemp = targets[0].getDescription();
+            List<Target> targets = Jenkins.getInstance().getDescriptorByType(DescriptorImpl.class).getTargets();
+            if (!targets.isEmpty()) {
+                ipTemp = targets.get(0).getDescription();
             }
         }
         return ipTemp;
@@ -148,9 +149,9 @@ public class InfluxDbStep extends Step {
     }
 
     public Target getTarget() {
-        Target[] targets = Jenkins.getInstance().getDescriptorByType(DescriptorImpl.class).getTargets();
-        if (selectedTarget == null && targets.length > 0) {
-            return targets[0];
+        List<Target> targets = Jenkins.getInstance().getDescriptorByType(DescriptorImpl.class).getTargets();
+        if (selectedTarget == null && !targets.isEmpty()) {
+            return targets.get(0);
         }
         for (Target target : targets) {
             String targetInfo = target.getDescription();
@@ -170,7 +171,7 @@ public class InfluxDbStep extends Step {
     public static final class DescriptorImpl extends StepDescriptor implements Serializable {
 
         @Nonnull
-        public Target[] getTargets() {
+        public List<Target> getTargets() {
             return InfluxDbGlobalConfig.getInstance().getTargets();
         }
 

@@ -170,9 +170,9 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
     public String getSelectedTarget() {
         String ipTemp = selectedTarget;
         if (ipTemp == null) {
-            Target[] targets = DESCRIPTOR.getTargets();
-            if (targets.length > 0) {
-                ipTemp = targets[0].getDescription();
+            List<Target> targets = DESCRIPTOR.getTargets();
+            if (!targets.isEmpty()) {
+                ipTemp = targets.get(0).getDescription();
             }
         }
         return ipTemp;
@@ -279,9 +279,9 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
     }
 
     public Target getTarget() {
-        Target[] targets = DESCRIPTOR.getTargets();
-        if (selectedTarget == null && targets.length > 0) {
-            return targets[0];
+        List<Target> targets = DESCRIPTOR.getTargets();
+        if (selectedTarget == null && !targets.isEmpty()) {
+            return targets.get(0);
         }
         for (Target target : targets) {
             String targetInfo = target.getDescription();
@@ -382,7 +382,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
             this.targets = targets;
         }
 
-        public Target[] getTargets() {
+        public List<Target> getTargets() {
             return InfluxDbGlobalConfig.getInstance().getTargets();
         }
 
