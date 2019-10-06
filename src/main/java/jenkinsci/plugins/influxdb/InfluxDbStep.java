@@ -45,14 +45,14 @@ public class InfluxDbStep extends Step {
     }
 
     public String getSelectedTarget() {
-        String ipTemp = selectedTarget;
-        if (ipTemp == null) {
+        String target = selectedTarget;
+        if (target == null) {
             List<Target> targets = Jenkins.getInstance().getDescriptorByType(DescriptorImpl.class).getTargets();
             if (!targets.isEmpty()) {
-                ipTemp = targets.get(0).getDescription();
+                target = targets.get(0).getDescription();
             }
         }
-        return ipTemp;
+        return target;
     }
 
     public void setSelectedTarget(String target) {

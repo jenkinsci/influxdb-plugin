@@ -168,14 +168,14 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
     }
 
     public String getSelectedTarget() {
-        String ipTemp = selectedTarget;
-        if (ipTemp == null) {
+        String target = selectedTarget;
+        if (target == null) {
             List<Target> targets = DESCRIPTOR.getTargets();
             if (!targets.isEmpty()) {
-                ipTemp = targets.get(0).getDescription();
+                target = targets.get(0).getDescription();
             }
         }
-        return ipTemp;
+        return target;
     }
 
     @DataBoundSetter
