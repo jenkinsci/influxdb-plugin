@@ -17,6 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @Extension
 public class InfluxDbGlobalConfig extends GlobalConfiguration {
+
     private List<Target> targets = new CopyOnWriteArrayList<>();
     private boolean targetsMigrated = false;
 
