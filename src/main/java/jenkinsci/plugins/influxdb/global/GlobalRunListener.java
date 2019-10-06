@@ -20,8 +20,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * Listens to call builds being completed, and publishes their metrics
- * in InfluxDB.
+ * Listens to all builds being completed and publishes their metrics to InfluxDB.
  */
 @Extension
 public class GlobalRunListener extends RunListener<Run<?, ?>> {
