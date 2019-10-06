@@ -53,6 +53,7 @@ public class InfluxDbStep extends Step {
         return target;
     }
 
+    @DataBoundSetter
     public void setSelectedTarget(String target) {
         Objects.requireNonNull(target);
         this.selectedTarget = target;
