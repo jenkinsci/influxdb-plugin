@@ -37,8 +37,6 @@ public class InfluxDbStep extends Step {
     private String measurementName;
     private boolean replaceDashWithUnderscore;
 
-    public InfluxDbStep() {}
-
     @DataBoundConstructor
     public InfluxDbStep(String selectedTarget) {
         this.selectedTarget = selectedTarget;

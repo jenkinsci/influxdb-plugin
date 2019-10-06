@@ -159,9 +159,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
 
     private EnvVars env;
 
-    public InfluxDbPublisher() {
-    }
-
     @DataBoundConstructor
     public InfluxDbPublisher(String target) {
         this.selectedTarget = target;
