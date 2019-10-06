@@ -183,7 +183,7 @@ public class InfluxDbPublicationService {
 
     public void perform(Run<?, ?> build, TaskListener listener, EnvVars env) {
         // Logging
-        listener.getLogger().println("[InfluxDB Plugin] Collecting data for publication in InfluxDB...");
+        listener.getLogger().println("[InfluxDB Plugin] Collecting data...");
 
         // Renderer to use for the metrics
         MeasurementRenderer<Run<?, ?>> measurementRenderer = new ProjectNameRenderer(customPrefix, customProjectName);
@@ -279,17 +279,24 @@ public class InfluxDbPublicationService {
         }
 
         for (Target target : selectedTargets) {
-            String logMessage = "[InfluxDB Plugin] Publishing data to: " + target;
-            logger.log(Level.FINE, logMessage);
-            listener.getLogger().println(logMessage);
-
             URL url;
             try {
                 url = new URL(target.getUrl());
             } catch (MalformedURLException e) {
-                listener.getLogger().println("[InfluxDB Plugin] Skipping target due to invalid URL: " + target.getUrl());
+                String logMessage = String.format("[InfluxDB Plugin] Skipping target '%s' due to invalid URL '%s'",
+                        target.getDescription(),
+                        target.getUrl());
+                logger.log(Level.WARNING, logMessage);
+                listener.getLogger().println(logMessage);
                 continue;
             }
+
+            String logMessage = String.format("[InfluxDB Plugin] Publishing data to target '%s' (url='%s', database='%s')",
+                    target.getDescription(),
+                    target.getUrl(),
+                    target.getDatabase());
+            logger.log(Level.FINE, logMessage);
+            listener.getLogger().println(logMessage);
 
             OkHttpClient.Builder httpClient = createHttpClient(url, target.isUsingJenkinsProxy());
             InfluxDB influxDB = StringUtils.isEmpty(target.getUsername()) ?
