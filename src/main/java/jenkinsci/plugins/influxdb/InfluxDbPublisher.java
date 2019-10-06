@@ -363,7 +363,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
 
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> implements ModelObject {
 
-        private static final String DISPLAY_NAME = "Publish build data to InfluxDB.";
         private List<Target> targets = new CopyOnWriteArrayList<>();
 
         public DescriptorImpl() {
@@ -389,7 +388,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
         @Nonnull
         @Override
         public String getDisplayName() {
-            return DISPLAY_NAME;
+            return "Publish build data to InfluxDB";
         }
 
         @Override

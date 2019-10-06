@@ -188,9 +188,10 @@ public class InfluxDbStep extends Step {
             return "influxDbPublisher";
         }
 
+        @Nonnull
         @Override
         public String getDisplayName() {
-            return "Publish build data to InfluxDB.";
+            return "Publish build data to InfluxDB";
         }
 
         @Override
