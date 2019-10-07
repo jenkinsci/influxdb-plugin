@@ -13,6 +13,7 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 import hudson.util.ListBoxModel;
+import jenkins.model.Jenkins;
 import jenkins.tasks.SimpleBuildStep;
 import jenkinsci.plugins.influxdb.models.Target;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -29,9 +30,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
 
     public static final String DEFAULT_MEASUREMENT_NAME = "jenkins_data";
-
-    @Extension(optional = true)
-    public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
     /**
      * Target to write to.
@@ -167,7 +165,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
     public String getSelectedTarget() {
         String target = selectedTarget;
         if (target == null) {
-            List<Target> targets = DESCRIPTOR.getTargets();
+            List<Target> targets = Jenkins.getInstance().getDescriptorByType(DescriptorImpl.class).getTargets();
             if (!targets.isEmpty()) {
                 target = targets.get(0).getDescription();
             }
@@ -276,7 +274,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
     }
 
     public Target getTarget() {
-        List<Target> targets = DESCRIPTOR.getTargets();
+        List<Target> targets = Jenkins.getInstance().getDescriptorByType(DescriptorImpl.class).getTargets();
         if (selectedTarget == null && !targets.isEmpty()) {
             return targets.get(0);
         }
@@ -306,11 +304,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
     @Override
     public BuildStepMonitor getRequiredMonitorService() {
         return BuildStepMonitor.NONE;
-    }
-
-    @Override
-    public BuildStepDescriptor<Publisher> getDescriptor() {
-        return DESCRIPTOR;
     }
 
     @Override
@@ -358,6 +351,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
         return timestamp * 1000000;
     }
 
+    @Extension(optional = true)
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> implements ModelObject {
 
         private List<Target> targets = new CopyOnWriteArrayList<>();
