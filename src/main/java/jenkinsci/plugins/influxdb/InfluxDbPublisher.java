@@ -31,130 +31,17 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
 
     public static final String DEFAULT_MEASUREMENT_NAME = "jenkins_data";
 
-    /**
-     * Target to write to.
-     */
     private String selectedTarget;
-
-    /**
-     * Custom project name, overrides the project name with the specified value.
-     */
     private String customProjectName;
-
-    /**
-     * Custom prefix, for example in multi-branch pipelines, where every build is named
-     * after the branch built and thus you have different builds called 'master' that report
-     * different metrics.
-     */
     private String customPrefix;
-
-    /**
-     * Custom data, especially in pipelines, where additional information is calculated
-     * or retrieved by Groovy functions which should be sent to InfluxDB.
-     * <p>
-     * Inside a pipeline script this can easily be done by calling:
-     * <pre>{@code
-     * def myDataMap = [:]
-     * myDataMap['myKey'] = 'myValue'
-     * step([$class: 'InfluxDbPublisher',
-     *       target: myTarget,
-     *       customPrefix: 'myPrefix',
-     *       customData: myDataMap])
-     * }</pre>
-     */
     private Map<String, Object> customData;
-
-    /**
-     * Custom data tags, especially in pipelines, where additional information is calculated
-     * or retrieved by Groovy functions which should be sent to InfluxDB.
-     * <p>
-     * Inside a pipeline script this can easily be done by calling:
-     * <pre>{@code
-     * def myDataMapTags = [:]
-     * myDataMapTags['myKey'] = 'myValue'
-     * step([$class: 'InfluxDbPublisher',
-     *       target: myTarget,
-     *       customPrefix: 'myPrefix',
-     *       customData: myDataMap,
-     *       customDataTags: myDataMapTags])
-     * }</pre>
-     */
     private Map<String, String> customDataTags;
-
-    /**
-     * Custom data maps, especially in pipelines, where additional information is calculated
-     * or retrieved by Groovy functions which should be sent to InfluxDB.
-     * <p>
-     * This goes beyond {@code customData} since it allows to define multiple {@code customData} measurements
-     * where the name of the measurement is defined as the key of the {@code customDataMap}.
-     * <p>
-     * Example for a pipeline script:
-     * <pre>{@code
-     * def myDataMap1 = [:]
-     * def myDataMap2 = [:]
-     * def myCustomDataMap = [:]
-     * myDataMap1['myMap1Key1'] = 11 // first value of first map
-     * myDataMap1['myMap1Key2'] = 12 // second value of first map
-     * myDataMap2['myMap2Key1'] = 21 // first value of second map
-     * myDataMap2['myMap2Key2'] = 22 // second value of second map
-     * myCustomDataMap['series1'] = myDataMap1
-     * myCustomDataMap['series2'] = myDataMap2
-     * step([$class: 'InfluxDbPublisher',
-     *       target: myTarget,
-     *       customPrefix: 'myPrefix',
-     *       customDataMap: myCustomDataMap])
-     * }</pre>
-     */
     private Map<String, Map<String, Object>> customDataMap;
-
-    /**
-     * Custom tags that are sent to all measurements defined in customDataMaps.
-     * <p>
-     * Example for a pipeline script:
-     * <pre>{@code
-     * def myCustomDataMapTags = [:]
-     * def myCustomTags = [:]
-     * myCustomTags['buildResult'] = currentBuild.result
-     * myCustomTags['NODE_LABELS'] = env.NODE_LABELS
-     * myCustomDataMapTags['series1'] = myCustomTags
-     * step([$class: 'InfluxDbPublisher',
-     *       target: myTarget,
-     *       customPrefix: 'myPrefix',
-     *       customDataMap: myCustomDataMap,
-     *       customDataMapTags: myCustomDataMapTags])
-     * }</pre>
-     */
     private Map<String, Map<String, String>> customDataMapTags;
-
-    /**
-     * Jenkins parameter(s) which will be added as field set to measurement 'jenkins_data'.
-     * If parameter value has a $-prefix, it will be resolved from current Jenkins job environment properties.
-     */
     private String jenkinsEnvParameterField;
-
-    /**
-     * Jenkins parameter(s) which will be added as tag set to  measurement 'jenkins_data'.
-     * If parameter value has a $-prefix, it will be resolved from current Jenkins job environment properties.
-     */
     private String jenkinsEnvParameterTag;
-
-    /**
-     * Custom measurement name used for all measurement types,
-     * overrides the default measurement names.
-     * Default value is "jenkins_data"
-     * <p>
-     * For custom data, prepends "custom_", i.e. "some_measurement"
-     * becomes "custom_some_measurement".
-     * Default custom name remains "jenkins_custom_data".
-     */
     private String measurementName;
-
-    /**
-     * Whether to replace dashes with underscores in tags.
-     * i.e. "my-custom-tag" --> "my_custom_tag"
-     */
     private boolean replaceDashWithUnderscore;
-
     private EnvVars env;
 
     @DataBoundConstructor
