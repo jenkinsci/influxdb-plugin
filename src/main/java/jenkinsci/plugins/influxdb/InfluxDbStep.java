@@ -28,12 +28,12 @@ public class InfluxDbStep extends Step {
     private String selectedTarget;
     private String customProjectName;
     private String customPrefix;
-    private String jenkinsEnvParameterField;
-    private String jenkinsEnvParameterTag;
     private Map<String, Object> customData;
     private Map<String, String> customDataTags;
     private Map<String, Map<String, Object>> customDataMap;
     private Map<String, Map<String, String>> customDataMapTags;
+    private String jenkinsEnvParameterField;
+    private String jenkinsEnvParameterTag;
     private String measurementName;
     private boolean replaceDashWithUnderscore;
 
@@ -77,6 +77,42 @@ public class InfluxDbStep extends Step {
         this.customPrefix = customPrefix;
     }
 
+    public Map<String, Object> getCustomData() {
+        return customData;
+    }
+
+    @DataBoundSetter
+    public void setCustomData(Map<String, Object> customData) {
+        this.customData = customData;
+    }
+
+    public Map<String, String> getCustomDataTags() {
+        return customDataTags;
+    }
+
+    @DataBoundSetter
+    public void setCustomDataTags(Map<String, String> customDataTags) {
+        this.customDataTags = customDataTags;
+    }
+
+    public Map<String, Map<String, Object>> getCustomDataMap() {
+        return customDataMap;
+    }
+
+    @DataBoundSetter
+    public void setCustomDataMap(Map<String, Map<String, Object>> customDataMap) {
+        this.customDataMap = customDataMap;
+    }
+
+    public Map<String, Map<String, String>> getCustomDataMapTags() {
+        return customDataMapTags;
+    }
+
+    @DataBoundSetter
+    public void setCustomDataMapTags(Map<String, Map<String, String>> customDataMapTags) {
+        this.customDataMapTags = customDataMapTags;
+    }
+
     public String getJenkinsEnvParameterField() {
         return jenkinsEnvParameterField;
     }
@@ -95,47 +131,13 @@ public class InfluxDbStep extends Step {
         this.jenkinsEnvParameterTag = jenkinsEnvParameterTag;
     }
 
-    @DataBoundSetter
-    public void setCustomData(Map<String, Object> customData) {
-        this.customData = customData;
+    public String getMeasurementName() {
+        return measurementName;
     }
-
-    public Map<String, Object> getCustomData() {
-        return customData;
-    }
-
-    @DataBoundSetter
-    public void setCustomDataTags(Map<String, String> customDataTags) {
-        this.customDataTags = customDataTags;
-    }
-
-    public Map<String, String> getCustomDataTags() {
-        return customDataTags;
-    }
-
-    @DataBoundSetter
-    public void setCustomDataMap(Map<String, Map<String, Object>> customDataMap) {
-        this.customDataMap = customDataMap;
-    }
-
-    public Map<String, Map<String, Object>> getCustomDataMap() {
-        return customDataMap;
-    }
-
-    @DataBoundSetter
-    public void setCustomDataMapTags(Map<String, Map<String, String>> customDataMapTags) {
-        this.customDataMapTags = customDataMapTags;
-    }
-
-    public Map<String, Map<String, String>> getCustomDataMapTags() { return customDataMapTags; }
 
     @DataBoundSetter
     public void setMeasurementName(String measurementName) {
         this.measurementName = measurementName;
-    }
-
-    public String getMeasurementName() {
-        return measurementName;
     }
 
     public boolean getReplaceDashWithUnderscore() {
