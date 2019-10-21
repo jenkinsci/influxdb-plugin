@@ -4,7 +4,7 @@ import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import jenkinsci.plugins.influxdb.models.Target;
+import jenkins.model.Jenkins;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -18,10 +18,11 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
+import java.util.Collections;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "org.w3c.*", "javax.activation.*"})
-@PrepareForTest(InfluxDbPublisher.class)
+@PrepareForTest(Jenkins.class)
 public class InfluxDbPublisherTest {
 
     @Rule
@@ -41,8 +42,11 @@ public class InfluxDbPublisherTest {
         exception.expectMessage("Target was null!");
 
         InfluxDbPublisher.DescriptorImpl descriptorMock = Mockito.mock(InfluxDbPublisher.DescriptorImpl.class);
-        Mockito.when(descriptorMock.getTargets()).thenReturn(new Target[0]);
-        PowerMockito.whenNew(InfluxDbPublisher.DescriptorImpl.class).withNoArguments().thenReturn(descriptorMock);
+        Jenkins jenkinsMock = Mockito.mock(Jenkins.class);
+        Mockito.when(descriptorMock.getTargets()).thenReturn(Collections.emptyList());
+        Mockito.when(jenkinsMock.getDescriptorByType(InfluxDbPublisher.DescriptorImpl.class)).thenReturn(descriptorMock);
+        PowerMockito.mockStatic(Jenkins.class);
+        PowerMockito.when(Jenkins.getInstance()).thenReturn(jenkinsMock);
 
         try {
             new InfluxDbPublisher("").perform(build, workspace, launcher, listener);

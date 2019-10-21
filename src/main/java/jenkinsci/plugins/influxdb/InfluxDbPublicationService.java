@@ -91,25 +91,6 @@ public class InfluxDbPublicationService {
     private final Map<String, String> customDataTags;
 
     /**
-     * Custom tags that are sent to all measurements defined in customDataMaps.
-     * <p>
-     * Example for a pipeline script:
-     * <pre>{@code
-     * def myCustomDataMapTags = [:]
-     * def myCustomTags = [:]
-     * myCustomTags['buildResult'] = currentBuild.result
-     * myCustomTags['NODE_LABELS'] = env.NODE_LABELS
-     * myCustomDataMapTags['series1'] = myCustomTags
-     * step([$class: 'InfluxDbPublisher',
-     *       target: myTarget,
-     *       customPrefix: 'myPrefix',
-     *       customDataMap: myCustomDataMap,
-     *       customDataMapTags: myCustomDataMapTags])
-     * }</pre>
-     */
-    private final Map<String, Map<String, String>> customDataMapTags;
-
-    /**
      * Custom data maps, especially in pipelines, where additional information is calculated
      * or retrieved by Groovy functions which should be sent to InfluxDB.
      * <p>
@@ -134,6 +115,25 @@ public class InfluxDbPublicationService {
      * }</pre>
      */
     private final Map<String, Map<String, Object>> customDataMap;
+
+    /**
+     * Custom tags that are sent to all measurements defined in customDataMaps.
+     * <p>
+     * Example for a pipeline script:
+     * <pre>{@code
+     * def myCustomDataMapTags = [:]
+     * def myCustomTags = [:]
+     * myCustomTags['buildResult'] = currentBuild.result
+     * myCustomTags['NODE_LABELS'] = env.NODE_LABELS
+     * myCustomDataMapTags['series1'] = myCustomTags
+     * step([$class: 'InfluxDbPublisher',
+     *       target: myTarget,
+     *       customPrefix: 'myPrefix',
+     *       customDataMap: myCustomDataMap,
+     *       customDataMapTags: myCustomDataMapTags])
+     * }</pre>
+     */
+    private final Map<String, Map<String, String>> customDataMapTags;
 
     /**
      * Jenkins parameter(s) which will be added as field set to measurement 'jenkins_data'.
@@ -172,8 +172,8 @@ public class InfluxDbPublicationService {
         this.customPrefix = customPrefix;
         this.customData = customData;
         this.customDataTags = customDataTags;
-        this.customDataMapTags = customDataMapTags;
         this.customDataMap = customDataMap;
+        this.customDataMapTags = customDataMapTags;
         this.timestamp = timestamp;
         this.jenkinsEnvParameterField = jenkinsEnvParameterField;
         this.jenkinsEnvParameterTag = jenkinsEnvParameterTag;
@@ -183,7 +183,7 @@ public class InfluxDbPublicationService {
 
     public void perform(Run<?, ?> build, TaskListener listener, EnvVars env) {
         // Logging
-        listener.getLogger().println("[InfluxDB Plugin] Collecting data for publication in InfluxDB...");
+        listener.getLogger().println("[InfluxDB Plugin] Collecting data...");
 
         // Renderer to use for the metrics
         MeasurementRenderer<Run<?, ?>> measurementRenderer = new ProjectNameRenderer(customPrefix, customProjectName);
@@ -279,17 +279,24 @@ public class InfluxDbPublicationService {
         }
 
         for (Target target : selectedTargets) {
-            String logMessage = "[InfluxDB Plugin] Publishing data to: " + target;
-            logger.log(Level.FINE, logMessage);
-            listener.getLogger().println(logMessage);
-
             URL url;
             try {
                 url = new URL(target.getUrl());
             } catch (MalformedURLException e) {
-                listener.getLogger().println("[InfluxDB Plugin] Skipping target due to invalid URL: " + target.getUrl());
+                String logMessage = String.format("[InfluxDB Plugin] Skipping target '%s' due to invalid URL '%s'",
+                        target.getDescription(),
+                        target.getUrl());
+                logger.log(Level.WARNING, logMessage);
+                listener.getLogger().println(logMessage);
                 continue;
             }
+
+            String logMessage = String.format("[InfluxDB Plugin] Publishing data to target '%s' (url='%s', database='%s')",
+                    target.getDescription(),
+                    target.getUrl(),
+                    target.getDatabase());
+            logger.log(Level.FINE, logMessage);
+            listener.getLogger().println(logMessage);
 
             OkHttpClient.Builder httpClient = createHttpClient(url, target.isUsingJenkinsProxy());
             InfluxDB influxDB = StringUtils.isEmpty(target.getUsername()) ?
