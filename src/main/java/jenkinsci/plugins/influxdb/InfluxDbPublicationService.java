@@ -301,8 +301,9 @@ public class InfluxDbPublicationService {
             OkHttpClient.Builder httpClient = createHttpClient(url, target.isUsingJenkinsProxy());
             InfluxDB influxDB = StringUtils.isEmpty(target.getUsername()) ?
                     InfluxDBFactory.connect(target.getUrl(), httpClient) :
-                    InfluxDBFactory.connect(target.getUrl(), target.getUsername(), Secret.toString(target.getPassword()), httpClient);
+                    InfluxDBFactory.connect(target.getUrl(), target.getUsername(), target.getPassword().getPlainText(), httpClient);
             writeToInflux(target, influxDB, pointsToWrite);
+
         }
 
         listener.getLogger().println("[InfluxDB Plugin] Completed.");
