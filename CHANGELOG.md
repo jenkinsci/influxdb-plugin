@@ -1,5 +1,8 @@
 # Release catalogue
 
+## Newer Versions:
+See [GitHub releases](https://github.com/jenkinsci/influxdb-plugin/releases)
+
 ## 2.0.1
 29.8.2019
 
