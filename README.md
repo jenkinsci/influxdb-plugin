@@ -3,7 +3,9 @@ following warnings before using an older version:
 > -   [Credentials stored in plain
     text](https://jenkins.io/security/advisory/2019-05-31/#SECURITY-1403)
 
+[![Jenkins Plugin](https://img.shields.io/jenkins/plugin/v/influxdb.svg)](https://plugins.jenkins.io/influxdb)
 [![Jenkins.io Build Status](https://ci.jenkins.io/buildStatus/icon?job=Plugins%2Finfluxdb-plugin%2Fmaster)](https://ci.jenkins.io/job/Plugins/job/influxdb-plugin/job/master/)
+[![Jenkins Plugin Installs](https://img.shields.io/jenkins/plugin/i/influxdb.svg?color=blue)](https://plugins.jenkins.io/influxdb)
 
 # Description
 
