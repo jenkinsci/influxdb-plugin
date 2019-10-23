@@ -32,7 +32,7 @@ THE SOFTWARE.
     </parent>
 
     <artifactId>influxdb</artifactId>
-    <url>https://wiki.jenkins-ci.org/display/JENKINS/InfluxDB+Plugin</url>
+    <url>https://github.com/jenkinsci/influxdb-plugin</url>
     <version>2.0.2-SNAPSHOT</version>
     <packaging>hpi</packaging>
 
