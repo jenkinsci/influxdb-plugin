@@ -1,0 +1,4 @@
+_extends: .github
+name-template: $NEXT_PATCH_VERSION
+tag-template: influxdb-$NEXT_VERSION_VERSION
+version-template: $MAJOR.$MINOR.$PATCH
