@@ -54,8 +54,7 @@ public class GlobalRunListener extends RunListener<Run<?, ?>> {
                     System.currentTimeMillis() * 1000000,
                     null,
                     null,
-                    "jenkins_data",
-                    true
+                    "jenkins_data"
             );
 
             EnvVars env;

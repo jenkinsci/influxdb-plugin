@@ -25,9 +25,9 @@ public class PerformancePointGenerator extends AbstractPointGenerator {
     private final String customPrefix;
     private final PerformanceBuildAction performanceBuildAction;
 
-    public PerformancePointGenerator(MeasurementRenderer<Run<?,?>> measurementRenderer, String customPrefix, Run<?, ?> build,
-                                     long timestamp, boolean replaceDashWithUnderscore) {
-        super(measurementRenderer, timestamp, replaceDashWithUnderscore);
+    public PerformancePointGenerator(MeasurementRenderer<Run<?, ?>> projectNameRenderer, String customPrefix, Run<?, ?> build,
+                                     long timestamp) {
+        super(projectNameRenderer, timestamp);
         this.build = build;
         this.customPrefix = customPrefix;
         performanceBuildAction = build.getAction(PerformanceBuildAction.class);
@@ -50,7 +50,7 @@ public class PerformancePointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateReportPoint(PerformanceReport performanceReport) {
-        Point point = buildPoint(measurementName("performance_data"), customPrefix, build)
+        Point point = buildPoint("performance_data", customPrefix, build)
             .addField(PERFORMANCE_ERROR_PERCENT, performanceReport.errorPercent())
             .addField(PERFORMANCE_ERROR_COUNT, performanceReport.countErrors())
             .addField(PERFORMANCE_AVERAGE, performanceReport.getAverage())

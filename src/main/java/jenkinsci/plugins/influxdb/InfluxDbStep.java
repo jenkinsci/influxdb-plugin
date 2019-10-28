@@ -35,7 +35,9 @@ public class InfluxDbStep extends Step {
     private String jenkinsEnvParameterField;
     private String jenkinsEnvParameterTag;
     private String measurementName;
-    private boolean replaceDashWithUnderscore;
+
+    @Deprecated
+    private transient boolean replaceDashWithUnderscore;
 
     @DataBoundConstructor
     public InfluxDbStep(String selectedTarget) {
@@ -139,10 +141,7 @@ public class InfluxDbStep extends Step {
         this.measurementName = measurementName;
     }
 
-    public boolean getReplaceDashWithUnderscore() {
-        return replaceDashWithUnderscore;
-    }
-
+    @Deprecated
     @DataBoundSetter
     public void setReplaceDashWithUnderscore(boolean replaceDashWithUnderscore) {
         this.replaceDashWithUnderscore = replaceDashWithUnderscore;
@@ -164,6 +163,9 @@ public class InfluxDbStep extends Step {
 
     @Override
     public StepExecution start(StepContext context) throws Exception {
+        if (replaceDashWithUnderscore) {
+            context.get(TaskListener.class).getLogger().println("[InfluxDB Plugin][WARNING] Option \"replaceDashWithUnderscore\" is deprecated and will be removed. It is ignored now. Please remove it.");
+        }
         return new InfluxDbStepExecution(this, context);
     }
 

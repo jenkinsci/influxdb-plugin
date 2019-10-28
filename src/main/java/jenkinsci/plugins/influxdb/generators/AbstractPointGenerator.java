@@ -16,28 +16,17 @@ public abstract class AbstractPointGenerator implements PointGenerator {
     public static final String CUSTOM_PREFIX = "prefix";
 
     protected final long timestamp;
-    protected final boolean replaceDashWithUnderscore;
 
     private final MeasurementRenderer projectNameRenderer;
 
-    public AbstractPointGenerator(MeasurementRenderer projectNameRenderer, long timestamp, boolean replaceDashWithUnderscore) {
+    public AbstractPointGenerator(MeasurementRenderer projectNameRenderer, long timestamp) {
         this.projectNameRenderer = Objects.requireNonNull(projectNameRenderer);
         this.timestamp = timestamp;
-        this.replaceDashWithUnderscore = replaceDashWithUnderscore;
     }
 
     @Override
     public Point.Builder buildPoint(String name, String customPrefix, Run<?, ?> build, long timestamp) {
-        String projectName;
-
-        if (replaceDashWithUnderscore) {
-            projectName = projectNameRenderer.render(build);
-        } else if (customPrefix != null) {
-            projectName = customPrefix + "_" + build.getParent().getName();
-        } else {
-            projectName = build.getParent().getName();
-        }
-
+        String projectName = projectNameRenderer.render(build);
         String projectPath = build.getParent().getRelativeNameFrom(Jenkins.getInstance());
 
         Point.Builder builder = Point
@@ -48,7 +37,7 @@ public abstract class AbstractPointGenerator implements PointGenerator {
                 .time(timestamp, TimeUnit.NANOSECONDS);
 
         if (customPrefix != null && !customPrefix.isEmpty()) {
-            builder.tag(CUSTOM_PREFIX, replaceDashWithUnderscore ? measurementName(customPrefix) : customPrefix);
+            builder.tag(CUSTOM_PREFIX, customPrefix);
         }
 
         builder.tag(PROJECT_NAME, projectName);
@@ -59,10 +48,5 @@ public abstract class AbstractPointGenerator implements PointGenerator {
 
     public Point.Builder buildPoint(String name, String customPrefix, Run<?, ?> build) {
         return buildPoint(name, customPrefix, build, timestamp);
-    }
-
-    protected String measurementName(String measurement) {
-        // InfluxDB discourages "-" in measurement names.
-        return measurement.replace('-', '_');
     }
 }

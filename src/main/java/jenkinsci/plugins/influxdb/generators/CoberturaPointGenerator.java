@@ -23,9 +23,9 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
     private final CoberturaBuildAction coberturaBuildAction;
     private final String customPrefix;
 
-    public CoberturaPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix,
-                                   Run<?, ?> build, long timestamp, boolean replaceDashWithUnderscore) {
-        super(projectNameRenderer, timestamp, replaceDashWithUnderscore);
+    public CoberturaPointGenerator(MeasurementRenderer<Run<?, ?>> projectNameRenderer, String customPrefix,
+                                   Run<?, ?> build, long timestamp) {
+        super(projectNameRenderer, timestamp);
         this.build = build;
         this.customPrefix = customPrefix;
         coberturaBuildAction = build.getAction(CoberturaBuildAction.class);
@@ -43,7 +43,7 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
         Ratio classes = result.getCoverage(CoverageMetric.CLASSES);
         Ratio files = result.getCoverage(CoverageMetric.FILES);
 
-        Point point = buildPoint(measurementName("cobertura_data"), customPrefix, build)
+        Point point = buildPoint("cobertura_data", customPrefix, build)
             .addField(COBERTURA_NUMBER_OF_PACKAGES, packages.denominator)
             .addField(COBERTURA_NUMBER_OF_SOURCEFILES, files.denominator)
             .addField(COBERTURA_NUMBER_OF_CLASSES, classes.denominator)

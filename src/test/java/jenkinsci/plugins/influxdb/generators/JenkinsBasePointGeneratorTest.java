@@ -79,7 +79,7 @@ public class JenkinsBasePointGeneratorTest {
     public void agent_present() {
         Mockito.when(build.getExecutor()).thenReturn(executor);
         Mockito.when(mockedEnvVars.get("NODE_NAME")).thenReturn("slave-1");
-        JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(measurementRenderer, AbstractPointGenerator.CUSTOM_PREFIX, build, currTime, listener, StringUtils.EMPTY, StringUtils.EMPTY, MEASUREMENT_NAME, true, mockedEnvVars);
+        JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(measurementRenderer, AbstractPointGenerator.CUSTOM_PREFIX, build, currTime, listener, StringUtils.EMPTY, StringUtils.EMPTY, MEASUREMENT_NAME, mockedEnvVars);
         Point[] points = generator.generate();
         String lineProtocol = points[0].lineProtocol();
 
@@ -90,7 +90,7 @@ public class JenkinsBasePointGeneratorTest {
     @Test
     public void agent_not_present() {
         Mockito.when(build.getExecutor()).thenReturn(null);
-        JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(measurementRenderer, AbstractPointGenerator.CUSTOM_PREFIX, build, currTime, listener, StringUtils.EMPTY, StringUtils.EMPTY, MEASUREMENT_NAME, true, mockedEnvVars);
+        JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(measurementRenderer, AbstractPointGenerator.CUSTOM_PREFIX, build, currTime, listener, StringUtils.EMPTY, StringUtils.EMPTY, MEASUREMENT_NAME, mockedEnvVars);
         Point[] points = generator.generate();
         String lineProtocol = points[0].lineProtocol();
 
@@ -100,7 +100,7 @@ public class JenkinsBasePointGeneratorTest {
 
     @Test
     public void scheduled_and_start_and_end_time_present() {
-        JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(measurementRenderer, StringUtils.EMPTY, build, currTime, listener, StringUtils.EMPTY, StringUtils.EMPTY, MEASUREMENT_NAME, true, mockedEnvVars);
+        JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(measurementRenderer, StringUtils.EMPTY, build, currTime, listener, StringUtils.EMPTY, StringUtils.EMPTY, MEASUREMENT_NAME, mockedEnvVars);
         Point[] generatedPoints = generator.generate();
         String lineProtocol = generatedPoints[0].lineProtocol();
 
@@ -112,7 +112,7 @@ public class JenkinsBasePointGeneratorTest {
     @Test
     public void valid_jenkins_env_parameter_for_fields_present() {
         JenkinsBasePointGenerator jenkinsBasePointGenerator =
-                new JenkinsBasePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, listener, JENKINS_ENV_PARAMETER_FIELD, StringUtils.EMPTY, MEASUREMENT_NAME, true, mockedEnvVars);
+                new JenkinsBasePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, listener, JENKINS_ENV_PARAMETER_FIELD, StringUtils.EMPTY, MEASUREMENT_NAME, mockedEnvVars);
         Point[] generatedPoints = jenkinsBasePointGenerator.generate();
         String lineProtocol = generatedPoints[0].lineProtocol();
 
@@ -132,7 +132,7 @@ public class JenkinsBasePointGeneratorTest {
     @Test
     public void valid_jenkins_env_parameter_for_tags_present() {
         JenkinsBasePointGenerator jenkinsBasePointGenerator =
-                new JenkinsBasePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, listener, StringUtils.EMPTY, JENKINS_ENV_PARAMETER_TAG, MEASUREMENT_NAME, true, mockedEnvVars);
+                new JenkinsBasePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, listener, StringUtils.EMPTY, JENKINS_ENV_PARAMETER_TAG, MEASUREMENT_NAME, mockedEnvVars);
         Point[] generatedPoints = jenkinsBasePointGenerator.generate();
         String lineProtocol = generatedPoints[0].lineProtocol();
 
@@ -152,7 +152,7 @@ public class JenkinsBasePointGeneratorTest {
     @Test
     public void valid_jenkins_env_parameter_for_fields_and_tags_present() {
         JenkinsBasePointGenerator jenkinsBasePointGenerator =
-                new JenkinsBasePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, listener, JENKINS_ENV_PARAMETER_FIELD, JENKINS_ENV_PARAMETER_TAG, MEASUREMENT_NAME, true, mockedEnvVars);
+                new JenkinsBasePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, listener, JENKINS_ENV_PARAMETER_FIELD, JENKINS_ENV_PARAMETER_TAG, MEASUREMENT_NAME, mockedEnvVars);
         Point[] generatedPoints = jenkinsBasePointGenerator.generate();
         String lineProtocol = generatedPoints[0].lineProtocol();
 
@@ -173,25 +173,10 @@ public class JenkinsBasePointGeneratorTest {
     public void custom_measurement_included() {
         String customMeasurement = "custom_measurement";
         JenkinsBasePointGenerator jenkinsBasePointGenerator =
-                new JenkinsBasePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, listener, JENKINS_ENV_PARAMETER_FIELD, JENKINS_ENV_PARAMETER_TAG, customMeasurement, true, mockedEnvVars);
+                new JenkinsBasePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, listener, JENKINS_ENV_PARAMETER_FIELD, JENKINS_ENV_PARAMETER_TAG, customMeasurement, mockedEnvVars);
         Point[] generatedPoints = jenkinsBasePointGenerator.generate();
         String lineProtocol = generatedPoints[0].lineProtocol();
 
         assertThat(lineProtocol, startsWith(customMeasurement));
-    }
-
-    @Test
-    public void dashes_are_not_replaced_by_underscores() {
-        String customPrefix = "my-custom-prefix";
-        measurementRenderer = new ProjectNameRenderer(customPrefix, null);
-
-        JenkinsBasePointGenerator jenkinsBasePointGenerator =
-                new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build, currTime,
-                        listener, JENKINS_ENV_PARAMETER_FIELD, JENKINS_ENV_PARAMETER_TAG,
-                        MEASUREMENT_NAME, false, mockedEnvVars);
-        Point[] generatedPoints = jenkinsBasePointGenerator.generate();
-        String lineProtocol = generatedPoints[0].lineProtocol();
-
-        assertThat(lineProtocol, containsString("jenkins_data,build_result=?,prefix=" + customPrefix + ",project_name=" + customPrefix + "_" + JOB_NAME));
     }
 }

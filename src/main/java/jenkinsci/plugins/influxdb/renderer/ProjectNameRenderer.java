@@ -19,7 +19,7 @@ public class ProjectNameRenderer implements MeasurementRenderer<Run<?, ?>> {
 
     @Override
     public String render(Run<?, ?> input) {
-        return measurementName(projectName(customPrefix, customProjectName, input));
+        return projectName(customPrefix, customProjectName, input);
     }
 
     private String projectName(String prefix, String projectName, Run<?, ?> build) {
@@ -30,10 +30,5 @@ public class ProjectNameRenderer implements MeasurementRenderer<Run<?, ?>> {
         return Stream.of(prefix, projectName)
                 .filter(Objects::nonNull)
                 .collect(Collectors.joining("_"));
-    }
-
-    private String measurementName(String measurement) {
-        // InfluxDB discourages "-" in measurement names.
-        return measurement.replace('-', '_');
     }
 }
