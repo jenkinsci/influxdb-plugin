@@ -167,9 +167,8 @@ Select the InfluxDB target you wish to publish the data to.
 ![](doc/img/select-influxdb-target.png)
 
 From the Advanced tab you can choose to set a custom prefix for your `project_name` field,
-a custom project name to be used instead of the default job name, custom fields and tags for
-your `jenkins_data` metric, and choose whether you want to replace dash (`-`) characters with
-underscore (`_`) characters for tag values.
+a custom project name to be used instead of the default job name and custom fields and tags
+for your `jenkins_data` metric.
 
 ![](doc/img/advanced-options.png)
 
@@ -191,13 +190,13 @@ influxDbPublisher(selectedTarget: 'myTarget'[, any other parameters you want to 
 ``` syntaxhighlighter-pre
 step([$class: 'InfluxDbPublisher',
         selectedTarget: 'myTarget',
+        customPrefix: null,                             // OPTIONAL
+        customProjectName: null,                        // OPTIONAL
         customData: null,                               // OPTIONAL
         customDataMap: null,                            // OPTIONAL
-        customPrefix: null,                             // OPTIONAL
         jenkinsEnvParameterTag: 'KEY=' + env.PARAM,     // OPTIONAL, custom tags
         jenkinsEnvParameterField: 'KEY=' + env.PARAM,   // OPTIONAL, custom fields
         measurementName: 'myMeasurementName',           // OPTIONAL, custom measurement name. Replaces default "jenkins_data" and "jenkins_custom_data"
-        replaceDashWithUnderscore: true,                // OPTIONAL, replace "-" with "_" for tag names. Default=false
     ])
 ```
 
@@ -209,10 +208,11 @@ build and not by the plugin, so they are not available in the snippet generator.
 >
 >``` syntaxhighlighter-pre
 >step([$class: 'InfluxDbPublisher',
+>        target: 'http://127.0.0.1:8086,jenkins_db',
+>        customPrefix: null,
+>        customProjectName: null,
 >        customData: null,
 >        customDataMap: null,
->        customPrefix: null,
->        target: 'http://127.0.0.1:8086,jenkins_db',
 >    ])
 >```
 > This form of configuration is not supported from version 1.11 onwards.
@@ -283,8 +283,6 @@ target.exposeExceptions = true // default = true
 target.jobScheduledTimeAsPointsTimestamp = true // default = false
 target.usingJenkinsProxy = true // default = false
 target.retentionPolicy = '1d' // default = 'autogen'
-// NEW in version 1.20.1
-target.replaceDashWithUnderscore = true // default = false
 
 // Add a target by using the created target object
 influxdb.addTarget(target)
@@ -346,6 +344,3 @@ Comment your changes sufficiently and create appropriate tests.
 
 If you have an idea for a new feature or you want to report a bug,
 please use the [Jenkins issue tracker](https://issues.jenkins-ci.org/issues/?jql=project%20%3D%20JENKINS%20AND%20component%20%3D%20influxdb-plugin).
-
-
-

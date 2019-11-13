@@ -32,7 +32,6 @@ public class InfluxDbStepExecution extends SynchronousNonBlockingStepExecution<V
         publisher.setJenkinsEnvParameterField(step.getJenkinsEnvParameterField());
         publisher.setJenkinsEnvParameterTag(step.getJenkinsEnvParameterTag());
         publisher.setMeasurementName(step.getMeasurementName());
-        publisher.setReplaceDashWithUnderscore(step.getReplaceDashWithUnderscore());
         publisher.setEnv(getContext().get(EnvVars.class));
 
         publisher.perform(getContext().get(Run.class), workspace, getContext().get(Launcher.class), getContext().get(TaskListener.class));

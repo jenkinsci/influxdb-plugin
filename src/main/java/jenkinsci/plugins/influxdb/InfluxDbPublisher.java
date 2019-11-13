@@ -41,7 +41,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
     private String jenkinsEnvParameterField;
     private String jenkinsEnvParameterTag;
     private String measurementName;
-    private boolean replaceDashWithUnderscore;
     private EnvVars env;
 
     @DataBoundConstructor
@@ -146,15 +145,6 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
         this.measurementName = measurementName;
     }
 
-    public boolean getReplaceDashWithUnderscore() {
-        return replaceDashWithUnderscore;
-    }
-
-    @DataBoundSetter
-    public void setReplaceDashWithUnderscore(boolean replaceDashWithUnderscore) {
-        this.replaceDashWithUnderscore = replaceDashWithUnderscore;
-    }
-
     private String getMeasurementNameIfNotBlankOrDefault() {
         return measurementName != null ? measurementName : DEFAULT_MEASUREMENT_NAME;
     }
@@ -225,8 +215,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
                 currTime,
                 jenkinsEnvParameterField,
                 jenkinsEnvParameterTag,
-                measurementName,
-                replaceDashWithUnderscore);
+                measurementName);
 
         // Publishes the metrics
         publicationService.perform(build, listener, env);

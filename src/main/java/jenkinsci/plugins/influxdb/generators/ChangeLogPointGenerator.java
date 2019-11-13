@@ -25,8 +25,8 @@ public class ChangeLogPointGenerator extends AbstractPointGenerator {
     private int commitCount = 0;
 
     public ChangeLogPointGenerator(MeasurementRenderer<Run<?, ?>> projectNameRenderer, String customPrefix,
-            Run<?, ?> build, long timestamp, boolean replaceDashWithUnderscore) {
-        super(projectNameRenderer, timestamp, replaceDashWithUnderscore);
+                                   Run<?, ?> build, long timestamp) {
+        super(projectNameRenderer, timestamp);
         this.build = build;
         this.customPrefix = customPrefix;
     }
@@ -40,7 +40,7 @@ public class ChangeLogPointGenerator extends AbstractPointGenerator {
     }
 
     public Point[] generate() {
-        Point.Builder point = buildPoint(measurementName("changelog_data"), customPrefix, build);
+        Point.Builder point = buildPoint("changelog_data", customPrefix, build);
 
         point.addField(BUILD_DISPLAY_NAME, build.getDisplayName())
                 .addField("commit_messages", this.getMessages())

@@ -56,8 +56,8 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     public JenkinsBasePointGenerator(MeasurementRenderer<Run<?, ?>> projectNameRenderer, String customPrefix,
                                      Run<?, ?> build, long timestamp, TaskListener listener,
                                      String jenkinsEnvParameterField, String jenkinsEnvParameterTag,
-                                     String measurementName, boolean replaceDashWithUnderscore, EnvVars env) {
-        super(projectNameRenderer, timestamp, replaceDashWithUnderscore);
+                                     String measurementName, EnvVars env) {
+        super(projectNameRenderer, timestamp);
         this.build = build;
         this.customPrefix = customPrefix;
         this.listener = listener;
@@ -89,7 +89,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             ordinal = buildResult.ordinal;
         }
 
-        Point.Builder point = buildPoint(measurementName(measurementName), customPrefix, build);
+        Point.Builder point = buildPoint(measurementName, customPrefix, build);
 
         point.addField(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
             .addField(BUILD_SCHEDULED_TIME, build.getTimeInMillis())

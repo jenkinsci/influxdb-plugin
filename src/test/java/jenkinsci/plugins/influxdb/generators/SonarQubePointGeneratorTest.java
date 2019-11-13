@@ -41,7 +41,7 @@ public class SonarQubePointGeneratorTest {
     public void getSonarProjectNameFromNewSonarQube() throws Exception {
         String name = "org.namespace:feature%2Fmy-sub-project";
         String url = sonarUrl + "/dashboard?id=" + name;
-        SonarQubePointGenerator gen = new SonarQubePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null, true);
+        SonarQubePointGenerator gen = new SonarQubePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null);
         assertThat(gen.getSonarProjectName(url), is(name));
     }
 
@@ -49,7 +49,7 @@ public class SonarQubePointGeneratorTest {
     public void getSonarProjectName() throws Exception {
         String name = "org.namespace:feature%2Fmy-sub-project";
         String url = sonarUrl + "/dashboard/index/" + name;
-        SonarQubePointGenerator gen = new SonarQubePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null, true);
+        SonarQubePointGenerator gen = new SonarQubePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null);
         assertThat(gen.getSonarProjectName(url), is(name));
     }
 }

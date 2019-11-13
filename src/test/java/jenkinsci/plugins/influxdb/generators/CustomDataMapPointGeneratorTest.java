@@ -48,12 +48,12 @@ public class CustomDataMapPointGeneratorTest {
     public void hasReport() {
         //check with customDataMap = null
         CustomDataMapPointGenerator cdmGen1 = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
-                currTime, null, null, true);
+                currTime, null, null);
         assertThat(cdmGen1.hasReport(), is(false));
 
         //check with empty customDataMap
         CustomDataMapPointGenerator cdmGen2 = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
-                currTime, Collections.emptyMap(), Collections.emptyMap(), true);
+                currTime, Collections.emptyMap(), Collections.emptyMap());
         assertThat(cdmGen2.hasReport(), is(false));
     }
 
@@ -77,7 +77,7 @@ public class CustomDataMapPointGeneratorTest {
         customDataMapTags.put("series1", customTags);
 
         CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
-                currTime, customDataMap, customDataMapTags, true);
+                currTime, customDataMap, customDataMapTags);
         Point[] pointsToWrite = cdmGen.generate();
 
         String lineProtocol1;

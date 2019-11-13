@@ -49,11 +49,11 @@ public class CustomDataPointGeneratorTest {
     @Test
     public void hasReport() {
         //check with customDataMap = null
-        CustomDataPointGenerator cdGen1 = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null, null, MEASUREMENT_NAME, true);
+        CustomDataPointGenerator cdGen1 = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null, null, MEASUREMENT_NAME);
         assertThat(cdGen1.hasReport(), is(false));
 
         //check with empty customDataMap
-        CustomDataPointGenerator cdGen2 = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, Collections.emptyMap(), null, MEASUREMENT_NAME, true);
+        CustomDataPointGenerator cdGen2 = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, Collections.emptyMap(), null, MEASUREMENT_NAME);
         assertThat(cdGen2.hasReport(), is(false));
     }
 
@@ -66,7 +66,7 @@ public class CustomDataPointGeneratorTest {
         Map<String, String> customDataTags = new HashMap<>();
         customDataTags.put("tag1", "myTag");
 
-        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, customData, customDataTags, MEASUREMENT_NAME, true);
+        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, customData, customDataTags, MEASUREMENT_NAME);
         Point[] pointsToWrite = cdGen.generate();
 
         String lineProtocol = pointsToWrite[0].lineProtocol();
@@ -83,7 +83,7 @@ public class CustomDataPointGeneratorTest {
         Map<String, String> customDataTags = new HashMap<>();
         customDataTags.put("tag1", "myTag");
 
-        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, customData, customDataTags, customMeasurement, true);
+        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, customData, customDataTags, customMeasurement);
         Point[] pointsToWrite = cdGen.generate();
 
         String lineProtocol = pointsToWrite[0].lineProtocol();

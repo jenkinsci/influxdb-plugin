@@ -18,10 +18,10 @@ public class CustomDataPointGenerator extends AbstractPointGenerator {
     private final Map<String, Object> customData;
     private final Map<String, String> customDataTags;
 
-    public CustomDataPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix,
+    public CustomDataPointGenerator(MeasurementRenderer<Run<?, ?>> projectNameRenderer, String customPrefix,
                                     Run<?, ?> build, long timestamp, Map customData,
-                                    Map<String, String> customDataTags, String measurementName, boolean replaceDashWithUnderscore) {
-        super(projectNameRenderer, timestamp, replaceDashWithUnderscore);
+                                    Map<String, String> customDataTags, String measurementName) {
+        super(projectNameRenderer, timestamp);
         this.build = build;
         this.customPrefix = customPrefix;
         this.customData = customData;
@@ -39,7 +39,7 @@ public class CustomDataPointGenerator extends AbstractPointGenerator {
         long currTime = System.currentTimeMillis();
         long dt = currTime - startTime;
 
-        Point.Builder pointBuilder = buildPoint(measurementName(measurementName), customPrefix, build)
+        Point.Builder pointBuilder = buildPoint(measurementName, customPrefix, build)
                 .addField(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
                 .fields(customData);
 
