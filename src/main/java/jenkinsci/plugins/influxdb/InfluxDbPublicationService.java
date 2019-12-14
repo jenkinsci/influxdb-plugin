@@ -58,17 +58,15 @@ public class InfluxDbPublicationService {
     private final String customPrefix;
 
     /**
-     * Custom data, especially in pipelines, where additional information is calculated
+     * Custom data fields, especially in pipelines, where additional information is calculated
      * or retrieved by Groovy functions which should be sent to InfluxDB.
      * <p>
-     * Inside a pipeline script this can easily be done by calling:
+     * Example for a pipeline script:
      * <pre>{@code
-     * def myDataMap = [:]
-     * myDataMap['myKey'] = 'myValue'
-     * step([$class: 'InfluxDbPublisher',
-     *       target: myTarget,
-     *       customPrefix: 'myPrefix',
-     *       customData: myDataMap])
+     * def myFields = [:]
+     * myFields['field_a'] = 11
+     * myFields['field_b'] = 12
+     * influxDbPublisher(target: 'my-target', customData: myFields)
      * }</pre>
      */
     private final Map<String, Object> customData;
@@ -77,21 +75,18 @@ public class InfluxDbPublicationService {
      * Custom data tags, especially in pipelines, where additional information is calculated
      * or retrieved by Groovy functions which should be sent to InfluxDB.
      * <p>
-     * Inside a pipeline script this can easily be done by calling:
+     * Example for a pipeline script:
      * <pre>{@code
-     * def myDataMapTags = [:]
-     * myDataMapTags['myKey'] = 'myValue'
-     * step([$class: 'InfluxDbPublisher',
-     *       target: myTarget,
-     *       customPrefix: 'myPrefix',
-     *       customData: myDataMap,
-     *       customDataTags: myDataMapTags])
+     * def myTags = [:]
+     * myTags['tag_1'] = 'foo'
+     * myTags['tag_2'] = 'bar'
+     * influxDbPublisher(target: 'my-target', customData: ..., customDataTags: myTags)
      * }</pre>
      */
     private final Map<String, String> customDataTags;
 
     /**
-     * Custom data maps, especially in pipelines, where additional information is calculated
+     * Custom data maps for fields, especially in pipelines, where additional information is calculated
      * or retrieved by Groovy functions which should be sent to InfluxDB.
      * <p>
      * This goes beyond {@code customData} since it allows to define multiple {@code customData} measurements
@@ -99,38 +94,34 @@ public class InfluxDbPublicationService {
      * <p>
      * Example for a pipeline script:
      * <pre>{@code
-     * def myDataMap1 = [:]
-     * def myDataMap2 = [:]
-     * def myCustomDataMap = [:]
-     * myDataMap1['myMap1Key1'] = 11 // first value of first map
-     * myDataMap1['myMap1Key2'] = 12 // second value of first map
-     * myDataMap2['myMap2Key1'] = 21 // first value of second map
-     * myDataMap2['myMap2Key2'] = 22 // second value of second map
-     * myCustomDataMap['series1'] = myDataMap1
-     * myCustomDataMap['series2'] = myDataMap2
-     * step([$class: 'InfluxDbPublisher',
-     *       target: myTarget,
-     *       customPrefix: 'myPrefix',
-     *       customDataMap: myCustomDataMap])
+     * def myFields1 = [:]
+     * def myFields2 = [:]
+     * def myCustomMeasurementFields = [:]
+     * myFields1['field_a'] = 11
+     * myFields1['field_b'] = 12
+     * myFields2['field_c'] = 21
+     * myFields2['field_d'] = 22
+     * myCustomMeasurementFields['series_1'] = myFields1
+     * myCustomMeasurementFields['series_2'] = myFields2
+     * influxDbPublisher(target: 'my-target', customDataMap: myCustomMeasurementFields)
      * }</pre>
      */
     private final Map<String, Map<String, Object>> customDataMap;
 
     /**
-     * Custom tags that are sent to all measurements defined in customDataMaps.
+     * Custom data maps for tags, especially in pipelines, where additional information is calculated
+     * or retrieved by Groovy functions which should be sent to InfluxDB.
+     * <p>
+     * Custom tags that are sent to respective measurements defined in {@code customDataMap}.
      * <p>
      * Example for a pipeline script:
      * <pre>{@code
-     * def myCustomDataMapTags = [:]
-     * def myCustomTags = [:]
-     * myCustomTags['buildResult'] = currentBuild.result
-     * myCustomTags['NODE_LABELS'] = env.NODE_LABELS
-     * myCustomDataMapTags['series1'] = myCustomTags
-     * step([$class: 'InfluxDbPublisher',
-     *       target: myTarget,
-     *       customPrefix: 'myPrefix',
-     *       customDataMap: myCustomDataMap,
-     *       customDataMapTags: myCustomDataMapTags])
+     * def myTags = [:]
+     * def myCustomMeasurementTags = [:]
+     * myTags['buildResult'] = currentBuild.result
+     * myTags['NODE_LABELS'] = env.NODE_LABELS
+     * myCustomMeasurementTags['series_1'] = myTags
+     * influxDbPublisher(target: 'my-target', customDataMap: ..., customDataMapTags: myCustomMeasurementTags)
      * }</pre>
      */
     private final Map<String, Map<String, String>> customDataMapTags;
