@@ -141,6 +141,10 @@ public class InfluxDbStep extends Step {
         this.measurementName = measurementName;
     }
 
+    public boolean getReplaceDashWithUnderscore() {
+        return replaceDashWithUnderscore;
+    }
+
     @Deprecated
     @DataBoundSetter
     public void setReplaceDashWithUnderscore(boolean replaceDashWithUnderscore) {
