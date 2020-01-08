@@ -1,12 +1,10 @@
-> :warning: Older versions of this plugin may not be safe to use.
-> Please review the following warnings before using an older version:
-> - [Credentials stored in plain text](https://jenkins.io/security/advisory/2019-05-31/#SECURITY-1403)
+# InfluxDB Plugin for Jenkins
 
 [![Jenkins Plugin](https://img.shields.io/jenkins/plugin/v/influxdb.svg)](https://plugins.jenkins.io/influxdb)
 [![Jenkins.io Build Status](https://ci.jenkins.io/buildStatus/icon?job=Plugins%2Finfluxdb-plugin%2Fmaster)](https://ci.jenkins.io/job/Plugins/job/influxdb-plugin/job/master/)
 [![Jenkins Plugin Installs](https://img.shields.io/jenkins/plugin/i/influxdb.svg?color=blue)](https://plugins.jenkins.io/influxdb)
 
-# Description
+## Description
 
 Collects data from various other Jenkins plugins and sends metrics to InfluxDB. It's also
 possible to send custom data inside pipeline jobs.
@@ -25,7 +23,7 @@ for pipelines and the `target` parameter is no longer supported.
 under jenkinsci.plugins.influxdb.**InfluxDbStep**.DescriptorImpl.
 
 
-# Supported Metrics
+## Supported Metrics
 
 - All metrics
     - Build number
@@ -142,9 +140,9 @@ under jenkinsci.plugins.influxdb.**InfluxDbStep**.DescriptorImpl.
     - Metric name/value/relevancy
 
 
-# Configuration
+## Configuration
 
-## Via Jenkins UI
+### Via Jenkins UI
 
 Create a database in InfluxDB and a user with access rights. In Jenkins,
 go to *Manage Jenkins \> Configure System \> InfluxDB Targets* and click
@@ -162,7 +160,7 @@ actions.
 
 ![](doc/img/post-build-action.png)
 
-## Via Jenkins Pipeline
+### Via Jenkins Pipeline
 
 From version 1.19 onwards, you can create and remove targets in pipelines directly.
 
@@ -209,9 +207,9 @@ influxdb.removeTarget('my-new-target')
 influxdb.save()
 ```
 
-# Usage
+## Usage
 
-## Freestyle Jobs
+### Freestyle Jobs
 
 Select the InfluxDB target you wish to publish the data to.
 
@@ -223,7 +221,7 @@ for your `jenkins_data` metric.
 
 ![](doc/img/advanced-options.png)
 
-## Pipelines
+### Pipelines
 
 The plugin can be used by calling either the `influxDbPublisher()` or the `step()` function.
 
@@ -296,7 +294,7 @@ try {
 }
 ```
 
-# Custom Data
+## Custom Data
 
 You can write custom data to InfluxDB like this:
 
@@ -334,7 +332,7 @@ You can also add tags to your custom measurements with the `customDataMapTags` p
 You **must** use the same map keys as measurement names as in `customDataMap`.
 
 
-# Contribution
+## Contribution
 
 Create a pull request to the `development` branch.
 **No pull requests are merged directly to `master`**.
