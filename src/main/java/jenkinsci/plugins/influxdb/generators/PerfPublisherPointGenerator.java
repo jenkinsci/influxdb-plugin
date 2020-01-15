@@ -1,6 +1,7 @@
 package jenkinsci.plugins.influxdb.generators;
 
 import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.plugins.PerfPublisher.PerfPublisherBuildAction;
 import hudson.plugins.PerfPublisher.Report.Metric;
 import hudson.plugins.PerfPublisher.Report.ReportContainer;
@@ -15,15 +16,15 @@ import java.util.concurrent.TimeUnit;
 
 public class PerfPublisherPointGenerator extends AbstractPointGenerator {
 
-    private final Run<?, ?> build;
     private final String customPrefix;
     private final PerfPublisherBuildAction performanceBuildAction;
     private final TimeGenerator timeGenerator;
 
-    public PerfPublisherPointGenerator(MeasurementRenderer<Run<?, ?>> projectNameRenderer, String customPrefix, Run<?, ?> build,
-                                       long timestamp) {
-        super(projectNameRenderer, timestamp);
-        this.build = build;
+    public PerfPublisherPointGenerator(Run<?, ?> build, TaskListener listener,
+                                       MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                       long timestamp, String jenkinsEnvParameterTag,
+                                       String customPrefix) {
+        super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
         this.customPrefix = customPrefix;
         performanceBuildAction = build.getAction(PerfPublisherBuildAction.class);
         timeGenerator = new TimeGenerator(timestamp);
