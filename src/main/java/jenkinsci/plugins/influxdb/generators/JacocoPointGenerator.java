@@ -1,6 +1,7 @@
 package jenkinsci.plugins.influxdb.generators;
 
 import hudson.model.TaskListener;
+import hudson.plugins.jacoco.model.Coverage;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import org.influxdb.dto.Point;
 
@@ -8,13 +9,12 @@ import hudson.model.Run;
 import hudson.plugins.jacoco.JacocoBuildAction;
 
 public class JacocoPointGenerator extends AbstractPointGenerator {
-
-    private static final String JACOCO_PACKAGE_COVERAGE_RATE = "jacoco_package_coverage_rate";
-    private static final String JACOCO_CLASS_COVERAGE_RATE = "jacoco_class_coverage_rate";
-    private static final String JACOCO_LINE_COVERAGE_RATE = "jacoco_line_coverage_rate";
-    private static final String JACOCO_BRANCH_COVERAGE_RATE = "jacoco_branch_coverage_rate";
-    private static final String JACOCO_METHOD_COVERAGE_RATE = "jacoco_method_coverage_rate";
-    private static final String JACOCO_INSTRUCTION_COVERAGE_RATE = "jacoco_instruction_coverage_rate";
+    private static final String JACOCO_CLASS = "jacoco_class";
+    private static final String JACOCO_LINE = "jacoco_line";
+    private static final String JACOCO_BRANCH = "jacoco_branch";
+    private static final String JACOCO_METHOD = "jacoco_method";
+    private static final String JACOCO_INSTRUCTION = "jacoco_instruction";
+    private static final String JACOCO_COMPLEXITY = "jacoco_complexity";
 
     private final String customPrefix;
     private final JacocoBuildAction jacocoBuildAction;
@@ -33,14 +33,21 @@ public class JacocoPointGenerator extends AbstractPointGenerator {
     }
 
     public Point[] generate() {
-        Point point = buildPoint("jacoco_data", customPrefix, build)
-            .addField(JACOCO_INSTRUCTION_COVERAGE_RATE, jacocoBuildAction.getResult().getInstructionCoverage().getPercentageFloat())
-            .addField(JACOCO_CLASS_COVERAGE_RATE, jacocoBuildAction.getResult().getClassCoverage().getPercentageFloat())
-            .addField(JACOCO_BRANCH_COVERAGE_RATE, jacocoBuildAction.getResult().getBranchCoverage().getPercentageFloat())
-            .addField(JACOCO_LINE_COVERAGE_RATE, jacocoBuildAction.getResult().getLineCoverage().getPercentageFloat())
-            .addField(JACOCO_METHOD_COVERAGE_RATE, jacocoBuildAction.getResult().getMethodCoverage().getPercentageFloat())
-            .build();
+        Point.Builder builder = buildPoint("jacoco_data", customPrefix, build);
+            addFields(builder, JACOCO_CLASS, jacocoBuildAction.getResult().getClassCoverage());
+            addFields(builder, JACOCO_LINE, jacocoBuildAction.getResult().getLineCoverage());
+            addFields(builder, JACOCO_BRANCH, jacocoBuildAction.getResult().getBranchCoverage());
+            addFields(builder, JACOCO_METHOD, jacocoBuildAction.getResult().getMethodCoverage());
+            addFields(builder, JACOCO_INSTRUCTION, jacocoBuildAction.getResult().getInstructionCoverage());
+            addFields(builder, JACOCO_COMPLEXITY, jacocoBuildAction.getResult().getComplexityScore());
+            Point point = builder.build();
         return new Point[] {point};
+    }
+
+    private void addFields(Point.Builder builder, String prefix, Coverage coverage) {
+        builder.addField(prefix + "_coverage_rate", coverage.getPercentageFloat());
+        builder.addField(prefix + "_covered", coverage.getCovered());
+        builder.addField(prefix + "_missed", coverage.getMissed());
     }
 
 }
