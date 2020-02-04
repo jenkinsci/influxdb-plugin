@@ -1,0 +1,1149 @@
+{
+  "report": {
+    "title": "Serenity Summary Report",
+    "tagCategoryTitle": "Category",
+    "version": "",
+    "date": "2020-02-03T06:39:23.189"
+  },
+  "results": {
+    "counts": {
+      "total": 99,
+      "success": 91,
+      "pending": 8,
+      "ignored": 0,
+      "skipped": 0,
+      "failure": 0,
+      "error": 0,
+      "compromised": 0
+    },
+    "percentages": {
+      "success": 92,
+      "pending": 8,
+      "ignored": 0,
+      "skipped": 0,
+      "failure": 0,
+      "error": 0,
+      "compromised": 0
+    },
+    "totalTestDuration": 3275953,
+    "totalClockDuration": 489836,
+    "minTestDuration": 1714,
+    "maxTestDuration": 199957,
+    "averageTestDuration": 46140
+  },
+  "resultsByFeature": [
+    {
+      "featureName": "Authenticate user using MFA during account recovery",
+      "scenarios": [
+        {
+          "title": "Authenticate user using software MFA during account recovery",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Authenticate user using hardware MFA during account recovery",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "featureName": "Authenticate user using security questions during account recovery",
+      "scenarios": [
+        {
+          "title": "New users must set up security questions",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Authenticate user using a security question during account recovery",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Authenticate user using a security question during account recovery (incorrect first answer)",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "featureName": "Configure customer hardware MFA",
+      "scenarios": [
+        {
+          "title": "Enable hardware MFA for a customer that has purchased it",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Import token seed file",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Import token seed file containing an existing token",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "featureName": "Configure user hardware MFA",
+      "scenarios": [
+        {
+          "title": "Enable hardware MFA by customer admin",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Disable hardware MFA by customer admin",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Enable hardware MFA by brand admin",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Disable hardware MFA by brand admin",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "First login for user with hardware MFA enabled",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Login after user hardware MFA configured",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Login with incorrect OTP code presented",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Make hardware MFA token available for reuse when MFA reset for a user",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Make hardware MFA token available for reuse when a user is deleted",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Make hardware MFA token available for reuse when MFA type changed for a user with hardware MFA enabled",
+          "result": "success",
+          "outcomes": []
+        }
+      ]
+    },
+    {
+      "featureName": "Configure user software MFA",
+      "scenarios": [
+        {
+          "title": "Enable software MFA by customer admin",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Disable software MFA by customer admin",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Enable software MFA by brand admin",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Disable software MFA by brand admin",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "First login for user with software MFA enabled",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Login after user MFA configured on a user's device",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Login with incorrect OTP code presented",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "featureName": "Customer management by Brand Admins",
+      "scenarios": [
+        {
+          "title": "Get customers",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Get customers using name search",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Get customer",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Create customer",
+          "result": "success",
+          "outcomes": []
+        }
+      ]
+    },
+    {
+      "featureName": "Customer module licensing",
+      "scenarios": [
+        {
+          "title": "License customer for module during customer creation",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "License customer for module after customer creation",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Remove customer license for module",
+          "result": "success",
+          "outcomes": []
+        }
+      ]
+    },
+    {
+      "featureName": "Handle different brands during tenant and user management",
+      "scenarios": [
+        {
+          "title": "Create BigBank user",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Delete BigBank user",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Modify BigBank user details",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Grant access to a module during BigBank user creation",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Grant access to a module after BigBank user creation",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Remove access to a module",
+          "result": "success",
+          "outcomes": []
+        }
+      ]
+    },
+    {
+      "featureName": "Multi Admin approvals",
+      "scenarios": [
+        {
+          "title": "Making a change to a user results in the creation of a change request",
+          "result": "pending",
+          "outcomes": []
+        },
+        {
+          "title": "A user with a pending change request cannot be updated until request is approved/rejected",
+          "result": "pending",
+          "outcomes": [
+            {
+              "result": "pending",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "A single rejection of a change request stops it from being applied",
+          "result": "pending",
+          "outcomes": [
+            {
+              "result": "pending",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "When the number of approvals is met, the change request is applied",
+          "result": "pending",
+          "outcomes": [
+            {
+              "result": "pending",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Administrators can view all change requests that they can approve",
+          "result": "pending",
+          "outcomes": [
+            {
+              "result": "pending",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Administrators can view details for a change request that they can approve",
+          "result": "pending",
+          "outcomes": [
+            {
+              "result": "pending",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "featureName": "System Branding",
+      "scenarios": [
+        {
+          "title": "The look and feel of System must be branded",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "featureName": "System Pre-Session Branding",
+      "scenarios": [
+        {
+          "title": "System Pre-Session must be branded",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "featureName": "Reset user hardware MFA",
+      "scenarios": [
+        {
+          "title": "Reset hardware MFA",
+          "result": "success",
+          "outcomes": []
+        }
+      ]
+    },
+    {
+      "featureName": "Reset user software MFA",
+      "scenarios": [
+        {
+          "title": "Reset software MFA",
+          "result": "success",
+          "outcomes": []
+        }
+      ]
+    },
+    {
+      "featureName": "Skip hardware MFA configuration",
+      "scenarios": [
+        {
+          "title": "Skip hardware MFA configuration for a new user",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "featureName": "Step Up Authentication",
+      "scenarios": [
+        {
+          "title": "Step Up Authentication software MFA TOTP code validation",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Step Up Authentication hardware MFA TOTP code validation",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Step Up Authentication software MFA TOTP with incorrect OTP code presented",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Step Up Authentication hardware MFA TOTP with incorrect OTP code presented",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "featureName": "User management",
+      "scenarios": [
+        {
+          "title": "Get users",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Get user",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Fail to get user belonging to another customer",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Create user",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Fail to create user when not customer user admin",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Fail to create user when not brand user admin",
+          "result": "success",
+          "outcomes": [
+            {
+              "result": "success",
+              "description": "",
+              "errorMessage": ""
+            }
+          ]
+        },
+        {
+          "title": "Create user with no module access",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Delete user",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Modify user details",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Grant access to a module during user creation",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Grant access to a module after user creation",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Fail to grant access to a module during user creation when not a module admin",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Fail to grant access to a module after user creation when not a module admin",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Remove access to a module",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Make user a user admin",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Make user a module admin",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Make user no longer a user admin",
+          "result": "success",
+          "outcomes": []
+        },
+        {
+          "title": "Make user no longer a module admin",
+          "result": "success",
+          "outcomes": []
+        }
+      ]
+    }
+  ],
+  "frequentFailures": [
+  ],
+  "unstableFeatures": [
+  ],
+  "coverage": [
+    {
+      "tagTitle": "Feature",
+      "tagCoverages": [
+        {
+          "tagName": "Handle different brands during tenant and user management",
+          "testCount": 12,
+          "successRate": "100%",
+          "counts": {
+            "total": 99,
+            "success": 12,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          },
+          "percentages": {
+            "success": 100,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          }
+        },
+        {
+          "tagName": "System Branding",
+          "testCount": 1,
+          "successRate": "100%",
+          "counts": {
+            "total": 99,
+            "success": 1,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          },
+          "percentages": {
+            "success": 100,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          }
+        },
+        {
+          "tagName": "System Pre-Session Branding",
+          "testCount": 1,
+          "successRate": "100%",
+          "counts": {
+            "total": 99,
+            "success": 1,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          },
+          "percentages": {
+            "success": 100,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          }
+        },
+        {
+          "tagName": "Customer management by Brand Admins",
+          "testCount": 4,
+          "successRate": "100%",
+          "counts": {
+            "total": 99,
+            "success": 4,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          },
+          "percentages": {
+            "success": 100,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          }
+        },
+        {
+          "tagName": "Customer module licensing",
+          "testCount": 3,
+          "successRate": "100%",
+          "counts": {
+            "total": 99,
+            "success": 3,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          },
+          "percentages": {
+            "success": 100,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          }
+        },
+        {
+          "tagName": "Multi Admin approvals",
+          "testCount": 8,
+          "successRate": "0%",
+          "counts": {
+            "total": 99,
+            "success": 0,
+            "pending": 8,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          },
+          "percentages": {
+            "success": 0,
+            "pending": 100,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          }
+        },
+        {
+          "tagName": "Authenticate user using MFA during account recovery",
+          "testCount": 2,
+          "successRate": "100%",
+          "counts": {
+            "total": 99,
+            "success": 2,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          },
+          "percentages": {
+            "success": 100,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          }
+        },
+        {
+          "tagName": "Authenticate user using security questions during account recovery",
+          "testCount": 3,
+          "successRate": "100%",
+          "counts": {
+            "total": 99,
+            "success": 3,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          },
+          "percentages": {
+            "success": 100,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          }
+        },
+        {
+          "tagName": "Configure customer hardware MFA",
+          "testCount": 3,
+          "successRate": "100%",
+          "counts": {
+            "total": 99,
+            "success": 3,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          },
+          "percentages": {
+            "success": 100,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          }
+        },
+        {
+          "tagName": "Configure user hardware MFA",
+          "testCount": 13,
+          "successRate": "100%",
+          "counts": {
+            "total": 99,
+            "success": 13,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          },
+          "percentages": {
+            "success": 100,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          }
+        },
+        {
+          "tagName": "Configure user software MFA",
+          "testCount": 7,
+          "successRate": "100%",
+          "counts": {
+            "total": 99,
+            "success": 7,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          },
+          "percentages": {
+            "success": 100,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          }
+        },
+        {
+          "tagName": "Reset user hardware MFA",
+          "testCount": 2,
+          "successRate": "100%",
+          "counts": {
+            "total": 99,
+            "success": 2,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          },
+          "percentages": {
+            "success": 100,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          }
+        },
+        {
+          "tagName": "Reset user software MFA",
+          "testCount": 2,
+          "successRate": "100%",
+          "counts": {
+            "total": 99,
+            "success": 2,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          },
+          "percentages": {
+            "success": 100,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          }
+        },
+        {
+          "tagName": "Skip hardware MFA configuration",
+          "testCount": 1,
+          "successRate": "100%",
+          "counts": {
+            "total": 99,
+            "success": 1,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          },
+          "percentages": {
+            "success": 100,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          }
+        },
+        {
+          "tagName": "Step Up Authentication",
+          "testCount": 4,
+          "successRate": "100%",
+          "counts": {
+            "total": 99,
+            "success": 4,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          },
+          "percentages": {
+            "success": 100,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          }
+        },
+        {
+          "tagName": "User management",
+          "testCount": 33,
+          "successRate": "100%",
+          "counts": {
+            "total": 99,
+            "success": 33,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          },
+          "percentages": {
+            "success": 100,
+            "pending": 0,
+            "ignored": 0,
+            "skipped": 0,
+            "failure": 0,
+            "error": 0,
+            "compromised": 0
+          }
+        }
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "tagType": "",
+      "tagResults": [
+        {
+          "tagName": "branding",
+          "count": 14
+        },
+        {
+          "tagName": "customermanagement",
+          "count": 7
+        },
+        {
+          "tagName": "multiadmin",
+          "count": 8
+        },
+        {
+          "tagName": "multifactorauthentication",
+          "count": 37
+        },
+        {
+          "tagName": "usermanagement",
+          "count": 33
+        }
+      ]
+    },
+    {
+      "tagType": "context",
+      "tagResults": [
+        {
+          "tagName": "API",
+          "count": 73
+        },
+        {
+          "tagName": "UI",
+          "count": 26
+        }
+      ]
+    }
+  ]
+}
+
+
+

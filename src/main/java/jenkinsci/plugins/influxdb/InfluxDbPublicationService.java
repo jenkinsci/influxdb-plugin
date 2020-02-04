@@ -7,6 +7,8 @@ import hudson.model.TaskListener;
 import hudson.util.Secret;
 import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.generators.*;
+import jenkinsci.plugins.influxdb.generators.serenity.SerenityJsonSummaryFile;
+import jenkinsci.plugins.influxdb.generators.serenity.SerenityPointGenerator;
 import jenkinsci.plugins.influxdb.models.Target;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
@@ -242,6 +244,15 @@ public class InfluxDbPublicationService {
             addPoints(pointsToWrite, sonarGen, listener);
         } else {
             logger.log(Level.FINE, "Plugin skipped: SonarQube");
+        }
+
+        SerenityJsonSummaryFile serenityJsonSummaryFile = new SerenityJsonSummaryFile(env.get("WORKSPACE"));
+        SerenityPointGenerator serenityGen = new SerenityPointGenerator(measurementRenderer, customPrefix, build, timestamp, listener, serenityJsonSummaryFile);
+        if (serenityGen.hasReport()) {
+            listener.getLogger().println("[InfluxDB Plugin] Serenity data found. Writing to InfluxDB...");
+            addPoints(pointsToWrite, serenityGen, listener);
+        } else {
+            logger.log(Level.FINE, "Plugin skipped: Serenity");
         }
 
         ChangeLogPointGenerator changeLogGen = new ChangeLogPointGenerator(measurementRenderer, customPrefix, build, timestamp);

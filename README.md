@@ -138,7 +138,11 @@ under jenkinsci.plugins.influxdb.**InfluxDbStep**.DescriptorImpl.
 - `perfpublisher_test_mnetric`
     - Test name
     - Metric name/value/relevancy
-
+- `serenity_data`
+    - Test scenario counts: total, success, pending, ignored, skipped, failure, error, compromised 
+    - Test scenario percentages: success, pending, ignored, skipped, failure, error, compromised
+    - Test scenario timings (in milliseconds): total test duration, total clock duration, min test duration, max test duration, average test duration
+    - Test scenario tags
 
 ## Configuration
 
