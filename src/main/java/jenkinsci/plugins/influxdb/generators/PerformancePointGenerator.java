@@ -1,5 +1,6 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import hudson.model.TaskListener;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import org.influxdb.dto.Point;
 
@@ -21,14 +22,14 @@ public class PerformancePointGenerator extends AbstractPointGenerator {
     private static final String PERFORMANCE_TOTAL_TRAFFIC = "total_traffic";
     private static final String PERFORMANCE_SIZE = "size";   // Size of all samples
 
-    private final Run<?, ?> build;
     private final String customPrefix;
     private final PerformanceBuildAction performanceBuildAction;
 
-    public PerformancePointGenerator(MeasurementRenderer<Run<?, ?>> projectNameRenderer, String customPrefix, Run<?, ?> build,
-                                     long timestamp) {
-        super(projectNameRenderer, timestamp);
-        this.build = build;
+    public PerformancePointGenerator(Run<?, ?> build, TaskListener listener,
+                                     MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                     long timestamp, String jenkinsEnvParameterTag,
+                                     String customPrefix) {
+        super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
         this.customPrefix = customPrefix;
         performanceBuildAction = build.getAction(PerformanceBuildAction.class);
     }

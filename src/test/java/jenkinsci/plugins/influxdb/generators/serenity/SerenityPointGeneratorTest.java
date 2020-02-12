@@ -1,5 +1,7 @@
 package jenkinsci.plugins.influxdb.generators.serenity;
 
+import hudson.model.TaskListener;
+import org.apache.commons.lang3.StringUtils;
 import org.influxdb.dto.Point;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +30,7 @@ public class SerenityPointGeneratorTest {
     private MeasurementRenderer<Run<?, ?>> measurementRenderer;
 
     private long currTime;
+    private TaskListener listener;
 
     String points = null;
 
@@ -35,6 +38,7 @@ public class SerenityPointGeneratorTest {
     public void before() {
         build = Mockito.mock(Run.class);
         Job job = Mockito.mock(Job.class);
+        listener = Mockito.mock(TaskListener.class);
         measurementRenderer = new ProjectNameRenderer(CUSTOM_PREFIX, null);
 
         Mockito.when(build.getNumber()).thenReturn(BUILD_NUMBER);
@@ -45,8 +49,9 @@ public class SerenityPointGeneratorTest {
         currTime = System.currentTimeMillis();
 
         SerenityCannedJsonSummaryFile serenityCannedJsonSummaryFile = new SerenityCannedJsonSummaryFile();
-        SerenityPointGenerator serenityGen = new SerenityPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
-            currTime, null, serenityCannedJsonSummaryFile);
+        // build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix,
+        SerenityPointGenerator serenityGen = new SerenityPointGenerator(build, listener, measurementRenderer, currTime,
+                StringUtils.EMPTY, null, serenityCannedJsonSummaryFile);
 
         if (serenityGen.hasReport()) {
             List<Point> pointsToWrite = new ArrayList<>();

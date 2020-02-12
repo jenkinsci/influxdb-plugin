@@ -2,8 +2,10 @@ package jenkinsci.plugins.influxdb.generators;
 
 import hudson.model.Job;
 import hudson.model.Run;
+import hudson.model.TaskListener;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -18,7 +20,7 @@ public class SonarQubePointGeneratorTest {
     private static final String CUSTOM_PREFIX = "test_prefix";
 
     private Run build;
-
+    private TaskListener listener;
     private MeasurementRenderer<Run<?, ?>> measurementRenderer;
     private String sonarUrl = "http://sonar.dashboard.com";
 
@@ -28,6 +30,7 @@ public class SonarQubePointGeneratorTest {
     public void before() {
         build = Mockito.mock(Run.class);
         Job job = Mockito.mock(Job.class);
+        listener = Mockito.mock(TaskListener.class);
         measurementRenderer = new ProjectNameRenderer(CUSTOM_PREFIX, null);
 
         Mockito.when(build.getNumber()).thenReturn(BUILD_NUMBER);
@@ -41,7 +44,7 @@ public class SonarQubePointGeneratorTest {
     public void getSonarProjectNameFromNewSonarQube() throws Exception {
         String name = "org.namespace:feature%2Fmy-sub-project";
         String url = sonarUrl + "/dashboard?id=" + name;
-        SonarQubePointGenerator gen = new SonarQubePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null);
+        SonarQubePointGenerator gen = new SonarQubePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX);
         assertThat(gen.getSonarProjectName(url), is(name));
     }
 
@@ -49,7 +52,7 @@ public class SonarQubePointGeneratorTest {
     public void getSonarProjectName() throws Exception {
         String name = "org.namespace:feature%2Fmy-sub-project";
         String url = sonarUrl + "/dashboard/index/" + name;
-        SonarQubePointGenerator gen = new SonarQubePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null);
+        SonarQubePointGenerator gen = new SonarQubePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX);
         assertThat(gen.getSonarProjectName(url), is(name));
     }
 }

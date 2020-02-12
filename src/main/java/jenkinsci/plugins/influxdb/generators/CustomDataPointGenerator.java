@@ -1,6 +1,7 @@
 package jenkinsci.plugins.influxdb.generators;
 
 import hudson.model.Run;
+import hudson.model.TaskListener;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import org.influxdb.dto.Point;
 
@@ -12,17 +13,17 @@ public class CustomDataPointGenerator extends AbstractPointGenerator {
 
     private static final String BUILD_TIME = "build_time";
 
-    private final Run<?, ?> build;
     private final String customPrefix;
     private final String measurementName;
     private final Map<String, Object> customData;
     private final Map<String, String> customDataTags;
 
-    public CustomDataPointGenerator(MeasurementRenderer<Run<?, ?>> projectNameRenderer, String customPrefix,
-                                    Run<?, ?> build, long timestamp, Map customData,
+    public CustomDataPointGenerator(Run<?, ?> build, TaskListener listener,
+                                    MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                    long timestamp, String jenkinsEnvParameterTag,
+                                    String customPrefix, Map<String, Object> customData,
                                     Map<String, String> customDataTags, String measurementName) {
-        super(projectNameRenderer, timestamp);
-        this.build = build;
+        super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
         this.customPrefix = customPrefix;
         this.customData = customData;
         this.customDataTags = customDataTags;

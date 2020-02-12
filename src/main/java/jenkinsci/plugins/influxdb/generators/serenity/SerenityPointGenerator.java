@@ -44,10 +44,23 @@ public class SerenityPointGenerator extends AbstractPointGenerator {
     // support for dependency injection
     ISerenityJsonSummaryFile serenityJsonSummaryFile = null;
 
-    public SerenityPointGenerator(MeasurementRenderer<Run<?, ?>> projectNameRenderer, String customPrefix,
+    /*
+                                Run<?, ?> build, TaskListener listener,
+                                MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                long timestamp, String jenkinsEnvParameterTag,
+                                String customPrefix) {
+     */
+    /*
+        public SerenityPointGenerator(MeasurementRenderer<Run<?, ?>> projectNameRenderer, String customPrefix,
                                   Run<?, ?> build, long timestamp, TaskListener listener,
                                   ISerenityJsonSummaryFile serenityJsonSummaryFile) {
-        super(projectNameRenderer, timestamp);
+     */
+
+    public SerenityPointGenerator(Run<?, ?> build, TaskListener listener,
+                                  MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                  long timestamp, String jenkinsEnvParameterTag, String customPrefix,
+                                  ISerenityJsonSummaryFile serenityJsonSummaryFile) {
+        super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
         this.build = build;
         this.customPrefix = customPrefix;
         this.listener = listener;

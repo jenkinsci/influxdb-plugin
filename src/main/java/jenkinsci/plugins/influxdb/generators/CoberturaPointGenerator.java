@@ -1,5 +1,6 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import hudson.model.TaskListener;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import org.influxdb.dto.Point;
 
@@ -19,14 +20,14 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
     private static final String COBERTURA_NUMBER_OF_SOURCEFILES = "cobertura_number_of_sourcefiles";
     private static final String COBERTURA_NUMBER_OF_CLASSES = "cobertura_number_of_classes";
 
-    private final Run<?, ?> build;
     private final CoberturaBuildAction coberturaBuildAction;
     private final String customPrefix;
 
-    public CoberturaPointGenerator(MeasurementRenderer<Run<?, ?>> projectNameRenderer, String customPrefix,
-                                   Run<?, ?> build, long timestamp) {
-        super(projectNameRenderer, timestamp);
-        this.build = build;
+    public CoberturaPointGenerator(Run<?, ?> build, TaskListener listener,
+                                   MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                   long timestamp, String jenkinsEnvParameterTag,
+                                   String customPrefix) {
+        super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
         this.customPrefix = customPrefix;
         coberturaBuildAction = build.getAction(CoberturaBuildAction.class);
     }

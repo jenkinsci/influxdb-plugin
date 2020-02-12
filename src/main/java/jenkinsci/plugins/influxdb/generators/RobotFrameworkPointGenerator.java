@@ -1,6 +1,7 @@
 package jenkinsci.plugins.influxdb.generators;
 
 import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.plugins.robot.RobotBuildAction;
 import hudson.plugins.robot.model.RobotCaseResult;
 import hudson.plugins.robot.model.RobotResult;
@@ -30,14 +31,14 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     private static final String RF_TESTCASES = "rf_testcases";
     private static final String RF_TAG_NAME = "rf_tag_name";
 
-    private final Run<?, ?> build;
     private final String customPrefix;
     private final Map<String, RobotTagResult> tagResults;
 
-    public RobotFrameworkPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix,
-                                        Run<?, ?> build, long timestamp) {
-        super(projectNameRenderer, timestamp);
-        this.build = build;
+    public RobotFrameworkPointGenerator(Run<?, ?> build, TaskListener listener,
+                                        MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                        long timestamp, String jenkinsEnvParameterTag,
+                                        String customPrefix) {
+        super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
         this.customPrefix = customPrefix;
         tagResults = new Hashtable<>();
     }
