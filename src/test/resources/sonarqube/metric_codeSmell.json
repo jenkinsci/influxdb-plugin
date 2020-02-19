@@ -1,0 +1,15 @@
+{
+  "component": {
+    "id": "abcdefghijklmnopqrst",
+    "key": "org.namespace:feature%2Fmy-sub-project",
+    "name": "my-sub-project",
+    "qualifier": "TRK",
+    "measures": [
+      {
+        "metric": "code_smells",
+        "value": "36",
+        "bestValue": false
+      }
+    ]
+  }
+}

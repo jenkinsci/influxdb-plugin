@@ -10,6 +10,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
+
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -60,10 +67,20 @@ public class SonarQubePointGeneratorTest {
     public void getSonarProjectMetric() throws Exception {
         String name = "org.namespace:feature%2Fmy-sub-project";
         String metric_key = "code_smells";
-        String url = sonarUrl + "/api/measures/component?componentKey=" + name + "&metricKeys=" + metric_key;
-        SonarQubePointGenerator gen = new SonarQubePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null, true);
-        assertThat(gen.getSonarMetric(url, metric_key), is(metric_key));
-    }
+        String baseUrl = sonarUrl + "/api/measures/component?componentKey=" + name;
+        String fullUrl = baseUrl + "&metricKeys=" + metric_key;
 
-    
+        Float expectedMetricResult = 36.0F;
+
+        InputStream jsonResponseIS = this.getClass().getResourceAsStream("/sonarqube/metric_codeSmell.json");
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(jsonResponseIS, StandardCharsets.UTF_8));
+        String jsonResponse = bufferedReader.lines().collect(Collectors.joining());
+
+        SonarQubePointGenerator gen = new SonarQubePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX);
+        SonarQubePointGenerator spy = Mockito.spy(gen);
+
+        Mockito.doReturn(jsonResponse).when(spy).getResult(fullUrl);
+        assertThat(spy.getSonarMetric(baseUrl, metric_key), equalTo(expectedMetricResult));
+        Mockito.verify(spy, Mockito.times(1)).getResult(fullUrl);
+    }
 }
