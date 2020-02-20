@@ -26,6 +26,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
     private static final String BUILD_DISPLAY_NAME = "display_name";
     private static final String SONARQUBE_LINES_OF_CODE = "lines_of_code";
+    private static final String SONARQUBE_LINES = "lines";
     private static final String SONARQUBE_COMPLEXITY = "complexity";
     private static final String SONARQUBE_CRITICAL_ISSUES = "critical_issues";
     private static final String SONARQUBE_MAJOR_ISSUES = "major_issues";
@@ -135,7 +136,8 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                     .addField(SONARQUBE_MAJOR_ISSUES, getSonarIssues(sonarIssuesUrl, "MAJOR"))
                     .addField(SONARQUBE_MINOR_ISSUES, getSonarIssues(sonarIssuesUrl, "MINOR"))
                     .addField(SONARQUBE_INFO_ISSUES, getSonarIssues(sonarIssuesUrl, "INFO"))
-                    .addField(SONARQUBE_LINES_OF_CODE, getSonarMetric(sonarMetricsUrl, SONARQUBE_LINES_OF_CODE))
+                    .addField(SONARQUBE_LINES_OF_CODE, getSonarMetric(sonarMetricsUrl, "ncloc"))
+                    .addField(SONARQUBE_LINES, getSonarMetric(sonarMetricsUrl, SONARQUBE_LINES))
                     .addField(SONARQUBE_CODE_SMELLS, getSonarMetric(sonarMetricsUrl, SONARQUBE_CODE_SMELLS))
                     .addField(SONARQUBE_BUGS, getSonarMetric(sonarMetricsUrl, SONARQUBE_BUGS))
                     .addField(SONARQUBE_COVERAGE, getSonarMetric(sonarMetricsUrl, SONARQUBE_COVERAGE))
