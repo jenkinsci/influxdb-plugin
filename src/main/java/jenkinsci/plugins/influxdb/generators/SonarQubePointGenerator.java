@@ -3,8 +3,8 @@ package jenkinsci.plugins.influxdb.generators;
 import hudson.EnvVars;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import jenkinsci.plugins.influxdb.InfluxReportException;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
@@ -25,22 +25,24 @@ import java.util.regex.Pattern;
 public class SonarQubePointGenerator extends AbstractPointGenerator {
 
     private static final String BUILD_DISPLAY_NAME = "display_name";
-    private static final String SONARQUBE_LINES_OF_CODE = "lines_of_code";
-    private static final String SONARQUBE_LINES = "lines";
-    private static final String SONARQUBE_COMPLEXITY = "complexity";
-    private static final String SONARQUBE_CRITICAL_ISSUES = "critical_issues";
-    private static final String SONARQUBE_MAJOR_ISSUES = "major_issues";
-    private static final String SONARQUBE_MINOR_ISSUES = "minor_issues";
-    private static final String SONARQUBE_INFO_ISSUES = "info_issues";
-    private static final String SONARQUBE_BLOCKER_ISSUES = "blocker_issues";
-    private static final String SONARQUBE_CODE_SMELLS = "code_smells";
-    private static final String SONARQUBE_BUGS = "bugs";
-    private static final String SONARQUBE_COVERAGE = "coverage";
-    private static final String SONARQUBE_VULNERABILITIES = "vulnerabilities";
-    private static final String SONARQUBE_BRANCH_COVERAGE = "branch_coverage";
-    private static final String SONARQUBE_LINE_COVERAGE = "line_coverage";
-    private static final String SONARQUBE_LINES_TO_COVER = "lines_to_cover";
-    private static final String SONARQUBE_DUPLICATED_LINES_DENSITY = "duplicated_lines_density";
+
+    // possible metric are listed in http://<sonar_host>/api/metrics/search?ps=150
+    protected static final String SONARQUBE_LINES_OF_CODE = "lines_of_code";
+    protected static final String SONARQUBE_LINES = "lines";
+    protected static final String SONARQUBE_COMPLEXITY = "complexity";
+    protected static final String SONARQUBE_CRITICAL_ISSUES = "critical_issues";
+    protected static final String SONARQUBE_MAJOR_ISSUES = "major_issues";
+    protected static final String SONARQUBE_MINOR_ISSUES = "minor_issues";
+    protected static final String SONARQUBE_INFO_ISSUES = "info_issues";
+    protected static final String SONARQUBE_BLOCKER_ISSUES = "blocker_issues";
+    protected static final String SONARQUBE_CODE_SMELLS = "code_smells";
+    protected static final String SONARQUBE_BUGS = "bugs";
+    protected static final String SONARQUBE_COVERAGE = "coverage";
+    protected static final String SONARQUBE_VULNERABILITIES = "vulnerabilities";
+    protected static final String SONARQUBE_BRANCH_COVERAGE = "branch_coverage";
+    protected static final String SONARQUBE_LINE_COVERAGE = "line_coverage";
+    protected static final String SONARQUBE_LINES_TO_COVER = "lines_to_cover";
+    protected static final String SONARQUBE_DUPLICATED_LINES_DENSITY = "duplicated_lines_density";
 
     private static final String URL_PATTERN_IN_LOGS = ".*" + Pattern.quote("ANALYSIS SUCCESSFUL, you can browse ")
             + "(.*)";
@@ -202,13 +204,17 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
     public float getSonarMetric(String url, String metric) throws IOException {
         String output = getResult(url + SONAR_METRICS_BASE_METRIC + metric);
-        JSONObject metricsObjects = JSONObject.fromObject(output);
-        JSONArray array = metricsObjects.getJSONObject("component").getJSONArray("measures");
-        JSONObject metricsObject = array.getJSONObject(0);
+        JSONObject metricsObject = JSONObject.fromObject(output)
+                .getJSONObject("component")
+                .getJSONArray("measures")
+                .getJSONObject(0);
+        String metricValue = metricsObject.getString("value");
+
         try {
-            return Float.parseFloat(metricsObject.getString("value"));
+            return Float.parseFloat(metricValue);
         } catch (NumberFormatException exp) {
-            return -1;
+            String exceptionMsg = "cast metric \"%s\" value from [%s] to a Float failed";
+            throw new InfluxReportException(String.format(exceptionMsg, metric, metricValue), exp);
         }
     }
 
