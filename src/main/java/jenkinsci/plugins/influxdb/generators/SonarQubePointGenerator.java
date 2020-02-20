@@ -1,14 +1,11 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import hudson.EnvVars;
+import hudson.model.Run;
+import hudson.model.TaskListener;
+import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -16,11 +13,14 @@ import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.influxdb.dto.Point;
 
-import hudson.model.Run;
-import hudson.model.TaskListener;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SonarQubePointGenerator extends AbstractPointGenerator {
 
@@ -55,7 +55,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private String sonarMetricsUrl;
 
     private final String customPrefix;
-    private final TaskListener listener;
+    private final TaskListener taskListener;
 
     private String sonarBuildLink = null;
     private String token = null;
@@ -68,7 +68,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                                    String customPrefix) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
         this.customPrefix = customPrefix;
-        this.listener = listener;
+        this.taskListener = listener;
     }
 
     public boolean hasReport() {
@@ -96,11 +96,11 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             if (url != null && !url.isEmpty()) {
                 sonarServer = url;
                 String logMessage = "[InfluxDB Plugin] INFO: Using SonarQube host URL found in environment variable SONAR_HOST_URL.";
-                listener.getLogger().println(logMessage);
+                taskListener.getLogger().println(logMessage);
             } else {
                 String logMessage = "[InfluxDB Plugin] INFO: No SonarQube host URL found in environment variable SONAR_HOST_URL. Using build log instead.";
-                listener.getLogger().println(logMessage);
-                if (sonarBuildLink.indexOf("/dashboard?id=" + sonarProjectName) > 0) {
+                taskListener.getLogger().println(logMessage);
+                if (sonarBuildLink.contains("/dashboard?id=" + sonarProjectName)) {
                     sonarServer = sonarBuildLink.substring(0,
                             sonarBuildLink.indexOf("/dashboard?id=" + sonarProjectName));
                 } else {
@@ -117,10 +117,10 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         token = env.get("SONAR_AUTH_TOKEN");
         if (token != null) {
             String logMessage = "[InfluxDB Plugin] INFO: Using SonarQube auth token found in environment variable SONAR_AUTH_TOKEN";
-            listener.getLogger().println(logMessage);
+            taskListener.getLogger().println(logMessage);
         } else {
             String logMessage = "[InfluxDB Plugin] WARNING: No SonarQube auth token found in environment variable SONAR_AUTH_TOKEN. Depending on access rights, this might result in a HTTP/401.";
-            listener.getLogger().println(logMessage);
+            taskListener.getLogger().println(logMessage);
         }
     }
 
@@ -151,7 +151,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         } catch (IOException e) {
             // handle
         }
-        return new Point[] { point };
+        return new Point[]{point};
     }
 
     protected String getResult(String url) throws IOException {
@@ -170,7 +170,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                 throw new RuntimeException("Failed : HTTP error code : " + response.code() + " from URL : " + url);
             }
 
-            return response.body().string();
+            return Objects.requireNonNull(response.body()).string();
         }
     }
 
@@ -190,7 +190,6 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     }
 
     String getSonarProjectName(String url) throws URISyntaxException {
-        //String sonarVersion = getResult("api/server/version");
         URI uri = new URI(url);
         String[] projectUrl;
         try {
@@ -208,8 +207,9 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         JSONObject metricsObject = array.getJSONObject(0);
         try {
             return Float.parseFloat(metricsObject.getString("value"));
-        } catch (NumberFormatException exp) {}
-        return -1;
+        } catch (NumberFormatException exp) {
+            return -1;
+        }
     }
 
     private int getSonarIssues(String url, String severity) throws IOException {
