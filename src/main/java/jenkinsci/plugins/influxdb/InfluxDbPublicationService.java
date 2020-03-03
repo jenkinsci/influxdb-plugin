@@ -4,7 +4,6 @@ import hudson.EnvVars;
 import hudson.ProxyConfiguration;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import hudson.util.Secret;
 import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.generators.*;
 import jenkinsci.plugins.influxdb.generators.serenity.SerenityJsonSummaryFile;
