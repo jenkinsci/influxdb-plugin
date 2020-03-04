@@ -59,6 +59,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
         return target;
     }
 
+    @DataBoundSetter
     public void setSelectedTarget(String target) {
         Objects.requireNonNull(target);
         this.selectedTarget = target;
