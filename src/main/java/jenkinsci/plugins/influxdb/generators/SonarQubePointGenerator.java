@@ -153,7 +153,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         return new Point[] { point };
     }
 
-    private String getResult(String url) throws IOException {
+    protected String getResult(String url) throws IOException {
         Request.Builder requestBuilder = new Request.Builder()
                 .get()
                 .url(url)
