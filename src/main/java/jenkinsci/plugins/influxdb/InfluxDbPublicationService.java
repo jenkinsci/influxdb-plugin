@@ -4,9 +4,10 @@ import hudson.EnvVars;
 import hudson.ProxyConfiguration;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import hudson.util.Secret;
 import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.generators.*;
+import jenkinsci.plugins.influxdb.generators.serenity.SerenityJsonSummaryFile;
+import jenkinsci.plugins.influxdb.generators.serenity.SerenityPointGenerator;
 import jenkinsci.plugins.influxdb.models.Target;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
@@ -58,17 +59,15 @@ public class InfluxDbPublicationService {
     private final String customPrefix;
 
     /**
-     * Custom data, especially in pipelines, where additional information is calculated
+     * Custom data fields, especially in pipelines, where additional information is calculated
      * or retrieved by Groovy functions which should be sent to InfluxDB.
      * <p>
-     * Inside a pipeline script this can easily be done by calling:
+     * Example for a pipeline script:
      * <pre>{@code
-     * def myDataMap = [:]
-     * myDataMap['myKey'] = 'myValue'
-     * step([$class: 'InfluxDbPublisher',
-     *       target: myTarget,
-     *       customPrefix: 'myPrefix',
-     *       customData: myDataMap])
+     * def myFields = [:]
+     * myFields['field_a'] = 11
+     * myFields['field_b'] = 12
+     * influxDbPublisher(target: 'my-target', customData: myFields)
      * }</pre>
      */
     private final Map<String, Object> customData;
@@ -77,40 +76,18 @@ public class InfluxDbPublicationService {
      * Custom data tags, especially in pipelines, where additional information is calculated
      * or retrieved by Groovy functions which should be sent to InfluxDB.
      * <p>
-     * Inside a pipeline script this can easily be done by calling:
+     * Example for a pipeline script:
      * <pre>{@code
-     * def myDataMapTags = [:]
-     * myDataMapTags['myKey'] = 'myValue'
-     * step([$class: 'InfluxDbPublisher',
-     *       target: myTarget,
-     *       customPrefix: 'myPrefix',
-     *       customData: myDataMap,
-     *       customDataTags: myDataMapTags])
+     * def myTags = [:]
+     * myTags['tag_1'] = 'foo'
+     * myTags['tag_2'] = 'bar'
+     * influxDbPublisher(target: 'my-target', customData: ..., customDataTags: myTags)
      * }</pre>
      */
     private final Map<String, String> customDataTags;
 
     /**
-     * Custom tags that are sent to all measurements defined in customDataMaps.
-     * <p>
-     * Example for a pipeline script:
-     * <pre>{@code
-     * def myCustomDataMapTags = [:]
-     * def myCustomTags = [:]
-     * myCustomTags['buildResult'] = currentBuild.result
-     * myCustomTags['NODE_LABELS'] = env.NODE_LABELS
-     * myCustomDataMapTags['series1'] = myCustomTags
-     * step([$class: 'InfluxDbPublisher',
-     *       target: myTarget,
-     *       customPrefix: 'myPrefix',
-     *       customDataMap: myCustomDataMap,
-     *       customDataMapTags: myCustomDataMapTags])
-     * }</pre>
-     */
-    private final Map<String, Map<String, String>> customDataMapTags;
-
-    /**
-     * Custom data maps, especially in pipelines, where additional information is calculated
+     * Custom data maps for fields, especially in pipelines, where additional information is calculated
      * or retrieved by Groovy functions which should be sent to InfluxDB.
      * <p>
      * This goes beyond {@code customData} since it allows to define multiple {@code customData} measurements
@@ -118,22 +95,37 @@ public class InfluxDbPublicationService {
      * <p>
      * Example for a pipeline script:
      * <pre>{@code
-     * def myDataMap1 = [:]
-     * def myDataMap2 = [:]
-     * def myCustomDataMap = [:]
-     * myDataMap1['myMap1Key1'] = 11 // first value of first map
-     * myDataMap1['myMap1Key2'] = 12 // second value of first map
-     * myDataMap2['myMap2Key1'] = 21 // first value of second map
-     * myDataMap2['myMap2Key2'] = 22 // second value of second map
-     * myCustomDataMap['series1'] = myDataMap1
-     * myCustomDataMap['series2'] = myDataMap2
-     * step([$class: 'InfluxDbPublisher',
-     *       target: myTarget,
-     *       customPrefix: 'myPrefix',
-     *       customDataMap: myCustomDataMap])
+     * def myFields1 = [:]
+     * def myFields2 = [:]
+     * def myCustomMeasurementFields = [:]
+     * myFields1['field_a'] = 11
+     * myFields1['field_b'] = 12
+     * myFields2['field_c'] = 21
+     * myFields2['field_d'] = 22
+     * myCustomMeasurementFields['series_1'] = myFields1
+     * myCustomMeasurementFields['series_2'] = myFields2
+     * influxDbPublisher(target: 'my-target', customDataMap: myCustomMeasurementFields)
      * }</pre>
      */
     private final Map<String, Map<String, Object>> customDataMap;
+
+    /**
+     * Custom data maps for tags, especially in pipelines, where additional information is calculated
+     * or retrieved by Groovy functions which should be sent to InfluxDB.
+     * <p>
+     * Custom tags that are sent to respective measurements defined in {@code customDataMap}.
+     * <p>
+     * Example for a pipeline script:
+     * <pre>{@code
+     * def myTags = [:]
+     * def myCustomMeasurementTags = [:]
+     * myTags['buildResult'] = currentBuild.result
+     * myTags['NODE_LABELS'] = env.NODE_LABELS
+     * myCustomMeasurementTags['series_1'] = myTags
+     * influxDbPublisher(target: 'my-target', customDataMap: ..., customDataMapTags: myCustomMeasurementTags)
+     * }</pre>
+     */
+    private final Map<String, Map<String, String>> customDataMapTags;
 
     /**
      * Jenkins parameter(s) which will be added as field set to measurement 'jenkins_data'.
@@ -158,32 +150,25 @@ public class InfluxDbPublicationService {
      */
     private final String measurementName;
 
-    /**
-     * Whether to replace dashes with underscores in tags.
-     * i.e. "my-custom-tag" --> "my_custom_tag"
-     */
-    private final boolean replaceDashWithUnderscore;
-
     private final long timestamp;
 
-    public InfluxDbPublicationService(List<Target> selectedTargets, String customProjectName, String customPrefix, Map<String, Object> customData, Map<String, String> customDataTags, Map<String, Map<String, String>> customDataMapTags, Map<String, Map<String, Object>> customDataMap, long timestamp, String jenkinsEnvParameterField, String jenkinsEnvParameterTag, String measurementName, boolean replaceDashWithUnderscore) {
+    public InfluxDbPublicationService(List<Target> selectedTargets, String customProjectName, String customPrefix, Map<String, Object> customData, Map<String, String> customDataTags, Map<String, Map<String, String>> customDataMapTags, Map<String, Map<String, Object>> customDataMap, long timestamp, String jenkinsEnvParameterField, String jenkinsEnvParameterTag, String measurementName) {
         this.selectedTargets = selectedTargets;
         this.customProjectName = customProjectName;
         this.customPrefix = customPrefix;
         this.customData = customData;
         this.customDataTags = customDataTags;
-        this.customDataMapTags = customDataMapTags;
         this.customDataMap = customDataMap;
+        this.customDataMapTags = customDataMapTags;
         this.timestamp = timestamp;
         this.jenkinsEnvParameterField = jenkinsEnvParameterField;
         this.jenkinsEnvParameterTag = jenkinsEnvParameterTag;
         this.measurementName = measurementName;
-        this.replaceDashWithUnderscore = replaceDashWithUnderscore;
     }
 
     public void perform(Run<?, ?> build, TaskListener listener, EnvVars env) {
         // Logging
-        listener.getLogger().println("[InfluxDB Plugin] Collecting data for publication in InfluxDB...");
+        listener.getLogger().println("[InfluxDB Plugin] Collecting data...");
 
         // Renderer to use for the metrics
         MeasurementRenderer<Run<?, ?>> measurementRenderer = new ProjectNameRenderer(customPrefix, customProjectName);
@@ -192,10 +177,10 @@ public class InfluxDbPublicationService {
         List<Point> pointsToWrite = new ArrayList<>();
 
         // Basic metrics
-        JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(measurementRenderer, customPrefix, build, timestamp, listener, jenkinsEnvParameterField, jenkinsEnvParameterTag, measurementName, replaceDashWithUnderscore, env);
+        JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, jenkinsEnvParameterField, customPrefix, measurementName, env);
         addPoints(pointsToWrite, jGen, listener);
 
-        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(measurementRenderer, customPrefix, build, timestamp, customData, customDataTags, measurementName, replaceDashWithUnderscore);
+        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix, customData, customDataTags, measurementName);
         if (cdGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Custom data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, cdGen, listener);
@@ -203,7 +188,7 @@ public class InfluxDbPublicationService {
             logger.log(Level.FINE, "Data source empty: Custom Data");
         }
 
-        CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, customPrefix, build, timestamp, customDataMap, customDataMapTags, replaceDashWithUnderscore);
+        CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix, customDataMap, customDataMapTags);
         if (cdmGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Custom data map found. Writing to InfluxDB...");
             addPoints(pointsToWrite, cdmGen, listener);
@@ -212,7 +197,7 @@ public class InfluxDbPublicationService {
         }
 
         try {
-            CoberturaPointGenerator cGen = new CoberturaPointGenerator(measurementRenderer, customPrefix, build, timestamp, replaceDashWithUnderscore);
+            CoberturaPointGenerator cGen = new CoberturaPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
             if (cGen.hasReport()) {
                 listener.getLogger().println("[InfluxDB Plugin] Cobertura data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, cGen, listener);
@@ -222,7 +207,7 @@ public class InfluxDbPublicationService {
         }
 
         try {
-            RobotFrameworkPointGenerator rfGen = new RobotFrameworkPointGenerator(measurementRenderer, customPrefix, build, timestamp, replaceDashWithUnderscore);
+            RobotFrameworkPointGenerator rfGen = new RobotFrameworkPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
             if (rfGen.hasReport()) {
                 listener.getLogger().println("[InfluxDB Plugin] Robot Framework data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, rfGen, listener);
@@ -232,7 +217,7 @@ public class InfluxDbPublicationService {
         }
 
         try {
-            JacocoPointGenerator jacoGen = new JacocoPointGenerator(measurementRenderer, customPrefix, build, timestamp, replaceDashWithUnderscore);
+            JacocoPointGenerator jacoGen = new JacocoPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
             if (jacoGen.hasReport()) {
                 listener.getLogger().println("[InfluxDB Plugin] JaCoCo data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, jacoGen, listener);
@@ -242,7 +227,7 @@ public class InfluxDbPublicationService {
         }
 
         try {
-            PerformancePointGenerator perfGen = new PerformancePointGenerator(measurementRenderer, customPrefix, build, timestamp, replaceDashWithUnderscore);
+            PerformancePointGenerator perfGen = new PerformancePointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
             if (perfGen.hasReport()) {
                 listener.getLogger().println("[InfluxDB Plugin] Performance data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, perfGen, listener);
@@ -251,7 +236,7 @@ public class InfluxDbPublicationService {
             logger.log(Level.FINE, "Plugin skipped: Performance");
         }
 
-        SonarQubePointGenerator sonarGen = new SonarQubePointGenerator(measurementRenderer, customPrefix, build, timestamp, listener, replaceDashWithUnderscore);
+        SonarQubePointGenerator sonarGen = new SonarQubePointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
         if (sonarGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] SonarQube data found. Writing to InfluxDB...");
             sonarGen.setEnv(env);
@@ -260,7 +245,16 @@ public class InfluxDbPublicationService {
             logger.log(Level.FINE, "Plugin skipped: SonarQube");
         }
 
-        ChangeLogPointGenerator changeLogGen = new ChangeLogPointGenerator(measurementRenderer, customPrefix, build, timestamp, replaceDashWithUnderscore);
+        SerenityJsonSummaryFile serenityJsonSummaryFile = new SerenityJsonSummaryFile(env.get("WORKSPACE"));
+        SerenityPointGenerator serenityGen = new SerenityPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix, serenityJsonSummaryFile);
+        if (serenityGen.hasReport()) {
+            listener.getLogger().println("[InfluxDB Plugin] Serenity data found. Writing to InfluxDB...");
+            addPoints(pointsToWrite, serenityGen, listener);
+        } else {
+            logger.log(Level.FINE, "Plugin skipped: Serenity");
+        }
+
+        ChangeLogPointGenerator changeLogGen = new ChangeLogPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
         if (changeLogGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Change Log data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, changeLogGen, listener);
@@ -269,7 +263,7 @@ public class InfluxDbPublicationService {
         }
 
         try {
-            PerfPublisherPointGenerator perfPublisherGen = new PerfPublisherPointGenerator(measurementRenderer, customPrefix, build, timestamp, replaceDashWithUnderscore);
+            PerfPublisherPointGenerator perfPublisherGen = new PerfPublisherPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
             if (perfPublisherGen.hasReport()) {
                 listener.getLogger().println("[InfluxDB Plugin] Performance Publisher data found. Writing to InfluxDB...");
                 addPoints(pointsToWrite, perfPublisherGen, listener);
@@ -279,23 +273,31 @@ public class InfluxDbPublicationService {
         }
 
         for (Target target : selectedTargets) {
-            String logMessage = "[InfluxDB Plugin] Publishing data to: " + target;
-            logger.log(Level.FINE, logMessage);
-            listener.getLogger().println(logMessage);
-
             URL url;
             try {
                 url = new URL(target.getUrl());
             } catch (MalformedURLException e) {
-                listener.getLogger().println("[InfluxDB Plugin] Skipping target due to invalid URL: " + target.getUrl());
+                String logMessage = String.format("[InfluxDB Plugin] Skipping target '%s' due to invalid URL '%s'",
+                        target.getDescription(),
+                        target.getUrl());
+                logger.log(Level.WARNING, logMessage);
+                listener.getLogger().println(logMessage);
                 continue;
             }
+
+            String logMessage = String.format("[InfluxDB Plugin] Publishing data to target '%s' (url='%s', database='%s')",
+                    target.getDescription(),
+                    target.getUrl(),
+                    target.getDatabase());
+            logger.log(Level.FINE, logMessage);
+            listener.getLogger().println(logMessage);
 
             OkHttpClient.Builder httpClient = createHttpClient(url, target.isUsingJenkinsProxy());
             InfluxDB influxDB = StringUtils.isEmpty(target.getUsername()) ?
                     InfluxDBFactory.connect(target.getUrl(), httpClient) :
-                    InfluxDBFactory.connect(target.getUrl(), target.getUsername(), Secret.toString(target.getPassword()), httpClient);
+                    InfluxDBFactory.connect(target.getUrl(), target.getUsername(), target.getPassword().getPlainText(), httpClient);
             writeToInflux(target, influxDB, pointsToWrite);
+
         }
 
         listener.getLogger().println("[InfluxDB Plugin] Completed.");

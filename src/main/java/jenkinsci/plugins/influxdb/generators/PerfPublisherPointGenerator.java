@@ -1,6 +1,7 @@
 package jenkinsci.plugins.influxdb.generators;
 
 import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.plugins.PerfPublisher.PerfPublisherBuildAction;
 import hudson.plugins.PerfPublisher.Report.Metric;
 import hudson.plugins.PerfPublisher.Report.ReportContainer;
@@ -15,15 +16,15 @@ import java.util.concurrent.TimeUnit;
 
 public class PerfPublisherPointGenerator extends AbstractPointGenerator {
 
-    private final Run<?, ?> build;
     private final String customPrefix;
     private final PerfPublisherBuildAction performanceBuildAction;
     private final TimeGenerator timeGenerator;
 
-    public PerfPublisherPointGenerator(MeasurementRenderer<Run<?,?>> measurementRenderer, String customPrefix, Run<?, ?> build,
-                                       long timestamp, boolean replaceDashWithUnderscore) {
-        super(measurementRenderer, timestamp, replaceDashWithUnderscore);
-        this.build = build;
+    public PerfPublisherPointGenerator(Run<?, ?> build, TaskListener listener,
+                                       MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                       long timestamp, String jenkinsEnvParameterTag,
+                                       String customPrefix) {
+        super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
         this.customPrefix = customPrefix;
         performanceBuildAction = build.getAction(PerfPublisherBuildAction.class);
         timeGenerator = new TimeGenerator(timestamp);
@@ -57,7 +58,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateSummaryPoint(ReportContainer reports) {
-        Point.Builder builder = buildPoint(measurementName("perfpublisher_summary"), customPrefix, build)
+        Point.Builder builder = buildPoint("perfpublisher_summary", customPrefix, build)
                 .addField("number_of_tests", reports.getNumberOfTest())
                 .addField("number_of_executed_tests", reports.getNumberOfExecutedTest())
                 .addField("number_of_not_executed_tests", reports.getNumberOfNotExecutedTest())
@@ -101,7 +102,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
 
         for (Map.Entry<String, Double> entry : reports.getAverageValuePerMetrics().entrySet()) {
             String metricName = entry.getKey();
-            Point point = buildPoint(measurementName("perfpublisher_metric"), customPrefix, build)
+            Point point = buildPoint("perfpublisher_metric", customPrefix, build)
                     .addField("metric_name", metricName)
                     .addField("average", entry.getValue())
                     .addField("worst", reports.getWorstValuePerMetrics().get(metricName))
@@ -114,7 +115,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateTestPoint(Test test) {
-        Point.Builder builder = buildPoint(measurementName("perfpublisher_test"), customPrefix, build)
+        Point.Builder builder = buildPoint("perfpublisher_test", customPrefix, build)
                 .addField("test_name", test.getName())
                 .tag("test_name", test.getName())
                 .addField("successful", test.isSuccessfull())
@@ -146,7 +147,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
             String metricName = entry.getKey();
             Metric metric = entry.getValue();
 
-            Point point = buildPoint(measurementName("perfpublisher_test_metric"), customPrefix, build)
+            Point point = buildPoint("perfpublisher_test_metric", customPrefix, build)
                     .addField("test_name", test.getName())
                     .tag("test_name", test.getName())
                     .addField("metric_name", metricName)

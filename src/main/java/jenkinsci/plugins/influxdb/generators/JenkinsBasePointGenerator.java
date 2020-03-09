@@ -1,21 +1,16 @@
 package jenkinsci.plugins.influxdb.generators;
 
 import hudson.EnvVars;
-import hudson.model.Executor;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.test.AbstractTestResultAction;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.StrSubstitutor;
 import org.influxdb.dto.Point;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.Map;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
@@ -48,22 +43,20 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     private final Run<?, ?> build;
     private final String customPrefix;
-    private final TaskListener listener;
     private final String jenkinsEnvParameterField;
-    private final String jenkinsEnvParameterTag;
     private final String measurementName;
     private EnvVars env;
 
-    public JenkinsBasePointGenerator(MeasurementRenderer<Run<?, ?>> projectNameRenderer, String customPrefix,
-                                     Run<?, ?> build, long timestamp, TaskListener listener,
-                                     String jenkinsEnvParameterField, String jenkinsEnvParameterTag,
-                                     String measurementName, boolean replaceDashWithUnderscore, EnvVars env) {
-        super(projectNameRenderer, timestamp, replaceDashWithUnderscore);
+
+    // (Run<?, ?> build, TaskListener listener, MeasurementRenderer projectNameRenderer, long timestamp, String jenkinsEnvParameterTag) {
+    public JenkinsBasePointGenerator(Run<?, ?> build, TaskListener listener,
+                                     MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                     long timestamp, String jenkinsEnvParameterTag, String jenkinsEnvParameterField,
+                                     String customPrefix, String measurementName, EnvVars env) {
+        super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
         this.build = build;
         this.customPrefix = customPrefix;
-        this.listener = listener;
         this.jenkinsEnvParameterField = jenkinsEnvParameterField;
-        this.jenkinsEnvParameterTag = jenkinsEnvParameterTag;
         this.measurementName = measurementName;
         this.env = env;
     }
@@ -90,7 +83,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             ordinal = buildResult.ordinal;
         }
 
-        Point.Builder point = buildPoint(measurementName(measurementName), customPrefix, build);
+        Point.Builder point = buildPoint(measurementName, customPrefix, build);
 
         point.addField(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
             .addField(BUILD_SCHEDULED_TIME, build.getTimeInMillis())
@@ -122,12 +115,6 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             point.fields(fieldMap);
         }
 
-        if (StringUtils.isNotBlank(jenkinsEnvParameterTag)) {
-            Properties tagProperties = parsePropertiesString(jenkinsEnvParameterTag);
-            Map tagMap = resolveEnvParameterAndTransformToMap(tagProperties);
-            point.tag(tagMap);
-        }
-
         return new Point[] {point.build()};
     }
 
@@ -156,42 +143,5 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     private int getLastStableBuild() {
         Run<?, ?> lastStableBuild = build.getParent().getLastStableBuild();
         return lastStableBuild != null ? lastStableBuild.getNumber() : 0;
-    }
-
-    private Properties parsePropertiesString(String propertiesString) {
-        Properties properties = new Properties();
-        try {
-            StringReader reader = new StringReader(propertiesString);
-            properties.load(reader);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return properties;
-    }
-
-    private Map<String, String> resolveEnvParameterAndTransformToMap(Properties properties) {
-        return properties.entrySet().stream().collect(
-                Collectors.toMap(
-                        e -> e.getKey().toString(),
-                        e -> {
-                            String value = e.getValue().toString();
-                            return containsEnvParameter(value) ? resolveEnvParameter(value) : value;
-                        }
-                )
-        );
-    }
-
-    private boolean containsEnvParameter(String value) {
-        return StringUtils.length(value) > 3 && StringUtils.contains(value, "${");
-    }
-
-    private String resolveEnvParameter(String stringValue) {
-        try {
-            EnvVars envVars = build.getEnvironment(listener);
-            return StrSubstitutor.replace(stringValue, envVars);
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-        return stringValue;
     }
 }

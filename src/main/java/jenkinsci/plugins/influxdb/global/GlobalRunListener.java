@@ -20,8 +20,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * Listens to call builds being completed, and publishes their metrics
- * in InfluxDB.
+ * Listens to all builds being completed and publishes their metrics to InfluxDB.
  */
 @Extension
 public class GlobalRunListener extends RunListener<Run<?, ?>> {
@@ -31,7 +30,7 @@ public class GlobalRunListener extends RunListener<Run<?, ?>> {
         // Gets the full path of the build's project
         String path = build.getParent().getRelativeNameFrom(Jenkins.getInstance());
         // Gets the list of targets from the configuration
-        Target[] targets = InfluxDbPublisher.DESCRIPTOR.getTargets();
+        List<Target> targets = Jenkins.getInstance().getDescriptorByType(InfluxDbPublisher.DescriptorImpl.class).getTargets();
         // Selects the targets eligible as global listeners and which match the build path
         List<Target> selectedTargets = new ArrayList<>();
         for (Target target : targets) {
@@ -55,8 +54,7 @@ public class GlobalRunListener extends RunListener<Run<?, ?>> {
                     System.currentTimeMillis() * 1000000,
                     null,
                     null,
-                    "jenkins_data",
-                    true
+                    "jenkins_data"
             );
 
             EnvVars env;

@@ -12,8 +12,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Collections;
 
-import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -29,9 +29,9 @@ public class ConfigurationAsCodeTest {
         String yamlUrl = getClass().getResource(getClass().getSimpleName() + "/configuration-as-code.yml").toString();
         ConfigurationAsCode.get().configure(yamlUrl);
 
-        assertThat(globalConfig.getTargets(), arrayWithSize(1));
+        assertThat(globalConfig.getTargets(), hasSize(1));
 
-        Target target = globalConfig.getTargets()[0];
+        Target target = globalConfig.getTargets().get(0);
         assertThat(target.getDescription(), is("some description"));
         assertThat(target.getUrl(), is("http://some/url"));
         assertThat(target.getUsername(), is("some username"));

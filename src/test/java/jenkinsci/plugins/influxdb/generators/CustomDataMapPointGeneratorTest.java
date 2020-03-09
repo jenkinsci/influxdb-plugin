@@ -2,9 +2,11 @@ package jenkinsci.plugins.influxdb.generators;
 
 import hudson.model.Job;
 import hudson.model.Run;
+import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
+import org.apache.commons.lang.StringUtils;
 import org.influxdb.dto.Point;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +27,7 @@ public class CustomDataMapPointGeneratorTest {
     private static final String CUSTOM_PREFIX = "test_prefix";
 
     private Run<?,?> build;
+    private TaskListener listener;
 
     private MeasurementRenderer<Run<?, ?>> measurementRenderer;
 
@@ -34,6 +37,7 @@ public class CustomDataMapPointGeneratorTest {
     public void before() {
         build = Mockito.mock(Run.class);
         Job job = Mockito.mock(Job.class);
+        listener = Mockito.mock(TaskListener.class);
         measurementRenderer = new ProjectNameRenderer(CUSTOM_PREFIX, null);
 
         Mockito.when(build.getNumber()).thenReturn(BUILD_NUMBER);
@@ -47,13 +51,14 @@ public class CustomDataMapPointGeneratorTest {
     @Test
     public void hasReport() {
         //check with customDataMap = null
-        CustomDataMapPointGenerator cdmGen1 = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
-                currTime, null, null, true);
+
+        CustomDataMapPointGenerator cdmGen1 = new CustomDataMapPointGenerator(build, listener, measurementRenderer,
+                currTime, StringUtils.EMPTY, CUSTOM_PREFIX, null, null);
         assertThat(cdmGen1.hasReport(), is(false));
 
         //check with empty customDataMap
-        CustomDataMapPointGenerator cdmGen2 = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
-                currTime, Collections.emptyMap(), Collections.emptyMap(), true);
+        CustomDataMapPointGenerator cdmGen2 = new CustomDataMapPointGenerator(build, listener, measurementRenderer,
+                currTime, StringUtils.EMPTY, CUSTOM_PREFIX, Collections.emptyMap(), Collections.emptyMap());
         assertThat(cdmGen2.hasReport(), is(false));
     }
 
@@ -76,8 +81,8 @@ public class CustomDataMapPointGeneratorTest {
         customTags.put("build_result", "SUCCESS");
         customDataMapTags.put("series1", customTags);
 
-        CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(measurementRenderer, CUSTOM_PREFIX, build,
-                currTime, customDataMap, customDataMapTags, true);
+        CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(build, listener, measurementRenderer,
+                currTime, StringUtils.EMPTY, CUSTOM_PREFIX, customDataMap, customDataMapTags);
         Point[] pointsToWrite = cdmGen.generate();
 
         String lineProtocol1;

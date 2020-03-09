@@ -1,6 +1,7 @@
 package jenkinsci.plugins.influxdb.generators;
 
 import hudson.model.Run;
+import hudson.model.TaskListener;
 import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import org.influxdb.dto.Point;
 
@@ -8,16 +9,16 @@ import java.util.*;
 
 public class CustomDataMapPointGenerator extends AbstractPointGenerator {
 
-    private final Run<?, ?> build;
     private final String customPrefix;
     private final Map<String, Map<String, Object>> customDataMap;
     private final Map<String, Map<String, String>> customDataMapTags;
 
-    public CustomDataMapPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix,
-                                       Run<?, ?> build, long timestamp, Map<String, Map<String, Object>> customDataMap,
-                                       Map<String, Map<String, String>> customDataMapTags, boolean replaceDashWithUnderscore) {
-        super(projectNameRenderer, timestamp, replaceDashWithUnderscore);
-        this.build = build;
+    public CustomDataMapPointGenerator(Run<?, ?> build, TaskListener listener,
+                                       MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                       long timestamp, String jenkinsEnvParameterTag,
+                                       String customPrefix, Map<String, Map<String, Object>> customDataMap,
+                                       Map<String, Map<String, String>> customDataMapTags) {
+        super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
         this.customPrefix = customPrefix;
         this.customDataMap = customDataMap;
         this.customDataMapTags = customDataMapTags;
@@ -31,8 +32,7 @@ public class CustomDataMapPointGenerator extends AbstractPointGenerator {
         List<Point> points = new ArrayList<>();
 
         for (Map.Entry<String, Map<String, Object>> entry : customDataMap.entrySet()) {
-            Point.Builder pointBuilder = buildPoint(measurementName(entry.getKey()), customPrefix, build)
-                    .fields(entry.getValue());
+            Point.Builder pointBuilder = buildPoint(entry.getKey(), customPrefix, build).fields(entry.getValue());
 
             if (customDataMapTags != null) {
                 Map<String, String> customTags = customDataMapTags.get(entry.getKey());

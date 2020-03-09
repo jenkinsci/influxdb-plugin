@@ -7,7 +7,6 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.lang.InterruptedException;
 
 import hudson.EnvVars;
 import okhttp3.Credentials;
@@ -54,7 +53,6 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private String sonarIssuesUrl;
     private String sonarMetricsUrl;
 
-    private final Run<?, ?> build;
     private final String customPrefix;
     private final TaskListener listener;
 
@@ -63,10 +61,11 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
     private EnvVars env = null;
 
-    public SonarQubePointGenerator(MeasurementRenderer<Run<?, ?>> measurementRenderer, String customPrefix,
-            Run<?, ?> build, long timestamp, TaskListener listener, boolean replaceDashWithUnderscore) {
-        super(measurementRenderer, timestamp, replaceDashWithUnderscore);
-        this.build = build;
+    public SonarQubePointGenerator(Run<?, ?> build, TaskListener listener,
+                                   MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                   long timestamp, String jenkinsEnvParameterTag,
+                                   String customPrefix) {
+        super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
         this.customPrefix = customPrefix;
         this.listener = listener;
     }
@@ -129,7 +128,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
         Point point = null;
         try {
-            point = buildPoint(measurementName("sonarqube_data"), customPrefix, build)
+            point = buildPoint("sonarqube_data", customPrefix, build)
                     .addField(BUILD_DISPLAY_NAME, build.getDisplayName())
                     .addField(SONARQUBE_CRITICAL_ISSUES, getSonarIssues(sonarIssuesUrl, "CRITICAL"))
                     .addField(SONARQUBE_BLOCKER_ISSUES, getSonarIssues(sonarIssuesUrl, "BLOCKER"))

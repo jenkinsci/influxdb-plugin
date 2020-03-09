@@ -1,6 +1,7 @@
 package jenkinsci.plugins.influxdb.generators;
 
 import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.plugins.robot.RobotBuildAction;
 import hudson.plugins.robot.model.RobotCaseResult;
 import hudson.plugins.robot.model.RobotResult;
@@ -30,14 +31,14 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     private static final String RF_TESTCASES = "rf_testcases";
     private static final String RF_TAG_NAME = "rf_tag_name";
 
-    private final Run<?, ?> build;
     private final String customPrefix;
     private final Map<String, RobotTagResult> tagResults;
 
-    public RobotFrameworkPointGenerator(MeasurementRenderer<Run<?,?>> projectNameRenderer, String customPrefix,
-                                        Run<?, ?> build, long timestamp, boolean replaceDashWithUnderscore) {
-        super(projectNameRenderer, timestamp, replaceDashWithUnderscore);
-        this.build = build;
+    public RobotFrameworkPointGenerator(Run<?, ?> build, TaskListener listener,
+                                        MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                        long timestamp, String jenkinsEnvParameterTag,
+                                        String customPrefix) {
+        super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
         this.customPrefix = customPrefix;
         tagResults = new Hashtable<>();
     }
@@ -59,7 +60,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateOverviewPoint(RobotBuildAction robotBuildAction) {
-        return buildPoint(measurementName("rf_results"), customPrefix, build)
+        return buildPoint("rf_results", customPrefix, build)
             .addField(RF_FAILED, robotBuildAction.getResult().getOverallFailed())
             .addField(RF_PASSED, robotBuildAction.getResult().getOverallPassed())
             .addField(RF_TOTAL, robotBuildAction.getResult().getOverallTotal())
@@ -116,7 +117,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateCasePoint(RobotCaseResult caseResult, long timestamp) {
-        Point point = buildPoint(measurementName("testcase_point"), customPrefix, build, timestamp)
+        Point point = buildPoint("testcase_point", customPrefix, build, timestamp)
             .tag(RF_NAME, caseResult.getName())
             .addField(RF_NAME, caseResult.getName())
             .addField(RF_SUITE_NAME, caseResult.getParent().getName())
@@ -165,7 +166,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateTagPoint(RobotTagResult tagResult, long timestamp) {
-        return buildPoint(measurementName("tag_point"), customPrefix, build, timestamp)
+        return buildPoint("tag_point", customPrefix, build, timestamp)
             .tag(RF_TAG_NAME, tagResult.name)
             .addField(RF_TAG_NAME, tagResult.name)
             .addField(RF_CRITICAL_FAILED, tagResult.criticalFailed)
@@ -179,7 +180,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateSuitePoint(RobotSuiteResult suiteResult, long timestamp) {
-        return buildPoint(measurementName("suite_result"), customPrefix, build, timestamp)
+        return buildPoint("suite_result", customPrefix, build, timestamp)
             .tag(RF_SUITE_NAME, suiteResult.getName())
             .addField(RF_SUITE_NAME, suiteResult.getName())
             .addField(RF_TESTCASES, suiteResult.getAllCases().size())
