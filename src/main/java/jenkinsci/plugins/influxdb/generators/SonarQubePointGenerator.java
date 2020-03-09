@@ -200,15 +200,16 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         return projectUrl.length > 1 ? projectUrl[projectUrl.length - 1] : "";
     }
 
-    public float getSonarMetric(String url, String metric) throws IOException {
+    public Float getSonarMetric(String url, String metric) throws IOException {
+        Float value = null;
         String output = getResult(url + SONAR_METRICS_BASE_METRIC + metric);
         JSONObject metricsObjects = JSONObject.fromObject(output);
-        JSONArray array = metricsObjects.getJSONObject("component").getJSONArray("measures");
-        JSONObject metricsObject = array.getJSONObject(0);
         try {
-            return Float.parseFloat(metricsObject.getString("value"));
-        } catch (NumberFormatException exp) {}
-        return -1;
+            JSONArray array = metricsObjects.getJSONObject("component").getJSONArray("measures");
+            JSONObject metricsObject = array.getJSONObject(0);
+            value = Float.parseFloat(metricsObject.getString("value"));
+        } catch (NumberFormatException | IndexOutOfBoundsException exp) {}
+        return value;
     }
 
     private int getSonarIssues(String url, String severity) throws IOException {
