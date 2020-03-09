@@ -65,7 +65,7 @@ public class SonarQubePointGeneratorTest {
         String metric_value = "59";
         String responseJson = "{\"component\":{\"id\":\"AWZS_ynA7tIj5HosrIjz\",\"key\":\"" + name + "\",\"name\":\"Fake Statistics\",\"qualifier\":\"TRK\",\"measures\":[{\"metric\":\"" + metric_key + "\",\"value\":\"" + metric_value +"\",\"bestValue\":false}]}}";
         String url = sonarUrl + "/api/measures/component?componentKey=" + name + "&metricKeys=" + metric_key;
-        SonarQubePointGenerator gen = Mockito.spy(new SonarQubePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null, true));
+        SonarQubePointGenerator gen = Mockito.spy(new SonarQubePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX));
 
         Mockito.doReturn(responseJson).when(gen).getResult(any(String.class));
         assertThat(gen.getSonarMetric(url, metric_key), is(Float.parseFloat(metric_value)));
@@ -77,7 +77,7 @@ public class SonarQubePointGeneratorTest {
         String metric_key = "branch_coverage";
         String responseJson = "{\"component\":{\"id\":\"AWZS_ynA7tIj5HosrIjz\",\"key\":\"" + name + "\",\"name\":\"Fake Statistics\",\"qualifier\":\"TRK\",\"measures\":[]}}";
         String url = sonarUrl + "/api/measures/component?componentKey=" + name + "&metricKeys=" + metric_key;
-        SonarQubePointGenerator gen = Mockito.spy(new SonarQubePointGenerator(measurementRenderer, CUSTOM_PREFIX, build, currTime, null, true));
+        SonarQubePointGenerator gen = Mockito.spy(new SonarQubePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX));
 
         Mockito.doReturn(responseJson).when(gen).getResult(any(String.class));
         assertThat(gen.getSonarMetric(url, metric_key), is(nullValue()));
