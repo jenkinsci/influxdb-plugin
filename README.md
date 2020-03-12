@@ -105,9 +105,18 @@ under jenkinsci.plugins.influxdb.**InfluxDbStep**.DescriptorImpl.
     - Total count of samples
     - 90 percentile
 - `sonarqube_data`
-    - Amount of major/minor/critical/blocker/info issues
-    - Lines of code
     - Build display name
+    - Amount of major/minor/critical/blocker/info issues
+    - Total count of Code Smell issues
+    - Amount of bug issues
+    - Amount of vulnerability issues
+    - Lines of code
+    - Code coverage
+    - Branch coverage (Condition coverage)
+    - Line coverage
+    - Lines to cover
+    - Duplicated lines density
+    - Complexity
 - `changelog_data`
     - Affected files
     - Commit authors
