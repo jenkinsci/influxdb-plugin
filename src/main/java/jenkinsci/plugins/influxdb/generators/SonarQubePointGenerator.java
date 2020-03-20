@@ -147,7 +147,9 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                     .addField(SONARQUBE_COMPLEXITY, getSonarMetric(sonarMetricsUrl, SONARQUBE_COMPLEXITY))
                     .build();
         } catch (IOException e) {
-            // handle
+            String logMessage = "[InfluxDB Plugin] INFO: IOException while fetching SonarQube metrics: " + e.getMessage();
+            listener.getLogger().println(logMessage);
+            e.printStackTrace(listener.getLogger());
         }
         return new Point[] { point };
     }
