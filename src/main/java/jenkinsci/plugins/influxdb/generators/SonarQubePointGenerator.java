@@ -46,7 +46,8 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
     private static final String SONAR_ISSUES_BASE_URL = "/api/issues/search?ps=500&projectKeys=";
 
-    private static final String SONAR_METRICS_BASE_URL = "/api/measures/component?componentKey=";
+    // SonarQube 5.4+ expects componentKey=, SonarQube 8.1 expects component=, we can make both of them happy
+    private static final String SONAR_METRICS_BASE_URL = "/api/measures/component?componentKey=%s&component=%s";
     private static final String SONAR_METRICS_BASE_METRIC = "&metricKeys=";
     private static final OkHttpClient httpClient = new OkHttpClient();
 
@@ -108,7 +109,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                 }
             }
             sonarIssuesUrl = sonarServer + SONAR_ISSUES_BASE_URL + sonarProjectName + "&resolved=false&severities=";
-            sonarMetricsUrl = sonarServer + SONAR_METRICS_BASE_URL + sonarProjectName;
+            sonarMetricsUrl = sonarServer + String.format(SONAR_METRICS_BASE_URL, sonarProjectName, sonarProjectName);
         } catch (URISyntaxException e) {
             //
         }
