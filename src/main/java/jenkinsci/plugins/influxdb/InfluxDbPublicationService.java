@@ -22,12 +22,11 @@ import org.influxdb.dto.Point;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class InfluxDbPublicationService {
 
@@ -305,7 +304,7 @@ public class InfluxDbPublicationService {
 
     private void addPoints(List<Point> pointsToWrite, PointGenerator generator, TaskListener listener) {
         try {
-            pointsToWrite.addAll(Arrays.asList(generator.generate()));
+            pointsToWrite.addAll(Arrays.stream(generator.generate()).filter(Objects::nonNull).collect(Collectors.toList()));
         } catch (Exception e) {
             listener.getLogger().println("[InfluxDB Plugin] Failed to collect data. Ignoring Exception:" + e);
         }
