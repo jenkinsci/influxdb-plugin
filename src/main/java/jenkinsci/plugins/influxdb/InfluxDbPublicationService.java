@@ -235,6 +235,14 @@ public class InfluxDbPublicationService {
             logger.log(Level.FINE, "Plugin skipped: Performance");
         }
 
+        JUnitPointGenerator junitGen = new JUnitPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix, env);
+        if (junitGen.hasReport()) {
+            listener.getLogger().println("[InfluxDB Plugin] JUnit data found. Writing to InfluxDB...");
+            addPoints(pointsToWrite, junitGen, listener);
+        } else {
+            logger.log(Level.FINE, "Plugin skipped: JUnit");
+        }
+
         SonarQubePointGenerator sonarGen = new SonarQubePointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
         if (sonarGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] SonarQube data found. Writing to InfluxDB...");
