@@ -218,15 +218,23 @@ You **must** use the same map keys as measurement names as in `customDataMap`.
 
 All measurements share the following metrics:
 
-| Metric | Type | Explanation | Introduced in |
+| Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | build_number | integer | Build number |  |
 | project_name | string | Build name |  |
-| project_path | string | Build path |  |
+| project_path | string | Build path | 1.15 |
+
+All measurements share the following tags:
+
+| Tag | Description | Introduced in |
+| --- | --- | --- |
+| project_name | Build name |  |
+| project_path | Build path | 2.0 |
+| * | All values from `JenkinsEnvParameterTag` | 2.1 |
 
 ### `jenkins_data`
 
-| Metric | Type | Explanation | Introduced in |
+| Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | build_agent_name | string | Name of the executor node | 1.15 |
 | build_exec_time | integer | Start time of the build | 1.17 |
@@ -245,9 +253,15 @@ All measurements share the following metrics:
 | tests_total | integer | total amount of unit tests (from JUnit plugin) | |
 | time_in_queue | integer | Time build was in queue (from Metrics plugin | 1.16 |
 
+Tags specific for this measurement:
+
+| Tag | Description | Introduced in |
+| --- | --- | --- |
+| build_result | Build result | 1.15 |
+
 ### `cobertura_data`
 
-| Metric | Type | Explanation | Introduced in |
+| Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | cobertura_branch_coverage_rate | float | Branch coverage percentage |  |
 | cobertura_class_coverage_rate | float | Class coverage percentage |  |
@@ -259,7 +273,7 @@ All measurements share the following metrics:
 
 ### `rf_results`
 
-| Metric | Type | Explanation | Introduced in |
+| Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | rf_critical_failed | integer | Amount of failed critical tests |  |
 | rf_critical_pass_percentage | float | Percentage of passed critical tests |  |
@@ -274,7 +288,7 @@ All measurements share the following metrics:
 
 ### `suite_result`
 
-| Metric | Type | Explanation | Introduced in |
+| Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | rf_critical_failed | integer | Amount of failed critical tests |  |
 | rf_critical_passed | integer | Amount of passed critical tests |  |
@@ -286,9 +300,15 @@ All measurements share the following metrics:
 | rf_testcases | integer | Total amount of tests (including child suites) |  |
 | rf_total | integer | Amount of tests in this suite |  |
 
+Tags specific for this measurement:
+
+| Tag | Description | Introduced in |
+| --- | --- | --- |
+| rf_suite_name | Name of the test suite | 1.20.1 |
+
 ### `tag_point`
 
-| Metric | Type | Explanation | Introduced in |
+| Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | rf_critical_failed | integer | Amount of failed critical tests |  |
 | rf_critical_passed | integer | Amount of passed critical tests |  |
@@ -297,11 +317,17 @@ All measurements share the following metrics:
 | rf_failed | integer | Amount of failed tests |  |
 | rf_passed | integer | Amount of passed tests |  |
 | rf_total | integer | Total amount of tests |  |
-| rf_tag_name | string | Test tag name | 1.11 |
+| rf_tag_name | string | Test tag name | 1.20.1 |
+
+Tags specific for this measurement:
+
+| Tag | Description | Introduced in |
+| --- | --- | --- |
+| rf_tag_name | Tag name | 1.20.1 |
 
 ### `testcase_point`
 
-| Metric | Type | Explanation | Introduced in |
+| Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | rf_critical_failed | integer | 0 or 1 |  |
 | rf_critical_passed | integer | 0 or 1 |  |
@@ -311,9 +337,15 @@ All measurements share the following metrics:
 | rf_passed | integer | 0 or 1 |  |
 | rf_suite_name | string | Name of the suite of the test case |  |
 
+Tags specific for this measurement:
+
+| Tag | Description | Introduced in |
+| --- | --- | --- |
+| rf_name | Name of the test case | 1.20.1 |
+
 ### `jacodo_data` (since 1.7)
 
-| Metric | Type | Explanation | Introduced in |
+| Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | jacoco_brach_coverage_rage | float | Branch coverage percentage | |
 | jacoco_brach_covered | integer | Amount of branches covered | 2.1 |
@@ -336,7 +368,7 @@ All measurements share the following metrics:
 
 ### `performance_data` (since 1.10.1)
 
-| Metric | Type | Explanation | Introduced in |
+| Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | 90percentile | integer | Point when 90 percentile was reached | 1.12 |
 | average | float | Average performance (total duration / size) | |
@@ -350,7 +382,7 @@ All measurements share the following metrics:
 
 ### `sonarqube_data` (since 1.11)
 
-| Metric | Type | Explanation | Introduced in |
+| Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | blocker_issues | float | Total amount of blocker issues | |
 | branch_coverage | float | Branch coverage | 2.2 |
@@ -371,7 +403,7 @@ All measurements share the following metrics:
 
 ### `changelog_data` (since 1.12)
 
-| Metric | Type | Explanation | Introduced in |
+| Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | affected_paths | string | Comma-separated list of changed files | |
 | commit_count | integer | Amount of commits since last change set | |
@@ -380,7 +412,7 @@ All measurements share the following metrics:
 
 ### `perfpublisher_summary` (since 1.13)
 
-| Metric | Type | Explanation | Introduced in |
+| Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | average_compile_time | float | Average compilation test time | |
 | average_execution_time | float | Average execution test time | |
@@ -407,16 +439,16 @@ All measurements share the following metrics:
 
 ### `perfpublisher_metric` (since 1.13)
 
-| Metric | Type | Explanation | Introduced in |
+| Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | average | float | Average value | |
 | best | float | Best value | |
 | metric_name | string | Metric name | |
 | worst | float | Worst value | |
 
-### `perfpublihser_test` (since 1.13)
+### `perfpublisher_test` (since 1.13)
 
-| Metric | Type | Explanation | Introduced in |
+| Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | executed | boolean | Was test executed | |
 | execution_time | float | Test execution time | |
@@ -426,9 +458,15 @@ All measurements share the following metrics:
 | successful | boolean | Was test successful | |
 | test_name | string | Test name | |
 
+Tags specific for this measurement:
+
+| Tag | Description | Introduced in |
+| --- | --- | --- |
+| test_name | Test name | |
+
 ### `perfpublisher_test_metric` (since 1.13)
 
-| Metric | Type | Explanation | Introduced in |
+| Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | metric_name | string | Test metric name | |
 | relevant | boolean | Is metric relevant |  |
@@ -436,9 +474,15 @@ All measurements share the following metrics:
 | value | float | Metric value |  |
 | unit | string | Metric unit |  |
 
+Tags specific for this measurement:
+
+| Tag | Description | Introduced in |
+| --- | --- | --- |
+| test_name | Test name | |
+
 ### `serenity_data` (since 2.1)
 
-| Metric | Type | Explanation | Introduced in |
+| Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | serenity_results_average_test_duration | integer | Maximum average duration in milliseconds |  |
 | serenity_results_counts_compromised | integer | Amount of compromised results |  |
