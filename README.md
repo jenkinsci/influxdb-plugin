@@ -232,7 +232,12 @@ All measurements share the following tags:
 | project_path | Build path | 2.0 |
 | * | All values from `JenkinsEnvParameterTag` | 2.1 |
 
-### `jenkins_data`
+
+
+
+### No extra plugin needed
+
+#### `jenkins_data`
 
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
@@ -259,7 +264,42 @@ Tags specific for this measurement:
 | --- | --- | --- |
 | build_result | Build result | 1.15 |
 
-### `cobertura_data`
+#### `changelog_data` (since 1.12)
+
+| Metric | Type | Description | Introduced in |
+| --- | --- | --- | --- |
+| affected_paths | string | Comma-separated list of changed files | |
+| commit_count | integer | Amount of commits since last change set | |
+| commit_messages | string | Comma-separated list of commit messages | |
+| culprits | string | Comma-separated list of commit authors | |
+
+#### `sonarqube_data` (since 1.11)
+
+| Metric | Type | Description | Introduced in |
+| --- | --- | --- | --- |
+| blocker_issues | float | Total amount of blocker issues | |
+| branch_coverage | float | Branch coverage | 2.2 |
+| bugs | float | Total amount of bugs | 2.2 |
+| code_smells | float | Total amount of code smells | 2.2 |
+| complexity | float | Total amount of complexity | 2.2 |
+| coverage | float | Overall coverage | 2.2 |
+| critical_issues | float | Total amount of critical issues | |
+| display_name | string | Build display name | |
+| duplicated_lines_density | float | Percentage of duplicated lines | 2.2 |
+| info_issues | float | Total amount of info issues | |
+| line_coverage | float | Line coverage | 2.2 |
+| lines_of_code | float (integer until 2.2) | Total amount of lines (including comments) | |
+| lines_to_cover | float | Total amount of lines to cover (excluding comments) | 2.2 |
+| major_issues | float | Total amount of major issues | |
+| minor_issues | float | Total amount of minor issues | |
+| vulnerabilities | float | Total amount of vulnerabilities | 2.2 |
+
+
+
+
+### Cobertura plugin
+
+#### `cobertura_data`
 
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
@@ -271,79 +311,11 @@ Tags specific for this measurement:
 | cobertura_number_of_sourcefiles | float | Amount of source files |  |
 | cobertura_package_coverage_rate | float | Package coverage percentage |  |
 
-### `rf_results`
 
-| Metric | Type | Description | Introduced in |
-| --- | --- | --- | --- |
-| rf_critical_failed | integer | Amount of failed critical tests |  |
-| rf_critical_pass_percentage | float | Percentage of passed critical tests |  |
-| rf_critical_passed | integer | Amount of passed critical tests |  |
-| rf_critical_total | integer | Total amount of critical tests |  |
-| rf_duration | integer | Test execution duration |  |
-| rf_failed | integer | Amount of failed tests |  |
-| rf_pass_percentage | float | Percentage of passed tests |  |
-| rf_passed | integer | Amount of passed tests |  |
-| rf_suites | integer | Amount of test suites |  |
-| rf_total | integer | Total amount of tests |  |
 
-### `suite_result`
+### JaCoCo plugin
 
-| Metric | Type | Description | Introduced in |
-| --- | --- | --- | --- |
-| rf_critical_failed | integer | Amount of failed critical tests |  |
-| rf_critical_passed | integer | Amount of passed critical tests |  |
-| rf_critical_total | integer | Total amount of critical tests |  |
-| rf_duration | integer | Test execution duration |  |
-| rf_failed | integer | Amount of failed tests |  |
-| rf_passed | integer | Amount of passed tests |  |
-| rf_suite_name | string | Name of the test suite |  |
-| rf_testcases | integer | Total amount of tests (including child suites) |  |
-| rf_total | integer | Amount of tests in this suite |  |
-
-Tags specific for this measurement:
-
-| Tag | Description | Introduced in |
-| --- | --- | --- |
-| rf_suite_name | Name of the test suite | 1.20.1 |
-
-### `tag_point`
-
-| Metric | Type | Description | Introduced in |
-| --- | --- | --- | --- |
-| rf_critical_failed | integer | Amount of failed critical tests |  |
-| rf_critical_passed | integer | Amount of passed critical tests |  |
-| rf_critical_total | integer | Total amount of critical tests |  |
-| rf_duration | integer | Test execution duration |  |
-| rf_failed | integer | Amount of failed tests |  |
-| rf_passed | integer | Amount of passed tests |  |
-| rf_total | integer | Total amount of tests |  |
-| rf_tag_name | string | Test tag name | 1.20.1 |
-
-Tags specific for this measurement:
-
-| Tag | Description | Introduced in |
-| --- | --- | --- |
-| rf_tag_name | Tag name | 1.20.1 |
-
-### `testcase_point`
-
-| Metric | Type | Description | Introduced in |
-| --- | --- | --- | --- |
-| rf_critical_failed | integer | 0 or 1 |  |
-| rf_critical_passed | integer | 0 or 1 |  |
-| rf_duration | integer | Test case execution duration |  |
-| rf_failed | integer | 0 or 1 |  |
-| rf_name | string | Name of the test case |  |
-| rf_passed | integer | 0 or 1 |  |
-| rf_suite_name | string | Name of the suite of the test case |  |
-
-Tags specific for this measurement:
-
-| Tag | Description | Introduced in |
-| --- | --- | --- |
-| rf_name | Name of the test case | 1.20.1 |
-
-### `jacodo_data` (since 1.7)
+#### `jacodo_data` (since 1.7)
 
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
@@ -366,7 +338,13 @@ Tags specific for this measurement:
 | jacoco_method_covered | integer | Amount of methods covered | 2.1 |
 | jacoco_method_missed | integer | Amount of methods missed | 2.1 |
 
-### `performance_data` (since 1.10.1)
+
+
+
+
+### Performance plugin
+
+#### `performance_data` (since 1.10.1)
 
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
@@ -380,37 +358,21 @@ Tags specific for this measurement:
 | size | integer | Amount of samples | |
 | total_traffic | integer | Total traffic in KB | |
 
-### `sonarqube_data` (since 1.11)
+
+
+
+### Performance publisher plugin
+
+#### `perfpublisher_metric` (since 1.13)
 
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
-| blocker_issues | float | Total amount of blocker issues | |
-| branch_coverage | float | Branch coverage | 2.2 |
-| bugs | float | Total amount of bugs | 2.2 |
-| code_smells | float | Total amount of code smells | 2.2 |
-| complexity | float | Total amount of complexity | 2.2 |
-| coverage | float | Overall coverage | 2.2 |
-| critical_issues | float | Total amount of critical issues | |
-| display_name | string | Build display name | |
-| duplicated_lines_density | float | Percentage of duplicated lines | 2.2 |
-| info_issues | float | Total amount of info issues | |
-| line_coverage | float | Line coverage | 2.2 |
-| lines_of_code | float (integer until 2.2) | Total amount of lines (including comments) | |
-| lines_to_cover | float | Total amount of lines to cover (excluding comments) | 2.2 |
-| major_issues | float | Total amount of major issues | |
-| minor_issues | float | Total amount of minor issues | |
-| vulnerabilities | float | Total amount of vulnerabilities | 2.2 |
+| average | float | Average value | |
+| best | float | Best value | |
+| metric_name | string | Metric name | |
+| worst | float | Worst value | |
 
-### `changelog_data` (since 1.12)
-
-| Metric | Type | Description | Introduced in |
-| --- | --- | --- | --- |
-| affected_paths | string | Comma-separated list of changed files | |
-| commit_count | integer | Amount of commits since last change set | |
-| commit_messages | string | Comma-separated list of commit messages | |
-| culprits | string | Comma-separated list of commit authors | |
-
-### `perfpublisher_summary` (since 1.13)
+#### `perfpublisher_summary` (since 1.13)
 
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
@@ -437,16 +399,7 @@ Tags specific for this measurement:
 | worst_execution_time_test_name | string | Worst execution time test name | |
 | worst_execution_time_test_value | float | Worst execution time test value | |
 
-### `perfpublisher_metric` (since 1.13)
-
-| Metric | Type | Description | Introduced in |
-| --- | --- | --- | --- |
-| average | float | Average value | |
-| best | float | Best value | |
-| metric_name | string | Metric name | |
-| worst | float | Worst value | |
-
-### `perfpublisher_test` (since 1.13)
+#### `perfpublisher_test` (since 1.13)
 
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
@@ -464,7 +417,7 @@ Tags specific for this measurement:
 | --- | --- | --- |
 | test_name | Test name | |
 
-### `perfpublisher_test_metric` (since 1.13)
+#### `perfpublisher_test_metric` (since 1.13)
 
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
@@ -480,7 +433,85 @@ Tags specific for this measurement:
 | --- | --- | --- |
 | test_name | Test name | |
 
-### `serenity_data` (since 2.1)
+
+### Robot Framework plugin
+
+#### `rf_results`
+
+| Metric | Type | Description | Introduced in |
+| --- | --- | --- | --- |
+| rf_critical_failed | integer | Amount of failed critical tests |  |
+| rf_critical_pass_percentage | float | Percentage of passed critical tests |  |
+| rf_critical_passed | integer | Amount of passed critical tests |  |
+| rf_critical_total | integer | Total amount of critical tests |  |
+| rf_duration | integer | Test execution duration |  |
+| rf_failed | integer | Amount of failed tests |  |
+| rf_pass_percentage | float | Percentage of passed tests |  |
+| rf_passed | integer | Amount of passed tests |  |
+| rf_suites | integer | Amount of test suites |  |
+| rf_total | integer | Total amount of tests |  |
+
+#### `suite_result`
+
+| Metric | Type | Description | Introduced in |
+| --- | --- | --- | --- |
+| rf_critical_failed | integer | Amount of failed critical tests |  |
+| rf_critical_passed | integer | Amount of passed critical tests |  |
+| rf_critical_total | integer | Total amount of critical tests |  |
+| rf_duration | integer | Test execution duration |  |
+| rf_failed | integer | Amount of failed tests |  |
+| rf_passed | integer | Amount of passed tests |  |
+| rf_suite_name | string | Name of the test suite |  |
+| rf_testcases | integer | Total amount of tests (including child suites) |  |
+| rf_total | integer | Amount of tests in this suite |  |
+
+Tags specific for this measurement:
+
+| Tag | Description | Introduced in |
+| --- | --- | --- |
+| rf_suite_name | Name of the test suite | 1.20.1 |
+
+#### `tag_point`
+
+| Metric | Type | Description | Introduced in |
+| --- | --- | --- | --- |
+| rf_critical_failed | integer | Amount of failed critical tests |  |
+| rf_critical_passed | integer | Amount of passed critical tests |  |
+| rf_critical_total | integer | Total amount of critical tests |  |
+| rf_duration | integer | Test execution duration |  |
+| rf_failed | integer | Amount of failed tests |  |
+| rf_passed | integer | Amount of passed tests |  |
+| rf_total | integer | Total amount of tests |  |
+| rf_tag_name | string | Test tag name | 1.20.1 |
+
+Tags specific for this measurement:
+
+| Tag | Description | Introduced in |
+| --- | --- | --- |
+| rf_tag_name | Tag name | 1.20.1 |
+
+#### `testcase_point`
+
+| Metric | Type | Description | Introduced in |
+| --- | --- | --- | --- |
+| rf_critical_failed | integer | 0 or 1 |  |
+| rf_critical_passed | integer | 0 or 1 |  |
+| rf_duration | integer | Test case execution duration |  |
+| rf_failed | integer | 0 or 1 |  |
+| rf_name | string | Name of the test case |  |
+| rf_passed | integer | 0 or 1 |  |
+| rf_suite_name | string | Name of the suite of the test case |  |
+
+Tags specific for this measurement:
+
+| Tag | Description | Introduced in |
+| --- | --- | --- |
+| rf_name | Name of the test case | 1.20.1 |
+
+
+### Serenity plugin
+
+#### `serenity_data` (since 2.1)
 
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
