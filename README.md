@@ -22,255 +22,6 @@ for pipelines and the `target` parameter is no longer supported.
 `InfluxDbPublisher` instance is now
 under jenkinsci.plugins.influxdb.**InfluxDbStep**.DescriptorImpl.
 
-
-## Supported Metrics
-
-All measurements share the following metrics:
-
-| Metric | Type | Explanation | Introduced in |
-| --- | --- | --- | --- |
-| build_number | integer | Build number |  |
-| project_name | string | Build name |  |
-| project_path | string | Build path |  |
-
-### `jenkins_data`
-
-| Metric | Type | Explanation | Introduced in |
-| --- | --- | --- | --- |
-| build_agent_name | string | Name of the executor node | 1.15 |
-| build_exec_time | integer | Start time of the build | 1.17 |
-| build_measured_time | integer | Time when InfluxDB plugin is called | 1.17 |
-| build_result | string | SUCCESS, FAILURE, NOT BUILT, UNSTABLE, ABORTED, ?  | 1.10 |
-| build_result_ordinal | integer | 0-5 in order of `build_result`. 5 is only for pipelines if build result is not set manually.  | 1.10 |
-| build_scheduled_time | integer | Time when build was scheduled to run | 1.17 |
-| build_status_message | string | Status message (stable, back to normal, broken since #50, etc.) | |
-| build_successful | boolean | Boolean whether build succeeded | 1.10 |
-| build_time | integer | Build execution time |  |
-| last_stable_build | integer | Build number of the last stable build (0 if never) | 1.10 |
-| last_successful_build | integer | Build number of the last successful build (0 if never) | 1.10 |
-| project_build_health | integer | Health score from build | |
-| tests_failed | integer | Amount of failed unit tests (from JUnit plugin) | |
-| tests_skipped | integer | Amount of skipped unit tests (from JUnit plugin) | |
-| tests_total | integer | total amount of unit tests (from JUnit plugin) | |
-| time_in_queue | integer | Time build was in queue (from Metrics plugin | 1.16 |
-
-### `cobertura_data`
-
-| Metric | Type | Explanation | Introduced in |
-| --- | --- | --- | --- |
-| cobertura_branch_coverage_rate | float | Branch coverage percentage |  |
-| cobertura_class_coverage_rate | float | Class coverage percentage |  |
-| cobertura_line_coverage_rate | float | Line coverage percentage |  |
-| cobertura_number_of_classes | float | Amount of classes |  |
-| cobertura_number_of_packages | float | Amount of packages |  |
-| cobertura_number_of_sourcefiles | float | Amount of source files |  |
-| cobertura_package_coverage_rate | float | Package coverage percentage |  |
-
-### `rf_results`
-
-| Metric | Type | Explanation | Introduced in |
-| --- | --- | --- | --- |
-| rf_critical_failed | integer | Amount of failed critical tests |  |
-| rf_critical_pass_percentage | float | Percentage of passed critical tests |  |
-| rf_critical_passed | integer | Amount of passed critical tests |  |
-| rf_critical_total | integer | Total amount of critical tests |  |
-| rf_duration | integer | Test execution duration |  |
-| rf_failed | integer | Amount of failed tests |  |
-| rf_pass_percentage | float | Percentage of passed tests |  |
-| rf_passed | integer | Amount of passed tests |  |
-| rf_suites | integer | Amount of test suites |  |
-| rf_total | integer | Total amount of tests |  |
-
-### `suite_result`
-
-| Metric | Type | Explanation | Introduced in |
-| --- | --- | --- | --- |
-| rf_critical_failed | integer | Amount of failed critical tests |  |
-| rf_critical_passed | integer | Amount of passed critical tests |  |
-| rf_critical_total | integer | Total amount of critical tests |  |
-| rf_duration | integer | Test execution duration |  |
-| rf_failed | integer | Amount of failed tests |  |
-| rf_passed | integer | Amount of passed tests |  |
-| rf_suite_name | string | Name of the test suite |  |
-| rf_testcases | integer | Total amount of tests (including child suites) |  |
-| rf_total | integer | Amount of tests in this suite |  |
-
-### `tag_point`
-
-| Metric | Type | Explanation | Introduced in |
-| --- | --- | --- | --- |
-| rf_critical_failed | integer | Amount of failed critical tests |  |
-| rf_critical_passed | integer | Amount of passed critical tests |  |
-| rf_critical_total | integer | Total amount of critical tests |  |
-| rf_duration | integer | Test execution duration |  |
-| rf_failed | integer | Amount of failed tests |  |
-| rf_passed | integer | Amount of passed tests |  |
-| rf_total | integer | Total amount of tests |  |
-| rf_tag_name | string | Test tag name | 1.11 |
-
-### `testcase_point`
-
-| Metric | Type | Explanation | Introduced in |
-| --- | --- | --- | --- |
-| rf_critical_failed | integer | 0 or 1 |  |
-| rf_critical_passed | integer | 0 or 1 |  |
-| rf_duration | integer | Test case execution duration |  |
-| rf_failed | integer | 0 or 1 |  |
-| rf_name | string | Name of the test case |  |
-| rf_passed | integer | 0 or 1 |  |
-| rf_suite_name | string | Name of the suite of the test case |  |
-
-### `jacodo_data` (since 1.7)
-
-| Metric | Type | Explanation | Introduced in |
-| --- | --- | --- | --- |
-| jacoco_brach_coverage_rage | float | Branch coverage percentage | |
-| jacoco_brach_covered | integer | Amount of branches covered | 2.1 |
-| jacoco_brach_missed | integer | Amount of branches missed | 2.1 |
-| jacoco_class_coverage_rage | float | Class coverage percentage | |
-| jacoco_class_covered | integer | Amount of classes covered | 2.1 |
-| jacoco_class_missed | integer | Amount of classes missed | 2.1 |
-| jacoco_complexity_coverage_rage | float | Complexity coverage percentage | |
-| jacoco_complexity_covered | integer | Amount of complexity covered | 2.1 |
-| jacoco_complexity_missed | integer | Amount of complexity missed | 2.1 |
-| jacoco_instruction_coverage_rage | float | Instruction coverage percentage | |
-| jacoco_instruction_covered | integer | Amount of instructions covered | 2.1 |
-| jacoco_instruction_missed | integer | Amount of instructions missed | 2.1 |
-| jacoco_line_coverage_rage | float | Line coverage percentage | |
-| jacoco_line_covered | integer | Amount of lines covered | 2.1 |
-| jacoco_line_missed | integer | Amount of lines missed | 2.1 |
-| jacoco_method_coverage_rage | float | Method coverage percentage | |
-| jacoco_method_covered | integer | Amount of methods covered | 2.1 |
-| jacoco_method_missed | integer | Amount of methods missed | 2.1 |
-
-### `performance_data` (since 1.10.1)
-
-| Metric | Type | Explanation | Introduced in |
-| --- | --- | --- | --- |
-| 90percentile | integer | Point when 90 percentile was reached | 1.12 |
-| average | float | Average performance (total duration / size) | |
-| error_count | integer | Amount of failed samples | |
-| error_percent | integer | Percentage of failed samples | |
-| max | integer | Maximum duration | |
-| median | integer | Median duration | 1.12 |
-| min | integer | Minimum duration | |
-| size | integer | Amount of samples | |
-| total_traffic | integer | Total traffic in KB | |
-
-### `sonarqube_data` (since 1.11)
-
-| Metric | Type | Explanation | Introduced in |
-| --- | --- | --- | --- |
-| blocker_issues | float | Total amount of blocker issues | |
-| branch_coverage | float | Branch coverage | 2.2 |
-| bugs | float | Total amount of bugs | 2.2 |
-| code_smells | float | Total amount of code smells | 2.2 |
-| complexity | float | Total amount of complexity | 2.2 |
-| coverage | float | Overall coverage | 2.2 |
-| critical_issues | float | Total amount of critical issues | |
-| display_name | string | Build display name | |
-| duplicated_lines_density | float | Percentage of duplicated lines | 2.2 |
-| info_issues | float | Total amount of info issues | |
-| line_coverage | float | Line coverage | 2.2 |
-| lines_of_code | float (integer until 2.2) | Total amount of lines (including comments) | |
-| lines_to_cover | float | Total amount of lines to cover (excluding comments) | 2.2 |
-| major_issues | float | Total amount of major issues | |
-| minor_issues | float | Total amount of minor issues | |
-| vulnerabilities | float | Total amount of vulnerabilities | 2.2 |
-
-### `changelog_data` (since 1.12)
-
-| Metric | Type | Explanation | Introduced in |
-| --- | --- | --- | --- |
-| affected_paths | string | Comma-separated list of changed files | |
-| commit_count | integer | Amount of commits since last change set | |
-| commit_messages | string | Comma-separated list of commit messages | |
-| culprits | string | Comma-separated list of commit authors | |
-
-### `perfpublisher_summary` (since 1.13)
-
-| Metric | Type | Explanation | Introduced in |
-| --- | --- | --- | --- |
-| number_of_tests | integer | Total amount of tests | |
-| number_of_executed_tests | integer | Amount of executed tests | |
-| number_of_not_executed_tests | integer | Amount of not executed tests | |
-| number_of_passed_tests | integer | Amount of passed tests | |
-| number_of_failed_tests | integer | Amount of failed tests | |
-| number_of_success_tests | integer | Amount of succeeded tests | |
-| number_of_true_false_tests | integer | Amount of true-false tests | |
-| best_compile_time_test_value | float | Best compilation time test value | |
-| best_compile_time_test_name | string | Best compilation time test name | |
-| worst_compile_time_test_value | float | Worst compilation time test value | |
-| worst_compile_time_test_name | string | Worst compilation time test name | |
-| average_compile_time | float | Average compilation test time | |
-| best_performance_test_value | float | Best performance test value | |
-| best_performance_time_test_name | string | Best performance time test name | |
-| worst_performance_time_test_value | float | Worst performance time test value | |
-| worst_performance_time_test_name | string | Worst performance time test name | |
-| average_performance_time | float | Average performance test time | |
-| best_execution_time_test_value | float | Best execution time test value | |
-| best_execution_time_test_name | string | Best execution time test name | |
-| worst_execution_time_test_value | float | Worst execution time test value | |
-| worst_execution_time_test_name | string | Worst execution time test name | |
-| average_execution_time | float | Average execution test time | |
-
-### `perfpublisher_metric` (since 1.13)
-
-| Metric | Type | Explanation | Introduced in |
-| --- | --- | --- | --- |
-| metric_name | string | Metric name | |
-| average | float | Average value | |
-| best | float | Best value | |
-| worst | float | Worst value | |
-
-### `perfpublihser_test` (since 1.13)
-
-| Metric | Type | Explanation | Introduced in |
-| --- | --- | --- | --- |
-| test_name | string | Test name | |
-| successful | boolean | Was test successful | |
-| executed | boolean | Was test executed | |
-| message | boolean | Test message | |
-| compile_time | float | Test compilation time | |
-| execution_time | float | Test execution time | |
-| performance | float | Test performance | |
-
-### `perfpublisher_test_metric` (since 1.13)
-
-| Metric | Type | Explanation | Introduced in |
-| --- | --- | --- | --- |
-| test_name | string | Test name | |
-| metric_name | string | Test metric name | |
-| value | float | Metric value |  |
-| unit | string | Metric unit |  |
-| relevant | boolean | Is metric relevant |  |
-
-### `serenity_data` (since 2.1)
-
-| Metric | Type | Explanation | Introduced in |
-| --- | --- | --- | --- |
-| serenity_results_average_test_duration | integer | Maximum average duration in milliseconds |  |
-| serenity_results_counts_compromised | integer | Amount of compromised results |  |
-| serenity_results_counts_error | integer | Amount of error results |  |
-| serenity_results_counts_failure | integer | Amount of failed results |  |
-| serenity_results_counts_ignored | integer | Amount of ignored results |  |
-| serenity_results_counts_pending | integer | Amount of pending results |  |
-| serenity_results_counts_skipped | integer | Amount of skipped results |  |
-| serenity_results_counts_success | integer | Amount of success results |  |
-| serenity_results_counts_total | integer | Total amount of results |  |
-| serenity_results_max_test_duration | integer | Maximum test duration in milliseconds |  |
-| serenity_results_min_test_duration | integer | Minimum test duration in milliseconds |  |
-| serenity_results_percentages_compromised | integer | Percentage of compromised results |  |
-| serenity_results_percentages_error | integer | Percentage of error results |  |
-| serenity_results_percentages_failure | integer | Percentage of failure results |  |
-| serenity_results_percentages_ignored | integer | Percentage of ignored results |  |
-| serenity_results_percentages_pending | integer | Percentage of pending results |  |
-| serenity_results_percentages_skipped | integer | Percentage of skipped results |  |
-| serenity_results_percentages_success | integer | Percentage of success results |  |
-| serenity_results_total_clock_duration | integer | Total test clock duration in milliseconds |  |
-| serenity_results_total_test_duration | integer | Total test duration in milliseconds |  |
-| serenity_tags_* | integer | Amount of tests for each tag |  |
-
 ## Configuration
 
 ### Via Jenkins UI
@@ -461,6 +212,256 @@ It adds the fields `field_c` and `field_d` with values `21` and `22` respectivel
 
 You can also add tags to your custom measurements with the `customDataMapTags` parameter.
 You **must** use the same map keys as measurement names as in `customDataMap`.
+
+
+## Supported Metrics
+
+All measurements share the following metrics:
+
+| Metric | Type | Explanation | Introduced in |
+| --- | --- | --- | --- |
+| build_number | integer | Build number |  |
+| project_name | string | Build name |  |
+| project_path | string | Build path |  |
+
+### `jenkins_data`
+
+| Metric | Type | Explanation | Introduced in |
+| --- | --- | --- | --- |
+| build_agent_name | string | Name of the executor node | 1.15 |
+| build_exec_time | integer | Start time of the build | 1.17 |
+| build_measured_time | integer | Time when InfluxDB plugin is called | 1.17 |
+| build_result | string | SUCCESS, FAILURE, NOT BUILT, UNSTABLE, ABORTED, ?  | 1.10 |
+| build_result_ordinal | integer | 0-5 in order of `build_result`. 5 is only for pipelines if build result is not set manually.  | 1.10 |
+| build_scheduled_time | integer | Time when build was scheduled to run | 1.17 |
+| build_status_message | string | Status message (stable, back to normal, broken since #50, etc.) | |
+| build_successful | boolean | Boolean whether build succeeded | 1.10 |
+| build_time | integer | Build execution time |  |
+| last_stable_build | integer | Build number of the last stable build (0 if never) | 1.10 |
+| last_successful_build | integer | Build number of the last successful build (0 if never) | 1.10 |
+| project_build_health | integer | Health score from build | |
+| tests_failed | integer | Amount of failed unit tests (from JUnit plugin) | |
+| tests_skipped | integer | Amount of skipped unit tests (from JUnit plugin) | |
+| tests_total | integer | total amount of unit tests (from JUnit plugin) | |
+| time_in_queue | integer | Time build was in queue (from Metrics plugin | 1.16 |
+
+### `cobertura_data`
+
+| Metric | Type | Explanation | Introduced in |
+| --- | --- | --- | --- |
+| cobertura_branch_coverage_rate | float | Branch coverage percentage |  |
+| cobertura_class_coverage_rate | float | Class coverage percentage |  |
+| cobertura_line_coverage_rate | float | Line coverage percentage |  |
+| cobertura_number_of_classes | float | Amount of classes |  |
+| cobertura_number_of_packages | float | Amount of packages |  |
+| cobertura_number_of_sourcefiles | float | Amount of source files |  |
+| cobertura_package_coverage_rate | float | Package coverage percentage |  |
+
+### `rf_results`
+
+| Metric | Type | Explanation | Introduced in |
+| --- | --- | --- | --- |
+| rf_critical_failed | integer | Amount of failed critical tests |  |
+| rf_critical_pass_percentage | float | Percentage of passed critical tests |  |
+| rf_critical_passed | integer | Amount of passed critical tests |  |
+| rf_critical_total | integer | Total amount of critical tests |  |
+| rf_duration | integer | Test execution duration |  |
+| rf_failed | integer | Amount of failed tests |  |
+| rf_pass_percentage | float | Percentage of passed tests |  |
+| rf_passed | integer | Amount of passed tests |  |
+| rf_suites | integer | Amount of test suites |  |
+| rf_total | integer | Total amount of tests |  |
+
+### `suite_result`
+
+| Metric | Type | Explanation | Introduced in |
+| --- | --- | --- | --- |
+| rf_critical_failed | integer | Amount of failed critical tests |  |
+| rf_critical_passed | integer | Amount of passed critical tests |  |
+| rf_critical_total | integer | Total amount of critical tests |  |
+| rf_duration | integer | Test execution duration |  |
+| rf_failed | integer | Amount of failed tests |  |
+| rf_passed | integer | Amount of passed tests |  |
+| rf_suite_name | string | Name of the test suite |  |
+| rf_testcases | integer | Total amount of tests (including child suites) |  |
+| rf_total | integer | Amount of tests in this suite |  |
+
+### `tag_point`
+
+| Metric | Type | Explanation | Introduced in |
+| --- | --- | --- | --- |
+| rf_critical_failed | integer | Amount of failed critical tests |  |
+| rf_critical_passed | integer | Amount of passed critical tests |  |
+| rf_critical_total | integer | Total amount of critical tests |  |
+| rf_duration | integer | Test execution duration |  |
+| rf_failed | integer | Amount of failed tests |  |
+| rf_passed | integer | Amount of passed tests |  |
+| rf_total | integer | Total amount of tests |  |
+| rf_tag_name | string | Test tag name | 1.11 |
+
+### `testcase_point`
+
+| Metric | Type | Explanation | Introduced in |
+| --- | --- | --- | --- |
+| rf_critical_failed | integer | 0 or 1 |  |
+| rf_critical_passed | integer | 0 or 1 |  |
+| rf_duration | integer | Test case execution duration |  |
+| rf_failed | integer | 0 or 1 |  |
+| rf_name | string | Name of the test case |  |
+| rf_passed | integer | 0 or 1 |  |
+| rf_suite_name | string | Name of the suite of the test case |  |
+
+### `jacodo_data` (since 1.7)
+
+| Metric | Type | Explanation | Introduced in |
+| --- | --- | --- | --- |
+| jacoco_brach_coverage_rage | float | Branch coverage percentage | |
+| jacoco_brach_covered | integer | Amount of branches covered | 2.1 |
+| jacoco_brach_missed | integer | Amount of branches missed | 2.1 |
+| jacoco_class_coverage_rage | float | Class coverage percentage | |
+| jacoco_class_covered | integer | Amount of classes covered | 2.1 |
+| jacoco_class_missed | integer | Amount of classes missed | 2.1 |
+| jacoco_complexity_coverage_rage | float | Complexity coverage percentage | |
+| jacoco_complexity_covered | integer | Amount of complexity covered | 2.1 |
+| jacoco_complexity_missed | integer | Amount of complexity missed | 2.1 |
+| jacoco_instruction_coverage_rage | float | Instruction coverage percentage | |
+| jacoco_instruction_covered | integer | Amount of instructions covered | 2.1 |
+| jacoco_instruction_missed | integer | Amount of instructions missed | 2.1 |
+| jacoco_line_coverage_rage | float | Line coverage percentage | |
+| jacoco_line_covered | integer | Amount of lines covered | 2.1 |
+| jacoco_line_missed | integer | Amount of lines missed | 2.1 |
+| jacoco_method_coverage_rage | float | Method coverage percentage | |
+| jacoco_method_covered | integer | Amount of methods covered | 2.1 |
+| jacoco_method_missed | integer | Amount of methods missed | 2.1 |
+
+### `performance_data` (since 1.10.1)
+
+| Metric | Type | Explanation | Introduced in |
+| --- | --- | --- | --- |
+| 90percentile | integer | Point when 90 percentile was reached | 1.12 |
+| average | float | Average performance (total duration / size) | |
+| error_count | integer | Amount of failed samples | |
+| error_percent | integer | Percentage of failed samples | |
+| max | integer | Maximum duration | |
+| median | integer | Median duration | 1.12 |
+| min | integer | Minimum duration | |
+| size | integer | Amount of samples | |
+| total_traffic | integer | Total traffic in KB | |
+
+### `sonarqube_data` (since 1.11)
+
+| Metric | Type | Explanation | Introduced in |
+| --- | --- | --- | --- |
+| blocker_issues | float | Total amount of blocker issues | |
+| branch_coverage | float | Branch coverage | 2.2 |
+| bugs | float | Total amount of bugs | 2.2 |
+| code_smells | float | Total amount of code smells | 2.2 |
+| complexity | float | Total amount of complexity | 2.2 |
+| coverage | float | Overall coverage | 2.2 |
+| critical_issues | float | Total amount of critical issues | |
+| display_name | string | Build display name | |
+| duplicated_lines_density | float | Percentage of duplicated lines | 2.2 |
+| info_issues | float | Total amount of info issues | |
+| line_coverage | float | Line coverage | 2.2 |
+| lines_of_code | float (integer until 2.2) | Total amount of lines (including comments) | |
+| lines_to_cover | float | Total amount of lines to cover (excluding comments) | 2.2 |
+| major_issues | float | Total amount of major issues | |
+| minor_issues | float | Total amount of minor issues | |
+| vulnerabilities | float | Total amount of vulnerabilities | 2.2 |
+
+### `changelog_data` (since 1.12)
+
+| Metric | Type | Explanation | Introduced in |
+| --- | --- | --- | --- |
+| affected_paths | string | Comma-separated list of changed files | |
+| commit_count | integer | Amount of commits since last change set | |
+| commit_messages | string | Comma-separated list of commit messages | |
+| culprits | string | Comma-separated list of commit authors | |
+
+### `perfpublisher_summary` (since 1.13)
+
+| Metric | Type | Explanation | Introduced in |
+| --- | --- | --- | --- |
+| average_compile_time | float | Average compilation test time | |
+| average_execution_time | float | Average execution test time | |
+| average_performance_time | float | Average performance test time | |
+| best_compile_time_test_name | string | Best compilation time test name | |
+| best_compile_time_test_value | float | Best compilation time test value | |
+| best_performance_time_test_name | string | Best performance time test name | |
+| best_performance_test_value | float | Best performance test value | |
+| best_execution_time_test_name | string | Best execution time test name | |
+| best_execution_time_test_value | float | Best execution time test value | |
+| number_of_executed_tests | integer | Amount of executed tests | |
+| number_of_failed_tests | integer | Amount of failed tests | |
+| number_of_not_executed_tests | integer | Amount of not executed tests | |
+| number_of_passed_tests | integer | Amount of passed tests | |
+| number_of_success_tests | integer | Amount of succeeded tests | |
+| number_of_tests | integer | Total amount of tests | |
+| number_of_true_false_tests | integer | Amount of true-false tests | |
+| worst_compile_time_test_name | string | Worst compilation time test name | |
+| worst_compile_time_test_value | float | Worst compilation time test value | |
+| worst_performance_time_test_name | string | Worst performance time test name | |
+| worst_performance_time_test_value | float | Worst performance time test value | |
+| worst_execution_time_test_name | string | Worst execution time test name | |
+| worst_execution_time_test_value | float | Worst execution time test value | |
+
+### `perfpublisher_metric` (since 1.13)
+
+| Metric | Type | Explanation | Introduced in |
+| --- | --- | --- | --- |
+| average | float | Average value | |
+| best | float | Best value | |
+| metric_name | string | Metric name | |
+| worst | float | Worst value | |
+
+### `perfpublihser_test` (since 1.13)
+
+| Metric | Type | Explanation | Introduced in |
+| --- | --- | --- | --- |
+| executed | boolean | Was test executed | |
+| execution_time | float | Test execution time | |
+| compile_time | float | Test compilation time | |
+| message | boolean | Test message | |
+| performance | float | Test performance | |
+| successful | boolean | Was test successful | |
+| test_name | string | Test name | |
+
+### `perfpublisher_test_metric` (since 1.13)
+
+| Metric | Type | Explanation | Introduced in |
+| --- | --- | --- | --- |
+| metric_name | string | Test metric name | |
+| relevant | boolean | Is metric relevant |  |
+| test_name | string | Test name | |
+| value | float | Metric value |  |
+| unit | string | Metric unit |  |
+
+### `serenity_data` (since 2.1)
+
+| Metric | Type | Explanation | Introduced in |
+| --- | --- | --- | --- |
+| serenity_results_average_test_duration | integer | Maximum average duration in milliseconds |  |
+| serenity_results_counts_compromised | integer | Amount of compromised results |  |
+| serenity_results_counts_error | integer | Amount of error results |  |
+| serenity_results_counts_failure | integer | Amount of failed results |  |
+| serenity_results_counts_ignored | integer | Amount of ignored results |  |
+| serenity_results_counts_pending | integer | Amount of pending results |  |
+| serenity_results_counts_skipped | integer | Amount of skipped results |  |
+| serenity_results_counts_success | integer | Amount of success results |  |
+| serenity_results_counts_total | integer | Total amount of results |  |
+| serenity_results_max_test_duration | integer | Maximum test duration in milliseconds |  |
+| serenity_results_min_test_duration | integer | Minimum test duration in milliseconds |  |
+| serenity_results_percentages_compromised | integer | Percentage of compromised results |  |
+| serenity_results_percentages_error | integer | Percentage of error results |  |
+| serenity_results_percentages_failure | integer | Percentage of failure results |  |
+| serenity_results_percentages_ignored | integer | Percentage of ignored results |  |
+| serenity_results_percentages_pending | integer | Percentage of pending results |  |
+| serenity_results_percentages_skipped | integer | Percentage of skipped results |  |
+| serenity_results_percentages_success | integer | Percentage of success results |  |
+| serenity_results_total_clock_duration | integer | Total test clock duration in milliseconds |  |
+| serenity_results_total_test_duration | integer | Total test duration in milliseconds |  |
+| serenity_tags_* | integer | Amount of tests for each tag |  |
+
 
 
 ## Contribution
