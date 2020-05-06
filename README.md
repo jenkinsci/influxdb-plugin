@@ -273,6 +273,24 @@ Tags specific for this measurement:
 | commit_messages | string | Comma-separated list of commit messages | |
 | culprits | string | Comma-separated list of commit authors | |
 
+#### `junit_data` (since 2.3)
+
+| Metric | Type | Description | Introduced in |
+| --- | --- | --- | --- |
+| suite_name | string | Testsuite name | |
+| test_name | string | Test name | |
+| test_status | string | PASSED, SKIPPED, FAILED, FIXED, REGRESSION | |
+| test_status_ordinal | integer | 0-4 in order of test_status | |
+| test_duration | float | test duration in seconds | |
+
+Tags specific for this measurement:
+
+| Tag | Description | Introduced in |
+| --- | --- | --- |
+| suite_name | Testsuite name | |
+| test_name | Test name | |
+| test_status | Test result | |
+
 #### `sonarqube_data` (since 1.11)
 
 | Metric | Type | Description | Introduced in |
