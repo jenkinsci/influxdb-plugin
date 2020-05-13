@@ -61,7 +61,7 @@ public class JenkinsBasePointGeneratorTest {
 
         Mockito.when(build.getNumber()).thenReturn(BUILD_NUMBER);
         Mockito.when(build.getBuildStatusSummary()).thenReturn(new Run.Summary(false, "OK"));
-        Mockito.when(build.getParent()).thenReturn(job);
+        Mockito.doReturn(job).when(build).getParent();
         Mockito.when(build.getEnvironment(listener)).thenReturn(mockedEnvVars);
         Mockito.when(executor.getOwner()).thenReturn(computer);
         Mockito.when(computer.getName()).thenReturn("slave-1");

@@ -25,7 +25,7 @@ public class ProjectNameRendererTest {
         job = Mockito.mock(Job.class);
 
         Mockito.when(build.getNumber()).thenReturn(BUILD_NUMBER);
-        Mockito.when(build.getParent()).thenReturn(job);
+        Mockito.doReturn(job).when(build).getParent();
         Mockito.when(job.getName()).thenReturn(JOB_NAME);
     }
 

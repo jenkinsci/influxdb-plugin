@@ -51,7 +51,7 @@ public class PerfPublisherPointGeneratorTest {
         reports = new ReportContainer();
 
         Mockito.when(build.getNumber()).thenReturn(BUILD_NUMBER);
-        Mockito.when(build.getParent()).thenReturn(job);
+        Mockito.doReturn(job).when(build).getParent();
         Mockito.when(job.getName()).thenReturn(JOB_NAME);
         Mockito.when(job.getRelativeNameFrom(Mockito.nullable(Jenkins.class))).thenReturn("folder/" + JOB_NAME);
         Mockito.when(build.getAction(PerfPublisherBuildAction.class)).thenReturn(buildAction);
