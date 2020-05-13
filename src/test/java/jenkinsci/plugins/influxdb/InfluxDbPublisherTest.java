@@ -63,7 +63,7 @@ public class InfluxDbPublisherTest {
         target1.setDescription("Target1");
         Target target2 = new Target();
         target2.setDescription("Target2");
-        globalConfig.addTarget(target1);;
+        globalConfig.addTarget(target1);
         globalConfig.addTarget(target2);
 
         InfluxDbPublisher before = new InfluxDbPublisher("Target2");
