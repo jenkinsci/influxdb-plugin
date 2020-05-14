@@ -275,6 +275,9 @@ Tags specific for this measurement:
 
 #### `junit_data` (since 2.3)
 
+In order to publish data for this measurement, your job needs to set an environment variable
+`LOG_JUNIT_RESULTS` to `true`.
+
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | suite_name | string | Testsuite name | |
