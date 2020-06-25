@@ -314,6 +314,7 @@ Tags specific for this measurement:
 | major_issues | float | Total amount of major issues | |
 | minor_issues | float | Total amount of minor issues | |
 | vulnerabilities | float | Total amount of vulnerabilities | 2.2 |
+| sqale_index | float | Technical Debt |  |
 
 
 
