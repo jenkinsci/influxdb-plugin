@@ -40,6 +40,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private static final String SONARQUBE_LINE_COVERAGE = "line_coverage";
     private static final String SONARQUBE_LINES_TO_COVER = "lines_to_cover";
     private static final String SONARQUBE_DUPLICATED_LINES_DENSITY = "duplicated_lines_density";
+    private static final String SONARQUBE_TECHNICAL_DEBT = "sqale_index";
 
     private static final String URL_PATTERN_IN_LOGS = ".*" + Pattern.quote("ANALYSIS SUCCESSFUL, you can browse ")
             + "(.*)";
@@ -146,6 +147,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                     .addField(SONARQUBE_LINES_TO_COVER, getSonarMetric(sonarMetricsUrl, SONARQUBE_LINES_TO_COVER))
                     .addField(SONARQUBE_DUPLICATED_LINES_DENSITY, getSonarMetric(sonarMetricsUrl, SONARQUBE_DUPLICATED_LINES_DENSITY))
                     .addField(SONARQUBE_COMPLEXITY, getSonarMetric(sonarMetricsUrl, SONARQUBE_COMPLEXITY))
+                    .addField(SONARQUBE_TECHNICAL_DEBT, getSonarMetric(sonarMetricsUrl, SONARQUBE_TECHNICAL_DEBT))
                     .build();
         } catch (IOException e) {
             String logMessage = "[InfluxDB Plugin] INFO: IOException while fetching SonarQube metrics: " + e.getMessage();
