@@ -28,9 +28,9 @@ public class GlobalRunListener extends RunListener<Run<?, ?>> {
     @Override
     public void onCompleted(Run<?, ?> build, @Nonnull TaskListener listener) {
         // Gets the full path of the build's project
-        String path = build.getParent().getRelativeNameFrom(Jenkins.getInstance());
+        String path = build.getParent().getRelativeNameFrom(Jenkins.get());
         // Gets the list of targets from the configuration
-        List<Target> targets = Jenkins.getInstance().getDescriptorByType(InfluxDbPublisher.DescriptorImpl.class).getTargets();
+        List<Target> targets = Jenkins.get().getDescriptorByType(InfluxDbPublisher.DescriptorImpl.class).getTargets();
         // Selects the targets eligible as global listeners and which match the build path
         List<Target> selectedTargets = new ArrayList<>();
         for (Target target : targets) {
