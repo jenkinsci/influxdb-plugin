@@ -1,6 +1,7 @@
 package jenkinsci.plugins.influxdb.generators;
 
 import hudson.EnvVars;
+import hudson.model.Cause;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
@@ -9,6 +10,7 @@ import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import org.apache.commons.lang3.StringUtils;
 import org.influxdb.dto.Point;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -33,6 +35,8 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     public static final String BUILD_IS_SUCCESSFUL = "build_successful";
 
     public static final String BUILD_AGENT_NAME = "build_agent_name";
+    public static final String BUILD_BRANCH_NAME = "build_branch_name";
+    public static final String BUILD_CAUSER = "buid_causer";
 
     public static final String PROJECT_BUILD_HEALTH = "project_build_health";
     public static final String PROJECT_LAST_SUCCESSFUL = "last_successful_build";
@@ -93,10 +97,13 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             .addField(BUILD_RESULT, result)
             .addField(BUILD_RESULT_ORDINAL, ordinal)
             .addField(BUILD_IS_SUCCESSFUL, ordinal < 2)
-            .addField(BUILD_AGENT_NAME, getBuildAgentName())
+            .addField(BUILD_AGENT_NAME, getBuildEnv("NODE_NAME"))
+            .addField(BUILD_BRANCH_NAME, getBuildEnv("BRANCH_NAME"))
             .addField(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
             .addField(PROJECT_LAST_SUCCESSFUL, getLastSuccessfulBuild())
             .addField(PROJECT_LAST_STABLE, getLastStableBuild())
+            //.addField(BUILD_CAUSER ,   "ok")
+            .addField(BUILD_CAUSER , getCauseShortDescription())
             .tag(BUILD_RESULT, result);
 
         if (hasTestResults(build)) {
@@ -118,8 +125,8 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         return new Point[] {point.build()};
     }
 
-    private String getBuildAgentName() {
-        String s = env.get("NODE_NAME");
+    private String getBuildEnv(String buildEnv) {
+        String s = env.get(buildEnv);
         return s == null ? "" : s;
     }
 
@@ -132,6 +139,16 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             return build.getAction(jenkins.metrics.impl.TimeInQueueAction.class) != null;
         } catch (NoClassDefFoundError e) {
             return false;
+        }
+    }
+
+    private String getCauseShortDescription() {
+        try {
+            List<Cause> shortDescriptionList = build.getCauses();
+            Cause shortDescription = shortDescriptionList.get(0);
+            return shortDescription != null ? shortDescription.getShortDescription() : "";
+        } catch (Exception e) {
+            return "";
         }
     }
 

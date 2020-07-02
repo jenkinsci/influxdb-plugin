@@ -71,6 +71,7 @@ public class JenkinsBasePointGeneratorTest {
         Mockito.when(mockedEnvVars.get(JENKINS_ENV_VALUE_FIELD)).thenReturn(JENKINS_ENV_RESOLVED_VALUE_FIELD);
         Mockito.when(mockedEnvVars.get(JENKINS_ENV_VALUE_TAG)).thenReturn(JENKINS_ENV_RESOLVED_VALUE_TAG);
         Mockito.when(mockedEnvVars.get("NODE_NAME")).thenReturn(null);
+        Mockito.when(mockedEnvVars.get("BRANCH_NAME")).thenReturn(null);
 
         currTime = System.currentTimeMillis();
     }
@@ -97,6 +98,30 @@ public class JenkinsBasePointGeneratorTest {
         assertThat(lineProtocol, containsString("build_agent_name=\"\""));
         assertThat(lineProtocol, containsString("project_path=\"folder/master\""));
     }
+
+    @Test
+    public void branch_present() {
+        Mockito.when(build.getExecutor()).thenReturn(executor);
+        Mockito.when(mockedEnvVars.get("BRANCH_NAME")).thenReturn("develop");
+        JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
+        Point[] points = generator.generate();
+        String lineProtocol = points[0].lineProtocol();
+
+        assertThat(lineProtocol, containsString("build_branch_name=\"develop\""));
+        assertThat(lineProtocol, containsString("project_path=\"folder/master\""));
+    }
+
+    @Test
+    public void brach_not_present() {
+        Mockito.when(build.getExecutor()).thenReturn(null);
+        JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
+        Point[] points = generator.generate();
+        String lineProtocol = points[0].lineProtocol();
+
+        assertThat(lineProtocol, containsString("build_branch_name=\"\""));
+        assertThat(lineProtocol, containsString("project_path=\"folder/master\""));
+    }
+
 
     @Test
     public void scheduled_and_start_and_end_time_present() {
