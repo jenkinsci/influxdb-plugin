@@ -39,6 +39,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private static final String SONARQUBE_BRANCH_COVERAGE = "branch_coverage";
     private static final String SONARQUBE_LINE_COVERAGE = "line_coverage";
     private static final String SONARQUBE_LINES_TO_COVER = "lines_to_cover";
+    private static final String SONARQUBE_ALERT_STATUS = "alert_status"; //Quality Gate Status 
     private static final String SONARQUBE_DUPLICATED_LINES_DENSITY = "duplicated_lines_density";
     private static final String SONARQUBE_TECHNICAL_DEBT = "sqale_index";
 
@@ -147,6 +148,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                     .addField(SONARQUBE_LINES_TO_COVER, getSonarMetric(sonarMetricsUrl, SONARQUBE_LINES_TO_COVER))
                     .addField(SONARQUBE_DUPLICATED_LINES_DENSITY, getSonarMetric(sonarMetricsUrl, SONARQUBE_DUPLICATED_LINES_DENSITY))
                     .addField(SONARQUBE_COMPLEXITY, getSonarMetric(sonarMetricsUrl, SONARQUBE_COMPLEXITY))
+                    .addField(SONARQUBE_ALERT_STATUS, getSonarMetricStr(sonarMetricsUrl, SONARQUBE_ALERT_STATUS))
                     .addField(SONARQUBE_TECHNICAL_DEBT, getSonarMetric(sonarMetricsUrl, SONARQUBE_TECHNICAL_DEBT))
                     .build();
         } catch (IOException e) {
@@ -204,15 +206,31 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         return projectUrl.length > 1 ? projectUrl[projectUrl.length - 1] : "";
     }
 
+    public String getSonarMetricStr(String url, String metric) throws IOException {
+        return getSonarMetricValue(url, metric);
+    }
+
     public Float getSonarMetric(String url, String metric) throws IOException {
         Float value = null;
+        
+        try {
+            value = Float.parseFloat(getSonarMetricValue(url, metric));
+        } catch (NumberFormatException exp) {}
+
+        return value;
+    }
+
+    private String getSonarMetricValue(String url, String metric) throws IOException {
+
+        String value = "";
         String output = getResult(url + SONAR_METRICS_BASE_METRIC + metric);
         JSONObject metricsObjects = JSONObject.fromObject(output);
         try {
             JSONArray array = metricsObjects.getJSONObject("component").getJSONArray("measures");
             JSONObject metricsObject = array.getJSONObject(0);
-            value = Float.parseFloat(metricsObject.getString("value"));
-        } catch (NumberFormatException | IndexOutOfBoundsException exp) {}
+            value = metricsObject.getString("value").toString();
+        } catch (IndexOutOfBoundsException exp) {}
+
         return value;
     }
 

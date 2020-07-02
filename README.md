@@ -242,6 +242,8 @@ All measurements share the following tags:
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | build_agent_name | string | Name of the executor node | 1.15 |
+| build_branch_name | string | Branch name of multibranch pipeline | |
+| buid_causer | string | Short description of build causer| |
 | build_exec_time | integer | Start time of the build | 1.17 |
 | build_measured_time | integer | Time when InfluxDB plugin is called | 1.17 |
 | build_result | string | SUCCESS, FAILURE, NOT BUILT, UNSTABLE, ABORTED, ?  | 1.10 |
@@ -298,6 +300,7 @@ Tags specific for this measurement:
 
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
+| alert_status | string | State of the Quality Gate | |
 | blocker_issues | float | Total amount of blocker issues | |
 | branch_coverage | float | Branch coverage | 2.2 |
 | bugs | float | Total amount of bugs | 2.2 |
