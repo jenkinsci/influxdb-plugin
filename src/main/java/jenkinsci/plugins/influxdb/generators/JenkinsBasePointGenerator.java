@@ -36,7 +36,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     public static final String BUILD_AGENT_NAME = "build_agent_name";
     public static final String BUILD_BRANCH_NAME = "build_branch_name";
-    public static final String BUILD_CAUSER = "buid_causer";
+    public static final String BUILD_CAUSER = "build_causer";
 
     public static final String PROJECT_BUILD_HEALTH = "project_build_health";
     public static final String PROJECT_LAST_SUCCESSFUL = "last_successful_build";
@@ -102,7 +102,6 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             .addField(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
             .addField(PROJECT_LAST_SUCCESSFUL, getLastSuccessfulBuild())
             .addField(PROJECT_LAST_STABLE, getLastStableBuild())
-            //.addField(BUILD_CAUSER ,   "ok")
             .addField(BUILD_CAUSER , getCauseShortDescription())
             .tag(BUILD_RESULT, result);
 
