@@ -39,11 +39,11 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private static final String SONARQUBE_BRANCH_COVERAGE = "branch_coverage";
     private static final String SONARQUBE_LINE_COVERAGE = "line_coverage";
     private static final String SONARQUBE_LINES_TO_COVER = "lines_to_cover";
-    private static final String SONARQUBE_ALERT_STATUS = "alert_status"; //Quality Gate Status 
+    private static final String SONARQUBE_ALERT_STATUS = "alert_status"; //Quality Gate Status
     private static final String SONARQUBE_DUPLICATED_LINES_DENSITY = "duplicated_lines_density";
     private static final String SONARQUBE_TECHNICAL_DEBT = "sqale_index";
     private static final String SONARQUBE_TECHNICAL_DEBT_RATIO = "sqale_debt_ratio";
-    
+
     private static final String URL_PATTERN_IN_LOGS = ".*" + Pattern.quote("ANALYSIS SUCCESSFUL, you can browse ")
             + "(.*)";
 
