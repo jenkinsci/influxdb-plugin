@@ -214,7 +214,6 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
     public Float getSonarMetric(String url, String metric) throws IOException {
         Float value = null;
-        
         try {
             value = Float.parseFloat(getSonarMetricValue(url, metric));
         } catch (NumberFormatException exp) {}
@@ -230,7 +229,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         try {
             JSONArray array = metricsObjects.getJSONObject("component").getJSONArray("measures");
             JSONObject metricsObject = array.getJSONObject(0);
-            value = metricsObject.getString("value").toString();
+            value = metricsObject.getString("value");
         } catch (IndexOutOfBoundsException exp) {}
 
         return value;
