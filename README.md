@@ -24,6 +24,27 @@ under jenkinsci.plugins.influxdb.**InfluxDbStep**.DescriptorImpl.
 
 ## Configuration
 
+### Configuration as Code
+
+To configure InfluxDB plugin in Jenkins add the following to `jenkins.yaml`:
+
+```yaml
+unclassified:
+  influxDbGlobalConfig:
+    targets:
+    - database: "some_database"
+      description: "some description"
+      exposeExceptions: true
+      globalListener: true
+      globalListenerFilter: "some filter"
+      jobScheduledTimeAsPointsTimestamp: true
+      password: "some password"
+      retentionPolicy: "some_policy"
+      url: "http://some/url"
+      username: "some username"
+      usingJenkinsProxy: true
+```
+
 ### Via Jenkins UI
 
 Create a database in InfluxDB and a user with access rights. In Jenkins,
@@ -91,6 +112,19 @@ influxdb.save()
 
 ## Usage
 
+### Global Listener
+
+When `globalListener` is set to `true` for a target in which no results were published during the build, it will automatically publish the result for this target when the build is completed.
+
+To configure the global listener, you can use environment variables prefixed with `INFLUXDB_PLUGIN`. The following variables are supported and all correspond to an `influxDbPublisher` optional parameter.
+
+- `INFLUXDB_PLUGIN_CUSTOM_PROJECT_NAME` -> `customProjectName`
+- `INFLUXDB_PLUGIN_CUSTOM_PREFIX` -> `customPrefix`
+- `INFLUXDB_PLUGIN_CUSTOM_FIELDS` -> `jenkinsEnvParameterField`
+- `INFLUXDB_PLUGIN_CUSTOM_TAGS` -> `jenkinsEnvParameterTag`
+
+**_NOTE:_** The environment variables must be set on the final build object. If you are creating or updating these variables in a pipeline, you should make sure they are exported with an [EnvironmentContributingAction](https://javadoc.jenkins.io/hudson/model/EnvironmentContributingAction.html).
+
 ### Freestyle Jobs
 
 Select the InfluxDB target you wish to publish the data to.
@@ -99,7 +133,7 @@ Select the InfluxDB target you wish to publish the data to.
 
 From the "Advanced" tab you can choose to set a custom prefix for your `project_name` field,
 a custom project name to be used instead of the default job name and custom fields and tags
-for your `jenkins_data` metric.
+for your all your metrics.
 
 ![](doc/img/advanced-options.png)
 
@@ -107,7 +141,7 @@ for your `jenkins_data` metric.
 
 The plugin can be used by calling either the `influxDbPublisher()` or the `step()` function.
 
-The `influxDbPublisher()` function is only supported from version 1.21 onwards.
+**_NOTE:_** The `influxDbPublisher()` function is only supported from version 1.21 onwards.
 
 **Pipeline syntax**
 
@@ -131,7 +165,7 @@ Optional parameters
 - `customDataMap` (Map) - custom fields in custom measurements
 - `customDataMapTags` (Map) - custom tags in custom measurements
 - `jenkinsEnvParameterField` (String) - custom fields in "jenkins_data" measurement (newline-separated KEY=VALUE pairs)
-- `jenkinsEnvParameterTag` (String) - custom tags in "jenkins_data" measurement (newline-separated KEY=VALUE pairs)
+- `jenkinsEnvParameterTag` (String) - custom tags in all measurements (newline-separated KEY=VALUE pairs)
 - `measurementName` (String) - custom measurement name (replaces default "jenkins_data" and "jenkins_custom_data")
 
 All `customData*` parameters contain custom data generated during the

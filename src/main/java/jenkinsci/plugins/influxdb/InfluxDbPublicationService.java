@@ -133,7 +133,7 @@ public class InfluxDbPublicationService {
     private final String jenkinsEnvParameterField;
 
     /**
-     * Jenkins parameter(s) which will be added as tag set to  measurement 'jenkins_data'.
+     * Jenkins parameter(s) which will be added as tag set to all measurements.
      * If parameter value has a $-prefix, it will be resolved from current Jenkins job environment properties.
      */
     private final String jenkinsEnvParameterTag;
