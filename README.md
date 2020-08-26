@@ -341,7 +341,7 @@ Tags specific for this measurement:
 
 ### JaCoCo plugin
 
-#### `jacodo_data` (since 1.7)
+#### `jacoco_data` (since 1.7)
 
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
