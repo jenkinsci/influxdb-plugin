@@ -132,8 +132,8 @@ Select the InfluxDB target you wish to publish the data to.
 ![](doc/img/select-influxdb-target.png)
 
 From the "Advanced" tab you can choose to set a custom prefix for your `project_name` field,
-a custom project name to be used instead of the default job name and custom fields and tags
-for your all your metrics.
+a custom project name to be used instead of the default job name, custom fields for your
+`jenkins_data` metric, and custom tags for your all your metrics.
 
 ![](doc/img/advanced-options.png)
 
