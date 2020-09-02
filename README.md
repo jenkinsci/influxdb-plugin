@@ -129,7 +129,7 @@ Optional parameters
 - `customData` (Map) - custom fields in "jenkins_custom_data" measurement
 - `customDataTags` (Map) - custom tags in "jenkins_custom_data" measurement
 - `customDataMap` (Map) - custom fields in custom measurements
-- `customDataMapTags` (Map) - custom tags in custom measurements
+- `customDataMapTags` (Map<Map>) - custom tags in custom measurements (map of tags for each custom measurements)
 - `jenkinsEnvParameterField` (String) - custom fields in "jenkins_data" measurement (newline-separated KEY=VALUE pairs)
 - `jenkinsEnvParameterTag` (String) - custom tags in "jenkins_data" measurement (newline-separated KEY=VALUE pairs)
 - `measurementName` (String) - custom measurement name (replaces default "jenkins_data" and "jenkins_custom_data")
@@ -203,7 +203,8 @@ myFields2['field_c'] = 21
 myFields2['field_d'] = 22
 myCustomMeasurementFields['series_1'] = myFields1
 myCustomMeasurementFields['series_2'] = myFields2
-influxDbPublisher(selectedTarget: 'my-target', customDataMap: myCustomMeasurementFields)
+myTags = ['series_1':['tag_a':'a','tag_b':'b'],'series_2':['tag_c':'c','tag_d':'d']]
+influxDbPublisher(selectedTarget: 'my-target', customDataMap: myCustomMeasurementFields, customDataMapTags: myTags)
 ```
 
 This creates 2 measurements, `series_1` and `series_2`.
