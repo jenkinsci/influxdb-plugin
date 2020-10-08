@@ -51,7 +51,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
     public String getSelectedTarget() {
         String target = selectedTarget;
         if (target == null) {
-            List<Target> targets = Jenkins.get().getDescriptorByType(DescriptorImpl.class).getTargets();
+            List<Target> targets = Jenkins.getInstanceOrNull().getDescriptorByType(DescriptorImpl.class).getTargets();
             if (!targets.isEmpty()) {
                 target = targets.get(0).getDescription();
             }
@@ -151,7 +151,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
     }
 
     public Target getTarget() {
-        List<Target> targets = Jenkins.get().getDescriptorByType(DescriptorImpl.class).getTargets();
+        List<Target> targets = Jenkins.getInstanceOrNull().getDescriptorByType(DescriptorImpl.class).getTargets();
         if (selectedTarget == null && !targets.isEmpty()) {
             return targets.get(0);
         }
