@@ -41,7 +41,7 @@ public abstract class AbstractPointGenerator implements PointGenerator {
     @Override
     public Point.Builder buildPoint(String name, String customPrefix, Run<?, ?> build, long timestamp) {
         String projectName = projectNameRenderer.render(build);
-        String projectPath = build.getParent().getRelativeNameFrom(Jenkins.getInstance());
+        String projectPath = build.getParent().getRelativeNameFrom(Jenkins.get());
 
         Point.Builder builder = Point
                 .measurement(name)

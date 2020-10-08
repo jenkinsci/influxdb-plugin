@@ -320,7 +320,7 @@ public class InfluxDbPublicationService {
 
     private OkHttpClient.Builder createHttpClient(URL url, boolean useProxy) {
         OkHttpClient.Builder builder = httpClient.newBuilder();
-        ProxyConfiguration proxyConfig = Jenkins.getInstance().proxy;
+        ProxyConfiguration proxyConfig = Jenkins.get().proxy;
         if (useProxy && proxyConfig != null) {
             builder.proxy(proxyConfig.createProxy(url.getHost()));
             if (proxyConfig.getUserName() != null) {
