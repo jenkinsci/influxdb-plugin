@@ -17,6 +17,7 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -32,7 +33,7 @@ public class GlobalRunListener extends RunListener<Run<?, ?>> {
         // Gets the full path of the build's project
         String path = build.getParent().getRelativeNameFrom(Jenkins.getInstanceOrNull());
         // Gets the list of targets from the configuration
-        List<Target> targets = Jenkins.getInstanceOrNull().getDescriptorByType(InfluxDbPublisher.DescriptorImpl.class).getTargets();
+        List<Target> targets = Objects.requireNonNull(Jenkins.getInstanceOrNull()).getDescriptorByType(InfluxDbPublisher.DescriptorImpl.class).getTargets();
         // Selects the targets eligible as global listeners and which match the build path
         List<Target> selectedTargets = new ArrayList<>();
         for (Target target : targets) {
