@@ -46,8 +46,9 @@ public class InfluxDbStep extends Step {
 
     public String getSelectedTarget() {
         String target = selectedTarget;
-        if (target == null) {
-            List<Target> targets = Jenkins.getInstance().getDescriptorByType(DescriptorImpl.class).getTargets();
+        Jenkins jenkins = Jenkins.getInstanceOrNull();
+        if (target == null && jenkins != null) {
+            List<Target> targets = jenkins.getDescriptorByType(DescriptorImpl.class).getTargets();
             if (!targets.isEmpty()) {
                 target = targets.get(0).getDescription();
             }
@@ -152,14 +153,17 @@ public class InfluxDbStep extends Step {
     }
 
     public Target getTarget() {
-        List<Target> targets = Jenkins.getInstance().getDescriptorByType(DescriptorImpl.class).getTargets();
-        if (selectedTarget == null && !targets.isEmpty()) {
-            return targets.get(0);
-        }
-        for (Target target : targets) {
-            String targetInfo = target.getDescription();
-            if (targetInfo.equals(selectedTarget)) {
-                return target;
+        Jenkins jenkins = Jenkins.getInstanceOrNull();
+        if (jenkins != null) {
+            List<Target> targets = jenkins.getDescriptorByType(DescriptorImpl.class).getTargets();
+            if (selectedTarget == null && !targets.isEmpty()) {
+                return targets.get(0);
+            }
+            for (Target target : targets) {
+                String targetInfo = target.getDescription();
+                if (targetInfo.equals(selectedTarget)) {
+                    return target;
+                }
             }
         }
         return null;
