@@ -44,8 +44,8 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private static final String SONARQUBE_TECHNICAL_DEBT = "sqale_index";
     private static final String SONARQUBE_TECHNICAL_DEBT_RATIO = "sqale_debt_ratio";
 
-    private final short DEFAULT_MAX_RETRY_COUNT = 10;
-    private final int DEFAULT_RETRY_SLEEP = 5000;
+    private static final short DEFAULT_MAX_RETRY_COUNT = 10;
+    private static final int DEFAULT_RETRY_SLEEP = 5000;
 
     private static final String URL_PATTERN_IN_LOGS = ".*" + Pattern.quote("ANALYSIS SUCCESSFUL, you can browse ")
             + "(.*)";
