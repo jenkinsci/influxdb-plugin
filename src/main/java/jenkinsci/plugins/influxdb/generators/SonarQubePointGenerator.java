@@ -271,7 +271,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         return rtr_str_array;
     }
 
-    public String getSonarProjectName(String url) throws URISyntaxException {
+    String getSonarProjectName(String url) throws URISyntaxException {
         //String sonarVersion = getResult("api/server/version");
         URI uri = new URI(url);
         String[] projectUrl;
