@@ -101,7 +101,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     }
 
 
-    private void waitForQualityGate() throws IOException {
+    private void waitForQualityGateTask() throws IOException {
 
         String status = null;
         String output = null;
@@ -121,6 +121,8 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             }
         }
 
+        String taskID = sonarBuildTaskIdUrl.split("=")[1];
+
         do {
             try {
                 Thread.sleep(DEFAULT_RETRY_SLEEP);
@@ -133,18 +135,18 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             ++count;
 
             if (status.equals("FAILED") || status.equals("CANCELED")) {
-                logMessage = "[InfluxDB Plugin] Warning: Task has been " + status.toLowerCase() + "! Checkout SonarQube server's logs.";
+                logMessage = "[InfluxDB Plugin] Warning: SonarQube task " + taskID +  " failed. Status is " + status + "! Getting the QG metrics from the latest completed task!";
                 listener.getLogger().println(logMessage);                   
                 break;
             }
 
-            logMessage = "[InfluxDB Plugin] INFO: Task status: " + status;
+            logMessage = "[InfluxDB Plugin] INFO: SonarQube task " + taskID +  " status is " + status;
             listener.getLogger().println(logMessage);
             
         } while (!status.equals("SUCCESS") && count <= MAX_RETRY_COUNT);
 
-        if(!status.equals("SUCCESS")) {
-            logMessage = "[InfluxDB Plugin] WARNING: Timeout! Task status is still not SUCCESS. Getting results the latest completed task!";
+        if(!status.equals("SUCCESS") && count > MAX_RETRY_COUNT) {
+            logMessage = "[InfluxDB Plugin] WARNING: Timeout! SonarQube task " + taskID + " is still in progress. Getting the QG metrics from the latest completed task!";
             listener.getLogger().println(logMessage);
         }
     }
@@ -193,7 +195,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         Point point = null;
         try {
 
-            waitForQualityGate();
+            waitForQualityGateTask();
 
             point = buildPoint("sonarqube_data", customPrefix, build)
                     .addField(BUILD_DISPLAY_NAME, build.getDisplayName())
