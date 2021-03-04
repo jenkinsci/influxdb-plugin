@@ -1,5 +1,7 @@
 package jenkinsci.plugins.influxdb;
 
+import com.cloudbees.plugins.credentials.CredentialsProvider;
+import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import hudson.EnvVars;
 import hudson.ProxyConfiguration;
 import hudson.model.Run;
@@ -13,7 +15,6 @@ import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
-import org.apache.commons.lang3.StringUtils;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDB.ConsistencyLevel;
 import org.influxdb.InfluxDBFactory;
@@ -23,7 +24,6 @@ import org.influxdb.dto.Point;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -300,9 +300,10 @@ public class InfluxDbPublicationService {
             listener.getLogger().println(logMessage);
 
             OkHttpClient.Builder httpClient = createHttpClient(url, target.isUsingJenkinsProxy());
-            InfluxDB influxDB = StringUtils.isEmpty(target.getUsername()) ?
+            StandardUsernamePasswordCredentials credentials = CredentialsProvider.findCredentialById(target.getCredentialsId(), StandardUsernamePasswordCredentials.class, build);
+            InfluxDB influxDB = credentials == null ?
                     InfluxDBFactory.connect(target.getUrl(), httpClient) :
-                    InfluxDBFactory.connect(target.getUrl(), target.getUsername(), target.getPassword().getPlainText(), httpClient);
+                    InfluxDBFactory.connect(target.getUrl(), credentials.getUsername(), credentials.getPassword().getPlainText(), httpClient);
             writeToInflux(target, influxDB, pointsToWrite);
 
         }

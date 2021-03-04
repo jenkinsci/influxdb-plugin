@@ -1,6 +1,5 @@
 package jenkinsci.plugins.influxdb;
 
-import hudson.util.Secret;
 import io.jenkins.plugins.casc.ConfigurationAsCode;
 import jenkinsci.plugins.influxdb.models.Target;
 import org.apache.commons.io.IOUtils;
@@ -33,8 +32,8 @@ public class ConfigurationAsCodeTest {
         Target target = globalConfig.getTargets().get(0);
         assertEquals(target.getDescription(), "some description");
         assertEquals(target.getUrl(), "http://some/url");
-        assertEquals(target.getUsername(), "some username");
-        assertEquals(target.getPassword(), Secret.fromString("some password"));
+
+        assertEquals(target.getCredentialsId(), "some_id");
         assertEquals(target.getDatabase(), "some_database");
         assertEquals(target.getRetentionPolicy(), "some_policy");
         assertTrue(target.isJobScheduledTimeAsPointsTimestamp());
@@ -51,8 +50,7 @@ public class ConfigurationAsCodeTest {
         Target target = new Target();
         target.setDescription("some description");
         target.setUrl("http://some/url");
-        target.setUsername("some username");
-        target.setPassword(Secret.fromString("some password"));
+        target.setCredentialsId("some_id");
         target.setDatabase("some_database");
         target.setRetentionPolicy("some_policy");
         target.setJobScheduledTimeAsPointsTimestamp(true);
@@ -70,8 +68,7 @@ public class ConfigurationAsCodeTest {
         InputStream yamlStream = getClass().getResourceAsStream(getClass().getSimpleName() + "/configuration-as-code.yml");
         String expectedYaml = IOUtils.toString(yamlStream, StandardCharsets.UTF_8)
                 .replaceAll("\r\n?", "\n")
-                .replace("unclassified:\n", "")
-                .replace("some password", target.getPassword().getEncryptedValue());
+                .replace("unclassified:\n", "");
 
         assertTrue(exportedYaml.contains(expectedYaml));
     }
