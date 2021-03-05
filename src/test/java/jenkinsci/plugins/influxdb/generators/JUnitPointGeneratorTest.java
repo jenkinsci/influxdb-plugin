@@ -46,7 +46,7 @@ public class JUnitPointGeneratorTest {
         Mockito.when(build.getAction(AbstractTestResultAction.class)).thenReturn(Mockito.mock(AbstractTestResultAction.class));
 
         JUnitPointGenerator junitGen = new JUnitPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, envVars);
-        Assert.assertEquals(true, junitGen.hasReport());
+        Assert.assertTrue(junitGen.hasReport());
     }
 
     @Test
@@ -57,7 +57,7 @@ public class JUnitPointGeneratorTest {
         Mockito.when(build.getAction(AbstractTestResultAction.class)).thenReturn(Mockito.mock(AbstractTestResultAction.class));
 
         JUnitPointGenerator junitGen = new JUnitPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, envVars);
-        Assert.assertEquals(false, junitGen.hasReport());
+        Assert.assertFalse(junitGen.hasReport());
     }
 
     @Test
@@ -67,7 +67,7 @@ public class JUnitPointGeneratorTest {
         Mockito.when(build.getAction(AbstractTestResultAction.class)).thenReturn(Mockito.mock(AbstractTestResultAction.class));
 
         JUnitPointGenerator junitGen = new JUnitPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, envVars);
-        Assert.assertEquals(false, junitGen.hasReport());
+        Assert.assertFalse(junitGen.hasReport());
     }
 
     @Test
@@ -76,7 +76,7 @@ public class JUnitPointGeneratorTest {
         envVars.put("LOG_JUNIT_RESULTS", "true");
 
         JUnitPointGenerator junitGen = new JUnitPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, envVars);
-        Assert.assertEquals(false, junitGen.hasReport());
+        Assert.assertFalse(junitGen.hasReport());
     }
 
     @Test
@@ -85,7 +85,7 @@ public class JUnitPointGeneratorTest {
         envVars.put("LOG_JUNIT_RESULTS", "false");
 
         JUnitPointGenerator junitGen = new JUnitPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, envVars);
-        Assert.assertEquals(false, junitGen.hasReport());
+        Assert.assertFalse(junitGen.hasReport());
     }
 
     @Test
@@ -93,6 +93,6 @@ public class JUnitPointGeneratorTest {
         EnvVars envVars = new EnvVars();
 
         JUnitPointGenerator junitGen = new JUnitPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, envVars);
-        Assert.assertEquals(false, junitGen.hasReport());
+        Assert.assertFalse(junitGen.hasReport());
     }
 }

@@ -19,8 +19,7 @@ import org.mockito.Mockito;
 import java.io.File;
 import java.util.Collections;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 public class InfluxDbPublisherTest {
 
@@ -67,8 +66,8 @@ public class InfluxDbPublisherTest {
         globalConfig.addTarget(target2);
 
         InfluxDbPublisher before = new InfluxDbPublisher("Target2");
-        assertThat(before.getSelectedTarget(), is("Target2"));
-        assertThat(before.getTarget(), is(target2));
+        assertEquals(before.getSelectedTarget(), "Target2");
+        assertEquals(before.getTarget(), target2);
 
         FreeStyleProject project = j.createFreeStyleProject();
         project.getPublishersList().add(before);

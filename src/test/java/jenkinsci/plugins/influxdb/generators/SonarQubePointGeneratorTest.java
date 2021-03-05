@@ -9,9 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 
 public class SonarQubePointGeneratorTest {
@@ -46,7 +44,7 @@ public class SonarQubePointGeneratorTest {
         String name = "org.namespace:feature%2Fmy-sub-project";
         String url = sonarUrl + "/dashboard?id=" + name;
         SonarQubePointGenerator gen = new SonarQubePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX);
-        assertThat(gen.getSonarProjectName(url), is(name));
+        assertEquals(gen.getSonarProjectName(url), name);
     }
 
     @Test
@@ -54,7 +52,7 @@ public class SonarQubePointGeneratorTest {
         String name = "org.namespace:feature%2Fmy-sub-project";
         String url = sonarUrl + "/dashboard/index/" + name;
         SonarQubePointGenerator gen = new SonarQubePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX);
-        assertThat(gen.getSonarProjectName(url), is(name));
+        assertEquals(gen.getSonarProjectName(url), name);
     }
 
     @Test
@@ -67,7 +65,7 @@ public class SonarQubePointGeneratorTest {
         SonarQubePointGenerator gen = Mockito.spy(new SonarQubePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX));
 
         Mockito.doReturn(responseJson).when(gen).getResult(any(String.class));
-        assertThat(gen.getSonarMetric(url, metric_key), is(Float.parseFloat(metric_value)));
+        assertEquals(java.util.Optional.of(gen.getSonarMetric(url, metric_key)), java.util.Optional.of(Float.parseFloat(metric_value)));
     }
 
     @Test
@@ -79,6 +77,6 @@ public class SonarQubePointGeneratorTest {
         SonarQubePointGenerator gen = Mockito.spy(new SonarQubePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX));
 
         Mockito.doReturn(responseJson).when(gen).getResult(any(String.class));
-        assertThat(gen.getSonarMetric(url, metric_key), is(nullValue()));
+        assertNull(gen.getSonarMetric(url, metric_key));
     }
 }

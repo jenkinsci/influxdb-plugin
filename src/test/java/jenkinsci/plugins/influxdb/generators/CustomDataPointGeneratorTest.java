@@ -15,10 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class CustomDataPointGeneratorTest {
 
@@ -53,11 +50,11 @@ public class CustomDataPointGeneratorTest {
     public void hasReport() {
         //check with customDataMap = null
         CustomDataPointGenerator cdGen1 = new CustomDataPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, null, null, MEASUREMENT_NAME);
-        assertThat(cdGen1.hasReport(), is(false));
+        assertFalse(cdGen1.hasReport());
 
         //check with empty customDataMap
         CustomDataPointGenerator cdGen2 = new CustomDataPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, Collections.emptyMap(), null, MEASUREMENT_NAME);
-        assertThat(cdGen2.hasReport(), is(false));
+        assertFalse(cdGen2.hasReport());
     }
 
     @Test
@@ -72,8 +69,8 @@ public class CustomDataPointGeneratorTest {
         Point[] pointsToWrite = cdGen.generate();
 
         String lineProtocol = pointsToWrite[0].lineProtocol();
-        assertThat(lineProtocol, startsWith("jenkins_custom_data,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master,tag1=myTag build_number=11i,build_time="));
-        assertThat(lineProtocol, containsString("project_name=\"test_prefix_master\",project_path=\"folder/master\",test1=11i,test2=22i"));
+        assertTrue(lineProtocol.startsWith("jenkins_custom_data,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master,tag1=myTag build_number=11i,build_time="));
+        assertTrue(lineProtocol.contains("project_name=\"test_prefix_master\",project_path=\"folder/master\",test1=11i,test2=22i"));
     }
 
     @Test
@@ -89,6 +86,6 @@ public class CustomDataPointGeneratorTest {
         Point[] pointsToWrite = cdGen.generate();
 
         String lineProtocol = pointsToWrite[0].lineProtocol();
-        assertThat(lineProtocol, startsWith("custom_" + customMeasurement));
+        assertTrue(lineProtocol.startsWith("custom_" + customMeasurement));
     }
 }

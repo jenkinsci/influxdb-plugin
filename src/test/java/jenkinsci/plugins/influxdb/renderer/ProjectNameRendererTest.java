@@ -6,8 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class ProjectNameRendererTest {
 
@@ -33,28 +32,28 @@ public class ProjectNameRendererTest {
     public void customProjectNameWithCustomPrefix() {
         ProjectNameRenderer projectNameRenderer = new ProjectNameRenderer(CUSTOM_PREFIX, CUSTOM_PROJECT_NAME);
         String renderedProjectName = projectNameRenderer.render(build);
-        assertThat(renderedProjectName, startsWith("test_prefix_test_projectname"));
+        assertTrue(renderedProjectName.startsWith("test_prefix_test_projectname"));
     }
 
     @Test
     public void customProjectNameWithNullPrefix() {
         ProjectNameRenderer projectNameRenderer = new ProjectNameRenderer(null, CUSTOM_PROJECT_NAME);
         String renderedProjectName = projectNameRenderer.render(build);
-        assertThat(renderedProjectName, startsWith("test_projectname"));
+        assertTrue(renderedProjectName.startsWith("test_projectname"));
     }
 
     @Test
     public void nullProjectNameWithCustomPrefix() {
         ProjectNameRenderer projectNameRenderer = new ProjectNameRenderer(CUSTOM_PREFIX, null);
         String renderedProjectName = projectNameRenderer.render(build);
-        assertThat(renderedProjectName, startsWith("test_prefix_master"));
+        assertTrue(renderedProjectName.startsWith("test_prefix_master"));
     }
 
     @Test
     public void nullProjectNameWithNullPrefix() {
         ProjectNameRenderer projectNameRenderer = new ProjectNameRenderer(null, null);
         String renderedProjectName = projectNameRenderer.render(build);
-        assertThat(renderedProjectName, startsWith("master"));
+        assertTrue(renderedProjectName.startsWith("master"));
     }
 
     @Test
@@ -63,10 +62,10 @@ public class ProjectNameRendererTest {
 
         Mockito.when(job.getName()).thenReturn("job 1");
         String renderedProjectName1 = projectNameRenderer.render(build);
-        assertThat(renderedProjectName1, startsWith("job 1"));
+        assertTrue(renderedProjectName1.startsWith("job 1"));
 
         Mockito.when(job.getName()).thenReturn("job 2");
         String renderedProjectName2 = projectNameRenderer.render(build);
-        assertThat(renderedProjectName2, startsWith("job 2"));
+        assertTrue(renderedProjectName2.startsWith("job 2"));
     }
 }

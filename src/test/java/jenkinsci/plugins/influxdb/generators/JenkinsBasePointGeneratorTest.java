@@ -10,10 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 /**
  * @author Damien Coraboeuf <damien.coraboeuf@gmail.com>
@@ -83,8 +80,8 @@ public class JenkinsBasePointGeneratorTest {
         Point[] points = generator.generate();
         String lineProtocol = points[0].lineProtocol();
 
-        assertThat(lineProtocol, containsString("build_agent_name=\"slave-1\""));
-        assertThat(lineProtocol, containsString("project_path=\"folder/master\""));
+        assertTrue(lineProtocol.contains("build_agent_name=\"slave-1\""));
+        assertTrue(lineProtocol.contains("project_path=\"folder/master\""));
     }
 
     @Test
@@ -94,8 +91,8 @@ public class JenkinsBasePointGeneratorTest {
         Point[] points = generator.generate();
         String lineProtocol = points[0].lineProtocol();
 
-        assertThat(lineProtocol, containsString("build_agent_name=\"\""));
-        assertThat(lineProtocol, containsString("project_path=\"folder/master\""));
+        assertTrue(lineProtocol.contains("build_agent_name=\"\""));
+        assertTrue(lineProtocol.contains("project_path=\"folder/master\""));
     }
 
     @Test
@@ -106,8 +103,8 @@ public class JenkinsBasePointGeneratorTest {
         Point[] points = generator.generate();
         String lineProtocol = points[0].lineProtocol();
 
-        assertThat(lineProtocol, containsString("build_branch_name=\"develop\""));
-        assertThat(lineProtocol, containsString("project_path=\"folder/master\""));
+        assertTrue(lineProtocol.contains("build_branch_name=\"develop\""));
+        assertTrue(lineProtocol.contains("project_path=\"folder/master\""));
     }
 
     @Test
@@ -117,8 +114,8 @@ public class JenkinsBasePointGeneratorTest {
         Point[] points = generator.generate();
         String lineProtocol = points[0].lineProtocol();
 
-        assertThat(lineProtocol, containsString("build_branch_name=\"\""));
-        assertThat(lineProtocol, containsString("project_path=\"folder/master\""));
+        assertTrue(lineProtocol.contains("build_branch_name=\"\""));
+        assertTrue(lineProtocol.contains("project_path=\"folder/master\""));
     }
 
 
@@ -128,9 +125,9 @@ public class JenkinsBasePointGeneratorTest {
         Point[] generatedPoints = generator.generate();
         String lineProtocol = generatedPoints[0].lineProtocol();
 
-        assertThat(lineProtocol, containsString(String.format("%s=", JenkinsBasePointGenerator.BUILD_SCHEDULED_TIME)));
-        assertThat(lineProtocol, containsString(String.format("%s=", JenkinsBasePointGenerator.BUILD_EXEC_TIME)));
-        assertThat(lineProtocol, containsString(String.format("%s=", JenkinsBasePointGenerator.BUILD_MEASURED_TIME)));
+        assertTrue(lineProtocol.contains(String.format("%s=", JenkinsBasePointGenerator.BUILD_SCHEDULED_TIME)));
+        assertTrue(lineProtocol.contains(String.format("%s=", JenkinsBasePointGenerator.BUILD_EXEC_TIME)));
+        assertTrue(lineProtocol.contains(String.format("%s=", JenkinsBasePointGenerator.BUILD_MEASURED_TIME)));
     }
 
     @Test
@@ -140,17 +137,16 @@ public class JenkinsBasePointGeneratorTest {
         Point[] generatedPoints = jenkinsBasePointGenerator.generate();
         String lineProtocol = generatedPoints[0].lineProtocol();
 
-        assertThat(lineProtocol, containsString("testKey1=\"testValueField\""));
-        assertThat(lineProtocol, containsString("testKey2=\"${incompleteEnvValueField\""));
-        assertThat(lineProtocol, containsString("testEnvKeyField1=\"" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "\""));
-        assertThat(lineProtocol, containsString("testEnvKeyField2=\"PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "_" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "_SUFFIX\""));
-
-        assertThat(lineProtocol, not(containsString("testValueTag")));
-        assertThat(lineProtocol, not(containsString("${incompleteEnvValueTag")));
-        assertThat(lineProtocol, not(containsString("testEnvKeyTag1")));
-        assertThat(lineProtocol, not(containsString(JENKINS_ENV_RESOLVED_VALUE_TAG)));
-        assertThat(lineProtocol, not(containsString("testEnvKeyTag2")));
-        assertThat(lineProtocol, not(containsString("PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_TAG + "_SUFFIX")));
+        assertTrue(lineProtocol.contains("testKey1=\"testValueField\""));
+        assertTrue(lineProtocol.contains("testKey2=\"${incompleteEnvValueField\""));
+        assertTrue(lineProtocol.contains("testEnvKeyField1=\"" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "\""));
+        assertTrue(lineProtocol.contains("testEnvKeyField2=\"PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "_" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "_SUFFIX\""));
+        assertFalse(lineProtocol.contains("testValueTag"));
+        assertFalse(lineProtocol.contains("${incompleteEnvValueTag"));
+        assertFalse(lineProtocol.contains("testEnvKeyTag1"));
+        assertFalse(lineProtocol.contains(JENKINS_ENV_RESOLVED_VALUE_TAG));
+        assertFalse(lineProtocol.contains("testEnvKeyTag2"));
+        assertFalse(lineProtocol.contains("PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_TAG + "_SUFFIX"));
     }
 
     @Test
@@ -160,17 +156,17 @@ public class JenkinsBasePointGeneratorTest {
         Point[] generatedPoints = jenkinsBasePointGenerator.generate();
         String lineProtocol = generatedPoints[0].lineProtocol();
 
-        assertThat(lineProtocol, containsString("testKey1=testValueTag"));
-        assertThat(lineProtocol, containsString("testKey2=${incompleteEnvValueTag"));
-        assertThat(lineProtocol, containsString("testEnvKeyTag1=" + JENKINS_ENV_RESOLVED_VALUE_TAG));
-        assertThat(lineProtocol, containsString("testEnvKeyTag2=PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_TAG + "_" + JENKINS_ENV_RESOLVED_VALUE_TAG +"_SUFFIX"));
+        assertTrue(lineProtocol.contains("testKey1=testValueTag"));
+        assertTrue(lineProtocol.contains("testKey2=${incompleteEnvValueTag"));
+        assertTrue(lineProtocol.contains("testEnvKeyTag1=" + JENKINS_ENV_RESOLVED_VALUE_TAG));
+        assertTrue(lineProtocol.contains("testEnvKeyTag2=PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_TAG + "_" + JENKINS_ENV_RESOLVED_VALUE_TAG +"_SUFFIX"));
 
-        assertThat(lineProtocol, not(containsString("testValueField")));
-        assertThat(lineProtocol, not(containsString("${incompleteEnvValueField")));
-        assertThat(lineProtocol, not(containsString("testEnvKeyField1")));
-        assertThat(lineProtocol, not(containsString(JENKINS_ENV_RESOLVED_VALUE_FIELD)));
-        assertThat(lineProtocol, not(containsString("testEnvKeyField2")));
-        assertThat(lineProtocol, not(containsString("PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "_SUFFIX")));
+        assertFalse(lineProtocol.contains("testValueField"));
+        assertFalse(lineProtocol.contains("${incompleteEnvValueField"));
+        assertFalse(lineProtocol.contains("testEnvKeyField1"));
+        assertFalse(lineProtocol.contains(JENKINS_ENV_RESOLVED_VALUE_FIELD));
+        assertFalse(lineProtocol.contains("testEnvKeyField2"));
+        assertFalse(lineProtocol.contains("PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "_SUFFIX"));
     }
 
     @Test
@@ -180,17 +176,17 @@ public class JenkinsBasePointGeneratorTest {
         Point[] generatedPoints = jenkinsBasePointGenerator.generate();
         String lineProtocol = generatedPoints[0].lineProtocol();
 
-        assertThat(lineProtocol, containsString("testKey1=\"testValueField\""));
-        assertThat(lineProtocol, containsString("testKey2=\"${incompleteEnvValueField\""));
+        assertTrue(lineProtocol.contains("testKey1=\"testValueField\""));
+        assertTrue(lineProtocol.contains("testKey2=\"${incompleteEnvValueField\""));
 
-        assertThat(lineProtocol, containsString("testEnvKeyField1=\"" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "\""));
-        assertThat(lineProtocol, containsString("testEnvKeyField2=\"PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "_" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "_SUFFIX\""));
+        assertTrue(lineProtocol.contains("testEnvKeyField1=\"" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "\""));
+        assertTrue(lineProtocol.contains("testEnvKeyField2=\"PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "_" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "_SUFFIX\""));
 
-        assertThat(lineProtocol, containsString("testKey1=testValueTag"));
-        assertThat(lineProtocol, containsString("testKey2=${incompleteEnvValueTag"));
+        assertTrue(lineProtocol.contains("testKey1=testValueTag"));
+        assertTrue(lineProtocol.contains("testKey2=${incompleteEnvValueTag"));
 
-        assertThat(lineProtocol, containsString("testEnvKeyTag1=" + JENKINS_ENV_RESOLVED_VALUE_TAG));
-        assertThat(lineProtocol, containsString("testEnvKeyTag2=PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_TAG + "_" + JENKINS_ENV_RESOLVED_VALUE_TAG + "_SUFFIX"));
+        assertTrue(lineProtocol.contains("testEnvKeyTag1=" + JENKINS_ENV_RESOLVED_VALUE_TAG));
+        assertTrue(lineProtocol.contains("testEnvKeyTag2=PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_TAG + "_" + JENKINS_ENV_RESOLVED_VALUE_TAG + "_SUFFIX"));
     }
 
     @Test
@@ -201,6 +197,6 @@ public class JenkinsBasePointGeneratorTest {
         Point[] generatedPoints = jenkinsBasePointGenerator.generate();
         String lineProtocol = generatedPoints[0].lineProtocol();
 
-        assertThat(lineProtocol, startsWith(customMeasurement));
+        assertTrue(lineProtocol.startsWith(customMeasurement));
     }
 }
