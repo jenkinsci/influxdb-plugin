@@ -1,12 +1,12 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import com.influxdb.client.write.Point;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang.StringUtils;
-import org.influxdb.dto.Point;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -68,7 +68,7 @@ public class CustomDataPointGeneratorTest {
         CustomDataPointGenerator cdGen = new CustomDataPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, customData, customDataTags, MEASUREMENT_NAME);
         Point[] pointsToWrite = cdGen.generate();
 
-        String lineProtocol = pointsToWrite[0].lineProtocol();
+        String lineProtocol = pointsToWrite[0].toLineProtocol();
         assertTrue(lineProtocol.startsWith("jenkins_custom_data,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master,tag1=myTag build_number=11i,build_time="));
         assertTrue(lineProtocol.contains("project_name=\"test_prefix_master\",project_path=\"folder/master\",test1=11i,test2=22i"));
     }
@@ -85,7 +85,7 @@ public class CustomDataPointGeneratorTest {
         CustomDataPointGenerator cdGen = new CustomDataPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, customData, customDataTags, customMeasurement);
         Point[] pointsToWrite = cdGen.generate();
 
-        String lineProtocol = pointsToWrite[0].lineProtocol();
+        String lineProtocol = pointsToWrite[0].toLineProtocol();
         assertTrue(lineProtocol.startsWith("custom_" + customMeasurement));
     }
 }

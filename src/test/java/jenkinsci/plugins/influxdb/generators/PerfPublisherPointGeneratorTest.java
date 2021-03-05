@@ -1,5 +1,6 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import com.influxdb.client.write.Point;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.model.TaskListener;
@@ -10,7 +11,6 @@ import hudson.plugins.PerfPublisher.Report.ReportContainer;
 import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang.StringUtils;
-import org.influxdb.dto.Point;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -95,9 +95,9 @@ public class PerfPublisherPointGeneratorTest {
         PerfPublisherPointGenerator generator = new PerfPublisherPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX);
         Point[] points = generator.generate();
 
-        assertTrue(points[0].lineProtocol().startsWith("perfpublisher_summary,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master build_number=11i,number_of_executed_tests=1i"));
-        assertTrue(points[1].lineProtocol().startsWith("perfpublisher_metric,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master average=50.0,best=50.0,build_number=11i,metric_name=\"metric1\",project_name=\"test_prefix_master\",project_path=\"folder/master\",worst=50.0"));
-        assertTrue(points[2].lineProtocol().startsWith("perfpublisher_test,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master,test_name=test.txt build_number=11i,executed=true,project_name=\"test_prefix_master\",project_path=\"folder/master\",successful=false,test_name=\"test.txt\""));
-        assertTrue(points[3].lineProtocol().startsWith("perfpublisher_test_metric,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master,test_name=test.txt build_number=11i,metric_name=\"metric1\",project_name=\"test_prefix_master\",project_path=\"folder/master\",relevant=true,test_name=\"test.txt\",unit=\"ms\",value=50.0"));
+        assertTrue(points[0].toLineProtocol().startsWith("perfpublisher_summary,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master build_number=11i,number_of_executed_tests=1i"));
+        assertTrue(points[1].toLineProtocol().startsWith("perfpublisher_metric,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master average=50.0,best=50.0,build_number=11i,metric_name=\"metric1\",project_name=\"test_prefix_master\",project_path=\"folder/master\",worst=50.0"));
+        assertTrue(points[2].toLineProtocol().startsWith("perfpublisher_test,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master,test_name=test.txt build_number=11i,executed=true,project_name=\"test_prefix_master\",project_path=\"folder/master\",successful=false,test_name=\"test.txt\""));
+        assertTrue(points[3].toLineProtocol().startsWith("perfpublisher_test_metric,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master,test_name=test.txt build_number=11i,metric_name=\"metric1\",project_name=\"test_prefix_master\",project_path=\"folder/master\",relevant=true,test_name=\"test.txt\",unit=\"ms\",value=50.0"));
     }
 }

@@ -1,11 +1,11 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import com.influxdb.client.write.Point;
 import hudson.EnvVars;
 import hudson.model.*;
 import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang3.StringUtils;
-import org.influxdb.dto.Point;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -78,7 +78,7 @@ public class JenkinsBasePointGeneratorTest {
         Mockito.when(mockedEnvVars.get("NODE_NAME")).thenReturn("slave-1");
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         Point[] points = generator.generate();
-        String lineProtocol = points[0].lineProtocol();
+        String lineProtocol = points[0].toLineProtocol();
 
         assertTrue(lineProtocol.contains("build_agent_name=\"slave-1\""));
         assertTrue(lineProtocol.contains("project_path=\"folder/master\""));
@@ -89,7 +89,7 @@ public class JenkinsBasePointGeneratorTest {
         Mockito.when(build.getExecutor()).thenReturn(null);
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         Point[] points = generator.generate();
-        String lineProtocol = points[0].lineProtocol();
+        String lineProtocol = points[0].toLineProtocol();
 
         assertTrue(lineProtocol.contains("build_agent_name=\"\""));
         assertTrue(lineProtocol.contains("project_path=\"folder/master\""));
@@ -101,7 +101,7 @@ public class JenkinsBasePointGeneratorTest {
         Mockito.when(mockedEnvVars.get("BRANCH_NAME")).thenReturn("develop");
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         Point[] points = generator.generate();
-        String lineProtocol = points[0].lineProtocol();
+        String lineProtocol = points[0].toLineProtocol();
 
         assertTrue(lineProtocol.contains("build_branch_name=\"develop\""));
         assertTrue(lineProtocol.contains("project_path=\"folder/master\""));
@@ -112,7 +112,7 @@ public class JenkinsBasePointGeneratorTest {
         Mockito.when(build.getExecutor()).thenReturn(null);
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         Point[] points = generator.generate();
-        String lineProtocol = points[0].lineProtocol();
+        String lineProtocol = points[0].toLineProtocol();
 
         assertTrue(lineProtocol.contains("build_branch_name=\"\""));
         assertTrue(lineProtocol.contains("project_path=\"folder/master\""));
@@ -123,7 +123,7 @@ public class JenkinsBasePointGeneratorTest {
     public void scheduled_and_start_and_end_time_present() {
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, MEASUREMENT_NAME, mockedEnvVars);
         Point[] generatedPoints = generator.generate();
-        String lineProtocol = generatedPoints[0].lineProtocol();
+        String lineProtocol = generatedPoints[0].toLineProtocol();
 
         assertTrue(lineProtocol.contains(String.format("%s=", JenkinsBasePointGenerator.BUILD_SCHEDULED_TIME)));
         assertTrue(lineProtocol.contains(String.format("%s=", JenkinsBasePointGenerator.BUILD_EXEC_TIME)));
@@ -135,7 +135,7 @@ public class JenkinsBasePointGeneratorTest {
         JenkinsBasePointGenerator jenkinsBasePointGenerator =
                 new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, JENKINS_ENV_PARAMETER_FIELD, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         Point[] generatedPoints = jenkinsBasePointGenerator.generate();
-        String lineProtocol = generatedPoints[0].lineProtocol();
+        String lineProtocol = generatedPoints[0].toLineProtocol();
 
         assertTrue(lineProtocol.contains("testKey1=\"testValueField\""));
         assertTrue(lineProtocol.contains("testKey2=\"${incompleteEnvValueField\""));
@@ -154,7 +154,7 @@ public class JenkinsBasePointGeneratorTest {
         JenkinsBasePointGenerator jenkinsBasePointGenerator =
                 new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, JENKINS_ENV_PARAMETER_TAG, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         Point[] generatedPoints = jenkinsBasePointGenerator.generate();
-        String lineProtocol = generatedPoints[0].lineProtocol();
+        String lineProtocol = generatedPoints[0].toLineProtocol();
 
         assertTrue(lineProtocol.contains("testKey1=testValueTag"));
         assertTrue(lineProtocol.contains("testKey2=${incompleteEnvValueTag"));
@@ -174,7 +174,7 @@ public class JenkinsBasePointGeneratorTest {
         JenkinsBasePointGenerator jenkinsBasePointGenerator =
                 new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, JENKINS_ENV_PARAMETER_TAG, JENKINS_ENV_PARAMETER_FIELD, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         Point[] generatedPoints = jenkinsBasePointGenerator.generate();
-        String lineProtocol = generatedPoints[0].lineProtocol();
+        String lineProtocol = generatedPoints[0].toLineProtocol();
 
         assertTrue(lineProtocol.contains("testKey1=\"testValueField\""));
         assertTrue(lineProtocol.contains("testKey2=\"${incompleteEnvValueField\""));
@@ -195,7 +195,7 @@ public class JenkinsBasePointGeneratorTest {
         JenkinsBasePointGenerator jenkinsBasePointGenerator =
                 new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, JENKINS_ENV_PARAMETER_TAG, JENKINS_ENV_PARAMETER_FIELD, CUSTOM_PREFIX, customMeasurement, mockedEnvVars);
         Point[] generatedPoints = jenkinsBasePointGenerator.generate();
-        String lineProtocol = generatedPoints[0].lineProtocol();
+        String lineProtocol = generatedPoints[0].toLineProtocol();
 
         assertTrue(lineProtocol.startsWith(customMeasurement));
     }

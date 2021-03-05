@@ -1,8 +1,8 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import com.influxdb.client.write.Point;
 import hudson.model.TaskListener;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
-import org.influxdb.dto.Point;
 
 import hudson.model.Run;
 import hudson.plugins.cobertura.CoberturaBuildAction;
@@ -51,8 +51,7 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
             .addField(COBERTURA_BRANCH_COVERAGE_RATE, conditionals.getPercentageFloat())
             .addField(COBERTURA_LINE_COVERAGE_RATE, lines.getPercentageFloat())
             .addField(COBERTURA_PACKAGE_COVERAGE_RATE, packages.getPercentageFloat())
-            .addField(COBERTURA_CLASS_COVERAGE_RATE, classes.getPercentageFloat())
-            .build();
+            .addField(COBERTURA_CLASS_COVERAGE_RATE, classes.getPercentageFloat());
 
         return new Point[] {point};
     }

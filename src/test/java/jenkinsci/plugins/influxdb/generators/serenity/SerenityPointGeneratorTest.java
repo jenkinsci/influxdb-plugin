@@ -1,8 +1,8 @@
 package jenkinsci.plugins.influxdb.generators.serenity;
 
+import com.influxdb.client.write.Point;
 import hudson.model.TaskListener;
 import org.apache.commons.lang3.StringUtils;
-import org.influxdb.dto.Point;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -53,10 +53,9 @@ public class SerenityPointGeneratorTest {
                 StringUtils.EMPTY, null, serenityCannedJsonSummaryFile);
 
         if (serenityGen.hasReport()) {
-            List<Point> pointsToWrite = new ArrayList<>();
-            pointsToWrite.addAll(Arrays.asList(serenityGen.generate()));
+            List<Point> pointsToWrite = new ArrayList<>(Arrays.asList(serenityGen.generate()));
             // points.fields is private so just get all fields as a single string
-            points = pointsToWrite.get(0).toString();
+            points = pointsToWrite.get(0).toLineProtocol();
         }
     }
 

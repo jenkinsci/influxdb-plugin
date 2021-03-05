@@ -1,10 +1,9 @@
 package jenkinsci.plugins.influxdb.generators.serenity;
 
+import com.influxdb.client.write.Point;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
-import org.influxdb.dto.Point;
 
 import java.io.IOException;
 
@@ -80,17 +79,16 @@ public class SerenityPointGenerator extends AbstractPointGenerator {
             return null;
         }
 
-        Point point = null;
         JSONObject root = JSONObject.fromObject(contents);
         JSONObject results = root.getJSONObject("results");
         JSONObject resultsCounts = results.getJSONObject("counts");
         JSONObject resultsPercentages = results.getJSONObject("percentages");
         JSONArray tagTypes = root.getJSONArray("tags");
 
-        Point.Builder builder = buildPoint("serenity_data", customPrefix, build);
+        Point point = buildPoint("serenity_data", customPrefix, build);
 
         // include results.counts fields
-        builder
+        point
             .addField(SERENITY_RESULTS_COUNTS_TOTAL, resultsCounts.getInt("total"))
             .addField(SERENITY_RESULTS_COUNTS_SUCCESS, resultsCounts.getInt("success"))
             .addField(SERENITY_RESULTS_COUNTS_PENDING, resultsCounts.getInt("pending"))
@@ -101,7 +99,7 @@ public class SerenityPointGenerator extends AbstractPointGenerator {
             .addField(SERENITY_RESULTS_COUNTS_COMPROMISED, resultsCounts.getInt("compromised"));
 
         // include results.percentages fields
-        builder
+        point
             .addField(SERENITY_RESULTS_PERCENTAGES_SUCCESS, resultsPercentages.getInt("success"))
             .addField(SERENITY_RESULTS_PERCENTAGES_PENDING, resultsPercentages.getInt("pending"))
             .addField(SERENITY_RESULTS_PERCENTAGES_IGNORED, resultsPercentages.getInt("ignored"))
@@ -111,7 +109,7 @@ public class SerenityPointGenerator extends AbstractPointGenerator {
             .addField(SERENITY_RESULTS_PERCENTAGES_COMPROMISED, resultsPercentages.getInt("compromised"));
 
         // include remaining results fields
-        builder
+        point
             .addField(SERENITY_RESULTS_TOTAL_TEST_DURATION, results.getLong("totalTestDuration"))
             .addField(SERENITY_RESULTS_TOTAL_CLOCK_DURATION, results.getLong("totalClockDuration"))
             .addField(SERENITY_RESULTS_MIN_TEST_DURATION, results.getLong("minTestDuration"))
@@ -126,13 +124,10 @@ public class SerenityPointGenerator extends AbstractPointGenerator {
             for (int iTag = 0; iTag < tagResults.size(); iTag++) {
                 JSONObject tagResult = tagResults.getJSONObject(iTag);
                 String field = "serenity_tags_" + tagTypeType + ":" + tagResult.getString("tagName");
-                builder
+                point
                     .addField(field, tagResult.getInt("count"));
             }
         }
-
-        // bring it all together
-        point = builder.build();
 
         return new Point[]{point};
     }

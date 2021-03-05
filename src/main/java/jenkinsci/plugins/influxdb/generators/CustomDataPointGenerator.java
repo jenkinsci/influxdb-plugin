@@ -1,9 +1,9 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import com.influxdb.client.write.Point;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
-import org.influxdb.dto.Point;
 
 import java.util.Map;
 
@@ -40,17 +40,16 @@ public class CustomDataPointGenerator extends AbstractPointGenerator {
         long currTime = System.currentTimeMillis();
         long dt = currTime - startTime;
 
-        Point.Builder pointBuilder = buildPoint(measurementName, customPrefix, build)
+        Point point = buildPoint(measurementName, customPrefix, build)
                 .addField(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
-                .fields(customData);
+                .addFields(customData);
 
         if (customDataTags != null) {
             if (customDataTags.size() > 0) {
-                pointBuilder.tag(customDataTags);
+                point.addTags(customDataTags);
             }
         }
 
-        Point point = pointBuilder.build();
 
         return new Point[] {point};
     }

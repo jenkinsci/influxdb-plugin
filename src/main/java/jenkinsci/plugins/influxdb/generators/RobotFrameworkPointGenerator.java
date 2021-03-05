@@ -1,5 +1,6 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import com.influxdb.client.write.Point;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.plugins.robot.RobotBuildAction;
@@ -7,7 +8,6 @@ import hudson.plugins.robot.model.RobotCaseResult;
 import hudson.plugins.robot.model.RobotResult;
 import hudson.plugins.robot.model.RobotSuiteResult;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
-import org.influxdb.dto.Point;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -70,8 +70,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
             .addField(RF_CRITICAL_PASS_PERCENTAGE, robotBuildAction.getCriticalPassPercentage())
             .addField(RF_PASS_PERCENTAGE, robotBuildAction.getOverallPassPercentage())
             .addField(RF_DURATION, robotBuildAction.getResult().getDuration())
-            .addField(RF_SUITES, robotBuildAction.getResult().getAllSuites().size())
-            .build();
+            .addField(RF_SUITES, robotBuildAction.getResult().getAllSuites().size());
     }
 
     private List<Point> generateSubPoints(RobotResult robotResult) {
@@ -118,15 +117,14 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
 
     private Point generateCasePoint(RobotCaseResult caseResult, long timestamp) {
         Point point = buildPoint("testcase_point", customPrefix, build, timestamp)
-            .tag(RF_NAME, caseResult.getName())
+            .addTag(RF_NAME, caseResult.getName())
             .addField(RF_NAME, caseResult.getName())
             .addField(RF_SUITE_NAME, caseResult.getParent().getName())
             .addField(RF_CRITICAL_FAILED, caseResult.getCriticalFailed())
             .addField(RF_CRITICAL_PASSED, caseResult.getCriticalPassed())
             .addField(RF_FAILED, caseResult.getFailed())
             .addField(RF_PASSED, caseResult.getPassed())
-            .addField(RF_DURATION, caseResult.getDuration())
-            .build();
+            .addField(RF_DURATION, caseResult.getDuration());
 
         for (String tag : caseResult.getTags()) {
             markTagResult(tag, caseResult);
@@ -167,7 +165,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
 
     private Point generateTagPoint(RobotTagResult tagResult, long timestamp) {
         return buildPoint("tag_point", customPrefix, build, timestamp)
-            .tag(RF_TAG_NAME, tagResult.name)
+            .addTag(RF_TAG_NAME, tagResult.name)
             .addField(RF_TAG_NAME, tagResult.name)
             .addField(RF_CRITICAL_FAILED, tagResult.criticalFailed)
             .addField(RF_CRITICAL_PASSED, tagResult.criticalPassed)
@@ -175,13 +173,12 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
             .addField(RF_FAILED, tagResult.failed)
             .addField(RF_PASSED, tagResult.passed)
             .addField(RF_TOTAL, tagResult.passed + tagResult.failed)
-            .addField(RF_DURATION, tagResult.duration)
-            .build();
+            .addField(RF_DURATION, tagResult.duration);
     }
 
     private Point generateSuitePoint(RobotSuiteResult suiteResult, long timestamp) {
         return buildPoint("suite_result", customPrefix, build, timestamp)
-            .tag(RF_SUITE_NAME, suiteResult.getName())
+            .addTag(RF_SUITE_NAME, suiteResult.getName())
             .addField(RF_SUITE_NAME, suiteResult.getName())
             .addField(RF_TESTCASES, suiteResult.getAllCases().size())
             .addField(RF_CRITICAL_FAILED, suiteResult.getCriticalFailed())
@@ -190,7 +187,6 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
             .addField(RF_FAILED, suiteResult.getFailed())
             .addField(RF_PASSED, suiteResult.getPassed())
             .addField(RF_TOTAL, suiteResult.getTotal())
-            .addField(RF_DURATION, suiteResult.getDuration())
-            .build();
+            .addField(RF_DURATION, suiteResult.getDuration());
     }
 }

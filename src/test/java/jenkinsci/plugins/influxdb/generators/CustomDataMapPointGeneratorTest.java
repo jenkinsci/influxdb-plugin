@@ -1,12 +1,12 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import com.influxdb.client.write.Point;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang.StringUtils;
-import org.influxdb.dto.Point;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -15,8 +15,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.*;
 
 public class CustomDataMapPointGeneratorTest {
@@ -86,12 +84,12 @@ public class CustomDataMapPointGeneratorTest {
 
         String lineProtocol1;
         String lineProtocol2;
-        if (pointsToWrite[0].lineProtocol().startsWith("series1")) {
-            lineProtocol1 = pointsToWrite[0].lineProtocol();
-            lineProtocol2 = pointsToWrite[1].lineProtocol();
+        if (pointsToWrite[0].toLineProtocol().startsWith("series1")) {
+            lineProtocol1 = pointsToWrite[0].toLineProtocol();
+            lineProtocol2 = pointsToWrite[1].toLineProtocol();
         } else {
-            lineProtocol1 = pointsToWrite[1].lineProtocol();
-            lineProtocol2 = pointsToWrite[0].lineProtocol();
+            lineProtocol1 = pointsToWrite[1].toLineProtocol();
+            lineProtocol2 = pointsToWrite[0].toLineProtocol();
         }
         assertTrue(lineProtocol1.startsWith("series1,build_result=SUCCESS,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master build_number=11i,project_name=\"test_prefix_master\",project_path=\"folder/master\",test1=11i,test2=22i"));
         assertTrue(lineProtocol2.startsWith("series2,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master build_number=11i,project_name=\"test_prefix_master\",project_path=\"folder/master\",test3=33i,test4=44i"));

@@ -2,6 +2,9 @@ package jenkinsci.plugins.influxdb;
 
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
+import com.influxdb.client.InfluxDBClient;
+import com.influxdb.client.InfluxDBClientFactory;
+import com.influxdb.client.write.Point;
 import hudson.EnvVars;
 import hudson.ProxyConfiguration;
 import hudson.model.Run;
@@ -14,11 +17,6 @@ import jenkinsci.plugins.influxdb.models.Target;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
-import org.influxdb.InfluxDB;
-import org.influxdb.InfluxDB.ConsistencyLevel;
-import org.influxdb.InfluxDBFactory;
-import org.influxdb.dto.BatchPoints;
-import org.influxdb.dto.Point;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -300,9 +298,9 @@ public class InfluxDbPublicationService {
 
             OkHttpClient.Builder httpClient = createHttpClient(url, target.isUsingJenkinsProxy());
             StandardUsernamePasswordCredentials credentials = CredentialsProvider.findCredentialById(target.getCredentialsId(), StandardUsernamePasswordCredentials.class, build);
-            InfluxDB influxDB = credentials == null ?
-                    InfluxDBFactory.connect(target.getUrl(), httpClient) :
-                    InfluxDBFactory.connect(target.getUrl(), credentials.getUsername(), credentials.getPassword().getPlainText(), httpClient);
+            InfluxDBClient influxDB = credentials == null ?
+                    InfluxDBClientFactory.createV1(target.getUrl(), "", "".toCharArray(), target.getDatabase(), target.getRetentionPolicy()) :
+                    InfluxDBClientFactory.createV1(target.getUrl(), credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray(), target.getDatabase(), target.getRetentionPolicy());
             writeToInflux(target, influxDB, pointsToWrite);
 
         }
@@ -338,18 +336,12 @@ public class InfluxDbPublicationService {
         return builder;
     }
 
-    private void writeToInflux(Target target, InfluxDB influxDB, List<Point> pointsToWrite) {
+    private void writeToInflux(Target target, InfluxDBClient influxDB, List<Point> pointsToWrite) {
         /*
          * build batchpoints for a single write.
          */
         try {
-            BatchPoints batchPoints = BatchPoints
-                    .database(target.getDatabase())
-                    .points(pointsToWrite)
-                    .retentionPolicy(target.getRetentionPolicy())
-                    .consistency(ConsistencyLevel.ANY)
-                    .build();
-            influxDB.write(batchPoints);
+            influxDB.getWriteApi().writePoints(pointsToWrite);
         } catch (Exception e) {
             if (target.isExposeExceptions()) {
                 throw new InfluxReportException(e);

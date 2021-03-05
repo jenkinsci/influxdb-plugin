@@ -1,5 +1,7 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import com.influxdb.client.domain.WritePrecision;
+import com.influxdb.client.write.Point;
 import hudson.EnvVars;
 import hudson.model.Run;
 import hudson.model.TaskListener;
@@ -7,14 +9,12 @@ import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
-import org.influxdb.dto.Point;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public abstract class AbstractPointGenerator implements PointGenerator {
@@ -29,6 +29,7 @@ public abstract class AbstractPointGenerator implements PointGenerator {
     protected final TaskListener listener;
     private final ProjectNameRenderer projectNameRenderer;
     private final String jenkinsEnvParameterTag;
+    private final WritePrecision precision = WritePrecision.NS;
 
     public AbstractPointGenerator(Run<?, ?> build, TaskListener listener, ProjectNameRenderer projectNameRenderer, long timestamp, String jenkinsEnvParameterTag) {
         this.build = build;
@@ -39,35 +40,35 @@ public abstract class AbstractPointGenerator implements PointGenerator {
     }
 
     @Override
-    public Point.Builder buildPoint(String name, String customPrefix, Run<?, ?> build, long timestamp) {
+    public Point buildPoint(String name, String customPrefix, Run<?, ?> build, long timestamp) {
         String projectName = projectNameRenderer.render(build);
         String projectPath = build.getParent().getRelativeNameFrom(Jenkins.getInstanceOrNull());
 
-        Point.Builder builder = Point
+        Point point = Point
                 .measurement(name)
                 .addField(PROJECT_NAME, projectName)
                 .addField(PROJECT_PATH, projectPath)
                 .addField(BUILD_NUMBER, build.getNumber())
-                .time(timestamp, TimeUnit.NANOSECONDS);
+                .time(timestamp, precision);
 
         if (customPrefix != null && !customPrefix.isEmpty()) {
-            builder.tag(CUSTOM_PREFIX, customPrefix);
+            point.addTag(CUSTOM_PREFIX, customPrefix);
         }
 
-        builder.tag(PROJECT_NAME, projectName);
-        builder.tag(PROJECT_PATH, projectPath);
+        point.addTag(PROJECT_NAME, projectName);
+        point.addTag(PROJECT_PATH, projectPath);
 
 
         if (StringUtils.isNotBlank(jenkinsEnvParameterTag)) {
             Properties tagProperties = parsePropertiesString(jenkinsEnvParameterTag);
-            Map tagMap = resolveEnvParameterAndTransformToMap(tagProperties);
-            builder.tag(tagMap);
+            Map<String, String> tagMap = resolveEnvParameterAndTransformToMap(tagProperties);
+            point.addTags(tagMap);
         }
 
-        return builder;
+        return point;
     }
 
-    public Point.Builder buildPoint(String name, String customPrefix, Run<?, ?> build) {
+    public Point buildPoint(String name, String customPrefix, Run<?, ?> build) {
         return buildPoint(name, customPrefix, build, timestamp);
     }
 

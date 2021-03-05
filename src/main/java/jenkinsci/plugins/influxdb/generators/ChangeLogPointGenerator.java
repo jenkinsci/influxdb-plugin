@@ -2,9 +2,9 @@ package jenkinsci.plugins.influxdb.generators;
 
 import java.util.Collection;
 
+import com.influxdb.client.write.Point;
 import hudson.model.TaskListener;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
-import org.influxdb.dto.Point;
 
 import hudson.model.AbstractBuild;
 import hudson.model.Run;
@@ -41,7 +41,7 @@ public class ChangeLogPointGenerator extends AbstractPointGenerator {
     }
 
     public Point[] generate() {
-        Point.Builder point = buildPoint("changelog_data", customPrefix, build);
+        Point point = buildPoint("changelog_data", customPrefix, build);
 
         point.addField(BUILD_DISPLAY_NAME, build.getDisplayName())
                 .addField("commit_messages", this.getMessages())
@@ -49,7 +49,7 @@ public class ChangeLogPointGenerator extends AbstractPointGenerator {
                 .addField("affected_paths", this.getAffectedPaths())
                 .addField("commit_count", this.getCommitCount());
 
-        return new Point[] { point.build() };
+        return new Point[] { point };
     }
 
     private void getChangeLog(Run<?, ?> run) {
