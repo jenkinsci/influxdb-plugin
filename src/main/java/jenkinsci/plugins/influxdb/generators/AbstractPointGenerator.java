@@ -4,7 +4,7 @@ import hudson.EnvVars;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.influxdb.dto.Point;
@@ -27,10 +27,10 @@ public abstract class AbstractPointGenerator implements PointGenerator {
     protected final long timestamp;
     protected final Run<?, ?> build;
     protected final TaskListener listener;
-    private final MeasurementRenderer projectNameRenderer;
+    private final ProjectNameRenderer projectNameRenderer;
     private final String jenkinsEnvParameterTag;
 
-    public AbstractPointGenerator(Run<?, ?> build, TaskListener listener, MeasurementRenderer projectNameRenderer, long timestamp, String jenkinsEnvParameterTag) {
+    public AbstractPointGenerator(Run<?, ?> build, TaskListener listener, ProjectNameRenderer projectNameRenderer, long timestamp, String jenkinsEnvParameterTag) {
         this.build = build;
         this.listener = listener;
         this.projectNameRenderer = Objects.requireNonNull(projectNameRenderer);

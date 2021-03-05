@@ -3,7 +3,6 @@ package jenkinsci.plugins.influxdb.generators;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
@@ -23,7 +22,7 @@ public class SonarQubePointGeneratorTest {
 
     private Run build;
     private TaskListener listener;
-    private MeasurementRenderer<Run<?, ?>> measurementRenderer;
+    private ProjectNameRenderer measurementRenderer;
     private String sonarUrl = "http://sonar.dashboard.com";
 
     private long currTime;

@@ -14,7 +14,6 @@ import java.util.List;
 import hudson.model.Job;
 import hudson.model.Run;
 import jenkins.model.Jenkins;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 
 import static org.junit.Assert.assertTrue;
@@ -27,7 +26,7 @@ public class SerenityPointGeneratorTest {
 
     private Run build;
 
-    private MeasurementRenderer<Run<?, ?>> measurementRenderer;
+    private ProjectNameRenderer measurementRenderer;
 
     private long currTime;
     private TaskListener listener;

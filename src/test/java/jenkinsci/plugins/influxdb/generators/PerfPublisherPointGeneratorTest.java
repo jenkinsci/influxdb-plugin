@@ -8,7 +8,6 @@ import hudson.plugins.PerfPublisher.Report.Metric;
 import hudson.plugins.PerfPublisher.Report.Report;
 import hudson.plugins.PerfPublisher.Report.ReportContainer;
 import jenkins.model.Jenkins;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang.StringUtils;
 import org.influxdb.dto.Point;
@@ -36,7 +35,7 @@ public class PerfPublisherPointGeneratorTest {
 
     private Run<?,?> build;
     private TaskListener listener;
-    private MeasurementRenderer<Run<?, ?>> measurementRenderer;
+    private ProjectNameRenderer measurementRenderer;
     private ReportContainer reports;
 
     private long currTime;

@@ -1,5 +1,6 @@
 package jenkinsci.plugins.influxdb.generators.serenity;
 
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -10,7 +11,6 @@ import java.io.IOException;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkinsci.plugins.influxdb.generators.AbstractPointGenerator;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 
 public class SerenityPointGenerator extends AbstractPointGenerator {
 
@@ -57,7 +57,7 @@ public class SerenityPointGenerator extends AbstractPointGenerator {
      */
 
     public SerenityPointGenerator(Run<?, ?> build, TaskListener listener,
-                                  MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                  ProjectNameRenderer projectNameRenderer,
                                   long timestamp, String jenkinsEnvParameterTag, String customPrefix,
                                   ISerenityJsonSummaryFile serenityJsonSummaryFile) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);

@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import hudson.EnvVars;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -18,7 +19,6 @@ import org.influxdb.dto.Point;
 
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -75,8 +75,10 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private EnvVars env = null;
 
     public SonarQubePointGenerator(Run<?, ?> build, TaskListener listener,
-            MeasurementRenderer<Run<?, ?>> projectNameRenderer, long timestamp, String jenkinsEnvParameterTag,
-            String customPrefix) {
+                                   ProjectNameRenderer projectNameRenderer,
+                                   long timestamp,
+                                   String jenkinsEnvParameterTag,
+                                   String customPrefix) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
         this.customPrefix = customPrefix;
         this.listener = listener;

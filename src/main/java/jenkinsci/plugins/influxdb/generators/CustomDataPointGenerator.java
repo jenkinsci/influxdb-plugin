@@ -2,7 +2,7 @@ package jenkinsci.plugins.influxdb.generators;
 
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.influxdb.dto.Point;
 
 import java.util.Map;
@@ -19,7 +19,7 @@ public class CustomDataPointGenerator extends AbstractPointGenerator {
     private final Map<String, String> customDataTags;
 
     public CustomDataPointGenerator(Run<?, ?> build, TaskListener listener,
-                                    MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                    ProjectNameRenderer projectNameRenderer,
                                     long timestamp, String jenkinsEnvParameterTag,
                                     String customPrefix, Map<String, Object> customData,
                                     Map<String, String> customDataTags, String measurementName) {

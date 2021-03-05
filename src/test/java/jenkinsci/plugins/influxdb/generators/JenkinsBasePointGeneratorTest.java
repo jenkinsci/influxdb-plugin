@@ -3,7 +3,6 @@ package jenkinsci.plugins.influxdb.generators;
 import hudson.EnvVars;
 import hudson.model.*;
 import jenkins.model.Jenkins;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang3.StringUtils;
 import org.influxdb.dto.Point;
@@ -43,7 +42,7 @@ public class JenkinsBasePointGeneratorTest {
     private static final String MEASUREMENT_NAME = "jenkins_data";
 
     private Run<?, ?> build;
-    private MeasurementRenderer<Run<?, ?>> measurementRenderer;
+    private ProjectNameRenderer measurementRenderer;
     private Executor executor;
     private TaskListener listener;
     private long currTime;

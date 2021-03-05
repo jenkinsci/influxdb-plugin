@@ -6,7 +6,7 @@ import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.test.AbstractTestResultAction;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang3.StringUtils;
 import org.influxdb.dto.Point;
 
@@ -54,7 +54,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     // (Run<?, ?> build, TaskListener listener, MeasurementRenderer projectNameRenderer, long timestamp, String jenkinsEnvParameterTag) {
     public JenkinsBasePointGenerator(Run<?, ?> build, TaskListener listener,
-                                     MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                     ProjectNameRenderer projectNameRenderer,
                                      long timestamp, String jenkinsEnvParameterTag, String jenkinsEnvParameterField,
                                      String customPrefix, String measurementName, EnvVars env) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);

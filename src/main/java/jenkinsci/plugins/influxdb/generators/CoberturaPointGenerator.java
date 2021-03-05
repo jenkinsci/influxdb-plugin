@@ -1,7 +1,7 @@
 package jenkinsci.plugins.influxdb.generators;
 
 import hudson.model.TaskListener;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.influxdb.dto.Point;
 
 import hudson.model.Run;
@@ -24,7 +24,7 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
     private final String customPrefix;
 
     public CoberturaPointGenerator(Run<?, ?> build, TaskListener listener,
-                                   MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                   ProjectNameRenderer projectNameRenderer,
                                    long timestamp, String jenkinsEnvParameterTag,
                                    String customPrefix) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);

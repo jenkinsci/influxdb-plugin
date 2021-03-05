@@ -11,7 +11,6 @@ import jenkinsci.plugins.influxdb.generators.*;
 import jenkinsci.plugins.influxdb.generators.serenity.SerenityJsonSummaryFile;
 import jenkinsci.plugins.influxdb.generators.serenity.SerenityPointGenerator;
 import jenkinsci.plugins.influxdb.models.Target;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
@@ -170,7 +169,7 @@ public class InfluxDbPublicationService {
         listener.getLogger().println("[InfluxDB Plugin] Collecting data...");
 
         // Renderer to use for the metrics
-        MeasurementRenderer<Run<?, ?>> measurementRenderer = new ProjectNameRenderer(customPrefix, customProjectName);
+        ProjectNameRenderer measurementRenderer = new ProjectNameRenderer(customPrefix, customProjectName);
 
         // Points to write
         List<Point> pointsToWrite = new ArrayList<>();

@@ -6,7 +6,7 @@ import hudson.plugins.robot.RobotBuildAction;
 import hudson.plugins.robot.model.RobotCaseResult;
 import hudson.plugins.robot.model.RobotResult;
 import hudson.plugins.robot.model.RobotSuiteResult;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.influxdb.dto.Point;
 
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     private final Map<String, RobotTagResult> tagResults;
 
     public RobotFrameworkPointGenerator(Run<?, ?> build, TaskListener listener,
-                                        MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                        ProjectNameRenderer projectNameRenderer,
                                         long timestamp, String jenkinsEnvParameterTag,
                                         String customPrefix) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);

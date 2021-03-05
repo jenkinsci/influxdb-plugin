@@ -3,12 +3,12 @@ package jenkinsci.plugins.influxdb.generators;
 import java.util.Collection;
 
 import hudson.model.TaskListener;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.influxdb.dto.Point;
 
 import hudson.model.AbstractBuild;
 import hudson.model.Run;
 import hudson.scm.ChangeLogSet;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 
 public class ChangeLogPointGenerator extends AbstractPointGenerator {
 
@@ -25,7 +25,7 @@ public class ChangeLogPointGenerator extends AbstractPointGenerator {
     private int commitCount = 0;
 
     public ChangeLogPointGenerator(Run<?, ?> build, TaskListener listener,
-                                   MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                   ProjectNameRenderer projectNameRenderer,
                                    long timestamp, String jenkinsEnvParameterTag,
                                    String customPrefix) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);

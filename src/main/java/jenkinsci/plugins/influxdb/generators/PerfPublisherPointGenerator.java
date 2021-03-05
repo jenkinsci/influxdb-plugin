@@ -6,7 +6,7 @@ import hudson.plugins.PerfPublisher.PerfPublisherBuildAction;
 import hudson.plugins.PerfPublisher.Report.Metric;
 import hudson.plugins.PerfPublisher.Report.ReportContainer;
 import hudson.plugins.PerfPublisher.Report.Test;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.influxdb.dto.Point;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
     private final TimeGenerator timeGenerator;
 
     public PerfPublisherPointGenerator(Run<?, ?> build, TaskListener listener,
-                                       MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                       ProjectNameRenderer projectNameRenderer,
                                        long timestamp, String jenkinsEnvParameterTag,
                                        String customPrefix) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);

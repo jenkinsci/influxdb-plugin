@@ -5,7 +5,7 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.junit.CaseResult;
 import hudson.tasks.test.AbstractTestResultAction;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.influxdb.dto.Point;
 
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public class JUnitPointGenerator extends AbstractPointGenerator{
     private final EnvVars env;
 
     public JUnitPointGenerator(Run<?, ?> build, TaskListener listener,
-                               MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                               ProjectNameRenderer projectNameRenderer,
                                long timestamp, String jenkinsEnvParameterTag,
                                String customPrefix, EnvVars env) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);

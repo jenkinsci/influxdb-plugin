@@ -2,7 +2,7 @@ package jenkinsci.plugins.influxdb.generators;
 
 import hudson.model.TaskListener;
 import hudson.plugins.jacoco.model.Coverage;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.influxdb.dto.Point;
 
 import hudson.model.Run;
@@ -20,7 +20,7 @@ public class JacocoPointGenerator extends AbstractPointGenerator {
     private final JacocoBuildAction jacocoBuildAction;
 
     public JacocoPointGenerator(Run<?, ?> build, TaskListener listener,
-                                MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                ProjectNameRenderer projectNameRenderer,
                                 long timestamp, String jenkinsEnvParameterTag,
                                 String customPrefix) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
