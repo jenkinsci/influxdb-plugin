@@ -4,6 +4,7 @@ import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
+import com.influxdb.client.InfluxDBClientOptions;
 import com.influxdb.client.write.Point;
 import hudson.EnvVars;
 import hudson.ProxyConfiguration;
@@ -296,11 +297,21 @@ public class InfluxDbPublicationService {
             logger.log(Level.FINE, logMessage);
             listener.getLogger().println(logMessage);
 
-            OkHttpClient.Builder httpClient = createHttpClient(url, target.isUsingJenkinsProxy());
             StandardUsernamePasswordCredentials credentials = CredentialsProvider.findCredentialById(target.getCredentialsId(), StandardUsernamePasswordCredentials.class, build);
-            InfluxDBClient influxDB = credentials == null ?
+            InfluxDBClient influxDB;
+            if (target.getOrganization() != null && !target.getOrganization().trim().isEmpty() && credentials != null){
+                InfluxDBClientOptions options = InfluxDBClientOptions.builder()
+                        .url(target.getUrl())
+                        .authenticate(credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray())
+                        .org(target.getOrganization())
+                        .bucket(target.getDatabase())
+                        .build();
+                influxDB = InfluxDBClientFactory.create(options);
+            } else {
+                influxDB = credentials == null ?
                     InfluxDBClientFactory.createV1(target.getUrl(), "", "".toCharArray(), target.getDatabase(), target.getRetentionPolicy()) :
                     InfluxDBClientFactory.createV1(target.getUrl(), credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray(), target.getDatabase(), target.getRetentionPolicy());
+            }
             writeToInflux(target, influxDB, pointsToWrite);
 
         }

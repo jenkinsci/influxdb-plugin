@@ -10,7 +10,10 @@
     <f:entry title="${%Credentials}" field="credentialsId">
         <c:select/>
     </f:entry>
-    <f:entry title="Database" field="database">
+    <f:entry title="Organization" field="organization">
+        <f:textbox/>
+    </f:entry>
+    <f:entry title="Database / Bucket" field="database">
         <f:textbox/>
     </f:entry>
     <f:entry title="Retention Policy" field="retentionPolicy">
