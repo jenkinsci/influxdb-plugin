@@ -21,6 +21,7 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
     private String url;
     private String credentialsId;
     private String database;
+    private String organization;
     private String retentionPolicy;
     private boolean jobScheduledTimeAsPointsTimestamp;
     private boolean exposeExceptions;
@@ -33,12 +34,13 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
     }
 
     @DataBoundConstructor
-    public Target(String description, String url, String credentialsId, String database,
+    public Target(String description, String url, String credentialsId, String organization, String database,
             String retentionPolicy, boolean jobScheduledTimeAsPointsTimestamp, boolean exposeExceptions,
             boolean usingJenkinsProxy, boolean globalListener, String globalListenerFilter) {
         this.description = description;
         this.url = url;
         this.credentialsId = credentialsId;
+        this.organization = organization;
         this.database = database;
         this.retentionPolicy = retentionPolicy;
         this.jobScheduledTimeAsPointsTimestamp = jobScheduledTimeAsPointsTimestamp;
@@ -70,6 +72,14 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
 
     public void setCredentialsId(String credentialsId) {
         this.credentialsId = credentialsId;
+    }
+
+    public String getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(String organization) {
+        this.organization = organization;
     }
 
     public String getDatabase() {
@@ -135,6 +145,7 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
                 .append("url", url)
                 .append("credentialsId", credentialsId)
                 .append("database", database)
+                .append("organization", organization)
                 .toString();
     }
 

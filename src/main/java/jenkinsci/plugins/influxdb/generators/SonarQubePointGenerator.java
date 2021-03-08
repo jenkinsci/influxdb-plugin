@@ -5,20 +5,21 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.influxdb.client.write.Point;
 import hudson.EnvVars;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.influxdb.dto.Point;
 
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -75,8 +76,10 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private EnvVars env = null;
 
     public SonarQubePointGenerator(Run<?, ?> build, TaskListener listener,
-            MeasurementRenderer<Run<?, ?>> projectNameRenderer, long timestamp, String jenkinsEnvParameterTag,
-            String customPrefix) {
+                                   ProjectNameRenderer projectNameRenderer,
+                                   long timestamp,
+                                   String jenkinsEnvParameterTag,
+                                   String customPrefix) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
         this.customPrefix = customPrefix;
         this.listener = listener;
@@ -216,8 +219,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                     .addField(SONARQUBE_COMPLEXITY, getSonarMetric(sonarMetricsUrl, SONARQUBE_COMPLEXITY))
                     .addField(SONARQUBE_ALERT_STATUS, getSonarMetricStr(sonarMetricsUrl, SONARQUBE_ALERT_STATUS))
                     .addField(SONARQUBE_TECHNICAL_DEBT, getSonarMetric(sonarMetricsUrl, SONARQUBE_TECHNICAL_DEBT))
-                    .addField(SONARQUBE_TECHNICAL_DEBT_RATIO, getSonarMetric(sonarMetricsUrl, SONARQUBE_TECHNICAL_DEBT_RATIO))
-                    .build();
+                    .addField(SONARQUBE_TECHNICAL_DEBT_RATIO, getSonarMetric(sonarMetricsUrl, SONARQUBE_TECHNICAL_DEBT_RATIO));
         } catch (IOException e) {
             String logMessage = "[InfluxDB Plugin] Warning: IOException while fetching SonarQube metrics: " + e.getMessage();
             listener.getLogger().println(logMessage);
@@ -242,7 +244,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                 throw new RuntimeException("Failed : HTTP error code : " + response.code() + " from URL : " + url);
             }
 
-            return response.body().string();
+            return Objects.requireNonNull(response.body()).string();
         }
     }
 

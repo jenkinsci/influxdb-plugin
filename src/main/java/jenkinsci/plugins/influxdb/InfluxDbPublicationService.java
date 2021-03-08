@@ -2,6 +2,10 @@ package jenkinsci.plugins.influxdb;
 
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
+import com.influxdb.client.InfluxDBClient;
+import com.influxdb.client.InfluxDBClientFactory;
+import com.influxdb.client.InfluxDBClientOptions;
+import com.influxdb.client.write.Point;
 import hudson.EnvVars;
 import hudson.ProxyConfiguration;
 import hudson.model.Run;
@@ -11,17 +15,11 @@ import jenkinsci.plugins.influxdb.generators.*;
 import jenkinsci.plugins.influxdb.generators.serenity.SerenityJsonSummaryFile;
 import jenkinsci.plugins.influxdb.generators.serenity.SerenityPointGenerator;
 import jenkinsci.plugins.influxdb.models.Target;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
-import org.influxdb.InfluxDB;
-import org.influxdb.InfluxDB.ConsistencyLevel;
-import org.influxdb.InfluxDBFactory;
-import org.influxdb.dto.BatchPoints;
-import org.influxdb.dto.Point;
+import org.apache.commons.validator.routines.UrlValidator;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;
@@ -170,7 +168,7 @@ public class InfluxDbPublicationService {
         listener.getLogger().println("[InfluxDB Plugin] Collecting data...");
 
         // Renderer to use for the metrics
-        MeasurementRenderer<Run<?, ?>> measurementRenderer = new ProjectNameRenderer(customPrefix, customProjectName);
+        ProjectNameRenderer measurementRenderer = new ProjectNameRenderer(customPrefix, customProjectName);
 
         // Points to write
         List<Point> pointsToWrite = new ArrayList<>();
@@ -280,10 +278,8 @@ public class InfluxDbPublicationService {
         }
 
         for (Target target : selectedTargets) {
-            URL url;
-            try {
-                url = new URL(target.getUrl());
-            } catch (MalformedURLException e) {
+            UrlValidator validator = new UrlValidator(new String[] {"http", "https"});
+            if (!validator.isValid(target.getUrl())) {
                 String logMessage = String.format("[InfluxDB Plugin] Skipping target '%s' due to invalid URL '%s'",
                         target.getDescription(),
                         target.getUrl());
@@ -299,11 +295,21 @@ public class InfluxDbPublicationService {
             logger.log(Level.FINE, logMessage);
             listener.getLogger().println(logMessage);
 
-            OkHttpClient.Builder httpClient = createHttpClient(url, target.isUsingJenkinsProxy());
             StandardUsernamePasswordCredentials credentials = CredentialsProvider.findCredentialById(target.getCredentialsId(), StandardUsernamePasswordCredentials.class, build);
-            InfluxDB influxDB = credentials == null ?
-                    InfluxDBFactory.connect(target.getUrl(), httpClient) :
-                    InfluxDBFactory.connect(target.getUrl(), credentials.getUsername(), credentials.getPassword().getPlainText(), httpClient);
+            InfluxDBClient influxDB;
+            if (target.getOrganization() != null && !target.getOrganization().trim().isEmpty() && credentials != null){
+                InfluxDBClientOptions options = InfluxDBClientOptions.builder()
+                        .url(target.getUrl())
+                        .authenticate(credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray())
+                        .org(target.getOrganization())
+                        .bucket(target.getDatabase())
+                        .build();
+                influxDB = InfluxDBClientFactory.create(options);
+            } else {
+                influxDB = credentials == null ?
+                    InfluxDBClientFactory.createV1(target.getUrl(), "", "".toCharArray(), target.getDatabase(), target.getRetentionPolicy()) :
+                    InfluxDBClientFactory.createV1(target.getUrl(), credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray(), target.getDatabase(), target.getRetentionPolicy());
+            }
             writeToInflux(target, influxDB, pointsToWrite);
 
         }
@@ -339,18 +345,12 @@ public class InfluxDbPublicationService {
         return builder;
     }
 
-    private void writeToInflux(Target target, InfluxDB influxDB, List<Point> pointsToWrite) {
+    private void writeToInflux(Target target, InfluxDBClient influxDB, List<Point> pointsToWrite) {
         /*
          * build batchpoints for a single write.
          */
         try {
-            BatchPoints batchPoints = BatchPoints
-                    .database(target.getDatabase())
-                    .points(pointsToWrite)
-                    .retentionPolicy(target.getRetentionPolicy())
-                    .consistency(ConsistencyLevel.ANY)
-                    .build();
-            influxDB.write(batchPoints);
+            influxDB.getWriteApi().writePoints(pointsToWrite);
         } catch (Exception e) {
             if (target.isExposeExceptions()) {
                 throw new InfluxReportException(e);

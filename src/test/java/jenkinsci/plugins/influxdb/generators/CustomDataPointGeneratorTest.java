@@ -1,13 +1,12 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import com.influxdb.client.write.Point;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang.StringUtils;
-import org.influxdb.dto.Point;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -16,10 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class CustomDataPointGeneratorTest {
 
@@ -31,7 +27,7 @@ public class CustomDataPointGeneratorTest {
     private Run<?,?> build;
     private TaskListener listener;
 
-    private MeasurementRenderer<Run<?, ?>> measurementRenderer;
+    private ProjectNameRenderer measurementRenderer;
 
     private long currTime;
 
@@ -54,11 +50,11 @@ public class CustomDataPointGeneratorTest {
     public void hasReport() {
         //check with customDataMap = null
         CustomDataPointGenerator cdGen1 = new CustomDataPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, null, null, MEASUREMENT_NAME);
-        assertThat(cdGen1.hasReport(), is(false));
+        assertFalse(cdGen1.hasReport());
 
         //check with empty customDataMap
         CustomDataPointGenerator cdGen2 = new CustomDataPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, Collections.emptyMap(), null, MEASUREMENT_NAME);
-        assertThat(cdGen2.hasReport(), is(false));
+        assertFalse(cdGen2.hasReport());
     }
 
     @Test
@@ -72,9 +68,9 @@ public class CustomDataPointGeneratorTest {
         CustomDataPointGenerator cdGen = new CustomDataPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, customData, customDataTags, MEASUREMENT_NAME);
         Point[] pointsToWrite = cdGen.generate();
 
-        String lineProtocol = pointsToWrite[0].lineProtocol();
-        assertThat(lineProtocol, startsWith("jenkins_custom_data,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master,tag1=myTag build_number=11i,build_time="));
-        assertThat(lineProtocol, containsString("project_name=\"test_prefix_master\",project_path=\"folder/master\",test1=11i,test2=22i"));
+        String lineProtocol = pointsToWrite[0].toLineProtocol();
+        assertTrue(lineProtocol.startsWith("jenkins_custom_data,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master,tag1=myTag build_number=11i,build_time="));
+        assertTrue(lineProtocol.contains("project_name=\"test_prefix_master\",project_path=\"folder/master\",test1=11i,test2=22i"));
     }
 
     @Test
@@ -89,7 +85,7 @@ public class CustomDataPointGeneratorTest {
         CustomDataPointGenerator cdGen = new CustomDataPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, customData, customDataTags, customMeasurement);
         Point[] pointsToWrite = cdGen.generate();
 
-        String lineProtocol = pointsToWrite[0].lineProtocol();
-        assertThat(lineProtocol, startsWith("custom_" + customMeasurement));
+        String lineProtocol = pointsToWrite[0].toLineProtocol();
+        assertTrue(lineProtocol.startsWith("custom_" + customMeasurement));
     }
 }

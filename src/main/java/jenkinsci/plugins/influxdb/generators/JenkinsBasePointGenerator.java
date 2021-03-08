@@ -1,14 +1,14 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import com.influxdb.client.write.Point;
 import hudson.EnvVars;
 import hudson.model.Cause;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.test.AbstractTestResultAction;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang3.StringUtils;
-import org.influxdb.dto.Point;
 
 import java.util.List;
 import java.util.Map;
@@ -54,7 +54,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     // (Run<?, ?> build, TaskListener listener, MeasurementRenderer projectNameRenderer, long timestamp, String jenkinsEnvParameterTag) {
     public JenkinsBasePointGenerator(Run<?, ?> build, TaskListener listener,
-                                     MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                     ProjectNameRenderer projectNameRenderer,
                                      long timestamp, String jenkinsEnvParameterTag, String jenkinsEnvParameterField,
                                      String customPrefix, String measurementName, EnvVars env) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
@@ -87,7 +87,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             ordinal = buildResult.ordinal;
         }
 
-        Point.Builder point = buildPoint(measurementName, customPrefix, build);
+        Point point = buildPoint(measurementName, customPrefix, build);
 
         point.addField(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
             .addField(BUILD_SCHEDULED_TIME, build.getTimeInMillis())
@@ -103,7 +103,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             .addField(PROJECT_LAST_SUCCESSFUL, getLastSuccessfulBuild())
             .addField(PROJECT_LAST_STABLE, getLastStableBuild())
             .addField(BUILD_CAUSER , getCauseShortDescription())
-            .tag(BUILD_RESULT, result);
+            .addTag(BUILD_RESULT, result);
 
         if (hasTestResults(build)) {
             point.addField(TESTS_FAILED, build.getAction(AbstractTestResultAction.class).getFailCount());
@@ -118,10 +118,10 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         if (StringUtils.isNotBlank(jenkinsEnvParameterField)) {
             Properties fieldProperties = parsePropertiesString(jenkinsEnvParameterField);
             Map fieldMap = resolveEnvParameterAndTransformToMap(fieldProperties);
-            point.fields(fieldMap);
+            point.addFields(fieldMap);
         }
 
-        return new Point[] {point.build()};
+        return new Point[] {point};
     }
 
     private String getBuildEnv(String buildEnv) {

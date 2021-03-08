@@ -1,12 +1,12 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import com.influxdb.client.write.Point;
 import hudson.EnvVars;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.junit.CaseResult;
 import hudson.tasks.test.AbstractTestResultAction;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
-import org.influxdb.dto.Point;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,7 @@ public class JUnitPointGenerator extends AbstractPointGenerator{
     private final EnvVars env;
 
     public JUnitPointGenerator(Run<?, ?> build, TaskListener listener,
-                               MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                               ProjectNameRenderer projectNameRenderer,
                                long timestamp, String jenkinsEnvParameterTag,
                                String customPrefix, EnvVars env) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
@@ -57,14 +57,13 @@ public class JUnitPointGenerator extends AbstractPointGenerator{
                     .addField(JUNIT_TEST_STATUS, caseResult.getStatus().toString())
                     .addField(JUNIT_TEST_STATUS_ORDINAL, caseResult.getStatus().ordinal())
                     .addField(JUNIT_DURATION, caseResult.getDuration())
-                    .tag(JUNIT_SUITE_NAME, caseResult.getSuiteResult().getName())
-                    .tag(JUNIT_TEST_NAME, caseResult.getDisplayName())
-                    .tag(JUNIT_TEST_STATUS, caseResult.getStatus().toString())
-                    .build();
+                    .addTag(JUNIT_SUITE_NAME, caseResult.getSuiteResult().getName())
+                    .addTag(JUNIT_TEST_NAME, caseResult.getDisplayName())
+                    .addTag(JUNIT_TEST_STATUS, caseResult.getStatus().toString());
             points.add(point);
         }
 
-        return points.toArray(new Point[points.size()]);
+        return points.toArray(new Point[0]);
     }
 
     private List<CaseResult> getAllTestResults(Run<?, ?> build) {

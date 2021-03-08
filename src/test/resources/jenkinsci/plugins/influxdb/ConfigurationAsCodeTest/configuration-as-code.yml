@@ -8,6 +8,7 @@ unclassified:
       globalListener: true
       globalListenerFilter: "some filter"
       jobScheduledTimeAsPointsTimestamp: true
+      organization: "some_organization"
       retentionPolicy: "some_policy"
       url: "http://some/url"
       usingJenkinsProxy: true
