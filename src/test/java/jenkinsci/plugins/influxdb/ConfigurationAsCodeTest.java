@@ -12,8 +12,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ConfigurationAsCodeTest {
 
@@ -41,6 +40,7 @@ public class ConfigurationAsCodeTest {
         assertTrue(target.isUsingJenkinsProxy());
         assertTrue(target.isGlobalListener());
         assertEquals(target.getGlobalListenerFilter(), "some filter");
+        assertEquals(target.getOrganization(), "some_organization");
     }
 
     @Test
@@ -58,6 +58,7 @@ public class ConfigurationAsCodeTest {
         target.setUsingJenkinsProxy(true);
         target.setGlobalListener(true);
         target.setGlobalListenerFilter("some filter");
+        target.setOrganization("some_organization");
 
         globalConfig.setTargets(Collections.singletonList(target));
 
