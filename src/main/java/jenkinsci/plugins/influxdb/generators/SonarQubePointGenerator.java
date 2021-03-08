@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -243,7 +244,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                 throw new RuntimeException("Failed : HTTP error code : " + response.code() + " from URL : " + url);
             }
 
-            return response.body().string();
+            return Objects.requireNonNull(response.body()).string();
         }
     }
 
