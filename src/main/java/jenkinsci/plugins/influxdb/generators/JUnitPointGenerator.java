@@ -53,12 +53,12 @@ public class JUnitPointGenerator extends AbstractPointGenerator{
         for (CaseResult caseResult : allTestResults) {
             Point point = buildPoint("junit_data", customPrefix, build)
                     .addField(JUNIT_SUITE_NAME, caseResult.getSuiteResult().getName())
-                    .addField(JUNIT_TEST_NAME, caseResult.getDisplayName())
+                    .addField(JUNIT_TEST_NAME, caseResult.getFullDisplayName())
                     .addField(JUNIT_TEST_STATUS, caseResult.getStatus().toString())
                     .addField(JUNIT_TEST_STATUS_ORDINAL, caseResult.getStatus().ordinal())
                     .addField(JUNIT_DURATION, caseResult.getDuration())
                     .addTag(JUNIT_SUITE_NAME, caseResult.getSuiteResult().getName())
-                    .addTag(JUNIT_TEST_NAME, caseResult.getDisplayName())
+                    .addTag(JUNIT_TEST_NAME, caseResult.getFullDisplayName())
                     .addTag(JUNIT_TEST_STATUS, caseResult.getStatus().toString());
             points.add(point);
         }

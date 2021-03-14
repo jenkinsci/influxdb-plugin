@@ -10,6 +10,7 @@ Manage Jenkins --> Configure System.
      `target.username` and `target.password`.
   - JCasC configurations need to be modified, so that they use `credentialsId` instead of `username`
       and `password`.
+- JUnit names changed from name to fullname. Test names now include the package and class name of the test.
 
 ## 2.0
 
