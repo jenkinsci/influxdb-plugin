@@ -278,7 +278,7 @@ public class InfluxDbPublicationService {
         }
 
         for (Target target : selectedTargets) {
-            UrlValidator validator = new UrlValidator(new String[] {"http", "https"});
+            UrlValidator validator = new UrlValidator(new String[] {"http", "https"}, UrlValidator.ALLOW_LOCAL_URLS);
             if (!validator.isValid(target.getUrl())) {
                 String logMessage = String.format("[InfluxDB Plugin] Skipping target '%s' due to invalid URL '%s'",
                         target.getDescription(),
