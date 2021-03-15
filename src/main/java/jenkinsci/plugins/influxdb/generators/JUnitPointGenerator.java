@@ -7,6 +7,8 @@ import hudson.model.TaskListener;
 import hudson.tasks.junit.CaseResult;
 import hudson.tasks.test.AbstractTestResultAction;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
+import org.apache.commons.collections.iterators.ReverseListIterator;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +17,8 @@ public class JUnitPointGenerator extends AbstractPointGenerator{
 
     private static final String JUNIT_SUITE_NAME = "suite_name";
     private static final String JUNIT_TEST_NAME = "test_name";
+    private static final String JUNIT_TEST_CLASS_FULL_NAME = "test_class_full_name";
+    private static final String JUNIT_PIPELINE_STEP = "pipeline_step";
     private static final String JUNIT_TEST_STATUS = "test_status";
     private static final String JUNIT_TEST_STATUS_ORDINAL = "test_status_ordinal";
     private static final String JUNIT_DURATION = "test_duration";
@@ -53,17 +57,28 @@ public class JUnitPointGenerator extends AbstractPointGenerator{
         for (CaseResult caseResult : allTestResults) {
             Point point = buildPoint("junit_data", customPrefix, build)
                     .addField(JUNIT_SUITE_NAME, caseResult.getSuiteResult().getName())
-                    .addField(JUNIT_TEST_NAME, caseResult.getDisplayName())
+                    .addField(JUNIT_TEST_NAME, caseResult.getSimpleName())
+                    .addField(JUNIT_TEST_CLASS_FULL_NAME, caseResult.getClassName())
+                    .addField(JUNIT_PIPELINE_STEP, getCaseResultEnclosingFlowNodeString(caseResult))
                     .addField(JUNIT_TEST_STATUS, caseResult.getStatus().toString())
                     .addField(JUNIT_TEST_STATUS_ORDINAL, caseResult.getStatus().ordinal())
                     .addField(JUNIT_DURATION, caseResult.getDuration())
                     .addTag(JUNIT_SUITE_NAME, caseResult.getSuiteResult().getName())
-                    .addTag(JUNIT_TEST_NAME, caseResult.getDisplayName())
+                    .addTag(JUNIT_TEST_NAME, caseResult.getSimpleName())
+                    .addTag(JUNIT_TEST_CLASS_FULL_NAME, caseResult.getClassName())
+                    .addTag(JUNIT_PIPELINE_STEP, getCaseResultEnclosingFlowNodeString(caseResult))
                     .addTag(JUNIT_TEST_STATUS, caseResult.getStatus().toString());
             points.add(point);
         }
 
         return points.toArray(new Point[0]);
+    }
+
+    private String getCaseResultEnclosingFlowNodeString(CaseResult caseResult) {
+        if(caseResult.getEnclosingFlowNodeNames().isEmpty()) {
+            return StringUtils.join(new ReverseListIterator(caseResult.getEnclosingFlowNodeNames()), " / ");
+        }
+        return "";
     }
 
     private List<CaseResult> getAllTestResults(Run<?, ?> build) {
