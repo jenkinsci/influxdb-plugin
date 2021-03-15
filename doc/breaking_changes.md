@@ -10,7 +10,11 @@ Manage Jenkins --> Configure System.
      `target.username` and `target.password`.
   - JCasC configurations need to be modified, so that they use `credentialsId` instead of `username`
       and `password`.
-- JUnit names changed from name to fullname. Test names now include the package and class name of the test.
+- JUnit `test_name` field/tag changed to remove pipeline name. If your pipeline had multiple `junit` steps, 
+the pipeline step information is now recorded in the `pipeline_step` field/tag. For example:
+  - Before <br>`test_name`: `Tests / Test Stage 1 / my_test_name`
+  - After  <br>`test_name`: `my_test_name` <br> `test_full_class_name`: `mypackage.MyClass` <br> `pipeline_step`: `Tests / Test Stage 1`
+
 
 ## 2.0
 
