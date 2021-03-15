@@ -19,12 +19,14 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     private static final String RF_NAME = "rf_name";
     private static final String RF_FAILED = "rf_failed";
     private static final String RF_PASSED = "rf_passed";
+    private static final String RF_SKIPPED = "rf_skipped";
     private static final String RF_TOTAL = "rf_total";
     private static final String RF_CRITICAL_FAILED = "rf_critical_failed";
     private static final String RF_CRITICAL_PASSED = "rf_critical_passed";
     private static final String RF_CRITICAL_TOTAL = "rf_critical_total";
     private static final String RF_CRITICAL_PASS_PERCENTAGE = "rf_critical_pass_percentage";
     private static final String RF_PASS_PERCENTAGE = "rf_pass_percentage";
+    private static final String RF_SKIP_PERCENTAGE = "rf_skip_percentage";
     private static final String RF_DURATION = "rf_duration";
     private static final String RF_SUITES = "rf_suites";
     private static final String RF_SUITE_NAME = "rf_suite_name";
@@ -64,11 +66,13 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
             .addField(RF_FAILED, robotBuildAction.getResult().getOverallFailed())
             .addField(RF_PASSED, robotBuildAction.getResult().getOverallPassed())
             .addField(RF_TOTAL, robotBuildAction.getResult().getOverallTotal())
+            .addField(RF_SKIPPED, robotBuildAction.getResult().getOverallSkipped())
             .addField(RF_CRITICAL_FAILED, robotBuildAction.getResult().getCriticalFailed())
             .addField(RF_CRITICAL_PASSED, robotBuildAction.getResult().getCriticalPassed())
             .addField(RF_CRITICAL_TOTAL, robotBuildAction.getResult().getCriticalTotal())
             .addField(RF_CRITICAL_PASS_PERCENTAGE, robotBuildAction.getCriticalPassPercentage())
             .addField(RF_PASS_PERCENTAGE, robotBuildAction.getOverallPassPercentage())
+            .addField(RF_SKIP_PERCENTAGE, robotBuildAction.getResult().getSkipPercentage())
             .addField(RF_DURATION, robotBuildAction.getResult().getDuration())
             .addField(RF_SUITES, robotBuildAction.getResult().getAllSuites().size());
     }
@@ -124,6 +128,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
             .addField(RF_CRITICAL_PASSED, caseResult.getCriticalPassed())
             .addField(RF_FAILED, caseResult.getFailed())
             .addField(RF_PASSED, caseResult.getPassed())
+            .addField(RF_SKIPPED, caseResult.getSkipped())
             .addField(RF_DURATION, caseResult.getDuration());
 
         for (String tag : caseResult.getTags()) {
@@ -139,6 +144,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
         private final List<String> testCases = new ArrayList<>();
         private int failed = 0;
         private int passed = 0;
+        private int skipped = 0;
         private int criticalFailed = 0;
         private int criticalPassed = 0;
         private long duration = 0;
@@ -156,6 +162,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
         if (!tagResult.testCases.contains(caseResult.getDuplicateSafeName())) {
             tagResult.failed += caseResult.getFailed();
             tagResult.passed += caseResult.getPassed();
+            tagResult.skipped += caseResult.getSkipped();
             tagResult.criticalFailed += caseResult.getCriticalFailed();
             tagResult.criticalPassed += caseResult.getCriticalPassed();
             tagResult.duration += caseResult.getDuration();
@@ -172,6 +179,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
             .addField(RF_CRITICAL_TOTAL, tagResult.criticalPassed + tagResult.criticalFailed)
             .addField(RF_FAILED, tagResult.failed)
             .addField(RF_PASSED, tagResult.passed)
+            .addField(RF_SKIPPED, tagResult.skipped)
             .addField(RF_TOTAL, tagResult.passed + tagResult.failed)
             .addField(RF_DURATION, tagResult.duration);
     }
@@ -186,6 +194,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
             .addField(RF_CRITICAL_TOTAL, suiteResult.getCriticalTotal())
             .addField(RF_FAILED, suiteResult.getFailed())
             .addField(RF_PASSED, suiteResult.getPassed())
+            .addField(RF_SKIPPED, suiteResult.getSkipped())
             .addField(RF_TOTAL, suiteResult.getTotal())
             .addField(RF_DURATION, suiteResult.getDuration());
     }
