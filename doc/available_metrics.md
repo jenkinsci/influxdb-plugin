@@ -264,6 +264,8 @@ Tags specific for this measurement:
 | rf_pass_percentage | float | Percentage of passed tests |  |
 | rf_passed | integer | Amount of passed tests |  |
 | rf_suites | integer | Amount of test suites |  |
+| rf_skipped | integer | Amount of skipped tests | 3.0 |
+| rf_skip_percentage | float | Percentage of skipped tests | 3.0 |
 | rf_total | integer | Total amount of tests |  |
 
 #### `suite_result`
@@ -276,6 +278,7 @@ Tags specific for this measurement:
 | rf_duration | integer | Test execution duration |  |
 | rf_failed | integer | Amount of failed tests |  |
 | rf_passed | integer | Amount of passed tests |  |
+| rf_skipped | integer | Amount of skipped tests | 3.0 |
 | rf_suite_name | string | Name of the test suite |  |
 | rf_testcases | integer | Total amount of tests (including child suites) |  |
 | rf_total | integer | Amount of tests in this suite |  |
@@ -296,6 +299,7 @@ Tags specific for this measurement:
 | rf_duration | integer | Test execution duration |  |
 | rf_failed | integer | Amount of failed tests |  |
 | rf_passed | integer | Amount of passed tests |  |
+| rf_skipped | integer | Amount of skipped tests | 3.0 |
 | rf_total | integer | Total amount of tests |  |
 | rf_tag_name | string | Test tag name | 1.20.1 |
 
@@ -315,6 +319,7 @@ Tags specific for this measurement:
 | rf_failed | integer | 0 or 1 |  |
 | rf_name | string | Name of the test case |  |
 | rf_passed | integer | 0 or 1 |  |
+| rf_skipped | integer | 0 or 1 | 3.0 |
 | rf_suite_name | string | Name of the suite of the test case |  |
 
 Tags specific for this measurement:

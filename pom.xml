@@ -47,12 +47,14 @@ THE SOFTWARE.
     </scm>
 
     <properties>
-        <jenkins.version>2.195</jenkins.version>
-        <workflow.version>2.12</workflow.version>
-        <spotbugs.failOnError>false</spotbugs.failOnError>
-        <java.level>8</java.level>
         <hpi.compatibleSinceVersion>2.0</hpi.compatibleSinceVersion>
-        <slf4j.version>1.7.26</slf4j.version>
+        <java.level>8</java.level>
+        <jenkins.version>2.263.2</jenkins.version>
+        <mailer.version>1.20</mailer.version>
+        <slf4j.version>1.7.30</slf4j.version>
+        <spotbugs.failOnError>false</spotbugs.failOnError>
+        <workflow-api.version>2.30</workflow-api.version>
+        <workflow-step-api.version>2.19</workflow-step-api.version>
     </properties>
 
     <licenses>
@@ -81,7 +83,7 @@ THE SOFTWARE.
             <dependency>
                 <groupId>org.jenkins-ci.plugins</groupId>
                 <artifactId>structs</artifactId>
-                <version>1.10</version>
+                <version>1.17</version>
             </dependency>
             <dependency>
                 <groupId>org.jenkins-ci</groupId>
@@ -157,7 +159,7 @@ THE SOFTWARE.
         <dependency>
             <groupId>io.jenkins</groupId>
             <artifactId>configuration-as-code</artifactId>
-            <version>1.31</version>
+            <version>1.35</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -168,14 +170,14 @@ THE SOFTWARE.
 
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
-            <artifactId>junit</artifactId>
-            <version>1.23</version>
+            <artifactId>cobertura</artifactId>
+            <version>1.12.1</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
-            <artifactId>robot</artifactId>
-            <version>1.6.0</version>
-            <optional>true</optional>
+            <artifactId>credentials</artifactId>
+            <version>2.1.16</version>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
@@ -185,8 +187,19 @@ THE SOFTWARE.
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
-            <artifactId>cobertura</artifactId>
-            <version>1.12.1</version>
+            <artifactId>junit</artifactId>
+            <version>1.23</version>
+        </dependency>
+        <dependency> <!-- Transitive dependency -->
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>mailer</artifactId>
+            <version>${mailer.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>metrics</artifactId>
+            <version>3.1.2.9</version>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -203,20 +216,22 @@ THE SOFTWARE.
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
-            <artifactId>metrics</artifactId>
-            <version>3.1.2.9</version>
+            <artifactId>robot</artifactId>
+            <version>3.0.0</version>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-step-api</artifactId>
-            <version>${workflow.version}</version>
+            <version>${workflow-step-api.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.jenkins-ci.plugins</groupId>
-            <artifactId>credentials</artifactId>
-            <version>2.1.16</version>
+            <groupId>org.jenkins-ci.plugins.workflow</groupId>
+            <artifactId>workflow-api</artifactId>
+            <version>${workflow-api.version}</version>
+            <scope>test</scope>
         </dependency>
+
 
         <!-- RequireUpperBounds fix -->
         <dependency>
@@ -243,6 +258,21 @@ THE SOFTWARE.
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
             <version>1.8</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>1.6</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.9.3</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-digester</groupId>
+            <artifactId>commons-digester</artifactId>
+            <version>2.1</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
