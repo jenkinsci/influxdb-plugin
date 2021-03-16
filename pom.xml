@@ -47,9 +47,9 @@ THE SOFTWARE.
     </scm>
 
     <properties>
-        <hpi.compatibleSinceVersion>2.0</hpi.compatibleSinceVersion>
+        <hpi.compatibleSinceVersion>3.0</hpi.compatibleSinceVersion>
         <java.level>8</java.level>
-        <jenkins.version>2.263.2</jenkins.version>
+        <jenkins.version>2.195</jenkins.version>
         <mailer.version>1.20</mailer.version>
         <slf4j.version>1.7.30</slf4j.version>
         <spotbugs.failOnError>false</spotbugs.failOnError>
@@ -167,6 +167,11 @@ THE SOFTWARE.
             <artifactId>commons-lang3</artifactId>
             <version>3.9</version>
         </dependency>
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>1.6</version>
+        </dependency>
 
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
@@ -258,11 +263,6 @@ THE SOFTWARE.
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
             <version>1.8</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-validator</groupId>
-            <artifactId>commons-validator</artifactId>
-            <version>1.6</version>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>
