@@ -18,8 +18,8 @@ import jenkinsci.plugins.influxdb.models.Target;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
-import org.apache.commons.validator.routines.UrlValidator;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;
@@ -278,8 +278,9 @@ public class InfluxDbPublicationService {
         }
 
         for (Target target : selectedTargets) {
-            UrlValidator validator = new UrlValidator(new String[] {"http", "https"}, UrlValidator.ALLOW_LOCAL_URLS);
-            if (!validator.isValid(target.getUrl())) {
+            try {
+                new URL(target.getUrl());
+            } catch (MalformedURLException e) {
                 String logMessage = String.format("[InfluxDB Plugin] Skipping target '%s' due to invalid URL '%s'",
                         target.getDescription(),
                         target.getUrl());
