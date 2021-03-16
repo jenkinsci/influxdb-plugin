@@ -16,6 +16,7 @@ import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.apache.commons.lang3.StringUtils;
 
 import hudson.model.Run;
@@ -243,8 +244,12 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             if (response.code() != 200) {
                 throw new RuntimeException("Failed : HTTP error code : " + response.code() + " from URL : " + url);
             }
+            ResponseBody body = response.body();
+            if (body == null) {
+                throw new NullPointerException("Failed : null body from URL : " + url);
+            }
 
-            return Objects.requireNonNull(response.body()).string();
+            return body.string();
         }
     }
 
