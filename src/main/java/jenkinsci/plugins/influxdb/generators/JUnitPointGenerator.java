@@ -75,7 +75,7 @@ public class JUnitPointGenerator extends AbstractPointGenerator{
     }
 
     private String getCaseResultEnclosingFlowNodeString(CaseResult caseResult) {
-        if(caseResult.getEnclosingFlowNodeNames().isEmpty()) {
+        if(!caseResult.getEnclosingFlowNodeNames().isEmpty()) {
             return StringUtils.join(new ReverseListIterator(caseResult.getEnclosingFlowNodeNames()), " / ");
         }
         return "";
