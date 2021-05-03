@@ -57,14 +57,14 @@ public class JUnitPointGenerator extends AbstractPointGenerator{
         for (CaseResult caseResult : allTestResults) {
             Point point = buildPoint("junit_data", customPrefix, build)
                     .addField(JUNIT_SUITE_NAME, caseResult.getSuiteResult().getName())
-                    .addField(JUNIT_TEST_NAME, caseResult.getSimpleName())
+                    .addField(JUNIT_TEST_NAME, caseResult.getName())
                     .addField(JUNIT_TEST_CLASS_FULL_NAME, caseResult.getClassName())
                     .addField(JUNIT_PIPELINE_STEP, getCaseResultEnclosingFlowNodeString(caseResult))
                     .addField(JUNIT_TEST_STATUS, caseResult.getStatus().toString())
                     .addField(JUNIT_TEST_STATUS_ORDINAL, caseResult.getStatus().ordinal())
                     .addField(JUNIT_DURATION, caseResult.getDuration())
                     .addTag(JUNIT_SUITE_NAME, caseResult.getSuiteResult().getName())
-                    .addTag(JUNIT_TEST_NAME, caseResult.getSimpleName())
+                    .addTag(JUNIT_TEST_NAME, caseResult.getName())
                     .addTag(JUNIT_TEST_CLASS_FULL_NAME, caseResult.getClassName())
                     .addTag(JUNIT_PIPELINE_STEP, getCaseResultEnclosingFlowNodeString(caseResult))
                     .addTag(JUNIT_TEST_STATUS, caseResult.getStatus().toString());
@@ -75,7 +75,7 @@ public class JUnitPointGenerator extends AbstractPointGenerator{
     }
 
     private String getCaseResultEnclosingFlowNodeString(CaseResult caseResult) {
-        if(caseResult.getEnclosingFlowNodeNames().isEmpty()) {
+        if(!caseResult.getEnclosingFlowNodeNames().isEmpty()) {
             return StringUtils.join(new ReverseListIterator(caseResult.getEnclosingFlowNodeNames()), " / ");
         }
         return "";
