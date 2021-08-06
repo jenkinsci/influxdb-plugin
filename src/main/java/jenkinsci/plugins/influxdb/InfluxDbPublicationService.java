@@ -18,6 +18,7 @@ import jenkinsci.plugins.influxdb.models.Target;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -296,26 +297,32 @@ public class InfluxDbPublicationService {
             logger.log(Level.FINE, logMessage);
             listener.getLogger().println(logMessage);
 
-            StandardUsernamePasswordCredentials credentials = CredentialsProvider.findCredentialById(target.getCredentialsId(), StandardUsernamePasswordCredentials.class, build);
-            InfluxDBClient influxDB;
-            if (target.getOrganization() != null && !target.getOrganization().trim().isEmpty() && credentials != null){
-                InfluxDBClientOptions options = InfluxDBClientOptions.builder()
-                        .url(target.getUrl())
-                        .authenticate(credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray())
-                        .org(target.getOrganization())
-                        .bucket(target.getDatabase())
-                        .build();
-                influxDB = InfluxDBClientFactory.create(options);
-            } else {
-                influxDB = credentials == null ?
-                    InfluxDBClientFactory.createV1(target.getUrl(), "", "".toCharArray(), target.getDatabase(), target.getRetentionPolicy()) :
-                    InfluxDBClientFactory.createV1(target.getUrl(), credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray(), target.getDatabase(), target.getRetentionPolicy());
+            try (InfluxDBClient influxDB = getInfluxDBClient(build, target)) {
+                writeToInflux(target, influxDB, pointsToWrite);
             }
-            writeToInflux(target, influxDB, pointsToWrite);
 
         }
 
         listener.getLogger().println("[InfluxDB Plugin] Completed.");
+    }
+
+    private InfluxDBClient getInfluxDBClient(Run<?, ?> build, Target target) {
+        StandardUsernamePasswordCredentials credentials = CredentialsProvider.findCredentialById(target.getCredentialsId(), StandardUsernamePasswordCredentials.class, build);
+        InfluxDBClient influxDB;
+        if (target.getOrganization() != null && !target.getOrganization().trim().isEmpty() && credentials != null){
+            InfluxDBClientOptions options = InfluxDBClientOptions.builder()
+                    .url(target.getUrl())
+                    .authenticate(credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray())
+                    .org(target.getOrganization())
+                    .bucket(target.getDatabase())
+                    .build();
+            influxDB = InfluxDBClientFactory.create(options);
+        } else {
+            influxDB = credentials == null ?
+                InfluxDBClientFactory.createV1(target.getUrl(), "", "".toCharArray(), target.getDatabase(), target.getRetentionPolicy()) :
+                InfluxDBClientFactory.createV1(target.getUrl(), credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray(), target.getDatabase(), target.getRetentionPolicy());
+        }
+        return influxDB;
     }
 
     private void addPoints(List<Point> pointsToWrite, PointGenerator generator, TaskListener listener) {
@@ -351,7 +358,7 @@ public class InfluxDbPublicationService {
          * build batchpoints for a single write.
          */
         try {
-            influxDB.getWriteApi().writePoints(pointsToWrite);
+            influxDB.getWriteApiBlocking().writePoints(pointsToWrite);
         } catch (Exception e) {
             if (target.isExposeExceptions()) {
                 throw new InfluxReportException(e);
