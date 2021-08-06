@@ -54,7 +54,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private static final String TASK_ID_PATTERN_IN_LOGS = ".*" + Pattern.quote("More about the report processing at ")
             + "(.*)";
 
-    private static final String SONAR_ISSUES_BASE_URL = "/api/issues/search?ps=1&projectKeys=";
+    private static final String SONAR_ISSUES_BASE_URL = "/api/issues/search?ps=1&projects=";
 
     // SonarQube 5.4+ expects componentKey=, SonarQube 8.1 expects component=, we
     // can make both of them happy
