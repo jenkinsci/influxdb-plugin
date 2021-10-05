@@ -180,7 +180,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     private boolean setServiceTagFromRun(Run<?, ?> build, Point point) throws IOException {
         String serviceId = new RunWrapper(build, false).getBuildVariables().get("SERVICE_ID");
         if (serviceId != null) {
-            point.tag("service_id", serviceId);
+            point.addTag("service_id", serviceId);
             return true;
         }
         return false;
