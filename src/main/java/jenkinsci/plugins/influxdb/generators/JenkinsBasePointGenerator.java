@@ -6,9 +6,10 @@ import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.test.AbstractTestResultAction;
+import jenkins.metrics.impl.TimeInQueueAction;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang3.StringUtils;
-import org.influxdb.dto.Point;
+import com.influxdb.client.write.Point;
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper;
 
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
@@ -137,7 +139,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         return new Point[]{point};
     }
 
-    private void setSrFields(Point.Builder point) {
+    private void setSrFields(Point point) {
         try {
             Map<String, String> buildVariables = new RunWrapper(build, false).getBuildVariables();
             for (Map.Entry<String, String> entry : buildVariables.entrySet()) {
@@ -158,7 +160,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         }
     }
 
-    private void setServiceIdTag(Point.Builder point) {
+    private void setServiceIdTag(Point point) {
         try {
             if (setServiceTagFromRun(build, point)) {
                 return;
@@ -175,7 +177,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         }
     }
 
-    private boolean setServiceTagFromRun(Run<?, ?> build, Point.Builder point) throws IOException {
+    private boolean setServiceTagFromRun(Run<?, ?> build, Point point) throws IOException {
         String serviceId = new RunWrapper(build, false).getBuildVariables().get("SERVICE_ID");
         if (serviceId != null) {
             point.tag("service_id", serviceId);
