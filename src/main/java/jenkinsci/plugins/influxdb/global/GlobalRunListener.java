@@ -25,12 +25,18 @@ import java.util.regex.Pattern;
 @Extension
 public class GlobalRunListener extends RunListener<Run<?, ?>> {
 
+    private static final String VARIABLE_PREFIX = "INFLUXDB_PLUGIN_";
+
     @Override
     public void onCompleted(Run<?, ?> build, @Nonnull TaskListener listener) {
         // Gets the full path of the build's project
-        String path = build.getParent().getRelativeNameFrom(Jenkins.getInstance());
+        String path = build.getParent().getRelativeNameFrom(Jenkins.getInstanceOrNull());
         // Gets the list of targets from the configuration
-        List<Target> targets = Jenkins.getInstance().getDescriptorByType(InfluxDbPublisher.DescriptorImpl.class).getTargets();
+        Jenkins jenkins = Jenkins.getInstanceOrNull();
+        if (jenkins == null) {
+            return;
+        }
+        List<Target> targets = jenkins.getDescriptorByType(InfluxDbPublisher.DescriptorImpl.class).getTargets();
         // Selects the targets eligible as global listeners and which match the build path
         List<Target> selectedTargets = new ArrayList<>();
         for (Target target : targets) {
@@ -42,20 +48,6 @@ public class GlobalRunListener extends RunListener<Run<?, ?>> {
         }
         // If some targets are selected
         if (!selectedTargets.isEmpty()) {
-            // Creates the publication service
-            InfluxDbPublicationService publicationService = new InfluxDbPublicationService(
-                    selectedTargets,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    System.currentTimeMillis() * 1000000,
-                    null,
-                    null,
-                    "jenkins_data"
-            );
 
             EnvVars env;
             try {
@@ -63,6 +55,21 @@ public class GlobalRunListener extends RunListener<Run<?, ?>> {
             } catch (IOException | InterruptedException e) {
                 env = new EnvVars();
             }
+
+            // Creates the publication service
+            InfluxDbPublicationService publicationService = new InfluxDbPublicationService(
+                    selectedTargets,
+                    env.get(VARIABLE_PREFIX + "CUSTOM_PROJECT_NAME"),
+                    env.get(VARIABLE_PREFIX + "CUSTOM_PREFIX"),
+                    null,
+                    null,
+                    null,
+                    null,
+                    System.currentTimeMillis() * 1000000,
+                    env.expand(env.get(VARIABLE_PREFIX + "CUSTOM_FIELDS")),
+                    env.expand(env.get(VARIABLE_PREFIX + "CUSTOM_TAGS")),
+                    "jenkins_data"
+            );
 
             // Publication
             publicationService.perform(build, listener, env);

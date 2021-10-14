@@ -1,18 +1,18 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import com.influxdb.client.domain.WritePrecision;
+import com.influxdb.client.write.Point;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.plugins.PerfPublisher.PerfPublisherBuildAction;
 import hudson.plugins.PerfPublisher.Report.Metric;
 import hudson.plugins.PerfPublisher.Report.ReportContainer;
 import hudson.plugins.PerfPublisher.Report.Test;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
-import org.influxdb.dto.Point;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class PerfPublisherPointGenerator extends AbstractPointGenerator {
 
@@ -21,7 +21,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
     private final TimeGenerator timeGenerator;
 
     public PerfPublisherPointGenerator(Run<?, ?> build, TaskListener listener,
-                                       MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                       ProjectNameRenderer projectNameRenderer,
                                        long timestamp, String jenkinsEnvParameterTag,
                                        String customPrefix) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
@@ -35,10 +35,10 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
     }
 
     @Override
-    public Point.Builder buildPoint(String name, String customPrefix, Run<?, ?> build) {
+    public Point buildPoint(String name, String customPrefix, Run<?, ?> build) {
         // add unique time to guarantee correct point adding to DB
         return super.buildPoint(name, customPrefix, build)
-                .time(timeGenerator.next(), TimeUnit.NANOSECONDS);
+                .time(timeGenerator.next(), WritePrecision.NS);
     }
 
     public Point[] generate() {
@@ -58,7 +58,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateSummaryPoint(ReportContainer reports) {
-        Point.Builder builder = buildPoint("perfpublisher_summary", customPrefix, build)
+        Point point = buildPoint("perfpublisher_summary", customPrefix, build)
                 .addField("number_of_tests", reports.getNumberOfTest())
                 .addField("number_of_executed_tests", reports.getNumberOfExecutedTest())
                 .addField("number_of_not_executed_tests", reports.getNumberOfNotExecutedTest())
@@ -69,7 +69,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
 
         // compile time
         if (reports.getBestCompileTimeTest().isCompileTime()) {
-            builder.addField("best_compile_time_test_value", reports.getBestCompileTimeTestValue())
+            point.addField("best_compile_time_test_value", reports.getBestCompileTimeTestValue())
                     .addField("best_compile_time_test_name", reports.getBestCompileTimeTestName())
                     .addField("worst_compile_time_test_value", reports.getWorstCompileTimeTestValue())
                     .addField("worst_compile_time_test_name", reports.getWorstCompileTimeTestName())
@@ -78,7 +78,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
 
         // performance
         if (reports.getBestPerformanceTest().isPerformance()) {
-            builder.addField("best_performance_test_value", reports.getBestPerformanceTestValue())
+            point.addField("best_performance_test_value", reports.getBestPerformanceTestValue())
                     .addField("best_performance_test_name", reports.getBestPerformanceTestName())
                     .addField("worst_performance_test_value", reports.getWorstPerformanceTestValue())
                     .addField("worst_performance_test_name", reports.getWorstPerformanceTestName())
@@ -87,14 +87,14 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
 
         // execution time
         if (reports.getBestExecutionTimeTest().isExecutionTime()) {
-            builder.addField("best_execution_time_test_value", reports.getBestExecutionTimeTestValue())
+            point.addField("best_execution_time_test_value", reports.getBestExecutionTimeTestValue())
                     .addField("best_execution_time_test_name", reports.getBestExecutionTimeTestName())
                     .addField("worst_execution_time_test_value", reports.getWorstExecutionTimeTestValue())
                     .addField("worst_execution_time_test_name", reports.getWorstExecutionTimeTestName())
                     .addField("avg_execution_time", reports.getAverageOfExecutionTime());
         }
 
-        return builder.build();
+        return point;
     }
 
     private List<Point> generateMetricsPoints(ReportContainer reports) {
@@ -106,8 +106,7 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
                     .addField("metric_name", metricName)
                     .addField("average", entry.getValue())
                     .addField("worst", reports.getWorstValuePerMetrics().get(metricName))
-                    .addField("best", reports.getBestValuePerMetrics().get(metricName))
-                    .build();
+                    .addField("best", reports.getBestValuePerMetrics().get(metricName));
             points.add(point);
         }
 
@@ -115,29 +114,29 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
     }
 
     private Point generateTestPoint(Test test) {
-        Point.Builder builder = buildPoint("perfpublisher_test", customPrefix, build)
+        Point point = buildPoint("perfpublisher_test", customPrefix, build)
                 .addField("test_name", test.getName())
-                .tag("test_name", test.getName())
+                .addTag("test_name", test.getName())
                 .addField("successful", test.isSuccessfull())
                 .addField("executed", test.isExecuted());
 
         if (test.getMessage() != null) {
-            builder.addField("message", test.getMessage());
+            point.addField("message", test.getMessage());
         }
 
         if (test.isCompileTime()) {
-            builder.addField("compile_time", test.getCompileTime().getMeasure());
+            point.addField("compile_time", test.getCompileTime().getMeasure());
         }
 
         if (test.isExecutionTime()) {
-            builder.addField("execution_time", test.getExecutionTime().getMeasure());
+            point.addField("execution_time", test.getExecutionTime().getMeasure());
         }
 
         if (test.isPerformance()) {
-            builder.addField("performance", test.getPerformance().getMeasure());
+            point.addField("performance", test.getPerformance().getMeasure());
         }
 
-        return builder.build();
+        return point;
     }
 
     private List<Point> generateTestMetricsPoints(Test test) {
@@ -149,12 +148,11 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
 
             Point point = buildPoint("perfpublisher_test_metric", customPrefix, build)
                     .addField("test_name", test.getName())
-                    .tag("test_name", test.getName())
+                    .addTag("test_name", test.getName())
                     .addField("metric_name", metricName)
                     .addField("value", metric.getMeasure())
                     .addField("unit", metric.getUnit())
-                    .addField("relevant", metric.isRelevant())
-                    .build();
+                    .addField("relevant", metric.isRelevant());
 
             points.add(point);
         }

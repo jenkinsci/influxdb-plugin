@@ -1,12 +1,14 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import com.influxdb.client.write.Point;
 import hudson.EnvVars;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.junit.CaseResult;
 import hudson.tasks.test.AbstractTestResultAction;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
-import org.influxdb.dto.Point;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
+import org.apache.commons.collections.iterators.ReverseListIterator;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +17,8 @@ public class JUnitPointGenerator extends AbstractPointGenerator{
 
     private static final String JUNIT_SUITE_NAME = "suite_name";
     private static final String JUNIT_TEST_NAME = "test_name";
+    private static final String JUNIT_TEST_CLASS_FULL_NAME = "test_class_full_name";
+    private static final String JUNIT_PIPELINE_STEP = "pipeline_step";
     private static final String JUNIT_TEST_STATUS = "test_status";
     private static final String JUNIT_TEST_STATUS_ORDINAL = "test_status_ordinal";
     private static final String JUNIT_DURATION = "test_duration";
@@ -25,7 +29,7 @@ public class JUnitPointGenerator extends AbstractPointGenerator{
     private final EnvVars env;
 
     public JUnitPointGenerator(Run<?, ?> build, TaskListener listener,
-                               MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                               ProjectNameRenderer projectNameRenderer,
                                long timestamp, String jenkinsEnvParameterTag,
                                String customPrefix, EnvVars env) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
@@ -53,18 +57,28 @@ public class JUnitPointGenerator extends AbstractPointGenerator{
         for (CaseResult caseResult : allTestResults) {
             Point point = buildPoint("junit_data", customPrefix, build)
                     .addField(JUNIT_SUITE_NAME, caseResult.getSuiteResult().getName())
-                    .addField(JUNIT_TEST_NAME, caseResult.getDisplayName())
+                    .addField(JUNIT_TEST_NAME, caseResult.getName())
+                    .addField(JUNIT_TEST_CLASS_FULL_NAME, caseResult.getClassName())
+                    .addField(JUNIT_PIPELINE_STEP, getCaseResultEnclosingFlowNodeString(caseResult))
                     .addField(JUNIT_TEST_STATUS, caseResult.getStatus().toString())
                     .addField(JUNIT_TEST_STATUS_ORDINAL, caseResult.getStatus().ordinal())
                     .addField(JUNIT_DURATION, caseResult.getDuration())
-                    .tag(JUNIT_SUITE_NAME, caseResult.getSuiteResult().getName())
-                    .tag(JUNIT_TEST_NAME, caseResult.getDisplayName())
-                    .tag(JUNIT_TEST_STATUS, caseResult.getStatus().toString())
-                    .build();
+                    .addTag(JUNIT_SUITE_NAME, caseResult.getSuiteResult().getName())
+                    .addTag(JUNIT_TEST_NAME, caseResult.getName())
+                    .addTag(JUNIT_TEST_CLASS_FULL_NAME, caseResult.getClassName())
+                    .addTag(JUNIT_PIPELINE_STEP, getCaseResultEnclosingFlowNodeString(caseResult))
+                    .addTag(JUNIT_TEST_STATUS, caseResult.getStatus().toString());
             points.add(point);
         }
 
-        return points.toArray(new Point[points.size()]);
+        return points.toArray(new Point[0]);
+    }
+
+    private String getCaseResultEnclosingFlowNodeString(CaseResult caseResult) {
+        if(!caseResult.getEnclosingFlowNodeNames().isEmpty()) {
+            return StringUtils.join(new ReverseListIterator(caseResult.getEnclosingFlowNodeNames()), " / ");
+        }
+        return "";
     }
 
     private List<CaseResult> getAllTestResults(Run<?, ?> build) {

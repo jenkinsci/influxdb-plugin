@@ -1,6 +1,5 @@
 package jenkinsci.plugins.influxdb;
 
-import hudson.util.Secret;
 import io.jenkins.plugins.casc.ConfigurationAsCode;
 import jenkinsci.plugins.influxdb.models.Target;
 import org.apache.commons.io.IOUtils;
@@ -10,12 +9,10 @@ import org.jvnet.hudson.test.JenkinsRule;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class ConfigurationAsCodeTest {
 
@@ -29,20 +26,21 @@ public class ConfigurationAsCodeTest {
         String yamlUrl = getClass().getResource(getClass().getSimpleName() + "/configuration-as-code.yml").toString();
         ConfigurationAsCode.get().configure(yamlUrl);
 
-        assertThat(globalConfig.getTargets(), hasSize(1));
+        assertEquals(globalConfig.getTargets().size(), 1);
 
         Target target = globalConfig.getTargets().get(0);
-        assertThat(target.getDescription(), is("some description"));
-        assertThat(target.getUrl(), is("http://some/url"));
-        assertThat(target.getUsername(), is("some username"));
-        assertThat(target.getPassword(), is(Secret.fromString("some password")));
-        assertThat(target.getDatabase(), is("some_database"));
-        assertThat(target.getRetentionPolicy(), is("some_policy"));
-        assertThat(target.isJobScheduledTimeAsPointsTimestamp(), is(true));
-        assertThat(target.isExposeExceptions(), is(true));
-        assertThat(target.isUsingJenkinsProxy(), is(true));
-        assertThat(target.isGlobalListener(), is(true));
-        assertThat(target.getGlobalListenerFilter(), is("some filter"));
+        assertEquals(target.getDescription(), "some description");
+        assertEquals(target.getUrl(), "http://some/url");
+
+        assertEquals(target.getCredentialsId(), "some_id");
+        assertEquals(target.getDatabase(), "some_database");
+        assertEquals(target.getRetentionPolicy(), "some_policy");
+        assertTrue(target.isJobScheduledTimeAsPointsTimestamp());
+        assertTrue(target.isExposeExceptions());
+        assertTrue(target.isUsingJenkinsProxy());
+        assertTrue(target.isGlobalListener());
+        assertEquals(target.getGlobalListenerFilter(), "some filter");
+        assertEquals(target.getOrganization(), "some_organization");
     }
 
     @Test
@@ -52,8 +50,7 @@ public class ConfigurationAsCodeTest {
         Target target = new Target();
         target.setDescription("some description");
         target.setUrl("http://some/url");
-        target.setUsername("some username");
-        target.setPassword(Secret.fromString("some password"));
+        target.setCredentialsId("some_id");
         target.setDatabase("some_database");
         target.setRetentionPolicy("some_policy");
         target.setJobScheduledTimeAsPointsTimestamp(true);
@@ -61,6 +58,7 @@ public class ConfigurationAsCodeTest {
         target.setUsingJenkinsProxy(true);
         target.setGlobalListener(true);
         target.setGlobalListenerFilter("some filter");
+        target.setOrganization("some_organization");
 
         globalConfig.setTargets(Collections.singletonList(target));
 
@@ -69,11 +67,10 @@ public class ConfigurationAsCodeTest {
         String exportedYaml = outputStream.toString("UTF-8");
 
         InputStream yamlStream = getClass().getResourceAsStream(getClass().getSimpleName() + "/configuration-as-code.yml");
-        String expectedYaml = IOUtils.toString(yamlStream, "UTF-8")
+        String expectedYaml = IOUtils.toString(yamlStream, StandardCharsets.UTF_8)
                 .replaceAll("\r\n?", "\n")
-                .replace("unclassified:\n", "")
-                .replace("some password", target.getPassword().getEncryptedValue());
+                .replace("unclassified:\n", "");
 
-        assertThat(exportedYaml, containsString(expectedYaml));
+        assertTrue(exportedYaml.contains(expectedYaml));
     }
 }

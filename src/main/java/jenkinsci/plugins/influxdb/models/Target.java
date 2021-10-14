@@ -1,10 +1,16 @@
 package jenkinsci.plugins.influxdb.models;
 
+import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
+import com.cloudbees.plugins.credentials.common.StandardUsernameListBoxModel;
+import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
+import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
+import hudson.security.ACL;
 import hudson.util.FormValidation;
-import hudson.util.Secret;
+import hudson.util.ListBoxModel;
+import jenkins.model.Jenkins;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -13,9 +19,9 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
 
     private String description;
     private String url;
-    private String username;
-    private Secret password;
+    private String credentialsId;
     private String database;
+    private String organization;
     private String retentionPolicy;
     private boolean jobScheduledTimeAsPointsTimestamp;
     private boolean exposeExceptions;
@@ -28,13 +34,13 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
     }
 
     @DataBoundConstructor
-    public Target(String description, String url, String username, Secret password, String database,
+    public Target(String description, String url, String credentialsId, String organization, String database,
             String retentionPolicy, boolean jobScheduledTimeAsPointsTimestamp, boolean exposeExceptions,
             boolean usingJenkinsProxy, boolean globalListener, String globalListenerFilter) {
         this.description = description;
         this.url = url;
-        this.username = username;
-        this.password = password;
+        this.credentialsId = credentialsId;
+        this.organization = organization;
         this.database = database;
         this.retentionPolicy = retentionPolicy;
         this.jobScheduledTimeAsPointsTimestamp = jobScheduledTimeAsPointsTimestamp;
@@ -60,20 +66,20 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
         this.url = url;
     }
 
-    public String getUsername() {
-        return username;
+    public String getCredentialsId() {
+        return credentialsId;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setCredentialsId(String credentialsId) {
+        this.credentialsId = credentialsId;
     }
 
-    public Secret getPassword() {
-        return password;
+    public String getOrganization() {
+        return organization;
     }
 
-    public void setPassword(Secret password) {
-        this.password = password;
+    public void setOrganization(String organization) {
+        this.organization = organization;
     }
 
     public String getDatabase() {
@@ -137,13 +143,28 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
         return new ToStringBuilder(this)
                 .append("description", description)
                 .append("url", url)
-                .append("username", username)
+                .append("credentialsId", credentialsId)
                 .append("database", database)
+                .append("organization", organization)
                 .toString();
     }
 
     @Extension
     public static class DescriptorImpl extends Descriptor<Target> {
+
+        public ListBoxModel doFillCredentialsIdItems(@QueryParameter String url,
+                                                     @QueryParameter String credentialsId) {
+            if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
+                return new StandardListBoxModel().includeCurrentValue(credentialsId);
+            }
+            return new StandardUsernameListBoxModel()
+                    .includeEmptyValue()
+                    .includeAs(ACL.SYSTEM,
+                            Jenkins.get(),
+                            StandardUsernamePasswordCredentials.class,
+                            URIRequirementBuilder.fromUri(url).build())
+                    .includeCurrentValue(credentialsId);
+        }
 
         public FormValidation doCheckDescription(@QueryParameter String value) {
             return FormValidation.validateRequired(value);

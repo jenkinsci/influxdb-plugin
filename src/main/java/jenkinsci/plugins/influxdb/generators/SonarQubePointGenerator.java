@@ -5,20 +5,22 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.influxdb.client.write.Point;
 import hudson.EnvVars;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.apache.commons.lang3.StringUtils;
-import org.influxdb.dto.Point;
 
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -39,35 +41,45 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private static final String SONARQUBE_BRANCH_COVERAGE = "branch_coverage";
     private static final String SONARQUBE_LINE_COVERAGE = "line_coverage";
     private static final String SONARQUBE_LINES_TO_COVER = "lines_to_cover";
-    private static final String SONARQUBE_ALERT_STATUS = "alert_status"; //Quality Gate Status
+    private static final String SONARQUBE_ALERT_STATUS = "alert_status"; // Quality Gate Status
     private static final String SONARQUBE_DUPLICATED_LINES_DENSITY = "duplicated_lines_density";
     private static final String SONARQUBE_TECHNICAL_DEBT = "sqale_index";
     private static final String SONARQUBE_TECHNICAL_DEBT_RATIO = "sqale_debt_ratio";
 
+    private static final short DEFAULT_MAX_RETRY_COUNT = 10;
+    private static final int DEFAULT_RETRY_SLEEP = 5000;
+
     private static final String URL_PATTERN_IN_LOGS = ".*" + Pattern.quote("ANALYSIS SUCCESSFUL, you can browse ")
             + "(.*)";
+    private static final String TASK_ID_PATTERN_IN_LOGS = ".*" + Pattern.quote("More about the report processing at ")
+            + "(.*)";
 
-    private static final String SONAR_ISSUES_BASE_URL = "/api/issues/search?ps=500&projectKeys=";
+    private static final String SONAR_ISSUES_BASE_URL = "/api/issues/search?ps=1&projects=";
 
-    // SonarQube 5.4+ expects componentKey=, SonarQube 8.1 expects component=, we can make both of them happy
+    // SonarQube 5.4+ expects componentKey=, SonarQube 8.1 expects component=, we
+    // can make both of them happy
     private static final String SONAR_METRICS_BASE_URL = "/api/measures/component?componentKey=%s&component=%s";
     private static final String SONAR_METRICS_BASE_METRIC = "&metricKeys=";
     private static final OkHttpClient httpClient = new OkHttpClient();
 
     private String sonarIssuesUrl;
     private String sonarMetricsUrl;
+    private String sonarBuildTaskIdUrl = null;
 
     private final String customPrefix;
     private final TaskListener listener;
 
     private String sonarBuildLink = null;
+    
+
     private String token = null;
 
     private EnvVars env = null;
 
     public SonarQubePointGenerator(Run<?, ?> build, TaskListener listener,
-                                   MeasurementRenderer<Run<?, ?>> projectNameRenderer,
-                                   long timestamp, String jenkinsEnvParameterTag,
+                                   ProjectNameRenderer projectNameRenderer,
+                                   long timestamp,
+                                   String jenkinsEnvParameterTag,
                                    String customPrefix) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
         this.customPrefix = customPrefix;
@@ -76,17 +88,71 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
     public boolean hasReport() {
         try {
-            sonarBuildLink = getSonarProjectURLFromBuildLogs(build);
+
+            String[] result = getSonarProjectURLFromBuildLogs(build);
+
+            sonarBuildLink = result[0];
+            sonarBuildTaskIdUrl = result[1];
+
             return !StringUtils.isEmpty(sonarBuildLink);
-        } catch (IOException e) {
-            //
-        }
+        } catch (IOException | IndexOutOfBoundsException e) {}
 
         return false;
     }
 
     public void setEnv(EnvVars env) {
         this.env = env;
+    }
+
+
+    private void waitForQualityGateTask() throws IOException {
+
+        String status = null;
+        String output = null;
+        String logMessage = null;
+
+        int count = 0;
+
+        int MAX_RETRY_COUNT = DEFAULT_MAX_RETRY_COUNT;
+
+        String max_retry = this.env.get("SONAR_TASK_MAX_RETRY_COUNT");
+
+        if (max_retry != null && !max_retry.isEmpty()) {
+            try {
+                MAX_RETRY_COUNT = Integer.parseInt(max_retry);
+            } catch(NumberFormatException e) {
+                MAX_RETRY_COUNT = DEFAULT_MAX_RETRY_COUNT;
+            }
+        }
+
+        String taskID = sonarBuildTaskIdUrl.split("=")[1];
+
+        do {
+            try {
+                Thread.sleep(DEFAULT_RETRY_SLEEP);
+            } catch(InterruptedException e) {}
+
+            output = getResult(sonarBuildTaskIdUrl);
+            JSONObject taskObjects = JSONObject.fromObject(output);
+            status = taskObjects.getJSONObject("task").getString("status").toUpperCase();
+
+            ++count;
+
+            if (status.equals("FAILED") || status.equals("CANCELED")) {
+                logMessage = "[InfluxDB Plugin] Warning: SonarQube task " + taskID +  " failed. Status is " + status + "! Getting the QG metrics from the latest completed task!";
+                listener.getLogger().println(logMessage);                   
+                break;
+            }
+
+            logMessage = "[InfluxDB Plugin] INFO: SonarQube task " + taskID +  " status is " + status;
+            listener.getLogger().println(logMessage);
+            
+        } while (!status.equals("SUCCESS") && count <= MAX_RETRY_COUNT);
+
+        if(!status.equals("SUCCESS") && count > MAX_RETRY_COUNT) {
+            logMessage = "[InfluxDB Plugin] WARNING: Timeout! SonarQube task " + taskID + " is still in progress. Getting the QG metrics from the latest completed task!";
+            listener.getLogger().println(logMessage);
+        }
     }
 
     private void setSonarDetails(String sonarBuildLink) {
@@ -132,6 +198,9 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
         Point point = null;
         try {
+
+            waitForQualityGateTask();
+
             point = buildPoint("sonarqube_data", customPrefix, build)
                     .addField(BUILD_DISPLAY_NAME, build.getDisplayName())
                     .addField(SONARQUBE_CRITICAL_ISSUES, getSonarIssues(sonarIssuesUrl, "CRITICAL"))
@@ -151,10 +220,9 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                     .addField(SONARQUBE_COMPLEXITY, getSonarMetric(sonarMetricsUrl, SONARQUBE_COMPLEXITY))
                     .addField(SONARQUBE_ALERT_STATUS, getSonarMetricStr(sonarMetricsUrl, SONARQUBE_ALERT_STATUS))
                     .addField(SONARQUBE_TECHNICAL_DEBT, getSonarMetric(sonarMetricsUrl, SONARQUBE_TECHNICAL_DEBT))
-                    .addField(SONARQUBE_TECHNICAL_DEBT_RATIO, getSonarMetric(sonarMetricsUrl, SONARQUBE_TECHNICAL_DEBT_RATIO))
-                    .build();
+                    .addField(SONARQUBE_TECHNICAL_DEBT_RATIO, getSonarMetric(sonarMetricsUrl, SONARQUBE_TECHNICAL_DEBT_RATIO));
         } catch (IOException e) {
-            String logMessage = "[InfluxDB Plugin] INFO: IOException while fetching SonarQube metrics: " + e.getMessage();
+            String logMessage = "[InfluxDB Plugin] Warning: IOException while fetching SonarQube metrics: " + e.getMessage();
             listener.getLogger().println(logMessage);
             e.printStackTrace(listener.getLogger());
         }
@@ -176,24 +244,40 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             if (response.code() != 200) {
                 throw new RuntimeException("Failed : HTTP error code : " + response.code() + " from URL : " + url);
             }
+            ResponseBody body = response.body();
+            if (body == null) {
+                throw new NullPointerException("Failed : null body from URL : " + url);
+            }
 
-            return response.body().string();
+            return body.string();
         }
     }
 
-    private String getSonarProjectURLFromBuildLogs(Run<?, ?> build) throws IOException {
+    private String[] getSonarProjectURLFromBuildLogs(Run<?, ?> build) throws IOException {
         String url = null;
+        String taskid = null;
+
         try (BufferedReader br = new BufferedReader(build.getLogReader())) {
             String line;
-            Pattern p = Pattern.compile(URL_PATTERN_IN_LOGS);
+            Pattern p_url = Pattern.compile(URL_PATTERN_IN_LOGS);
+            Pattern p_task = Pattern.compile(TASK_ID_PATTERN_IN_LOGS);
             while ((line = br.readLine()) != null) {
-                Matcher match = p.matcher(line);
+                Matcher match = p_url.matcher(line);
                 if (match.matches()) {
                     url = match.group(1);
+                } else {
+                    match = p_task.matcher(line);
+                    if (match.matches()) {
+                        taskid = match.group(1);
+                        break; // No need to search for other lines
+                    } 
                 }
             }
         }
-        return url;
+
+        String[] rtr_str_array = {url, taskid}; //return string array
+
+        return rtr_str_array;
     }
 
     String getSonarProjectName(String url) throws URISyntaxException {
@@ -224,6 +308,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private String getSonarMetricValue(String url, String metric) throws IOException {
 
         String value = "";
+
         String output = getResult(url + SONAR_METRICS_BASE_METRIC + metric);
         JSONObject metricsObjects = JSONObject.fromObject(output);
         try {

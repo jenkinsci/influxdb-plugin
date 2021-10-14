@@ -1,4 +1,6 @@
 target/
+!src/main/resources/jenkinsci/plugins/influxdb/models/Target
+
 *.swp
 pom.xml.releaseBackup
 work/

@@ -1,9 +1,9 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import com.influxdb.client.write.Point;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
-import org.influxdb.dto.Point;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 
 import java.util.*;
 
@@ -14,7 +14,7 @@ public class CustomDataMapPointGenerator extends AbstractPointGenerator {
     private final Map<String, Map<String, String>> customDataMapTags;
 
     public CustomDataMapPointGenerator(Run<?, ?> build, TaskListener listener,
-                                       MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                       ProjectNameRenderer projectNameRenderer,
                                        long timestamp, String jenkinsEnvParameterTag,
                                        String customPrefix, Map<String, Map<String, Object>> customDataMap,
                                        Map<String, Map<String, String>> customDataMapTags) {
@@ -32,18 +32,17 @@ public class CustomDataMapPointGenerator extends AbstractPointGenerator {
         List<Point> points = new ArrayList<>();
 
         for (Map.Entry<String, Map<String, Object>> entry : customDataMap.entrySet()) {
-            Point.Builder pointBuilder = buildPoint(entry.getKey(), customPrefix, build).fields(entry.getValue());
+            Point point = buildPoint(entry.getKey(), customPrefix, build).addFields(entry.getValue());
 
             if (customDataMapTags != null) {
                 Map<String, String> customTags = customDataMapTags.get(entry.getKey());
                 if (customTags != null) {
                     if (customTags.size() > 0) {
-                        pointBuilder.tag(customTags);
+                        point.addTags(customTags);
                     }
                 }
             }
 
-            Point point = pointBuilder.build();
 
             points.add(point);
         }

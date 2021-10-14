@@ -1,8 +1,8 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import com.influxdb.client.write.Point;
 import hudson.model.TaskListener;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
-import org.influxdb.dto.Point;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 
 import hudson.model.Run;
 import hudson.plugins.performance.actions.PerformanceBuildAction;
@@ -26,7 +26,7 @@ public class PerformancePointGenerator extends AbstractPointGenerator {
     private final PerformanceBuildAction performanceBuildAction;
 
     public PerformancePointGenerator(Run<?, ?> build, TaskListener listener,
-                                     MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                     ProjectNameRenderer projectNameRenderer,
                                      long timestamp, String jenkinsEnvParameterTag,
                                      String customPrefix) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
@@ -60,8 +60,7 @@ public class PerformancePointGenerator extends AbstractPointGenerator {
             .addField(PERFORMANCE_TOTAL_TRAFFIC, performanceReport.getTotalTrafficInKb())
             .addField(PERFORMANCE_SIZE, performanceReport.samplesCount())
             .addField(PERFORMANCE_90PERCENTILE, performanceReport.get90Line())
-            .addField(PERFORMANCE_MEDIAN, performanceReport.getMedian())
-            .build();
+            .addField(PERFORMANCE_MEDIAN, performanceReport.getMedian());
 
         return point;
     }

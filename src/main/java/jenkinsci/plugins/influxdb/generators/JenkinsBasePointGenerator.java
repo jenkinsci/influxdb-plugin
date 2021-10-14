@@ -14,20 +14,16 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.test.AbstractTestResultAction;
 import jenkins.metrics.impl.TimeInQueueAction;
-import jenkinsci.plugins.influxdb.renderer.MeasurementRenderer;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang3.StringUtils;
-import org.influxdb.dto.Point;
+import com.influxdb.client.write.Point;
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper;
-
 import java.io.IOException;
-import java.io.StringReader;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
@@ -76,7 +72,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     // (Run<?, ?> build, TaskListener listener, MeasurementRenderer projectNameRenderer, long timestamp, String jenkinsEnvParameterTag) {
     public JenkinsBasePointGenerator(Run<?, ?> build, TaskListener listener,
-                                     MeasurementRenderer<Run<?, ?>> projectNameRenderer,
+                                     ProjectNameRenderer projectNameRenderer,
                                      long timestamp, String jenkinsEnvParameterTag, String jenkinsEnvParameterField,
                                      String customPrefix, String measurementName, EnvVars env) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
@@ -109,7 +105,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             ordinal = buildResult.ordinal;
         }
 
-        Point.Builder point = buildPoint(measurementName, customPrefix, build);
+        Point point = buildPoint(measurementName, customPrefix, build);
 
         point.addField(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
                 .addField(BUILD_SCHEDULED_TIME, build.getTimeInMillis())
@@ -119,13 +115,13 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
                 .addField(BUILD_RESULT, result)
                 .addField(BUILD_RESULT_ORDINAL, ordinal)
                 .addField(BUILD_IS_SUCCESSFUL, ordinal < 2)
-            .addField(BUILD_AGENT_NAME, getBuildEnv("NODE_NAME"))
-            .addField(BUILD_BRANCH_NAME, getBuildEnv("BRANCH_NAME"))
+                .addField(BUILD_AGENT_NAME, getBuildEnv("NODE_NAME"))
+                .addField(BUILD_BRANCH_NAME, getBuildEnv("BRANCH_NAME"))
                 .addField(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
                 .addField(PROJECT_LAST_SUCCESSFUL, getLastSuccessfulBuild())
                 .addField(PROJECT_LAST_STABLE, getLastStableBuild())
-            .addField(BUILD_CAUSER , getCauseShortDescription())
-                .tag(BUILD_RESULT, result);
+                .addField(BUILD_CAUSER, getCauseShortDescription())
+                .addTag(BUILD_RESULT, result);
 
         if (hasTestResults(build)) {
             point.addField(TESTS_FAILED, build.getAction(AbstractTestResultAction.class).getFailCount());
@@ -140,16 +136,16 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         if (StringUtils.isNotBlank(jenkinsEnvParameterField)) {
             Properties fieldProperties = parsePropertiesString(jenkinsEnvParameterField);
             Map fieldMap = resolveEnvParameterAndTransformToMap(fieldProperties);
-            point.fields(fieldMap);
+            point.addFields(fieldMap);
         }
 
         setServiceIdTag(point);
         setSrFields(point);
 
-        return new Point[]{point.build()};
+        return new Point[]{point};
     }
 
-    private void setSrFields(Point.Builder point) {
+    private void setSrFields(Point point) {
         try {
             Map<String, String> buildVariables = new RunWrapper(build, false).getBuildVariables();
             for (Map.Entry<String, String> entry : buildVariables.entrySet()) {
@@ -170,7 +166,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         }
     }
 
-    private void setServiceIdTag(Point.Builder point) {
+    private void setServiceIdTag(Point point) {
         try {
             if (setServiceTagFromRun(build, point)) {
                 return;
@@ -187,10 +183,10 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         }
     }
 
-    private boolean setServiceTagFromRun(Run<?, ?> build, Point.Builder point) throws IOException {
+    private boolean setServiceTagFromRun(Run<?, ?> build, Point point) throws IOException {
         String serviceId = new RunWrapper(build, false).getBuildVariables().get("SERVICE_ID");
         if (serviceId != null) {
-            point.tag("service_id", serviceId);
+            point.addTag("service_id", serviceId);
             return true;
         }
         return false;
