@@ -1,5 +1,12 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Map;
+import java.util.Properties;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
 import hudson.EnvVars;
 import hudson.model.Cause;
 import hudson.model.Result;
@@ -11,7 +18,6 @@ import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang3.StringUtils;
 import com.influxdb.client.write.Point;
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
