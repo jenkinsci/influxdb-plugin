@@ -9,3 +9,10 @@ release.properties
 *.iml
 .DS_Store
 changes.txt
+
+# Local VS code created hidden directories
+.classpath
+.factorypath
+.project
+.settings/
+.vscode/
