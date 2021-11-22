@@ -243,7 +243,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             if (body == null) {
                 throw new NullPointerException("Failed : null body from URL : " + url);
             }
-            
+
             return body.string();
         }
     }
