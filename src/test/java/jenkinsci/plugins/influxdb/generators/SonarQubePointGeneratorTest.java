@@ -40,24 +40,6 @@ public class SonarQubePointGeneratorTest {
         currTime = System.currentTimeMillis();
     }
 
-    // @Test
-    // public void getSonarProjectNameFromNewSonarQube() throws Exception {
-    //     EnvVars envVars = new EnvVars();
-    //     String name = "org.namespace:feature%2Fmy-sub-project";
-    //     String url = sonarUrl + "/dashboard?id=" + name;
-    //     SonarQubePointGenerator gen = new SonarQubePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, envVars);
-    //     assertEquals(gen.getSonarProjectName(url), name);
-    // }
-
-    // @Test
-    // public void getSonarProjectName() throws Exception {
-    //     EnvVars envVars = new EnvVars();
-    //     String name = "org.namespace:feature%2Fmy-sub-project";
-    //     String url = sonarUrl + "/dashboard/index/" + name;
-    //     SonarQubePointGenerator gen = new SonarQubePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, envVars);
-    //     assertEquals(gen.getSonarProjectName(url), name);
-    // }
-
     @Test
     public void getSonarProjectMetric() throws Exception {
         EnvVars envVars = new EnvVars();

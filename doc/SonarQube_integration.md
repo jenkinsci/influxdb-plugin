@@ -6,7 +6,7 @@ A short guideline on integrating Jenkins with SonarQube and verifying the integr
 The SonarQubePointGenerator is expecting to find a sonar build report with the following content:
 ```
 file: ${WORKSPACE}/build/sonar/report-task.txt	
-------------------------------------------------
+
 projectKey=com.tom:sonarqube-jacoco-code-coverage
 serverUrl=http://localhost:9000
 serverVersion=8.9.3.48735
@@ -53,7 +53,6 @@ http://localhost:9000/api/measures/component | jq .
 }
 ```
 
-
 ### Issues Search
 export TOKEN=****************
 curl -s -G -u ${TOKEN}: \
@@ -78,7 +77,6 @@ http://localhost:9000/api/issues/search?ps=1 | jq .
   "facets": []
 }
 ```
- 
  
 ### Task status
 export TOKEN=****************
@@ -107,13 +105,6 @@ http://localhost:9000/api/ce/task?id=AX0vnvr4_QGKX8b7Yz_v | jq .
   }
 }
 ```
-
-## Development
-### Build
-mvn clean package hpi:hpi
-
-### Deploy
-Use the Advanced tab in `Manage Plugins` page to upload `target/influxdb.hpi` file. Restart Jenkins.
 
 # A simple pipeline for testing
 ```

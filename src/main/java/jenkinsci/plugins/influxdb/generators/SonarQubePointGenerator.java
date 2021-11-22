@@ -3,7 +3,8 @@ package jenkinsci.plugins.influxdb.generators;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.io.FileReader;
+import java.io.InputStreamReader;
+import java.io.FileInputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -115,7 +116,6 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     public void setEnv(EnvVars env) {
         this.env = env;
     }
-
 
     private void waitForQualityGateTask() throws IOException {
 
@@ -229,8 +229,6 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                 .url(url)
                 .header("Accept", "application/json");
 
-        // String logMessage = "[InfluxDB Plugin]: No SonarQube auth token found in environment variable SONAR_AUTH_TOKEN. Depending on access rights, this might result in a HTTP/401.";
-
         if (token != null) {
             String credential = Credentials.basic(token, "", StandardCharsets.UTF_8);
             requestBuilder.header("Authorization", credential);
@@ -250,7 +248,6 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         }
     }
 
-    
     private String[] getSonarProjectFromBuildReport() throws IOException {    
         String projName = null;
         String url = null;
@@ -258,7 +255,9 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         String taskUrl = null;
         String file = env.get("WORKSPACE", "") + SONAR_BUILD_REPORT;
         
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+        try (BufferedReader br = new BufferedReader(
+                                    new InputStreamReader(
+                                        new FileInputStream(file), "UTF-8"))) {
             String line;
             
             Pattern p_proj_name = Pattern.compile(PROJECT_KEY_PATTERN_IN_REPORT);
