@@ -75,7 +75,7 @@ In order to publish data for this measurement, your job needs to set an environm
 | test_status_ordinal | integer | 0-4 in order of test_status | |
 | test_duration | float | test duration in seconds | |
 | test_duration | float | test duration in seconds | |
-| test_count | float | Test counter; Useful for aggregations. | 3.0.2 |
+| test_count | long | Test counter; Useful for aggregations. ||
 
 Tags specific for this measurement:
 
