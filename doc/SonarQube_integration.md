@@ -1,11 +1,11 @@
 # SonarQube API integration
 
 ## Summary
-A short guideline on integrating Jenkins with SonarQube and verifying the integration.
+A short guideline on integrating Jenkins with SonarQube and verifying their integration.
 
-The SonarQubePointGenerator is expecting to find a sonar build report with the following content:
+The SonarQubePointGenerator is expecting to find a sonar build report (report-task.txt) created by the scanner with the following content:
 ```
-file: ${WORKSPACE}/build/sonar/report-task.txt	
+file: ${WORKSPACE}/**/sonar/report-task.txt	
 
 projectKey=com.tom:sonarqube-jacoco-code-coverage
 serverUrl=http://localhost:9000
@@ -14,6 +14,27 @@ dashboardUrl=http://localhost:9000/dashboard?id=com.tom%3Asonarqube-jacoco-code-
 ceTaskId=AX0vnvr4_QGKX8b7Yz_v
 ceTaskUrl=http://localhost:9000/api/ce/task?id=AX0vnvr4_QGKX8b7Yz_v
 ```
+
+The actual location of the report file in the workspace depends on the build system used - Maven, Gradle, etc. 
+
+If, for whatever reason, a report file is created with a different name, the `SONARQUBE_BUILD_REPORT_NAME` env var 
+could be used to specify either the file name or the path pattern ending with the file name.
+
+Examples:
+```
+  stage("InfluxDB v2 publisher") {
+    environment {
+        SONARQUBE_BUILD_REPORT_NAME="custom-report.txt"
+        # SONARQUBE_BUILD_REPORT_NAME="path/custom-report.txt"
+    }
+    
+    steps {
+        withSonarQubeEnv('SonarQube') {
+            influxDbPublisher(selectedTarget: 'influxdb_v2',)
+        }
+    }
+  }
+``` 
 
 The information extracted fron this file is used to query about SQ issues, measures and task status.
 

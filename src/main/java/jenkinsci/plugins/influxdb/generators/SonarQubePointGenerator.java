@@ -8,6 +8,13 @@ import java.io.FileInputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import com.influxdb.client.write.Point;
 import hudson.EnvVars;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
@@ -48,8 +55,9 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private static final short DEFAULT_MAX_RETRY_COUNT = 10;
     private static final int DEFAULT_RETRY_SLEEP = 5000;
 
-    // patterns used for data extraction from ${WORKSPACE}/${SONAR_BUILD_REPORT} file
-    private static final String SONAR_BUILD_REPORT = "/build/sonar/report-task.txt";
+    // Default SonarQube report file name
+    private static final String SONARQUBE_DEFAULT_BUILD_REPORT_NAME = "report-task.txt";
+    // Patterns used for data extraction from SonarQube report file
     private static final String PROJECT_KEY_PATTERN_IN_REPORT = "projectKey=(.*)";
     private static final String URL_PATTERN_IN_REPORT = "serverUrl=(.*)";
     private static final String TASK_ID_PATTERN_IN_REPORT = "ceTaskId=(.*)";
@@ -96,8 +104,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
      * @return true, if environment variable LOG_SONAR_QUBE_RESULTS is set to true and SQ Reports exist
      */
     public boolean hasReport() {
-        String logMessage = "[InfluxDB Plugin] SonarQube hasReport";
-        listener.getLogger().println(logMessage);
+
         try { 
 
             String[] result = getSonarProjectFromBuildReport();
@@ -253,11 +260,19 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         String url = null;
         String taskId = null;
         String taskUrl = null;
-        String file = env.get("WORKSPACE", "") + SONAR_BUILD_REPORT;
+        String[] rtr_str_array = {projName, url, taskId, taskUrl}; 
+
+        String workspaceDir = env.get("WORKSPACE", "");
+        List<Path> reportsPaths = this.findReportByFileName(workspaceDir);
+        
+        if (reportsPaths.size() != 1) {
+            return rtr_str_array;
+        }
+        String reportFilePath = reportsPaths.get(0).toFile().getPath();
         
         try (BufferedReader br = new BufferedReader(
                                     new InputStreamReader(
-                                        new FileInputStream(file), "UTF-8"))) {
+                                        new FileInputStream(reportFilePath), "UTF-8"))) {
             String line;
             
             Pattern p_proj_name = Pattern.compile(PROJECT_KEY_PATTERN_IN_REPORT);
@@ -292,9 +307,26 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             }
         }
     
-        String[] rtr_str_array = {projName, url, taskId, taskUrl}; 
+        rtr_str_array = new String[]{projName, url, taskId, taskUrl}; 
 
         return rtr_str_array;
+    }
+
+    public List<Path> findReportByFileName(String workspacePath)
+            throws IOException {
+
+        Path path = Paths.get(workspacePath);                
+        String reportName = env.get("SONARQUBE_BUILD_REPORT_NAME", 
+                                    SONARQUBE_DEFAULT_BUILD_REPORT_NAME);
+
+        try (Stream<Path> pathStream = Files.find(path,
+                Integer.MAX_VALUE,
+                (p, basicFileAttributes) ->
+                    basicFileAttributes.isRegularFile() && 
+                    p.endsWith(reportName));
+        ) {
+            return pathStream.collect(Collectors.toList());
+        }
     }
 
     public String getSonarMetricStr(String url, String metric) throws IOException {
