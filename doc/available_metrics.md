@@ -90,6 +90,7 @@ Tags specific for this measurement:
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | alert_status | string | State of the Quality Gate | 2.4 |
+| quality_gate_details | string | Provides which quality gate condition is failing and which is not.| 3.0.3 |
 | blocker_issues | float | Total amount of blocker issues | |
 | branch_coverage | float | Branch coverage | 2.2 |
 | bugs | float | Total amount of bugs | 2.2 |

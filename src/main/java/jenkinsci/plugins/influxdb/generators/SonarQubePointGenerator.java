@@ -42,6 +42,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private static final String SONARQUBE_LINE_COVERAGE = "line_coverage";
     private static final String SONARQUBE_LINES_TO_COVER = "lines_to_cover";
     private static final String SONARQUBE_ALERT_STATUS = "alert_status"; // Quality Gate Status
+    private static final String SONARQUBE_QUALITY_GATE_DETAILS = "quality_gate_details";
     private static final String SONARQUBE_DUPLICATED_LINES_DENSITY = "duplicated_lines_density";
     private static final String SONARQUBE_TECHNICAL_DEBT = "sqale_index";
     private static final String SONARQUBE_TECHNICAL_DEBT_RATIO = "sqale_debt_ratio";
@@ -219,6 +220,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                     .addField(SONARQUBE_DUPLICATED_LINES_DENSITY, getSonarMetric(sonarMetricsUrl, SONARQUBE_DUPLICATED_LINES_DENSITY))
                     .addField(SONARQUBE_COMPLEXITY, getSonarMetric(sonarMetricsUrl, SONARQUBE_COMPLEXITY))
                     .addField(SONARQUBE_ALERT_STATUS, getSonarMetricStr(sonarMetricsUrl, SONARQUBE_ALERT_STATUS))
+                    .addField(SONARQUBE_QUALITY_GATE_DETAILS, getSonarMetricStr(sonarMetricsUrl, SONARQUBE_QUALITY_GATE_DETAILS))
                     .addField(SONARQUBE_TECHNICAL_DEBT, getSonarMetric(sonarMetricsUrl, SONARQUBE_TECHNICAL_DEBT))
                     .addField(SONARQUBE_TECHNICAL_DEBT_RATIO, getSonarMetric(sonarMetricsUrl, SONARQUBE_TECHNICAL_DEBT_RATIO));
         } catch (IOException e) {
