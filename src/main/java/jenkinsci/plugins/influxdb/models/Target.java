@@ -1,5 +1,6 @@
 package jenkinsci.plugins.influxdb.models;
 
+import com.cloudbees.plugins.credentials.common.StandardCredentials;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
 import com.cloudbees.plugins.credentials.common.StandardUsernameListBoxModel;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
@@ -157,11 +158,15 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
             if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
                 return new StandardListBoxModel().includeCurrentValue(credentialsId);
             }
-            return new StandardUsernameListBoxModel()
+            return new StandardListBoxModel()
                     .includeEmptyValue()
                     .includeAs(ACL.SYSTEM,
                             Jenkins.get(),
                             StandardUsernamePasswordCredentials.class,
+                            URIRequirementBuilder.fromUri(url).build())
+                    .includeAs(ACL.SYSTEM,
+                            Jenkins.get(),
+                            StandardCredentials.class,
                             URIRequirementBuilder.fromUri(url).build())
                     .includeCurrentValue(credentialsId);
         }
