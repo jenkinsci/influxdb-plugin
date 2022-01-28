@@ -1,13 +1,13 @@
 # InfluxDB v2 Integration
 
 There are two options to authenticate and connect with an InfluxDB v2 target
-## Directly with user name and password 
+## Directly, with user name and password 
 This method is convenient, but not scalable if many clients access the same InfluxDB instance.
 - Create a Jenkins Credential with username and password. 
 - Create the same name username and password in InfluxDB with the appropriate privileges to access the target organization and bucket.
 - Configure the InfluxDB v2 target using the Jenkins Credential, organization, bucket and data retention policy values.
 
-## Indirectly, through a Telegraf plugins
+## Indirectly, through Telegraf plugins
 Consider using Telegraf plugins to ingest metrics. They have the distinct advantage to process the stream of metrics emited by potentially numerous clients before they reach the data store. 
 
 They create a pipeline that could authenticate clients, aggregate and filter metrics, add new or remove existing tags, split a stream and other advanced operations to optimize the ingestion, querying and management of data in InfluxDB.  
