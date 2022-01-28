@@ -1,26 +1,33 @@
 # InfluxDB v2 Integration
 
-The current plugin version uses InfluxDB v1.x authentication semantics (user name and password, and a database), while v2 is using API token, bucket, and organization to regulate the access to the data. 
+There are two options to authenticate and connect with an InfluxDB v2 target
+## Directly with user name and password 
+This method is convenient, but not scalable if many clients access the same InfluxDB instance.
+- Create a Jenkins Credential with username and password. 
+- Create the same name username and password in InfluxDB with the appropriate privileges to access the target organization and bucket.
+- Configure the InfluxDB v2 target using the Jenkins Credential, organization, bucket and data retention policy values.
 
-The current Jenkins InfluxDB Target configuration requires the following: 
-- A Jenkins Credential with username and password, instead of a Secret Text that would better store the ImfluxDB v2 token. 
-- InfluxDB v2 settings: bucket, org, and a secret. If the org is not specified the plugin creates an InfluxDB v1 client. 
-- Performs HTTP Basic authentication with the provided username and password credentials. The password is significant but the username is not which the Basic authentication scheme used by InfluxDB v2 client, which results in an authentication failure. 
+## Indirectly, through a Telegraf plugins
+Consider using Telegraf plugins to ingest metrics. They have the distinct advantage to process the stream of metrics emited by potentially numerous clients before they reach the data store. 
 
-The solution is to use InfluxDB Telegraf http listener that serves as a proxy between the influxdb_plugin and InfluxDB v2 instance. The listener can authenticate the influxdb_plugin client using only the password with a Basic schema, and stream the metrics to InfluxDB v2 with the help of influxdb_v2 output plugin, that in turn could perform filtering on the measurements and tags. 
+They create a pipeline that could authenticate clients, aggregate and filter metrics, add new or remove existing tags, split a stream and other advanced operations to optimize the ingestion, querying and management of data in InfluxDB.  
 
-## Reference 
+Telegraf plugins act also as a buffer and decouple the clients from the InfluxDB data store. This in turn could improve the HA, scalability and operational capabilities of InfluxDB service.
+
+- Create a Jenkins Credential with username and password. 
+- Create InfluxDB API token with the appropriatee organization and bucket privileges.
+- Configure the InfluxDB v2 target using the Jenkins Credential, organization, bucket and data retention policy values. The oganization, bucker and retention policy are not used in this case.
+- Configure input `http_listener_v2` plugin for HTTP Basic authentication with the password of the Jenkins Credential. The password is significant but the username is not and it should be commented out. See the example below.
+- Configure output `influxdb_v2` plugin to connect to the appropriate InfluxDB v2 instance using url, API token, organization, and bucket settings. Use `namepass` setting to accept only certain measurements and filter out the rest. 
+  
+# References 
 1. Telegraf: https://docs.influxdata.com/telegraf/v1.20/
 2. Metrics filtering: https://docs.influxdata.com/telegraf/v1.20/administration/configuration/#metric-filtering
 2. A ticket that tracks the work to use API token for InfluxDB v2 authentication:  https://issues.jenkins.io/browse/JENKINS-65830
 
-## Workaround'
-With the help of Telegraf input and output plugins it is possible to bridge this gap in version inconsistencies.
+# Example of Telegraf plugins configuration
 
-1. Create a username and password Credential in Jenkins.
-   The username is not significant and disregarded by the InfluxDB v2 client, while the password is, and it used by the Telegraf http_listener_v2 listener to authenticate the influxdb_plugin client.
-
-2. Create a Telegraf `http_listener_v2` listener for influxdb_plugin API `/api/v2/write` calls using HTTP Basic authentication. Enable HTTPS if desired.
+1. Create a Telegraf `http_listener_v2` listener for influxdb_plugin API `/api/v2/write` calls using HTTP Basic authentication. Enable HTTPS if desired.
 ```
 [[inputs.http_listener_v2]]
   ## Address and port to host HTTP listener on
@@ -61,7 +68,7 @@ With the help of Telegraf input and output plugins it is possible to bridge this
   basic_password = "bar100foo"
 ```
 
-Create a bucket in InfluxDB v2 and a token with write privileges. The `influxdb_v2` output plugin will capture the metrics pushed by the influxdb_plugin. It is possible to filter metrics by measurements, fields, and tags names. Check Telegraf documentation for more details. 
+2. Create a bucket in InfluxDB v2 and an API token with write privileges. The `influxdb_v2` output plugin will capture the metrics pushed by the `influxdb_plugin`. It is possible to filter metrics by measurements, fields, and tags names. Check Telegraf documentation for more details. 
 ```
 ## Forward jenkins_custom_data provided by influxdb plugin
 [[outputs.influxdb_v2]]
