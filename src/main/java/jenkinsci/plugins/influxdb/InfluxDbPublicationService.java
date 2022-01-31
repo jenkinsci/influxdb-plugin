@@ -301,7 +301,7 @@ public class InfluxDbPublicationService {
             logger.log(Level.FINE, logMessage);
             listener.getLogger().println(logMessage);
 
-            try (InfluxDBClient influxDB = getInfluxDBClient(build, target, listener)) {
+            try (InfluxDBClient influxDB = getInfluxDBClient(build, target)) {
                 writeToInflux(target, influxDB, pointsToWrite);
             }
 
@@ -310,7 +310,7 @@ public class InfluxDbPublicationService {
         listener.getLogger().println("[InfluxDB Plugin] Completed.");
     }
 
-    private InfluxDBClient getInfluxDBClient(Run<?, ?> build, Target target, TaskListener listener) {
+    private InfluxDBClient getInfluxDBClient(Run<?, ?> build, Target target) {
         StandardUsernamePasswordCredentials credentials = CredentialsProvider.findCredentialById(target.getCredentialsId(), StandardUsernamePasswordCredentials.class, build);
         InfluxDBClient influxDB;
 
@@ -319,11 +319,9 @@ public class InfluxDbPublicationService {
                     .url(target.getUrl())
                     .org(target.getOrganization())
                     .bucket(target.getDatabase());
-            try {
-                if (credentials != null) {
-                    options.authenticate(credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray());
-                }
-            } catch (NullPointerException e) {
+            if (credentials != null) {  // basic auth
+                options.authenticate(credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray());
+            } else {    // token auth
                 StringCredentials c = CredentialsProvider.findCredentialById(target.getCredentialsId(), StringCredentials.class, build);
                 options.authenticateToken(Objects.requireNonNull(c).getSecret().getPlainText().toCharArray());
             }
