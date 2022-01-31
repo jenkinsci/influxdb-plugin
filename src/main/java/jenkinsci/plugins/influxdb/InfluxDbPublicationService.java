@@ -319,7 +319,8 @@ public class InfluxDbPublicationService {
                 options.authenticate(credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray());
             } else {    // token auth
                 StringCredentials c = CredentialsProvider.findCredentialById(target.getCredentialsId(), StringCredentials.class, build);
-                options.authenticateToken(Objects.requireNonNull(c).getSecret().getPlainText().toCharArray());
+                assert c != null;
+                options.authenticateToken(c.getSecret().getPlainText().toCharArray());
             }
             influxDB = InfluxDBClientFactory.create(options.build());
         } else {
