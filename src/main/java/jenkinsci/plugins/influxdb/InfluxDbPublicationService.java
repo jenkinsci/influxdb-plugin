@@ -18,7 +18,7 @@ import jenkinsci.plugins.influxdb.models.Target;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
-import org.jetbrains.annotations.NotNull;
+import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -309,14 +309,20 @@ public class InfluxDbPublicationService {
     private InfluxDBClient getInfluxDBClient(Run<?, ?> build, Target target) {
         StandardUsernamePasswordCredentials credentials = CredentialsProvider.findCredentialById(target.getCredentialsId(), StandardUsernamePasswordCredentials.class, build);
         InfluxDBClient influxDB;
-        if (target.getOrganization() != null && !target.getOrganization().trim().isEmpty() && credentials != null){
-            InfluxDBClientOptions options = InfluxDBClientOptions.builder()
+
+        if (target.getOrganization() != null && !target.getOrganization().trim().isEmpty()) {
+            InfluxDBClientOptions.Builder options = InfluxDBClientOptions.builder()
                     .url(target.getUrl())
-                    .authenticate(credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray())
                     .org(target.getOrganization())
-                    .bucket(target.getDatabase())
-                    .build();
-            influxDB = InfluxDBClientFactory.create(options);
+                    .bucket(target.getDatabase());
+            if (credentials != null) {  // basic auth
+                options.authenticate(credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray());
+            } else {    // token auth
+                StringCredentials c = CredentialsProvider.findCredentialById(target.getCredentialsId(), StringCredentials.class, build);
+                assert c != null;
+                options.authenticateToken(c.getSecret().getPlainText().toCharArray());
+            }
+            influxDB = InfluxDBClientFactory.create(options.build());
         } else {
             influxDB = credentials == null ?
                 InfluxDBClientFactory.createV1(target.getUrl(), "", "".toCharArray(), target.getDatabase(), target.getRetentionPolicy()) :
