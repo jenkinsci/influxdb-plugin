@@ -113,6 +113,12 @@ influxdb.removeTarget('my-new-target')
 influxdb.save()
 ```
 
+### Credentials
+
+- InfluxDB 1.8 targets support only `Username with password`.
+- InfluxDB 2.x supports `Username with password` for basic authentication and `Secret Text` for authentication 
+token authentication.
+
 ## Usage
 
 ### Global Listener
