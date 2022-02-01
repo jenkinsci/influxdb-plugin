@@ -74,7 +74,7 @@ In order to publish data for this measurement, your job needs to set an environm
 | test_status | string | PASSED, SKIPPED, FAILED, FIXED, REGRESSION | |
 | test_status_ordinal | integer | 0-4 in order of test_status | |
 | test_duration | float | test duration in seconds | |
-| test_duration | float | test duration in seconds | |
+| test_duration | float | test duration in seconds | 3.1 |
 | test_count | long | Test counter; Useful for aggregations. | 3.1 |
 
 Tags specific for this measurement:
