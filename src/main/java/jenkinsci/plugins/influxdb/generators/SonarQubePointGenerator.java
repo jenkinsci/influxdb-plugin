@@ -87,7 +87,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
     private String token = null;
 
-    private EnvVars env = null;
+    private EnvVars env;
 
     public SonarQubePointGenerator(Run<?, ?> build, TaskListener listener,
                                    ProjectNameRenderer projectNameRenderer,
@@ -105,18 +105,16 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
      * @return true, if environment variable LOG_SONAR_QUBE_RESULTS is set to true and SQ Reports exist
      */
     public boolean hasReport() {
-
-        try { 
-
+        try {
             String[] result = getSonarProjectFromBuildReport();
 
-            projectKey         = result[0];
-            sonarBuildURL      = result[1];
-            sonarBuildTaskId    = result[2];
+            projectKey = result[0];
+            sonarBuildURL = result[1];
+            sonarBuildTaskId = result[2];
             sonarBuildTaskIdUrl = result[3];
             
             return !StringUtils.isEmpty(sonarBuildURL);
-        } catch (IOException | IndexOutOfBoundsException e) {}
+        } catch (IOException | IndexOutOfBoundsException ignored) {}
 
         return false;
     }
@@ -126,13 +124,10 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     }
 
     private void waitForQualityGateTask() throws IOException {
-
-        String status = null;
-        String output = null;
-        String logMessage = null;
-
+        String status;
+        String output;
+        String logMessage;
         int count = 0;
-
         int MAX_RETRY_COUNT = DEFAULT_MAX_RETRY_COUNT;
 
         String max_retry = this.env.get("SONAR_TASK_MAX_RETRY_COUNT");
@@ -140,15 +135,13 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         if (max_retry != null && !max_retry.isEmpty()) {
             try {
                 MAX_RETRY_COUNT = Integer.parseInt(max_retry);
-            } catch(NumberFormatException e) {
-                MAX_RETRY_COUNT = DEFAULT_MAX_RETRY_COUNT;
-            }
+            } catch(NumberFormatException ignored) { }
         }
 
         do {
             try {
                 Thread.sleep(DEFAULT_RETRY_SLEEP);
-            } catch(InterruptedException e) {}
+            } catch(InterruptedException ignored) {}
 
             output = getResult(sonarBuildTaskIdUrl);
             JSONObject taskObjects = JSONObject.fromObject(output);
@@ -200,7 +193,6 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
         Point point = null;
         try {
-
             waitForQualityGateTask();
 
             point = buildPoint("sonarqube_data", customPrefix, build)
@@ -244,7 +236,6 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         }
 
         try (Response response = httpClient.newCall(requestBuilder.build()).execute()) {
-
             if (response.code() != 200) {
                 throw new RuntimeException("Failed : HTTP error code : " + response.code() + " from URL : " + url);
             }
@@ -262,19 +253,18 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         String url = null;
         String taskId = null;
         String taskUrl = null;
-        String[] rtr_str_array = {projName, url, taskId, taskUrl}; 
 
         String workspaceDir = env.get("WORKSPACE", "");
         List<Path> reportsPaths = this.findReportByFileName(workspaceDir);
         
         if (reportsPaths.size() != 1) {
-            return rtr_str_array;
+            return new String[]{null, null, null, null};
         }
         String reportFilePath = reportsPaths.get(0).toFile().getPath();
         
         try (BufferedReader br = new BufferedReader(
                                     new InputStreamReader(
-                                        new FileInputStream(reportFilePath), "UTF-8"))) {
+                                        new FileInputStream(reportFilePath), StandardCharsets.UTF_8))) {
             String line;
             
             Pattern p_proj_name = Pattern.compile(PROJECT_KEY_PATTERN_IN_REPORT);
@@ -304,14 +294,11 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                 match = p_url_task.matcher(line);
                 if (match.matches()) {
                     taskUrl = match.group(1);
-                    continue;
-                } 
+                }
             }
         }
-    
-        rtr_str_array = new String[]{projName, url, taskId, taskUrl}; 
 
-        return rtr_str_array;
+        return new String[]{projName, url, taskId, taskUrl};
     }
 
     public List<Path> findReportByFileName(String workspacePath)
@@ -339,7 +326,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         Float value = null;
         try {
             value = Float.parseFloat(getSonarMetricValue(url, metric));
-        } catch (NumberFormatException exp) {}
+        } catch (NumberFormatException ignored) {}
 
         return value;
     }
@@ -354,7 +341,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             JSONArray array = metricsObjects.getJSONObject("component").getJSONArray("measures");
             JSONObject metricsObject = array.getJSONObject(0);
             value = metricsObject.getString("value");
-        } catch (IndexOutOfBoundsException exp) {}
+        } catch (IndexOutOfBoundsException ignored) {}
 
         return value;
     }

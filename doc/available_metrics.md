@@ -74,8 +74,8 @@ In order to publish data for this measurement, your job needs to set an environm
 | test_status | string | PASSED, SKIPPED, FAILED, FIXED, REGRESSION | |
 | test_status_ordinal | integer | 0-4 in order of test_status | |
 | test_duration | float | test duration in seconds | |
-| test_duration | float | test duration in seconds | |
-| test_count | long | Test counter; Useful for aggregations. ||
+| test_duration | float | test duration in seconds | 3.1 |
+| test_count | long | Test counter; Useful for aggregations. | 3.1 |
 
 Tags specific for this measurement:
 
@@ -92,7 +92,7 @@ Tags specific for this measurement:
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | alert_status | string | State of the Quality Gate | 2.4 |
-| quality_gate_details | string | Provides which quality gate condition is failing and which is not.| 3.0.3 |
+| quality_gate_details | string | Provides which quality gate condition is failing and which is not.| 3.1 |
 | blocker_issues | float | Total amount of blocker issues | |
 | branch_coverage | float | Branch coverage | 2.2 |
 | bugs | float | Total amount of bugs | 2.2 |
