@@ -22,6 +22,7 @@ public class JUnitPointGenerator extends AbstractPointGenerator{
     private static final String JUNIT_TEST_STATUS = "test_status";
     private static final String JUNIT_TEST_STATUS_ORDINAL = "test_status_ordinal";
     private static final String JUNIT_DURATION = "test_duration";
+    private static final String JUNIT_COUNT = "test_count";
 
     private final String customPrefix;
     private final TaskListener listener;
@@ -63,6 +64,7 @@ public class JUnitPointGenerator extends AbstractPointGenerator{
                     .addField(JUNIT_TEST_STATUS, caseResult.getStatus().toString())
                     .addField(JUNIT_TEST_STATUS_ORDINAL, caseResult.getStatus().ordinal())
                     .addField(JUNIT_DURATION, caseResult.getDuration())
+                    .addField(JUNIT_COUNT, 1L)
                     .addTag(JUNIT_SUITE_NAME, caseResult.getSuiteResult().getName())
                     .addTag(JUNIT_TEST_NAME, caseResult.getName())
                     .addTag(JUNIT_TEST_CLASS_FULL_NAME, caseResult.getClassName())

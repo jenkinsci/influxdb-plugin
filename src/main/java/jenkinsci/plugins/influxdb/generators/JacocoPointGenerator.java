@@ -33,6 +33,7 @@ public class JacocoPointGenerator extends AbstractPointGenerator {
     }
 
     public Point[] generate() {
+        
         Point point = buildPoint("jacoco_data", customPrefix, build);
         addFields(point, JACOCO_CLASS, jacocoBuildAction.getResult().getClassCoverage());
         addFields(point, JACOCO_LINE, jacocoBuildAction.getResult().getLineCoverage());
