@@ -202,10 +202,10 @@ public class SonarQubePointGeneratorTest {
         try {
             
             String parentCustomDir = customReportPath[customReportPath.length - 1];
-            Path customReportPathPatttern = Paths.get(parentCustomDir, 
+            Path customReportPathPattern = Paths.get(parentCustomDir,
                                                     customReportName);
                                                     
-            Mockito.doReturn(customReportPathPatttern.toString())
+            Mockito.doReturn(customReportPathPattern.toString())
                 .when(envVars)
                 .get(any(String.class));
 

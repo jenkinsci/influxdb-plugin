@@ -1,10 +1,7 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.io.InputStreamReader;
-import java.io.FileInputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -114,7 +111,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             sonarBuildTaskIdUrl = result[3];
             
             return !StringUtils.isEmpty(sonarBuildURL);
-        } catch (IOException | IndexOutOfBoundsException ignored) {}
+        } catch (IOException | IndexOutOfBoundsException | UncheckedIOException ignored) {}
 
         return false;
     }
@@ -248,16 +245,16 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         }
     }
 
-    private String[] getSonarProjectFromBuildReport() throws IOException {    
+    private String[] getSonarProjectFromBuildReport() throws IOException, UncheckedIOException {
         String projName = null;
         String url = null;
         String taskId = null;
         String taskUrl = null;
 
-        String workspaceDir = env.get("WORKSPACE", "");
-        List<Path> reportsPaths = this.findReportByFileName(workspaceDir);
+        String workspaceDir = env.get("WORKSPACE");
+        List<Path> reportsPaths = workspaceDir == null ? null : this.findReportByFileName(workspaceDir);
         
-        if (reportsPaths.size() != 1) {
+        if (reportsPaths == null || reportsPaths.size() != 1) {
             return new String[]{null, null, null, null};
         }
         String reportFilePath = reportsPaths.get(0).toFile().getPath();
@@ -302,7 +299,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     }
 
     public List<Path> findReportByFileName(String workspacePath)
-            throws IOException {
+            throws IOException, UncheckedIOException {
 
         Path path = Paths.get(workspacePath);                
         String reportName = env.get("SONARQUBE_BUILD_REPORT_NAME", 
