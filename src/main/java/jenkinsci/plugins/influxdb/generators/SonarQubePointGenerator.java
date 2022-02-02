@@ -111,7 +111,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             sonarBuildTaskIdUrl = result[3];
             
             return !StringUtils.isEmpty(sonarBuildURL);
-        } catch (IOException | IndexOutOfBoundsException | UncheckedIOException ignored) {}
+        } catch (Exception ignored) {}
 
         return false;
     }
@@ -251,10 +251,10 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         String taskId = null;
         String taskUrl = null;
 
-        String workspaceDir = env.get("WORKSPACE", "");
-        List<Path> reportsPaths = this.findReportByFileName(workspaceDir);
+        String workspaceDir = env.get("WORKSPACE");
+        List<Path> reportsPaths = workspaceDir == null ? null : this.findReportByFileName(workspaceDir);
         
-        if (reportsPaths.size() != 1) {
+        if (reportsPaths == null || reportsPaths.size() != 1) {
             return new String[]{null, null, null, null};
         }
         String reportFilePath = reportsPaths.get(0).toFile().getPath();
