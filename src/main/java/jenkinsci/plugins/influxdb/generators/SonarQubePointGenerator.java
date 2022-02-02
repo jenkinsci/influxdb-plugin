@@ -111,7 +111,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             sonarBuildTaskIdUrl = result[3];
             
             return !StringUtils.isEmpty(sonarBuildURL);
-        } catch (Exception ignored) {}
+        } catch (IOException | IndexOutOfBoundsException | UncheckedIOException ignored) {}
 
         return false;
     }
