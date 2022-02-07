@@ -60,6 +60,13 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private static final String URL_PATTERN_IN_REPORT = "serverUrl=(.*)";
     private static final String TASK_ID_PATTERN_IN_REPORT = "ceTaskId=(.*)";
     private static final String TASK_URL_PATTERN_IN_REPORT = "ceTaskUrl=(.*)";
+    // Patterns used for data extraction from build log
+    private static final String URL_PATTERN_IN_LOGS = ".*" + Pattern.quote("ANALYSIS SUCCESSFUL, you can browse ")
+            + "(.*)";
+    private static final String TASK_URL_PATTERN_IN_LOGS = ".*" + Pattern.quote("More about the report processing at ")
+            + "(.*)";
+    private static final String PROJECT_NAME_PATTERN_IN_LOGS = ".*" + Pattern.quote("Project key: ")
+            + "(.*)";
 
     private String projectKey = null;
     private String sonarBuildURL = null;
@@ -102,17 +109,33 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
      * @return true, if environment variable LOG_SONAR_QUBE_RESULTS is set to true and SQ Reports exist
      */
     public boolean hasReport() {
+ 
+        String[] result = null;
+ 
         try {
-            String[] result = getSonarProjectFromBuildReport();
-
-            projectKey = result[0];
-            sonarBuildURL = result[1];
-            sonarBuildTaskId = result[2];
-            sonarBuildTaskIdUrl = result[3];
-            
-            return !StringUtils.isEmpty(sonarBuildURL);
+            result = getSonarProjectFromBuildReport();
+                projectKey = result[0];
+                sonarBuildURL = result[1];
+                sonarBuildTaskId = result[2];
+                sonarBuildTaskIdUrl = result[3];
+ 
+                return !StringUtils.isEmpty(sonarBuildURL);
         } catch (IOException | IndexOutOfBoundsException | UncheckedIOException ignored) {}
-
+ 
+        try {
+            //try build logs
+            result = getSonarProjectFromBuildLog(build);
+ 
+            if (!StringUtils.isEmpty(result[1])){
+                projectKey = result[0];
+                sonarBuildURL = result[1];
+                sonarBuildTaskId = result[2];
+                sonarBuildTaskIdUrl = result[3];
+ 
+                return !StringUtils.isEmpty(sonarBuildURL);
+            }
+        } catch (IOException | IndexOutOfBoundsException | UncheckedIOException ignored) {}
+ 
         return false;
     }
 
@@ -243,6 +266,41 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
             return body.string();
         }
+    }
+
+    private String[] getSonarProjectFromBuildLog(Run<?, ?> build) throws IOException {
+ 
+        String projName = null;
+        String url = null;
+        String taskId = null;
+        String taskUrl = null;
+ 
+        try (BufferedReader br = new BufferedReader(build.getLogReader())) {
+            String line;
+            Pattern p_url = Pattern.compile(URL_PATTERN_IN_LOGS);
+            Pattern p_taskUrl = Pattern.compile(TASK_URL_PATTERN_IN_LOGS);
+            Pattern p_projName = Pattern.compile(PROJECT_NAME_PATTERN_IN_LOGS);
+            while ((line = br.readLine()) != null) {
+                Matcher match = p_projName.matcher(line);
+                if (match.matches()) {
+                    projName = match.group(1);
+                } else {
+                    match = p_url.matcher(line);
+                    if (match.matches()) {
+                        url = match.group(1);
+                    }
+                    else {
+                        match = p_taskUrl.matcher(line);
+                        if (match.matches()) {
+                            taskUrl = match.group(1);
+                            taskId = taskUrl.split("=")[1];
+                            break; // No need to search for other lines
+                        }
+                    }
+                }
+            }
+        }
+        return new String[]{projName, url, taskId, taskUrl};
     }
 
     private String[] getSonarProjectFromBuildReport() throws IOException, UncheckedIOException {
