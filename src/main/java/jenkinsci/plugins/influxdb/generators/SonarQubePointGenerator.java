@@ -61,12 +61,14 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private static final String TASK_ID_PATTERN_IN_REPORT = "ceTaskId=(.*)";
     private static final String TASK_URL_PATTERN_IN_REPORT = "ceTaskUrl=(.*)";
     // Patterns used for data extraction from build log
-    private static final String URL_PATTERN_IN_LOGS = ".*" + Pattern.quote("ANALYSIS SUCCESSFUL, you can browse ")
+    private static final String URL_PATTERN_IN_LOGS_ANALYSIS = ".*" + Pattern.quote("ANALYSIS SUCCESSFUL, you can browse ")
             + "(.*)";
     private static final String TASK_URL_PATTERN_IN_LOGS = ".*" + Pattern.quote("More about the report processing at ")
             + "(.*)";
     private static final String PROJECT_NAME_PATTERN_IN_LOGS = ".*" + Pattern.quote("Project key: ")
             + "(.*)";
+    private static final String URL_PATTERN_IN_LOGS_QUALITY_GATE_STATUS = ".*" + Pattern.quote("QUALITY GATE STATUS: ") 
+            + "(.*)" + Pattern.quote(" - View details on ") + "(.*)";
 
     private String projectKey = null;
     private String sonarBuildURL = null;
@@ -213,7 +215,9 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
         Point point = null;
         try {
-            waitForQualityGateTask();
+            if(sonarBuildTaskId != null){
+                waitForQualityGateTask();
+            }
 
             point = buildPoint("sonarqube_data", customPrefix, build)
                     .addField(BUILD_DISPLAY_NAME, build.getDisplayName())
@@ -277,26 +281,34 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
  
         try (BufferedReader br = new BufferedReader(build.getLogReader())) {
             String line;
-            Pattern p_url = Pattern.compile(URL_PATTERN_IN_LOGS);
+            Matcher match;
+            Pattern p_analysis_url = Pattern.compile(URL_PATTERN_IN_LOGS_ANALYSIS);
+            Pattern p_qg_url = Pattern.compile(URL_PATTERN_IN_LOGS_QUALITY_GATE_STATUS);
             Pattern p_taskUrl = Pattern.compile(TASK_URL_PATTERN_IN_LOGS);
             Pattern p_projName = Pattern.compile(PROJECT_NAME_PATTERN_IN_LOGS);
+
             while ((line = br.readLine()) != null) {
-                Matcher match = p_projName.matcher(line);
+                match = p_projName.matcher(line);
                 if (match.matches()) {
                     projName = match.group(1);
-                } else {
-                    match = p_url.matcher(line);
-                    if (match.matches()) {
-                        url = match.group(1);
-                    }
-                    else {
-                        match = p_taskUrl.matcher(line);
-                        if (match.matches()) {
-                            taskUrl = match.group(1);
-                            taskId = taskUrl.split("=")[1];
-                            break; // No need to search for other lines
-                        }
-                    }
+                    continue;
+                }
+                match = p_qg_url.matcher(line);
+                if (match.matches()) {
+                    url  = match.group(2);
+                    //Task already executed.  No need to search for other lines
+                    break; 
+                }
+                match = p_analysis_url.matcher(line);
+                if (match.matches()) {
+                    url  = match.group(1);
+                    continue;
+                }
+                match = p_taskUrl.matcher(line);
+                if (match.matches()) {
+                    taskUrl = match.group(1);
+                    taskId = taskUrl.split("=")[1];
+                    break; // No need to search for other lines
                 }
             }
         }
