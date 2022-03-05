@@ -302,6 +302,10 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                 match = p_analysis_url.matcher(line);
                 if (match.matches()) {
                     url  = match.group(1);
+                    long count = url.chars().filter(ch -> ch == '/').count();
+                    if (count >=3) {
+                        url = url.substring(0,url.lastIndexOf(('/')));
+                    }
                     continue;
                 }
                 match = p_taskUrl.matcher(line);
