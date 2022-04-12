@@ -1,31 +1,48 @@
 package jenkinsci.plugins.influxdb;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import org.jenkinsci.plugins.plaincredentials.StringCredentials;
+
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.InfluxDBClientOptions;
 import com.influxdb.client.write.Point;
+
 import hudson.EnvVars;
 import hudson.ProxyConfiguration;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
-import jenkinsci.plugins.influxdb.generators.*;
+import jenkinsci.plugins.influxdb.generators.ChangeLogPointGenerator;
+import jenkinsci.plugins.influxdb.generators.CoberturaPointGenerator;
+import jenkinsci.plugins.influxdb.generators.CustomDataMapPointGenerator;
+import jenkinsci.plugins.influxdb.generators.CustomDataPointGenerator;
+import jenkinsci.plugins.influxdb.generators.JUnitPointGenerator;
+import jenkinsci.plugins.influxdb.generators.JacocoPointGenerator;
+import jenkinsci.plugins.influxdb.generators.JenkinsBasePointGenerator;
+import jenkinsci.plugins.influxdb.generators.PerfPublisherPointGenerator;
+import jenkinsci.plugins.influxdb.generators.PerformancePointGenerator;
+import jenkinsci.plugins.influxdb.generators.PointGenerator;
+import jenkinsci.plugins.influxdb.generators.RobotFrameworkPointGenerator;
+import jenkinsci.plugins.influxdb.generators.SonarQubePointGenerator;
 import jenkinsci.plugins.influxdb.generators.serenity.SerenityJsonSummaryFile;
 import jenkinsci.plugins.influxdb.generators.serenity.SerenityPointGenerator;
 import jenkinsci.plugins.influxdb.models.Target;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
-import org.jenkinsci.plugins.plaincredentials.StringCredentials;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class InfluxDbPublicationService {
 
