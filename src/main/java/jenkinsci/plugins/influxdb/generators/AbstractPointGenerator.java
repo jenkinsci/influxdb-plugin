@@ -1,15 +1,5 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import com.influxdb.client.domain.WritePrecision;
-import com.influxdb.client.write.Point;
-import hudson.EnvVars;
-import hudson.model.Run;
-import hudson.model.TaskListener;
-import jenkins.model.Jenkins;
-import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.StrSubstitutor;
-
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Map;
@@ -17,10 +7,24 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.StrSubstitutor;
+
+import com.influxdb.client.domain.WritePrecision;
+import com.influxdb.client.write.Point;
+
+import hudson.EnvVars;
+import hudson.model.Run;
+import hudson.model.TaskListener;
+import jenkins.model.Jenkins;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
+
 public abstract class AbstractPointGenerator implements PointGenerator {
 
+    public static final String PROJECT_NAMESPACE = "project_namespace";
     public static final String PROJECT_NAME = "project_name";
     public static final String PROJECT_PATH = "project_path";
+    public static final String JENKINS_URL = "jenkins_url";
     public static final String BUILD_NUMBER = "build_number";
     public static final String CUSTOM_PREFIX = "prefix";
 
@@ -46,6 +50,8 @@ public abstract class AbstractPointGenerator implements PointGenerator {
 
         Point point = Point
                 .measurement(name)
+                .addField(JENKINS_URL, Jenkins.get().getRootUrl())
+                .addField(PROJECT_NAMESPACE, projectPath.split("/")[0])
                 .addField(PROJECT_NAME, projectName)
                 .addField(PROJECT_PATH, projectPath)
                 .addField(BUILD_NUMBER, build.getNumber())
