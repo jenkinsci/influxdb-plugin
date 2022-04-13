@@ -80,14 +80,14 @@ public class GitPointGenerator extends AbstractPointGenerator {
                 match = gitRevisionPattern.matcher(line);
                 if (match.matches()) {
                     splitLine = line.split(" ");
-                    gitRev = splitLine.length >= 4 ? splitLine[3] : null;
-                    gitRef = splitLine.length >= 5 ? splitLine[4].substring(1, splitLine[4].length() - 1) : null;
+                    gitRev = splitLine.length >= 4 ? splitLine[3] : "";
+                    gitRef = splitLine.length >= 5 ? splitLine[4].substring(1, splitLine[4].length() - 1) : "";
                     continue;
                 }
                 match = gitRepositoryPattern.matcher(line);
                 if (match.matches()) {
                     splitLine = line.split(" ");
-                    gitRepo = splitLine.length >= 2 ? line.split(" ")[2] : null;
+                    gitRepo = splitLine.length >= 2 ? line.split(" ")[2] : "";
                     break;
                 }
             }
