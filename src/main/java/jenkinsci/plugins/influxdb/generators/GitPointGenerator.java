@@ -21,18 +21,21 @@ public class GitPointGenerator extends AbstractPointGenerator {
     private static final String GIT_REVISION = "git_revision";
     private static final String GIT_REFERENCE = "git_reference";
 
+    // Point fields values
+    private String gitRepository;
+    private String gitRevision;
+    private String gitReference;
+
     // Log patterns
     private static final String REPOSITORY_PATTERN_IN_LOG = Pattern.quote("Checking out Revision ");
     private static final String REVISION_PATTERN_IN_LOG = Pattern.quote("Cloning repository ");
 
-    private String gitRepository = null;
-    private String gitRevision = null;
-    private String gitReference = null;
+    private String customPrefix;
 
     public GitPointGenerator(Run<?, ?> build, TaskListener listener, ProjectNameRenderer projectNameRenderer,
-            long timestamp, String jenkinsEnvParameterTag) {
+            long timestamp, String jenkinsEnvParameterTag, String customPrefix) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
-        // TODO Auto-generated constructor stub
+        this.customPrefix = customPrefix;
     }
 
     /**
@@ -97,8 +100,12 @@ public class GitPointGenerator extends AbstractPointGenerator {
 
     @Override
     public Point[] generate() {
-        // TODO Auto-generated method stub
-        return null;
+        Point point = buildPoint("git_data", customPrefix, build)//
+                .addField(GIT_REPOSITORY, gitRepository)//
+                .addField(GIT_REFERENCE, gitReference)//
+                .addField(GIT_REVISION, gitRevision);//
+
+        return new Point[] { point };
     }
 
 }

@@ -29,6 +29,7 @@ import jenkinsci.plugins.influxdb.generators.ChangeLogPointGenerator;
 import jenkinsci.plugins.influxdb.generators.CoberturaPointGenerator;
 import jenkinsci.plugins.influxdb.generators.CustomDataMapPointGenerator;
 import jenkinsci.plugins.influxdb.generators.CustomDataPointGenerator;
+import jenkinsci.plugins.influxdb.generators.GitPointGenerator;
 import jenkinsci.plugins.influxdb.generators.JUnitPointGenerator;
 import jenkinsci.plugins.influxdb.generators.JacocoPointGenerator;
 import jenkinsci.plugins.influxdb.generators.JenkinsBasePointGenerator;
@@ -265,6 +266,14 @@ public class InfluxDbPublicationService {
             addPoints(pointsToWrite, sonarGen, listener);
         } else {
             logger.log(Level.FINE, "Plugin skipped: SonarQube");
+        }
+
+        GitPointGenerator gitGen = new GitPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
+        if (gitGen.hasReport()) {
+            listener.getLogger().println("[InfluxDB Plugin] Git data found. Writing to InfluxDB...");
+            addPoints(pointsToWrite, gitGen, listener);
+        } else {
+            logger.log(Level.FINE, "Plugin skipped: Git");
         }
 
         SerenityJsonSummaryFile serenityJsonSummaryFile = new SerenityJsonSummaryFile(env.get("WORKSPACE"));
