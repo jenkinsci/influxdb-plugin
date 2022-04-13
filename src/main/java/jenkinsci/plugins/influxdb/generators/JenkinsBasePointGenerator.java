@@ -1,18 +1,21 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.influxdb.client.write.Point;
+
 import hudson.EnvVars;
 import hudson.model.Cause;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import hudson.model.Cause.UserIdCause;
 import hudson.tasks.test.AbstractTestResultAction;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
@@ -37,6 +40,8 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     public static final String BUILD_AGENT_NAME = "build_agent_name";
     public static final String BUILD_BRANCH_NAME = "build_branch_name";
     public static final String BUILD_CAUSER = "build_causer";
+    public static final String BUILD_USER = "build_user";
+    public static final String BUILD_TRIGGER = "build_trigger";
 
     public static final String PROJECT_BUILD_HEALTH = "project_build_health";
     public static final String PROJECT_LAST_SUCCESSFUL = "last_successful_build";
@@ -103,6 +108,8 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             .addField(PROJECT_LAST_SUCCESSFUL, getLastSuccessfulBuild())
             .addField(PROJECT_LAST_STABLE, getLastStableBuild())
             .addField(BUILD_CAUSER , getCauseShortDescription())
+            .addField(BUILD_USER, getUserCause())
+            .addField(BUILD_TRIGGER, getBuildEnv("BUILD_CAUSE"))
             .addTag(BUILD_RESULT, result);
 
         if (hasTestResults(build)) {
@@ -146,6 +153,21 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             List<Cause> shortDescriptionList = build.getCauses();
             Cause shortDescription = shortDescriptionList.get(0);
             return shortDescription != null ? shortDescription.getShortDescription() : "";
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private String getUserCause() {
+        String userCause = "";
+        try {
+            for(Cause cause : build.getCauses())
+                if(cause instanceof UserIdCause) {
+                    userCause = ((UserIdCause) cause).getUserId();
+                }else if (cause.getClass().getName().contains("GitlabWebhookCause")){
+                    userCause = build.getEnvironment(listener).get("gitlabUserUsername");
+                }
+            return userCause != null ? userCause : "";
         } catch (Exception e) {
             return "";
         }
