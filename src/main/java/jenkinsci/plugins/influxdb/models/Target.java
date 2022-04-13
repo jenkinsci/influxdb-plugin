@@ -31,7 +31,6 @@ import jenkins.model.Jenkins;
 
 public class Target extends AbstractDescribableImpl<Target> implements java.io.Serializable {
 
-    private String controllerName;
     private String description;
     private String url;
     private String credentialsId;
@@ -51,7 +50,7 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
     @DataBoundConstructor
     public Target(String description, String url, String credentialsId, String organization, String database,
             String retentionPolicy, boolean jobScheduledTimeAsPointsTimestamp, boolean exposeExceptions,
-            boolean usingJenkinsProxy, boolean globalListener, String globalListenerFilter, String controllerName) {
+            boolean usingJenkinsProxy, boolean globalListener, String globalListenerFilter) {
         this.description = description;
         this.url = url;
         this.credentialsId = credentialsId;
@@ -63,7 +62,6 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
         this.usingJenkinsProxy = usingJenkinsProxy;
         this.globalListener = globalListener;
         this.globalListenerFilter = globalListenerFilter;
-        this.controllerName= controllerName;
     }
 
     public String getDescription() {
@@ -154,18 +152,9 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
         this.globalListenerFilter = globalListenerFilter;
     }
 
-    public String getControllerName() {
-        return controllerName;
-    }
-
-    public void setControllerName(String controllerName) {
-        this.controllerName = controllerName;
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("controllerName", controllerName)
                 .append("description", description)
                 .append("url", url)
                 .append("credentialsId", credentialsId)
