@@ -1,8 +1,12 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -49,6 +53,8 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     public static final String TESTS_FAILED = "tests_failed";
     public static final String TESTS_SKIPPED = "tests_skipped";
     public static final String TESTS_TOTAL = "tests_total";
+
+    public static final String AGENT_LOG_PATTERN = Pattern.quote("Running on ");
 
     private final Run<?, ?> build;
     private final String customPrefix;
@@ -102,7 +108,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             .addField(BUILD_RESULT, result)
             .addField(BUILD_RESULT_ORDINAL, ordinal)
             .addField(BUILD_IS_SUCCESSFUL, ordinal < 2)
-            .addField(BUILD_AGENT_NAME, getBuildEnv("NODE_NAME"))
+            .addField(BUILD_AGENT_NAME, getNodeName())
             .addField(BUILD_BRANCH_NAME, getBuildEnv("BRANCH_NAME"))
             .addField(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
             .addField(PROJECT_LAST_SUCCESSFUL, getLastSuccessfulBuild())
@@ -181,5 +187,38 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     private int getLastStableBuild() {
         Run<?, ?> lastStableBuild = build.getParent().getLastStableBuild();
         return lastStableBuild != null ? lastStableBuild.getNumber() : 0;
+    }
+
+    private String getNodeName() {
+        String nodeName = getBuildEnv("NODE_NAME");
+        if(StringUtils.isEmpty(nodeName)) {
+            nodeName = getNodeNameFromLogs();
+        }
+        return nodeName;
+    }
+
+    /**
+     * Retrieve agent name in the log of the build
+     * 
+     * @return agent name
+     */
+    private String getNodeNameFromLogs() {
+        String agentName = "";
+        try (BufferedReader br = new BufferedReader(build.getLogReader())) {
+            String line;
+            Matcher match;
+            String[] splitLine;
+            final Pattern agentPattern = Pattern.compile(AGENT_LOG_PATTERN);
+
+            while ((line = br.readLine()) != null) {
+                match = agentPattern.matcher(line);
+                if (match.matches()) {
+                    splitLine = line.split(" ");
+                    agentName = splitLine.length >= 3 ? splitLine[2] : "";
+                    break;
+                }
+            }
+        } catch (IOException e) {}
+        return agentName;
     }
 }
