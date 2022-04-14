@@ -55,7 +55,7 @@ public class GitPointGenerator extends AbstractPointGenerator {
             revision = gitAction.getLastBuiltRevision();
             branch = revision.getBranches().iterator().next();
             Point point = buildPoint("git_data", customPrefix, build)//
-                    .addField(GIT_REPOSITORY, gitAction.getScmName())//
+                    .addField(GIT_REPOSITORY, !CollectionUtils.isEmpty(gitAction.getRemoteUrls()) ? gitAction.getRemoteUrls().iterator().next() : "")//
                     .addField(GIT_REFERENCE, branch.getName())//
                     .addField(GIT_REVISION, revision.getSha1String());//
             points.add(point);
