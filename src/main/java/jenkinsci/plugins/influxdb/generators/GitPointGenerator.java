@@ -38,7 +38,7 @@ public class GitPointGenerator extends AbstractPointGenerator {
      */
     @Override
     public boolean hasReport() {
-        return CollectionUtils.isEmpty(gitActions);
+        return !CollectionUtils.isEmpty(gitActions);
     }
 
     /**
