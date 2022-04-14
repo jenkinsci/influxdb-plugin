@@ -1,17 +1,17 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 import com.influxdb.client.write.Point;
 
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import hudson.plugins.git.Branch;
+import hudson.plugins.git.Revision;
+import hudson.plugins.git.util.BuildData;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 
 public class GitPointGenerator extends AbstractPointGenerator {
@@ -21,91 +21,46 @@ public class GitPointGenerator extends AbstractPointGenerator {
     private static final String GIT_REVISION = "git_revision";
     private static final String GIT_REFERENCE = "git_reference";
 
-    // Point fields values
-    private String gitRepository;
-    private String gitRevision;
-    private String gitReference;
-
-    // Log patterns
-    private static final String REPOSITORY_PATTERN_IN_LOG = Pattern.quote("Checking out Revision ");
-    private static final String REVISION_PATTERN_IN_LOG = Pattern.quote("Cloning repository ");
-
     private String customPrefix;
+    List<BuildData> gitActions;
 
     public GitPointGenerator(Run<?, ?> build, TaskListener listener, ProjectNameRenderer projectNameRenderer,
             long timestamp, String jenkinsEnvParameterTag, String customPrefix) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
         this.customPrefix = customPrefix;
+        gitActions = build.getActions(BuildData.class);
     }
 
     /**
-     * Check if git infos are presents in the logs of the build
+     * Check if git infos are presents in the build
      * 
      * @return true if present
      */
     @Override
     public boolean hasReport() {
-        String[] result = null;
-
-        try {
-            result = getGitInfosFromBuildLog(build);
-            gitRepository = result[0];
-            gitRevision = result[1];
-            gitReference = result[2];
-
-            return !StringUtils.isEmpty(gitRepository);
-        } catch (IOException | IndexOutOfBoundsException | UncheckedIOException ignored) {
-            return false;
-        }
+        return CollectionUtils.isEmpty(gitActions);
     }
 
     /**
-     * Retrieve git infos in the log of the build
+     * Generates Git Points with datas in Git plugins
      * 
-     * @param build
-     * @return Array of string : String[] { gitRepository, gitRevision, gitReference
-     *         }
-     * @throws IOException
+     * return Array of Point
      */
-    private String[] getGitInfosFromBuildLog(Run<?, ?> build) throws IOException {
-        String gitRepo = null;
-        String gitRev = null;
-        String gitRef = null;
-
-        try (BufferedReader br = new BufferedReader(build.getLogReader())) {
-            String line;
-            Matcher match;
-            String[] splitLine;
-            final Pattern gitRevisionPattern = Pattern.compile(REVISION_PATTERN_IN_LOG);
-            final Pattern gitRepositoryPattern = Pattern.compile(REPOSITORY_PATTERN_IN_LOG);
-
-            while ((line = br.readLine()) != null) {
-                match = gitRevisionPattern.matcher(line);
-                if (match.matches()) {
-                    splitLine = line.split(" ");
-                    gitRev = splitLine.length >= 4 ? splitLine[3] : "";
-                    gitRef = splitLine.length >= 5 ? splitLine[4].substring(1, splitLine[4].length() - 1) : "";
-                    continue;
-                }
-                match = gitRepositoryPattern.matcher(line);
-                if (match.matches()) {
-                    splitLine = line.split(" ");
-                    gitRepo = splitLine.length >= 2 ? line.split(" ")[2] : "";
-                    break;
-                }
-            }
-        }
-        return new String[] { gitRepo, gitRev, gitRef };
-    }
-
     @Override
     public Point[] generate() {
-        Point point = buildPoint("git_data", customPrefix, build)//
-                .addField(GIT_REPOSITORY, gitRepository)//
-                .addField(GIT_REFERENCE, gitReference)//
-                .addField(GIT_REVISION, gitRevision);//
-
-        return new Point[] { point };
+        List<Point> points = new ArrayList<>();
+        Revision revision = null;
+        Branch branch = null;
+        for (BuildData gitAction : gitActions) {
+            revision = gitAction.getLastBuiltRevision();
+            branch = revision.getBranches().iterator().next();
+            Point point = buildPoint("git_data", customPrefix, build)//
+                    .addField(GIT_REPOSITORY, gitAction.getScmName())//
+                    .addField(GIT_REFERENCE, branch.getName())//
+                    .addField(GIT_REVISION, revision.getSha1String());//
+            points.add(point);
+        }
+        return points.toArray(new Point[0]);
     }
 
 }
