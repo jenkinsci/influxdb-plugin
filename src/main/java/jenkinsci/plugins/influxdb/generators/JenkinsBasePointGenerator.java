@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -98,8 +99,9 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             ordinal = buildResult.ordinal;
         }
 
-        Point point = buildPoint(measurementName, customPrefix, build);
+        String[] buildCause = getCauseDatas();
 
+        Point point = buildPoint(measurementName, customPrefix, build);
         point.addField(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
             .addField(BUILD_SCHEDULED_TIME, build.getTimeInMillis())
             .addField(BUILD_EXEC_TIME, build.getStartTimeInMillis())
@@ -114,8 +116,8 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             .addField(PROJECT_LAST_SUCCESSFUL, getLastSuccessfulBuild())
             .addField(PROJECT_LAST_STABLE, getLastStableBuild())
             .addField(BUILD_CAUSER , getCauseShortDescription())
-            .addField(BUILD_USER, getUserCause())
-            .addField(BUILD_TRIGGER, getBuildEnv("BUILD_CAUSE"))
+            .addField(BUILD_TRIGGER, buildCause[0])
+            .addField(BUILD_USER, buildCause[1])
             .addTag(BUILD_RESULT, result);
 
         if (hasTestResults(build)) {
@@ -164,18 +166,21 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         }
     }
 
-    private String getUserCause() {
+    private String[] getCauseDatas() {
         String userCause = "";
+        StringJoiner triggers = new StringJoiner(", ");
         try {
-            for(Cause cause : build.getCauses())
-                if(cause instanceof UserIdCause) {
+            for (Cause cause : build.getCauses()) {
+                triggers.add(cause.getClass().getSimpleName());
+                if (cause instanceof UserIdCause) {
                     userCause = ((UserIdCause) cause).getUserId();
-                }else if (cause.getClass().getName().contains("GitlabWebhookCause")){
+                } else if (cause.getClass().getName().contains("GitlabWebhookCause")) {
                     userCause = build.getEnvironment(listener).get("gitlabUserUsername");
                 }
-            return userCause != null ? userCause : "";
+            }
+            return new String[] { userCause != null ? userCause : "", triggers.toString() };
         } catch (Exception e) {
-            return "";
+            return new String[] { "", "" };
         }
     }
 
