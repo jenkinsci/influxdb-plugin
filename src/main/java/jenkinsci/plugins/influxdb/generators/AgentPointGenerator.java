@@ -1,102 +1,126 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.StringJoiner;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.jenkinsci.plugins.workflow.actions.WorkspaceAction;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
+import org.jenkinsci.plugins.workflow.job.views.FlowGraphAction;
 
 import com.influxdb.client.write.Point;
 
-import hudson.EnvVars;
+import hudson.model.AbstractBuild;
+import hudson.model.Node;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import jenkins.model.Jenkins;
+import hudson.model.labels.LabelAtom;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 
 public class AgentPointGenerator extends AbstractPointGenerator {
 
-    private static final String KUBERNETES_AGENT_LOG_PATTERN = Pattern.quote("Agent .* is provisioned from template .*");
-    private static final String DOCKER_AGENT_LOG_PATTERN = Pattern.quote("Building remotely on .* on .* (.*) in workspace .*");
-    private static final String AGENT_NAME = "agent_label";
+    private static final String AGENT_NAME = "agent_name";
+    private static final String AGENT_LABEL = "agent_label";
 
-    private Set<String> nodesLabels;
+    private List<AgentPoint> agentPoints;
     private String customPrefix;
 
     public AgentPointGenerator(Run<?, ?> build, TaskListener listener, ProjectNameRenderer projectNameRenderer,
             long timestamp, String jenkinsEnvParameterTag, String customPrefix) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
-        this.nodesLabels = getNodesLabels();
+        this.agentPoints = getAgentPoints(build);
         this.customPrefix = customPrefix;
-        build.getExecutor().getOwner().getNode().getLabelString();
-        Jenkins.get().getNode("").getLabelString();
-        try {
-            EnvVars env = build.getEnvironment(listener);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
     }
 
     @Override
     public boolean hasReport() {
-        return CollectionUtils.isEmpty(nodesLabels);
+        return CollectionUtils.isEmpty(agentPoints);
+    }
+
+    private List<AgentPoint> getAgentPoints(Run<?, ?> build) {
+        if (build instanceof AbstractBuild) {
+            return getAgentFromAbstractBuild((AbstractBuild<?, ?>) build);
+        } else if (build instanceof WorkflowRun) {
+            return getAgentFromWorkflowRun((WorkflowRun) build);
+        }
+        return new ArrayList<AgentPoint>();
+    }
+
+    private List<AgentPoint> getAgentFromAbstractBuild(AbstractBuild<?, ?> build) {
+        List<AgentPoint> agentPointsList = new ArrayList<>();
+        Node node = build.getBuiltOn();
+        if (node != null) {
+            agentPointsList.add(new AgentPoint(node.getDisplayName(), node.getLabelString()));
+        }
+        return agentPointsList;
+    }
+
+    private List<AgentPoint> getAgentFromWorkflowRun(WorkflowRun build) {
+        List<AgentPoint> agentPointsList = new ArrayList<>();
+        FlowGraphAction flowAction = build.getAction(FlowGraphAction.class);
+        if (flowAction != null) {
+            flowAction.getNodes().forEach(flowNode -> {
+                WorkspaceAction workspaceAction = flowNode.getAction(WorkspaceAction.class);
+                if (null != workspaceAction) {
+                    Set<LabelAtom> labels = workspaceAction.getLabels();
+                    StringJoiner labelString = new StringJoiner(", ");
+                    labelString.setEmptyValue("");
+                    if (null != labels) {
+                        labels.forEach(label -> {
+                            labelString.add(label.getName());
+                        });
+                    }
+                    String nodeName = workspaceAction.getNode();
+                    agentPointsList.add(new AgentPoint(nodeName, labelString.toString()));
+                }
+            });
+        }
+        return agentPointsList;
     }
 
     @Override
     public Point[] generate() {
         List<Point> points = new ArrayList<>();
-        nodesLabels.forEach(nodeName -> {
+        agentPoints.forEach(agentPoint -> {
             Point point = buildPoint("agent_data", customPrefix, build)//
-                    .addField(AGENT_NAME, nodeName);
+                    .addField(AGENT_NAME, agentPoint.getName())//
+                    .addField(AGENT_LABEL, agentPoint.getLabels());
             points.add(point);
         });
         return points.toArray(new Point[0]);
     }
 
-    private Set<String> getNodesLabels() {
-        if (null == nodesLabels) {
-            return getNodesLabelsFromLogs();
-        }
-        return nodesLabels;
-    }
-
     public String getFirstAgent() {
-        return !CollectionUtils.isEmpty(nodesLabels) ? nodesLabels.iterator().next() : "";
+        return !CollectionUtils.isEmpty(agentPoints) ? agentPoints.get(0).getName() : "";
     }
 
-    /**
-     * Retrieve agent name in the log of the build
-     * 
-     * @return agent name
-     */
-    private Set<String> getNodesLabelsFromLogs() {
-        Set<String> agentsLabels = new LinkedHashSet<>();
-        try (BufferedReader br = new BufferedReader(build.getLogReader())) {
-            String line;
-            Matcher match;
-            String[] splitLine;
-            final Pattern kubernetesAgentPattern = Pattern.compile(KUBERNETES_AGENT_LOG_PATTERN);
-            final Pattern dockerAgentPattern = 
-            while ((line = br.readLine()) != null) {
-                match = kubernetesAgentPattern.matcher(line);
-                if (match.matches()) {
-                    splitLine = line.split(" ");
-                    agentsLabels.add(splitLine[splitLine.length - 1]);
-                    break;
-                }
-            }
-        } catch (IOException e) {
+    private class AgentPoint {
+
+        private String name;
+        private String labels;
+
+        public AgentPoint(String name, String labels) {
+            this.name = name;
+            this.labels = labels;
         }
-        return agentsLabels;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getLabels() {
+            return labels;
+        }
+
+        public void setLabels(String labels) {
+            this.labels = labels;
+        }
     }
 
 }
