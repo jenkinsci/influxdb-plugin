@@ -7,8 +7,9 @@ import java.util.StringJoiner;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.jenkinsci.plugins.workflow.actions.WorkspaceAction;
-import org.jenkinsci.plugins.workflow.job.WorkflowRun;
-import org.jenkinsci.plugins.workflow.job.views.FlowGraphAction;
+import org.jenkinsci.plugins.workflow.flow.FlowExecution;
+import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
+import org.jenkinsci.plugins.workflow.graph.FlowGraphWalker;
 
 import com.influxdb.client.write.Point;
 
@@ -42,10 +43,10 @@ public class AgentPointGenerator extends AbstractPointGenerator {
     private List<AgentPoint> getAgentPoints(Run<?, ?> build) {
         if (build instanceof AbstractBuild) {
             return getAgentFromAbstractBuild((AbstractBuild<?, ?>) build);
-        } else if (build instanceof WorkflowRun) {
-            return getAgentFromWorkflowRun((WorkflowRun) build);
+        } else if (build instanceof FlowExecutionOwner.Executable) {
+            return getAgentsFromPipeline((FlowExecutionOwner.Executable) build);
         }
-        return new ArrayList<AgentPoint>();
+        return new ArrayList<>();
     }
 
     private List<AgentPoint> getAgentFromAbstractBuild(AbstractBuild<?, ?> build) {
@@ -57,25 +58,29 @@ public class AgentPointGenerator extends AbstractPointGenerator {
         return agentPointsList;
     }
 
-    private List<AgentPoint> getAgentFromWorkflowRun(WorkflowRun build) {
+    private List<AgentPoint> getAgentsFromPipeline(FlowExecutionOwner.Executable build) {
         List<AgentPoint> agentPointsList = new ArrayList<>();
-        FlowGraphAction flowAction = build.getAction(FlowGraphAction.class);
-        if (flowAction != null) {
-            flowAction.getNodes().forEach(flowNode -> {
-                WorkspaceAction workspaceAction = flowNode.getAction(WorkspaceAction.class);
-                if (null != workspaceAction) {
-                    Set<LabelAtom> labels = workspaceAction.getLabels();
-                    StringJoiner labelString = new StringJoiner(", ");
-                    labelString.setEmptyValue("");
-                    if (null != labels) {
-                        labels.forEach(label -> {
-                            labelString.add(label.getName());
-                        });
+        FlowExecutionOwner flowExecutionOwner = build.asFlowExecutionOwner();
+        if (flowExecutionOwner != null) {
+            FlowExecution flowExecution = flowExecutionOwner.getOrNull();
+            if (flowExecution != null) {
+                FlowGraphWalker graphWalker = new FlowGraphWalker(flowExecution);
+                graphWalker.forEach(flowNode -> {
+                    WorkspaceAction workspaceAction = flowNode.getAction(WorkspaceAction.class);
+                    if (null != workspaceAction) {
+                        Set<LabelAtom> labels = workspaceAction.getLabels();
+                        StringJoiner labelString = new StringJoiner(", ");
+                        labelString.setEmptyValue("");
+                        if (null != labels) {
+                            labels.forEach(label -> {
+                                labelString.add(label.getName());
+                            });
+                        }
+                        String nodeName = workspaceAction.getNode();
+                        agentPointsList.add(new AgentPoint(nodeName, labelString.toString()));
                     }
-                    String nodeName = workspaceAction.getNode();
-                    agentPointsList.add(new AgentPoint(nodeName, labelString.toString()));
-                }
-            });
+                });
+            }
         }
         return agentPointsList;
     }
@@ -110,16 +115,8 @@ public class AgentPointGenerator extends AbstractPointGenerator {
             return name;
         }
 
-        public void setName(String name) {
-            this.name = name;
-        }
-
         public String getLabels() {
             return labels;
-        }
-
-        public void setLabels(String labels) {
-            this.labels = labels;
         }
     }
 
