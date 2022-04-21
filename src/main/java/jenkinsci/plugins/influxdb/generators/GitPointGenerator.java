@@ -14,6 +14,9 @@ import hudson.plugins.git.Revision;
 import hudson.plugins.git.util.BuildData;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 
+/**
+ * @author Mathieu Delrocq
+ */
 public class GitPointGenerator extends AbstractPointGenerator {
 
     // Point fields names

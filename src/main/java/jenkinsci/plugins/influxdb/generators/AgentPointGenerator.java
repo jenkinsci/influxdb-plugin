@@ -20,6 +20,9 @@ import hudson.model.TaskListener;
 import hudson.model.labels.LabelAtom;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 
+/**
+ * @author Mathieu Delrocq
+ */
 public class AgentPointGenerator extends AbstractPointGenerator {
 
     private static final String AGENT_NAME = "agent_name";
@@ -40,6 +43,28 @@ public class AgentPointGenerator extends AbstractPointGenerator {
         return CollectionUtils.isEmpty(agentPoints);
     }
 
+    @Override
+    public Point[] generate() {
+        List<Point> points = new ArrayList<>();
+        agentPoints.forEach(agentPoint -> {
+            Point point = buildPoint("agent_data", customPrefix, build)//
+                    .addField(AGENT_NAME, agentPoint.getName())//
+                    .addField(AGENT_LABEL, agentPoint.getLabels());
+            points.add(point);
+        });
+        return points.toArray(new Point[0]);
+    }
+
+    public String getFirstAgent() {
+        return !CollectionUtils.isEmpty(agentPoints) ? agentPoints.get(0).getName() : "";
+    }
+
+    /**
+     * Retrieve agent(s) used by the build and return {@link AgentPoint}
+     * 
+     * @param build
+     * @return list of {@link AgentPoint}
+     */
     private List<AgentPoint> getAgentPoints(Run<?, ?> build) {
         if (build instanceof AbstractBuild) {
             return getAgentFromAbstractBuild((AbstractBuild<?, ?>) build);
@@ -49,6 +74,12 @@ public class AgentPointGenerator extends AbstractPointGenerator {
         return new ArrayList<>();
     }
 
+    /**
+     * Retrieve agent(s) for traditional jobs
+     * 
+     * @param build
+     * @return list of {@link AgentPoint}
+     */
     private List<AgentPoint> getAgentFromAbstractBuild(AbstractBuild<?, ?> build) {
         List<AgentPoint> agentPointsList = new ArrayList<>();
         Node node = build.getBuiltOn();
@@ -58,6 +89,12 @@ public class AgentPointGenerator extends AbstractPointGenerator {
         return agentPointsList;
     }
 
+    /**
+     * Retrieve agent(s) for pipeline jobs
+     * 
+     * @param build
+     * @return list of {@link AgentPoint}
+     */
     private List<AgentPoint> getAgentsFromPipeline(FlowExecutionOwner.Executable build) {
         List<AgentPoint> agentPointsList = new ArrayList<>();
         FlowExecutionOwner flowExecutionOwner = build.asFlowExecutionOwner();
@@ -85,22 +122,12 @@ public class AgentPointGenerator extends AbstractPointGenerator {
         return agentPointsList;
     }
 
-    @Override
-    public Point[] generate() {
-        List<Point> points = new ArrayList<>();
-        agentPoints.forEach(agentPoint -> {
-            Point point = buildPoint("agent_data", customPrefix, build)//
-                    .addField(AGENT_NAME, agentPoint.getName())//
-                    .addField(AGENT_LABEL, agentPoint.getLabels());
-            points.add(point);
-        });
-        return points.toArray(new Point[0]);
-    }
-
-    public String getFirstAgent() {
-        return !CollectionUtils.isEmpty(agentPoints) ? agentPoints.get(0).getName() : "";
-    }
-
+    /**
+     * Represents a Point for an agent
+     * 
+     * @author Mathieu Delrocq
+     *
+     */
     private class AgentPoint {
 
         private String name;
