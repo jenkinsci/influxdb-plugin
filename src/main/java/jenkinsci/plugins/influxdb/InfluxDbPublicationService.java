@@ -25,6 +25,7 @@ import hudson.ProxyConfiguration;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
+import jenkinsci.plugins.influxdb.generators.AgentPointGenerator;
 import jenkinsci.plugins.influxdb.generators.ChangeLogPointGenerator;
 import jenkinsci.plugins.influxdb.generators.CoberturaPointGenerator;
 import jenkinsci.plugins.influxdb.generators.CustomDataMapPointGenerator;
@@ -191,6 +192,9 @@ public class InfluxDbPublicationService {
 
         // Points to write
         List<Point> pointsToWrite = new ArrayList<>();
+
+        AgentPointGenerator agentGen = new AgentPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
+        addPoints(pointsToWrite, agentGen, listener);
 
         // Basic metrics
         JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, jenkinsEnvParameterField, customPrefix, measurementName, env);
