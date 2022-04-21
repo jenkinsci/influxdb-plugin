@@ -20,12 +20,12 @@ import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 public class GitPointGenerator extends AbstractPointGenerator {
 
     // Point fields names
-    private static final String GIT_REPOSITORY = "git_repository";
-    private static final String GIT_REVISION = "git_revision";
-    private static final String GIT_REFERENCE = "git_reference";
+    protected static final String GIT_REPOSITORY = "git_repository";
+    protected static final String GIT_REVISION = "git_revision";
+    protected static final String GIT_REFERENCE = "git_reference";
 
     private String customPrefix;
-    List<BuildData> gitActions;
+    private List<BuildData> gitActions;
 
     public GitPointGenerator(Run<?, ?> build, TaskListener listener, ProjectNameRenderer projectNameRenderer,
             long timestamp, String jenkinsEnvParameterTag, String customPrefix) {
