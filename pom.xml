@@ -236,15 +236,12 @@
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-api</artifactId>
             <version>${workflow-api.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>plain-credentials</artifactId>
             <version>1.7</version>
         </dependency>
-
-
 
         <!-- RequireUpperBounds fix -->
         <dependency>
