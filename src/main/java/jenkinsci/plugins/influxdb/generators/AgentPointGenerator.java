@@ -10,6 +10,7 @@ import org.jenkinsci.plugins.workflow.actions.WorkspaceAction;
 import org.jenkinsci.plugins.workflow.flow.FlowExecution;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.graph.FlowGraphWalker;
+import org.jenkinsci.plugins.workflow.graph.FlowNode;
 
 import com.influxdb.client.write.Point;
 
@@ -25,8 +26,8 @@ import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
  */
 public class AgentPointGenerator extends AbstractPointGenerator {
 
-    private static final String AGENT_NAME = "agent_name";
-    private static final String AGENT_LABEL = "agent_label";
+    protected static final String AGENT_NAME = "agent_name";
+    protected static final String AGENT_LABEL = "agent_label";
 
     private List<AgentPoint> agentPoints;
     private String customPrefix;
@@ -40,18 +41,18 @@ public class AgentPointGenerator extends AbstractPointGenerator {
 
     @Override
     public boolean hasReport() {
-        return CollectionUtils.isEmpty(agentPoints);
+        return CollectionUtils.isNotEmpty(agentPoints);
     }
 
     @Override
     public Point[] generate() {
         List<Point> points = new ArrayList<>();
-        agentPoints.forEach(agentPoint -> {
+        for (AgentPoint agentPoint : agentPoints) {
             Point point = buildPoint("agent_data", customPrefix, build)//
                     .addField(AGENT_NAME, agentPoint.getName())//
                     .addField(AGENT_LABEL, agentPoint.getLabels());
             points.add(point);
-        });
+        }
         return points.toArray(new Point[0]);
     }
 
@@ -102,21 +103,19 @@ public class AgentPointGenerator extends AbstractPointGenerator {
             FlowExecution flowExecution = flowExecutionOwner.getOrNull();
             if (flowExecution != null) {
                 FlowGraphWalker graphWalker = new FlowGraphWalker(flowExecution);
-                graphWalker.forEach(flowNode -> {
+                for (FlowNode flowNode : graphWalker) {
                     WorkspaceAction workspaceAction = flowNode.getAction(WorkspaceAction.class);
                     if (null != workspaceAction) {
                         Set<LabelAtom> labels = workspaceAction.getLabels();
                         StringJoiner labelString = new StringJoiner(", ");
                         labelString.setEmptyValue("");
-                        if (null != labels) {
-                            labels.forEach(label -> {
-                                labelString.add(label.getName());
-                            });
+                        for (LabelAtom label : labels) {
+                            labelString.add(label.getName());
                         }
                         String nodeName = workspaceAction.getNode();
                         agentPointsList.add(new AgentPoint(nodeName, labelString.toString()));
                     }
-                });
+                }
             }
         }
         return agentPointsList;
