@@ -37,7 +37,7 @@ THE SOFTWARE.
     <packaging>hpi</packaging>
 
     <name>InfluxDB Plugin</name>
-    <description>Plugin for pushing time series data to InfluxDB</description>
+    <description>Push time series data from other plugins to InfluxDB</description>
 
     <scm>
         <connection>scm:git:ssh://github.com/jenkinsci/influxdb-plugin.git</connection>
