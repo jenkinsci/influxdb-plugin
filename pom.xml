@@ -53,8 +53,8 @@ THE SOFTWARE.
         <mailer.version>1.20</mailer.version>
         <slf4j.version>1.7.30</slf4j.version>
         <spotbugs.failOnError>false</spotbugs.failOnError>
-        <workflow-api.version>2.30</workflow-api.version>
-        <workflow-step-api.version>2.19</workflow-step-api.version>
+        <workflow-api.version>2.33</workflow-api.version>
+        <workflow-step-api.version>2.20</workflow-step-api.version>
     </properties>
 
     <licenses>
@@ -87,7 +87,7 @@ THE SOFTWARE.
             <dependency>
                 <groupId>org.jenkins-ci.plugins</groupId>
                 <artifactId>structs</artifactId>
-                <version>1.22</version>
+                <version>1.23</version>
             </dependency>
             <dependency>
                 <groupId>org.jenkins-ci</groupId>
@@ -163,7 +163,7 @@ THE SOFTWARE.
         <dependency>
             <groupId>io.jenkins</groupId>
             <artifactId>configuration-as-code</artifactId>
-            <version>1.48</version>
+            <version>1.51</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -181,7 +181,7 @@ THE SOFTWARE.
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>credentials</artifactId>
-            <version>2.3.19</version>
+            <version>2.6.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
@@ -203,7 +203,7 @@ THE SOFTWARE.
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>metrics</artifactId>
-            <version>3.1.2.9</version>
+            <version>4.0.2.8.1</version>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -240,8 +240,12 @@ THE SOFTWARE.
             <artifactId>plain-credentials</artifactId>
             <version>1.7</version>
         </dependency>
-
-
+        <dependency>
+            <groupId>org.jenkins-ci.plugins.workflow</groupId>
+            <artifactId>workflow-durable-task-step</artifactId>
+            <version>2.35</version>
+            <scope>test</scope>
+        </dependency>
 
         <!-- RequireUpperBounds fix -->
         <dependency>
@@ -279,14 +283,17 @@ THE SOFTWARE.
             <artifactId>kotlin-stdlib</artifactId>
             <version>1.3.71</version>
         </dependency>
-
         <dependency>
             <groupId>com.google.jimfs</groupId>
             <artifactId>jimfs</artifactId>
             <version>1.0</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>script-security</artifactId>
+            <version>1.58</version>
+        </dependency>
     </dependencies>
 
     <!-- The current maintainers of the plugin -->
