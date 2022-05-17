@@ -268,5 +268,10 @@ Create a pull request to the `development` branch.
 **No pull requests are merged directly to `master`**.
 Comment your changes sufficiently and create appropriate tests.
 
-If you have an idea for a new feature or you want to report a bug,
+For feature requests and bug reports,
 please use the [Jenkins issue tracker](https://issues.jenkins-ci.org/issues/?jql=project%20%3D%20JENKINS%20AND%20component%20%3D%20influxdb-plugin).
+
+## Acknowledgements
+
+This plugin was inspired by [Jouni Rajala](https://github.com/jrajala-eficode/jenkins-ci.influxdb-plugin)
+and [Christoph Burmeister](http://christoph-burmeister.eu/?p=2906).
