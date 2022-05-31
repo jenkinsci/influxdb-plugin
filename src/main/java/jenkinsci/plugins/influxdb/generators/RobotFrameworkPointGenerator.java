@@ -174,9 +174,9 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
         return buildPoint("tag_point", customPrefix, build, timestamp)
             .addTag(RF_TAG_NAME, tagResult.name)
             .addField(RF_TAG_NAME, tagResult.name)
-            .addField(RF_CRITICAL_FAILED, (int)tagResult.criticalFailed)
-            .addField(RF_CRITICAL_PASSED, (int)tagResult.criticalPassed)
-            .addField(RF_CRITICAL_TOTAL, (int)(tagResult.criticalPassed + tagResult.criticalFailed))
+            .addField(RF_CRITICAL_FAILED, (int)tagResult.criticalFailed)    // Send data as int for backwards compatibility
+            .addField(RF_CRITICAL_PASSED, (int)tagResult.criticalPassed)    // Send data as int for backwards compatibility
+            .addField(RF_CRITICAL_TOTAL, (int)(tagResult.criticalPassed + tagResult.criticalFailed))    // Send data as int for backwards compatibility
             .addField(RF_FAILED, tagResult.failed)
             .addField(RF_PASSED, tagResult.passed)
             .addField(RF_SKIPPED, tagResult.skipped)
