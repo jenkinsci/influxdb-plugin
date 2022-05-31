@@ -65,7 +65,7 @@ public class InfluxDbPublicationService {
      * def myFields = [:]
      * myFields['field_a'] = 11
      * myFields['field_b'] = 12
-     * influxDbPublisher(target: 'my-target', customData: myFields)
+     * influxDbPublisher(selectedTarget: 'my-target', customData: myFields)
      * }</pre>
      */
     private final Map<String, Object> customData;
@@ -79,7 +79,7 @@ public class InfluxDbPublicationService {
      * def myTags = [:]
      * myTags['tag_1'] = 'foo'
      * myTags['tag_2'] = 'bar'
-     * influxDbPublisher(target: 'my-target', customData: ..., customDataTags: myTags)
+     * influxDbPublisher(selectedTarget: 'my-target', customData: ..., customDataTags: myTags)
      * }</pre>
      */
     private final Map<String, String> customDataTags;
@@ -102,7 +102,7 @@ public class InfluxDbPublicationService {
      * myFields2['field_d'] = 22
      * myCustomMeasurementFields['series_1'] = myFields1
      * myCustomMeasurementFields['series_2'] = myFields2
-     * influxDbPublisher(target: 'my-target', customDataMap: myCustomMeasurementFields)
+     * influxDbPublisher(selectedTarget: 'my-target', customDataMap: myCustomMeasurementFields)
      * }</pre>
      */
     private final Map<String, Map<String, Object>> customDataMap;
@@ -120,7 +120,7 @@ public class InfluxDbPublicationService {
      * myTags['buildResult'] = currentBuild.result
      * myTags['NODE_LABELS'] = env.NODE_LABELS
      * myCustomMeasurementTags['series_1'] = myTags
-     * influxDbPublisher(target: 'my-target', customDataMap: ..., customDataMapTags: myCustomMeasurementTags)
+     * influxDbPublisher(selectedTarget: 'my-target', customDataMap: ..., customDataMapTags: myCustomMeasurementTags)
      * }</pre>
      */
     private final Map<String, Map<String, String>> customDataMapTags;
