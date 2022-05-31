@@ -44,8 +44,8 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
     private EnvVars env;
 
     @DataBoundConstructor
-    public InfluxDbPublisher(String target) {
-        this.selectedTarget = target;
+    public InfluxDbPublisher(String selectedTarget) {
+        this.selectedTarget = selectedTarget;
     }
 
     public String getSelectedTarget() {
@@ -188,7 +188,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
     }
 
     @Override
-    public void perform(@Nonnull Run<?, ?> build, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener)
+    public void perform(@Nonnull Run<?, ?> build, @Nonnull FilePath workspace, @Nonnull EnvVars envVars, @Nonnull Launcher launcher, @Nonnull TaskListener listener)
             throws InterruptedException, IOException {
 
         // Gets the target from the job's config
@@ -202,7 +202,8 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
 
         measurementName = getMeasurementNameIfNotBlankOrDefault();
         if (env == null) {
-            env = build.getEnvironment(listener);
+//            env = build.getEnvironment(listener);
+            env = envVars;
         }
 
         String expandedCustomPrefix = env.expand(customPrefix);
