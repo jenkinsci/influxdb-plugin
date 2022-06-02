@@ -10,7 +10,6 @@
     <f:entry title="${%Credentials}" field="credentialsId">
         <c:select/>
     </f:entry>
-    <f:validateButton title="Test Connection" progress="Testing..." method="verifyConnection" with="url, credentialsId, organization, database, retentionPolicy"/>
     <f:entry title="Organization" field="organization">
         <f:textbox/>
     </f:entry>
@@ -20,6 +19,8 @@
     <f:entry title="Retention Policy" field="retentionPolicy">
         <f:textbox default="autogen"/>
     </f:entry>
+    <f:validateButton title="Test Connection" progress="Testing..." method="verifyConnection"
+        with="url,credentialsId,organization,database,retentionPolicy"/>
     <f:entry title="Job scheduled time as timestamp" field="jobScheduledTimeAsPointsTimestamp">
         <f:checkbox default="false"/>
     </f:entry>
