@@ -17,7 +17,7 @@ import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.InfluxDBClientOptions;
-import com.influxdb.client.domain.User;
+import com.influxdb.client.domain.Bucket;
 import com.influxdb.exceptions.InfluxException;
 
 import hudson.Extension;
@@ -185,14 +185,17 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
                     .includeCurrentValue(credentialsId);
         }
 
+        @POST
         public FormValidation doCheckDescription(@QueryParameter String value) {
             return FormValidation.validateRequired(value);
         }
 
+        @POST
         public FormValidation doCheckUrl(@QueryParameter String value) {
             return FormValidation.validateRequired(value);
         }
 
+        @POST
         public FormValidation doCheckDatabase(@QueryParameter String value) {
             return FormValidation.validateRequired(value);
         }
@@ -210,13 +213,15 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
                 @QueryParameter String organization, @QueryParameter String database,
                 @QueryParameter String retentionPolicy, @AncestorInPath Item context) {
             InfluxDBClient influxDB = null;
+            doCheckUrl(url);
+            doCheckDatabase(database);
             try {
                 List<StandardUsernamePasswordCredentials> lookupCredentials = CredentialsProvider.lookupCredentials(//
                         StandardUsernamePasswordCredentials.class,//
                         context,//
                         ACL.SYSTEM,//
                         URIRequirementBuilder.fromUri(url).build());//
-                StandardUsernamePasswordCredentials credentials = CredentialsMatchers.firstOrNull(lookupCredentials, CredentialsMatchers.withId(credentialsId));
+                StandardUsernamePasswordCredentials credentials = CredentialsMatchers.firstOrNull(lookupCredentials, CredentialsMatchers.withId(null == credentialsId ? "" : credentialsId));
                 if (organization != null && !organization.trim().isEmpty()) {
                     InfluxDBClientOptions.Builder options = InfluxDBClientOptions.builder().url(url).org(organization).bucket(database);
                     if (credentials != null) { // basic auth
@@ -227,7 +232,7 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
                                 context,//
                                 ACL.SYSTEM,//
                                 URIRequirementBuilder.fromUri(url).build());//
-                        StringCredentials c = CredentialsMatchers.firstOrNull(lookupTokenCredentials, CredentialsMatchers.withId(credentialsId));
+                        StringCredentials c = CredentialsMatchers.firstOrNull(lookupTokenCredentials, CredentialsMatchers.withId(null == credentialsId ? "" : credentialsId));
                         assert c != null;
                         options.authenticateToken(c.getSecret().getPlainText().toCharArray());
                     }
@@ -238,8 +243,8 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
                             : InfluxDBClientFactory.createV1(url, credentials.getUsername(),
                                     credentials.getPassword().getPlainText().toCharArray(), database, retentionPolicy);
                 }
-                User user = influxDB.getUsersApi().me();
-                return FormValidation.ok("Connection success with {}", user.getName());
+                Bucket bucket = influxDB.getBucketsApi().findBucketByName(database);
+                return FormValidation.ok("Connection success for bucket/database " + bucket.getName());
             } catch (InfluxException e) {
                 return FormValidation.error(e, "Connection Failed");
             } finally {
