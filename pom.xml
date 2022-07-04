@@ -71,7 +71,7 @@ THE SOFTWARE.
         <mockito-core.version>2.26.0</mockito-core.version>
         <performance.version>3.0</performance.version>
         <perfpublisher.version>8.05</perfpublisher.version>
-        <plexus-utils.version>1.5.12</plexus-utils.version>
+        <plexus-utils.version>3.0.16</plexus-utils.version>
         <plexus-container-default.version>1.0-alpha-30</plexus-container-default.version>
         <plain-credentials.version>1.7</plain-credentials.version>
         <robot.version>3.0.0</robot.version>
