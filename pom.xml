@@ -65,7 +65,7 @@ THE SOFTWARE.
         <junit.version>4.13.1</junit.version>
         <junit_plugin.version>1.24</junit_plugin.version>
         <kotlin-stdlib.version>1.6.0</kotlin-stdlib.version>
-        <mailer.version>1.20</mailer.version>
+        <mailer.version>391.ve4a_38c1b_cf4b_</mailer.version>
         <maven-reporting-api.version>3.0</maven-reporting-api.version>
         <metrics.version>4.0.2.8.1</metrics.version>
         <mockito-core.version>2.26.0</mockito-core.version>
