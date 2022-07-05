@@ -51,6 +51,7 @@ THE SOFTWARE.
         <annotation-indexer.version>1.14</annotation-indexer.version>
         <asm.version>9.1</asm.version>
         <byte-buddy.version>1.9.10</byte-buddy.version>
+        <caffeine.version>2.9.2</caffeine.version>
         <cobertura.version>1.12.1</cobertura.version>
         <commons-csv.version>1.8</commons-csv.version>
         <commons-lang3.version>3.11</commons-lang3.version>
@@ -77,7 +78,7 @@ THE SOFTWARE.
         <plexus-container-default.version>1.0-alpha-30</plexus-container-default.version>
         <plain-credentials.version>1.7</plain-credentials.version>
         <robot.version>3.0.0</robot.version>
-        <script-security.version>1.58</script-security.version>
+        <script-security.version>1.75</script-security.version>
         <slf4j.version>1.7.30</slf4j.version>
         <spotbugs-annotations.version>4.2.0</spotbugs-annotations.version>
         <spotbugs.failOnError>false</spotbugs.failOnError>
@@ -283,11 +284,15 @@ THE SOFTWARE.
             <version>${commons-csv.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>${caffeine.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs-annotations</artifactId>
             <version>${spotbugs-annotations.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
