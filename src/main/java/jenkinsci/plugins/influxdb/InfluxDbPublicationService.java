@@ -278,8 +278,9 @@ public class InfluxDbPublicationService {
         }
 
         for (Target target : selectedTargets) {
+            URL url;
             try {
-                new URL(target.getUrl());
+                url = new URL(target.getUrl());
             } catch (MalformedURLException e) {
                 String logMessage = String.format("[InfluxDB Plugin] Skipping target '%s' due to invalid URL '%s'",
                         target.getDescription(),
@@ -296,7 +297,7 @@ public class InfluxDbPublicationService {
             logger.log(Level.FINE, logMessage);
             listener.getLogger().println(logMessage);
 
-            try (InfluxDBClient influxDB = getInfluxDBClient(build, target)) {
+            try (InfluxDBClient influxDB = getInfluxDBClient(build, target, url)) {
                 writeToInflux(target, influxDB, pointsToWrite);
             }
 
@@ -305,7 +306,7 @@ public class InfluxDbPublicationService {
         listener.getLogger().println("[InfluxDB Plugin] Completed.");
     }
 
-    private InfluxDBClient getInfluxDBClient(Run<?, ?> build, Target target) {
+    private InfluxDBClient getInfluxDBClient(Run<?, ?> build, Target target, URL url) {
         StandardUsernamePasswordCredentials credentials = CredentialsProvider.findCredentialById(target.getCredentialsId(), StandardUsernamePasswordCredentials.class, build);
         InfluxDBClient influxDB;
 
@@ -313,7 +314,8 @@ public class InfluxDbPublicationService {
             InfluxDBClientOptions.Builder options = InfluxDBClientOptions.builder()
                     .url(target.getUrl())
                     .org(target.getOrganization())
-                    .bucket(target.getDatabase());
+                    .bucket(target.getDatabase())
+                    .okHttpClient(createHttpClient(url, target.isUsingJenkinsProxy()));
             if (credentials != null) {  // basic auth
                 options.authenticate(credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray());
             } else {    // token auth
@@ -350,7 +352,7 @@ public class InfluxDbPublicationService {
                         return null; // Give up, we've already failed to authenticate.
                     }
 
-                    String credential = Credentials.basic(proxyConfig.getUserName(), proxyConfig.getPassword());
+                    String credential = Credentials.basic(proxyConfig.getUserName(), proxyConfig.getSecretPassword().getPlainText());
                     return response.request().newBuilder().header("Proxy-Authorization", credential).build();
                 });
             }
