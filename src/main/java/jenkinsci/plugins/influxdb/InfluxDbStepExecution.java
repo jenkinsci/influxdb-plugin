@@ -34,7 +34,7 @@ public class InfluxDbStepExecution extends SynchronousNonBlockingStepExecution<V
         publisher.setMeasurementName(step.getMeasurementName());
         publisher.setEnv(getContext().get(EnvVars.class));
 
-        publisher.perform(getContext().get(Run.class), workspace, getContext().get(Launcher.class), getContext().get(TaskListener.class));
+        publisher.perform(getContext().get(Run.class), workspace, getContext().get(EnvVars.class), getContext().get(Launcher.class), getContext().get(TaskListener.class));
         return null;
     }
 }
