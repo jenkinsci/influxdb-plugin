@@ -277,6 +277,16 @@ public class InfluxDbPublicationService {
             logger.log(Level.FINE, "Plugin skipped: Performance Publisher");
         }
 
+        try {
+            MetricsPointGenerator metricsGen = new MetricsPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
+            if (metricsGen.hasReport()) {
+                listener.getLogger().println("[InfluxDB plugin] Metrics plugin data found. Writing to InfluxDB...");
+                addPoints(pointsToWrite, metricsGen, listener);
+            }
+        } catch (NoClassDefFoundError ignore) {
+            logger.log(Level.FINE, "Plugin skipped: Metrics");
+        }
+
         for (Target target : selectedTargets) {
             URL url;
             try {
