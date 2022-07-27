@@ -11,8 +11,10 @@ public class MetricsPointGenerator extends AbstractPointGenerator {
     private static final String BLOCKED_TIME = "blocked_time";
     private static final String BUILDABLE_TIME = "buildable_time";
     private static final String EXECUTING_TIME = "executing_time";
+    private static final String EXECUTOR_UTILIZATION = "executor_utilization";
     private static final String QUEUEING_TIME = "queue_time";
     private static final String SUBTASK_COUNT = "subtask_count";
+    private static final String TOTAL_DURATION = "total_duration";
     private static final String WAITING_TIME = "waiting_time";
 
     private final Run<?, ?> build;
@@ -38,8 +40,10 @@ public class MetricsPointGenerator extends AbstractPointGenerator {
         point.addField(BLOCKED_TIME, timeInQueueAction.getBlockedDurationMillis());
         point.addField(BUILDABLE_TIME, timeInQueueAction.getBuildableDurationMillis());
         point.addField(EXECUTING_TIME, timeInQueueAction.getExecutingTimeMillis());
+        point.addField(EXECUTOR_UTILIZATION, timeInQueueAction.getExecutorUtilization());
         point.addField(QUEUEING_TIME, timeInQueueAction.getQueuingDurationMillis());
         point.addField(SUBTASK_COUNT, timeInQueueAction.getSubTaskCount());
+        point.addField(TOTAL_DURATION, timeInQueueAction.getTotalDurationMillis());
         point.addField(WAITING_TIME, timeInQueueAction.getWaitingDurationMillis());
         return new Point[] {point};
     }
