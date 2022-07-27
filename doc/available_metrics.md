@@ -43,7 +43,7 @@ All measurements share the following tags:
 | tests_failed | integer | Amount of failed unit tests (from JUnit plugin) | |
 | tests_skipped | integer | Amount of skipped unit tests (from JUnit plugin) | |
 | tests_total | integer | total amount of unit tests (from JUnit plugin) | |
-| time_in_queue | integer | Time build was in queue (from Metrics plugin | 1.16 |
+| time_in_queue | integer | Time build was in queue (from Metrics plugin) | 1.16 |
 
 Tags specific for this measurement:
 
