@@ -10,6 +10,7 @@ import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 public class MetricsPointGenerator extends AbstractPointGenerator {
     private static final String BLOCKED_TIME = "blocked_time";
     private static final String BUILDABLE_TIME = "buildable_time";
+    private static final String BUILDING_TIME = "building_time";
     private static final String EXECUTING_TIME = "executing_time";
     private static final String EXECUTOR_UTILIZATION = "executor_utilization";
     private static final String QUEUEING_TIME = "queue_time";
@@ -39,6 +40,7 @@ public class MetricsPointGenerator extends AbstractPointGenerator {
         Point point = buildPoint("metrics_data", customPrefix, build);
         point.addField(BLOCKED_TIME, timeInQueueAction.getBlockedDurationMillis());
         point.addField(BUILDABLE_TIME, timeInQueueAction.getBuildableDurationMillis());
+        point.addField(BUILDING_TIME, timeInQueueAction.getBuildingDurationMillis());
         point.addField(EXECUTING_TIME, timeInQueueAction.getExecutingTimeMillis());
         point.addField(EXECUTOR_UTILIZATION, timeInQueueAction.getExecutorUtilization());
         point.addField(QUEUEING_TIME, timeInQueueAction.getQueuingDurationMillis());
