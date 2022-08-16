@@ -84,7 +84,7 @@ public class InfluxDbPublicationService {
      * def myFields = [:]
      * myFields['field_a'] = 11
      * myFields['field_b'] = 12
-     * influxDbPublisher(target: 'my-target', customData: myFields)
+     * influxDbPublisher(selectedTarget: 'my-target', customData: myFields)
      * }</pre>
      */
     private final Map<String, Object> customData;
@@ -98,7 +98,7 @@ public class InfluxDbPublicationService {
      * def myTags = [:]
      * myTags['tag_1'] = 'foo'
      * myTags['tag_2'] = 'bar'
-     * influxDbPublisher(target: 'my-target', customData: ..., customDataTags: myTags)
+     * influxDbPublisher(selectedTarget: 'my-target', customData: ..., customDataTags: myTags)
      * }</pre>
      */
     private final Map<String, String> customDataTags;
@@ -121,7 +121,7 @@ public class InfluxDbPublicationService {
      * myFields2['field_d'] = 22
      * myCustomMeasurementFields['series_1'] = myFields1
      * myCustomMeasurementFields['series_2'] = myFields2
-     * influxDbPublisher(target: 'my-target', customDataMap: myCustomMeasurementFields)
+     * influxDbPublisher(selectedTarget: 'my-target', customDataMap: myCustomMeasurementFields)
      * }</pre>
      */
     private final Map<String, Map<String, Object>> customDataMap;
@@ -139,7 +139,7 @@ public class InfluxDbPublicationService {
      * myTags['buildResult'] = currentBuild.result
      * myTags['NODE_LABELS'] = env.NODE_LABELS
      * myCustomMeasurementTags['series_1'] = myTags
-     * influxDbPublisher(target: 'my-target', customDataMap: ..., customDataMapTags: myCustomMeasurementTags)
+     * influxDbPublisher(selectedTarget: 'my-target', customDataMap: ..., customDataMapTags: myCustomMeasurementTags)
      * }</pre>
      */
     private final Map<String, Map<String, String>> customDataMapTags;
@@ -307,9 +307,20 @@ public class InfluxDbPublicationService {
             logger.log(Level.FINE, "Plugin skipped: Performance Publisher");
         }
 
+        try {
+            MetricsPointGenerator metricsGen = new MetricsPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
+            if (metricsGen.hasReport()) {
+                listener.getLogger().println("[InfluxDB plugin] Metrics plugin data found. Writing to InfluxDB...");
+                addPoints(pointsToWrite, metricsGen, listener);
+            }
+        } catch (NoClassDefFoundError ignore) {
+            logger.log(Level.FINE, "Plugin skipped: Metrics");
+        }
+
         for (Target target : selectedTargets) {
+            URL url;
             try {
-                new URL(target.getUrl());
+                url = new URL(target.getUrl());
             } catch (MalformedURLException e) {
                 String logMessage = String.format("[InfluxDB Plugin] Skipping target '%s' due to invalid URL '%s'",
                         target.getDescription(),
@@ -326,7 +337,7 @@ public class InfluxDbPublicationService {
             logger.log(Level.FINE, logMessage);
             listener.getLogger().println(logMessage);
 
-            try (InfluxDBClient influxDB = getInfluxDBClient(build, target)) {
+            try (InfluxDBClient influxDB = getInfluxDBClient(build, target, url)) {
                 writeToInflux(target, influxDB, pointsToWrite);
             }
 
@@ -335,7 +346,7 @@ public class InfluxDbPublicationService {
         listener.getLogger().println("[InfluxDB Plugin] Completed.");
     }
 
-    private InfluxDBClient getInfluxDBClient(Run<?, ?> build, Target target) {
+    private InfluxDBClient getInfluxDBClient(Run<?, ?> build, Target target, URL url) {
         StandardUsernamePasswordCredentials credentials = CredentialsProvider.findCredentialById(target.getCredentialsId(), StandardUsernamePasswordCredentials.class, build);
         InfluxDBClient influxDB;
 
@@ -343,7 +354,8 @@ public class InfluxDbPublicationService {
             InfluxDBClientOptions.Builder options = InfluxDBClientOptions.builder()
                     .url(target.getUrl())
                     .org(target.getOrganization())
-                    .bucket(target.getDatabase());
+                    .bucket(target.getDatabase())
+                    .okHttpClient(createHttpClient(url, target.isUsingJenkinsProxy()));
             if (credentials != null) {  // basic auth
                 options.authenticate(credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray());
             } else {    // token auth
@@ -380,7 +392,7 @@ public class InfluxDbPublicationService {
                         return null; // Give up, we've already failed to authenticate.
                     }
 
-                    String credential = Credentials.basic(proxyConfig.getUserName(), proxyConfig.getPassword());
+                    String credential = Credentials.basic(proxyConfig.getUserName(), proxyConfig.getSecretPassword().getPlainText());
                     return response.request().newBuilder().header("Proxy-Authorization", credential).build();
                 });
             }

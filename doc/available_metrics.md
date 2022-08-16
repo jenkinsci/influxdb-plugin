@@ -43,7 +43,7 @@ All measurements share the following tags:
 | tests_failed | integer | Amount of failed unit tests (from JUnit plugin) | |
 | tests_skipped | integer | Amount of skipped unit tests (from JUnit plugin) | |
 | tests_total | integer | total amount of unit tests (from JUnit plugin) | |
-| time_in_queue | integer | Time build was in queue (from Metrics plugin | 1.16 |
+| time_in_queue | integer | Time build was in queue (from Metrics plugin) | 1.16 |
 
 Tags specific for this measurement:
 
@@ -360,3 +360,18 @@ Tags specific for this measurement:
 | serenity_results_total_test_duration | integer | Total test duration in milliseconds |  |
 | serenity_tags_* | integer | Amount of tests for each tag |  |
 
+### Metrics plugin
+
+#### `metrics_data` (since 3.4)
+
+| Metric | Type | Description | Introduced in |
+| --- | --- | --- | --- |
+| blocked_time | long | Milliseconds in the queue because build was blocked. | |
+| buildable_time | long | Milliseconds in the queue in a buildable state. | |
+| building_time | long | Milliseconds of the builds | |
+| executing_time | long | Milliseconds building from when it left the queue until it was finished. | |
+| executor_utilization | double | 0-1 percentage of the executor utilization | |
+| queue_time | long | Milliseconds when build entered the queue until it left the queue. | |
+| subtask_count | int | Amount of subtasks | |
+| total_duration | long | Build duration in milliseconds from when it entered the queue until it was finished. | |
+| waiting_time | long | Milliseconds in the queue waiting before it could be considered for execution. | |
