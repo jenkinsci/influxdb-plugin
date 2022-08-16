@@ -28,7 +28,7 @@ THE SOFTWARE.
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>3.50</version>
+        <version>4.20</version>
     </parent>
 
     <artifactId>influxdb</artifactId>
@@ -47,7 +47,7 @@ THE SOFTWARE.
     </scm>
 
     <properties>
-        <asm.version>5.0.3</asm.version>
+        <asm.version>9.1</asm.version>
         <byte-buddy.version>1.9.10</byte-buddy.version>
         <cobertura.version>1.12.1</cobertura.version>
         <commons-csv.version>1.8</commons-csv.version>
@@ -60,7 +60,7 @@ THE SOFTWARE.
         <influxdb-client-java.version>4.1.0</influxdb-client-java.version>
         <jacoco.version>1.0.12</jacoco.version>
         <java.level>8</java.level>
-        <jenkins.version>2.249.1</jenkins.version>
+        <jenkins.version>2.289.1</jenkins.version>
         <jimfs.version>1.0</jimfs.version>
         <junit.version>4.13.1</junit.version>
         <kotlin-stdlib.version>1.3.71</kotlin-stdlib.version>
@@ -77,13 +77,17 @@ THE SOFTWARE.
         <script-security.version>1.58</script-security.version>
         <slf4j.version>1.7.30</slf4j.version>
         <spotbugs.failOnError>false</spotbugs.failOnError>
+        <spotbugs.version>4.2.0</spotbugs.version>
         <structs.version>308.v852b473a2b8c</structs.version>
         <symbol-annotation.version>1.10</symbol-annotation.version>
         <workflow-api.version>2.33</workflow-api.version>
         <workflow-step-api.version>2.20</workflow-step-api.version>
         <workflow-durable-task-step.version>2.35</workflow-durable-task-step.version>
         <scm-api.version>2.2.7</scm-api.version>
-        <annotation-indexer.version>1.12</annotation-indexer.version>
+        <annotation-indexer.version>1.14</annotation-indexer.version>
+        <byte-buddy-agent.version>1.12.8</byte-buddy-agent.version>
+        <bridge-method-annotation.version>1.18</bridge-method-annotation.version>
+        <git-plugin.version>3.9.1</git-plugin.version>
     </properties>
 
     <licenses>
@@ -172,6 +176,16 @@ THE SOFTWARE.
                 <groupId>org.jenkins-ci</groupId>
                 <artifactId>annotation-indexer</artifactId>
                 <version>${annotation-indexer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy-agent</artifactId>
+                <version>${byte-buddy-agent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.infradna.tool</groupId>
+                <artifactId>bridge-method-annotation</artifactId>
+                <version>${bridge-method-annotation.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -325,19 +339,13 @@ THE SOFTWARE.
             <artifactId>slf4j-jdk14</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
-<!--         <dependency> -->
-<!--             <groupId>io.jenkins.plugins</groupId> -->
-<!--             <artifactId>caffeine-api</artifactId> -->
-<!--             <version>2.9.2-29.v717aac953ff3</version> -->
-<!--         </dependency> -->
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>git</artifactId>
-            <version>3.9.1</version>
+            <version>${git-plugin.version}</version>
             <optional>true</optional>
         </dependency>
     </dependencies>
-
 
     <!-- The current maintainers of the plugin -->
     <developers>
