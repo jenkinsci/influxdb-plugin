@@ -75,7 +75,6 @@ THE SOFTWARE.
         <plain-credentials.version>1.7</plain-credentials.version>
         <robot.version>3.0.0</robot.version>
         <script-security.version>1.58</script-security.version>
-        <slf4j.version>1.7.30</slf4j.version>
         <spotbugs.failOnError>false</spotbugs.failOnError>
         <spotbugs.version>4.2.0</spotbugs.version>
         <structs.version>308.v852b473a2b8c</structs.version>
@@ -332,17 +331,14 @@ THE SOFTWARE.
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>
-            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
-            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
