@@ -34,6 +34,7 @@ import jenkinsci.plugins.influxdb.generators.GitPointGenerator;
 import jenkinsci.plugins.influxdb.generators.JUnitPointGenerator;
 import jenkinsci.plugins.influxdb.generators.JacocoPointGenerator;
 import jenkinsci.plugins.influxdb.generators.JenkinsBasePointGenerator;
+import jenkinsci.plugins.influxdb.generators.MetricsPointGenerator;
 import jenkinsci.plugins.influxdb.generators.PerfPublisherPointGenerator;
 import jenkinsci.plugins.influxdb.generators.PerformancePointGenerator;
 import jenkinsci.plugins.influxdb.generators.PointGenerator;
