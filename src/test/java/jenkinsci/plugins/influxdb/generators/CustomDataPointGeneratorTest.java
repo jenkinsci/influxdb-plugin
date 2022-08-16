@@ -9,6 +9,7 @@ import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.util.Collections;
@@ -26,6 +27,7 @@ public class CustomDataPointGeneratorTest {
 
     private Run<?,?> build;
     private TaskListener listener;
+    private Jenkins jenkins;
 
     private ProjectNameRenderer measurementRenderer;
 
@@ -34,10 +36,12 @@ public class CustomDataPointGeneratorTest {
     @Before
     public void before() {
         build = Mockito.mock(Run.class);
-        Job job = Mockito.mock(Job.class);
+        Job<?,?> job = Mockito.mock(Job.class);
         listener = Mockito.mock(TaskListener.class);
+        jenkins = Mockito.mock(Jenkins.class);
         measurementRenderer = new ProjectNameRenderer(CUSTOM_PREFIX, null);
 
+        Mockito.when(jenkins.getRootUrl()).thenReturn("http://jenkinsurl:8080");
         Mockito.when(build.getNumber()).thenReturn(BUILD_NUMBER);
         Mockito.doReturn(job).when(build).getParent();
         Mockito.when(job.getName()).thenReturn(JOB_NAME);
@@ -59,33 +63,43 @@ public class CustomDataPointGeneratorTest {
 
     @Test
     public void generate() {
-        Map<String, Object> customData = new HashMap<>();
-        customData.put("test1", 11);
-        customData.put("test2", 22);
+        try (MockedStatic<Jenkins> instance = Mockito.mockStatic(Jenkins.class)) {
+            instance.when(Jenkins::get).thenReturn(jenkins);
 
-        Map<String, String> customDataTags = new HashMap<>();
-        customDataTags.put("tag1", "myTag");
-        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, customData, customDataTags, MEASUREMENT_NAME);
-        Point[] pointsToWrite = cdGen.generate();
+            Map<String, Object> customData = new HashMap<>();
+            customData.put("test1", 11);
+            customData.put("test2", 22);
 
-        String lineProtocol = pointsToWrite[0].toLineProtocol();
-        assertTrue(lineProtocol.startsWith("jenkins_custom_data,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master,tag1=myTag build_number=11i,build_time="));
-        assertTrue(lineProtocol.contains("project_name=\"test_prefix_master\",project_path=\"folder/master\",test1=11i,test2=22i"));
+            Map<String, String> customDataTags = new HashMap<>();
+            customDataTags.put("tag1", "myTag");
+            CustomDataPointGenerator cdGen = new CustomDataPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, customData, customDataTags, MEASUREMENT_NAME);
+            Point[] pointsToWrite = cdGen.generate();
+
+            String lineProtocol = pointsToWrite[0].toLineProtocol();
+            assertTrue(lineProtocol.startsWith("jenkins_custom_data,instance=http://jenkinsurl:8080,prefix=test_prefix,project_name=test_prefix_master,project_namespace=folder,project_path=folder/master,tag1=myTag build_number=11i,build_time="));
+            assertTrue(lineProtocol.contains("project_name=\"test_prefix_master\",project_path=\"folder/master\",test1=11i,test2=22i"));
+        }
+
     }
 
     @Test
     public void custom_measurement_included() {
-        String customMeasurement = "custom_measurement";
-        Map<String, Object> customData = new HashMap<>();
-        customData.put("test1", 11);
+        try (MockedStatic<Jenkins> instance = Mockito.mockStatic(Jenkins.class)) {
+            instance.when(Jenkins::get).thenReturn(jenkins);
 
-        Map<String, String> customDataTags = new HashMap<>();
-        customDataTags.put("tag1", "myTag");
+            String customMeasurement = "custom_measurement";
+            Map<String, Object> customData = new HashMap<>();
+            customData.put("test1", 11);
 
-        CustomDataPointGenerator cdGen = new CustomDataPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, customData, customDataTags, customMeasurement);
-        Point[] pointsToWrite = cdGen.generate();
+            Map<String, String> customDataTags = new HashMap<>();
+            customDataTags.put("tag1", "myTag");
 
-        String lineProtocol = pointsToWrite[0].toLineProtocol();
-        assertTrue(lineProtocol.startsWith("custom_" + customMeasurement));
+            CustomDataPointGenerator cdGen = new CustomDataPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, customData, customDataTags, customMeasurement);
+            Point[] pointsToWrite = cdGen.generate();
+
+            String lineProtocol = pointsToWrite[0].toLineProtocol();
+            assertTrue(lineProtocol.startsWith("custom_" + customMeasurement));
+        }
+
     }
 }

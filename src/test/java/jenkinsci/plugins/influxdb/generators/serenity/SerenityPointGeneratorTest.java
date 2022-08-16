@@ -5,6 +5,7 @@ import hudson.model.TaskListener;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ public class SerenityPointGeneratorTest {
     private static final String CUSTOM_PREFIX = "test_prefix";
 
     private Run build;
+    private Jenkins jenkins;
 
     private ProjectNameRenderer measurementRenderer;
 
@@ -39,23 +41,27 @@ public class SerenityPointGeneratorTest {
         Job job = Mockito.mock(Job.class);
         listener = Mockito.mock(TaskListener.class);
         measurementRenderer = new ProjectNameRenderer(CUSTOM_PREFIX, null);
+        jenkins = Mockito.mock(Jenkins.class);
 
+        Mockito.when(jenkins.getRootUrl()).thenReturn("http://jenkinsurl:8080");
         Mockito.when(build.getNumber()).thenReturn(BUILD_NUMBER);
         Mockito.when(build.getParent()).thenReturn(job);
         Mockito.when(job.getName()).thenReturn(JOB_NAME);
         Mockito.when(job.getRelativeNameFrom(Mockito.nullable(Jenkins.class))).thenReturn("folder/" + JOB_NAME);
 
         currTime = System.currentTimeMillis();
+        try (MockedStatic<Jenkins> instance = Mockito.mockStatic(Jenkins.class)) {
+            instance.when(Jenkins::get).thenReturn(jenkins);
+            SerenityCannedJsonSummaryFile serenityCannedJsonSummaryFile = new SerenityCannedJsonSummaryFile();
+            // build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix,
+            SerenityPointGenerator serenityGen = new SerenityPointGenerator(build, listener, measurementRenderer, currTime,
+                    StringUtils.EMPTY, null, serenityCannedJsonSummaryFile);
 
-        SerenityCannedJsonSummaryFile serenityCannedJsonSummaryFile = new SerenityCannedJsonSummaryFile();
-        // build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix,
-        SerenityPointGenerator serenityGen = new SerenityPointGenerator(build, listener, measurementRenderer, currTime,
-                StringUtils.EMPTY, null, serenityCannedJsonSummaryFile);
-
-        if (serenityGen.hasReport()) {
-            List<Point> pointsToWrite = new ArrayList<>(Arrays.asList(serenityGen.generate()));
-            // points.fields is private so just get all fields as a single string
-            points = pointsToWrite.get(0).toLineProtocol();
+            if (serenityGen.hasReport()) {
+                List<Point> pointsToWrite = new ArrayList<>(Arrays.asList(serenityGen.generate()));
+                // points.fields is private so just get all fields as a single string
+                points = pointsToWrite.get(0).toLineProtocol();
+            }
         }
     }
 
