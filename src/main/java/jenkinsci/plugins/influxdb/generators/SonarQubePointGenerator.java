@@ -8,10 +8,13 @@ import java.util.regex.Pattern;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.cloudbees.plugins.credentials.CredentialsMatchers;
+import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.influxdb.client.write.Point;
 import hudson.EnvVars;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
@@ -21,9 +24,12 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.apache.commons.lang3.StringUtils;
+import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 
+import hudson.model.ItemGroup;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import hudson.security.ACL;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -91,7 +97,9 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private final String customPrefix;
     private final TaskListener listener;
 
-    private String token = null;
+    private String credentialId = null;
+
+    private StringCredentials sonarqubeCredentials;
 
     private EnvVars env;
 
@@ -200,13 +208,14 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
         sonarMetricsUrl = sonarServer + String.format(SONAR_METRICS_BASE_URL, projectKey, projectKey);
 
-        token = env.get("SONAR_AUTH_TOKEN");
-        if (token != null) {
+        credentialId = env.get("SONAR_AUTH_TOKEN");
+        if (credentialId != null) {
             String logMessage = "[InfluxDB Plugin] INFO: Using SonarQube auth token found in environment variable SONAR_AUTH_TOKEN";
             listener.getLogger().println(logMessage);
         } else {
             String logMessage = "[InfluxDB Plugin] WARNING: No SonarQube auth token found in environment variable SONAR_AUTH_TOKEN. Depending on access rights, this might result in a HTTP/401.";
             listener.getLogger().println(logMessage);
+            sonarqubeCredentials = findSonarqubeCredentials(credentialId, build.getParent().getParent());
         }
     }
 
@@ -254,8 +263,8 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                 .url(url)
                 .header("Accept", "application/json");
 
-        if (token != null) {
-            String credential = Credentials.basic(token, "", StandardCharsets.UTF_8);
+        if (sonarqubeCredentials != null) {
+            String credential = Credentials.basic(sonarqubeCredentials.getSecret().getPlainText(), "", StandardCharsets.UTF_8);
             requestBuilder.header("Authorization", credential);
         }
 
@@ -416,5 +425,14 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private int getSonarIssues(String url, String severity) throws IOException {
         String output = getResult(url + severity);
         return JSONObject.fromObject(output).getInt("total");
+    }
+
+    private StringCredentials findSonarqubeCredentials(String credentialsId, ItemGroup<?> itemGroup) {
+        List<StringCredentials> lookupCredentials = CredentialsProvider.lookupCredentials(
+                StringCredentials.class,
+                itemGroup,
+                ACL.SYSTEM,
+                Collections.emptyList());
+        return CredentialsMatchers.firstOrNull(lookupCredentials, CredentialsMatchers.withId(credentialsId));
     }
 }
