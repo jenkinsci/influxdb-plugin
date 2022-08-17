@@ -206,14 +206,14 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
         sonarMetricsUrl = sonarServer + String.format(SONAR_METRICS_BASE_URL, projectKey, projectKey);
 
-        String credentialId = env.get("SONAR_AUTH_TOKEN");
-        if (credentialId != null) {
+        String credentialsId = env.get("SONAR_AUTH_TOKEN");
+        if (credentialsId != null) {
             String logMessage = "[InfluxDB Plugin] INFO: Using SonarQube auth token found in environment variable SONAR_AUTH_TOKEN";
             listener.getLogger().println(logMessage);
+            sonarqubeCredentials = CredentialsProvider.findCredentialById(credentialsId, StringCredentials.class, build);
         } else {
             String logMessage = "[InfluxDB Plugin] WARNING: No SonarQube auth token found in environment variable SONAR_AUTH_TOKEN. Depending on access rights, this might result in a HTTP/401.";
             listener.getLogger().println(logMessage);
-            sonarqubeCredentials = findSonarqubeCredentials(credentialId, build.getParent().getParent());
         }
     }
 
@@ -264,6 +264,8 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         if (sonarqubeCredentials != null) {
             String credential = Credentials.basic(sonarqubeCredentials.getSecret().getPlainText(), "", StandardCharsets.UTF_8);
             requestBuilder.header("Authorization", credential);
+        } else {
+            listener.error("Unable to find valid Credentials for Sonarqube");
         }
 
         try (Response response = httpClient.newCall(requestBuilder.build()).execute()) {
@@ -423,14 +425,5 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private int getSonarIssues(String url, String severity) throws IOException {
         String output = getResult(url + severity);
         return JSONObject.fromObject(output).getInt("total");
-    }
-
-    private StringCredentials findSonarqubeCredentials(String credentialsId, ItemGroup<?> itemGroup) {
-        List<StringCredentials> lookupCredentials = CredentialsProvider.lookupCredentials(
-                StringCredentials.class,
-                itemGroup,
-                ACL.SYSTEM,
-                Collections.emptyList());
-        return CredentialsMatchers.firstOrNull(lookupCredentials, CredentialsMatchers.withId(credentialsId));
     }
 }
