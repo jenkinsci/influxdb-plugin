@@ -97,8 +97,6 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private final String customPrefix;
     private final TaskListener listener;
 
-    private String credentialId = null;
-
     private StringCredentials sonarqubeCredentials;
 
     private EnvVars env;
@@ -208,7 +206,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
         sonarMetricsUrl = sonarServer + String.format(SONAR_METRICS_BASE_URL, projectKey, projectKey);
 
-        credentialId = env.get("SONAR_AUTH_TOKEN");
+        String credentialId = env.get("SONAR_AUTH_TOKEN");
         if (credentialId != null) {
             String logMessage = "[InfluxDB Plugin] INFO: Using SonarQube auth token found in environment variable SONAR_AUTH_TOKEN";
             listener.getLogger().println(logMessage);
