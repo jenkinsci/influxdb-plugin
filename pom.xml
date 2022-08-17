@@ -47,14 +47,18 @@ THE SOFTWARE.
     </scm>
 
     <properties>
+        <annotation-indexer.version>1.14</annotation-indexer.version>
         <asm.version>9.1</asm.version>
+        <bridge-method-annotation.version>1.18</bridge-method-annotation.version>
         <byte-buddy.version>1.9.10</byte-buddy.version>
+        <byte-buddy-agent.version>1.12.8</byte-buddy-agent.version>
         <cobertura.version>1.12.1</cobertura.version>
         <commons-csv.version>1.8</commons-csv.version>
         <commons-lang3.version>3.11</commons-lang3.version>
         <configuration-as-code.version>1.55.1</configuration-as-code.version>
         <credentials.version>2.6.1.1</credentials.version>
         <doxia-sink-api.version>1.1.2</doxia-sink-api.version>
+        <git-plugin.version>3.9.1</git-plugin.version>
         <gson.version>2.8.8</gson.version>
         <hpi.compatibleSinceVersion>3.0</hpi.compatibleSinceVersion>
         <influxdb-client-java.version>4.1.0</influxdb-client-java.version>
@@ -64,7 +68,7 @@ THE SOFTWARE.
         <jimfs.version>1.0</jimfs.version>
         <junit.version>4.13.1</junit.version>
         <kotlin-stdlib.version>1.3.71</kotlin-stdlib.version>
-        <mailer.version>1.20</mailer.version>
+        <mailer.version>391.ve4a_38c1b_cf4b_</mailer.version>
         <maven-reporting-api.version>3.0</maven-reporting-api.version>
         <metrics.version>4.0.2.8.1</metrics.version>
         <mockito-core.version>4.4.0</mockito-core.version>
@@ -74,19 +78,16 @@ THE SOFTWARE.
         <plexus-container-default.version>1.0-alpha-30</plexus-container-default.version>
         <plain-credentials.version>1.7</plain-credentials.version>
         <robot.version>3.0.0</robot.version>
+        <scm-api.version>2.2.7</scm-api.version>
         <script-security.version>1.58</script-security.version>
         <spotbugs.failOnError>false</spotbugs.failOnError>
         <spotbugs.version>4.2.0</spotbugs.version>
+        <sshd.version>3.0</sshd.version>
         <structs.version>308.v852b473a2b8c</structs.version>
         <symbol-annotation.version>1.10</symbol-annotation.version>
         <workflow-api.version>2.33</workflow-api.version>
         <workflow-step-api.version>2.20</workflow-step-api.version>
         <workflow-durable-task-step.version>2.35</workflow-durable-task-step.version>
-        <scm-api.version>2.2.7</scm-api.version>
-        <annotation-indexer.version>1.14</annotation-indexer.version>
-        <byte-buddy-agent.version>1.12.8</byte-buddy-agent.version>
-        <bridge-method-annotation.version>1.18</bridge-method-annotation.version>
-        <git-plugin.version>3.9.1</git-plugin.version>
     </properties>
 
     <licenses>
@@ -311,7 +312,7 @@ THE SOFTWARE.
         <dependency>
              <groupId>org.jenkins-ci.modules</groupId>
              <artifactId>sshd</artifactId>
-            <version>3.0</version>
+            <version>${sshd.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
