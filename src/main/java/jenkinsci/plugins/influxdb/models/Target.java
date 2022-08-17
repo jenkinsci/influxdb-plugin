@@ -10,6 +10,7 @@ import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.InfluxDBClientOptions;
 import com.influxdb.client.domain.Bucket;
+import com.influxdb.exceptions.InfluxException;
 
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
@@ -30,6 +31,7 @@ import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.verb.POST;
+import org.springframework.security.access.AccessDeniedException;
 
 public class Target extends AbstractDescribableImpl<Target> implements java.io.Serializable {
 
@@ -243,7 +245,7 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
 
                 Bucket bucket = influxDB.getBucketsApi().findBucketByName(database);
                 return FormValidation.ok("Connection success for bucket/database " + bucket.getName());
-            } catch (Exception e) {
+            } catch (InfluxException | AccessDeniedException e) {
                 return FormValidation.error(e, "Connection Failed");
             } finally {
                 if (influxDB != null) {
