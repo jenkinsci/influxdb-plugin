@@ -1,6 +1,7 @@
 package jenkinsci.plugins.influxdb.generators;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -52,15 +53,21 @@ public class GitPointGenerator extends AbstractPointGenerator {
     @Override
     public Point[] generate() {
         List<Point> points = new ArrayList<>();
-        Revision revision = null;
-        Branch branch = null;
+        String sha1String = null;
+        String branchName = null;
         for (BuildData gitAction : gitActions) {
-            revision = gitAction.getLastBuiltRevision();
-            branch = revision.getBranches().iterator().next();
+            Revision revision = gitAction.getLastBuiltRevision();
+            if(revision != null) {
+                sha1String = revision.getSha1String();
+                Collection<Branch> branches = revision.getBranches();
+                if (CollectionUtils.isNotEmpty(branches)) {
+                    branchName = branches.iterator().next().getName();
+                }
+            }
             Point point = buildPoint("git_data", customPrefix, build)//
                     .addField(GIT_REPOSITORY, !CollectionUtils.isEmpty(gitAction.getRemoteUrls()) ? gitAction.getRemoteUrls().iterator().next() : "")//
-                    .addField(GIT_REFERENCE, branch.getName())//
-                    .addField(GIT_REVISION, revision.getSha1String());//
+                    .addField(GIT_REFERENCE, branchName)//
+                    .addField(GIT_REVISION, sha1String);//
             points.add(point);
         }
         return points.toArray(new Point[0]);
