@@ -50,6 +50,7 @@ THE SOFTWARE.
         <access-modifier-annotation.version>1.21</access-modifier-annotation.version>
         <annotation-indexer.version>1.14</annotation-indexer.version>
         <asm.version>9.1</asm.version>
+        <bridge-method-annotation.version>1.18</bridge-method-annotation.version>
         <byte-buddy.version>1.9.10</byte-buddy.version>
         <caffeine.version>2.9.2</caffeine.version>
         <cobertura.version>1.12.1</cobertura.version>
@@ -166,6 +167,11 @@ THE SOFTWARE.
                 <groupId>org.jenkins-ci</groupId>
                 <artifactId>symbol-annotation</artifactId>
                 <version>${symbol-annotation.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.infradna.tool</groupId>
+                <artifactId>bridge-method-annotation</artifactId>
+                <version>${bridge-method-annotation.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
