@@ -178,7 +178,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
                 }
             }
             return new String[] { userCause != null ? userCause : "", triggers.toString() };
-        } catch (Exception e) {
+        } catch (IOException | InterruptedException e) {
             return new String[] { "", "" };
         }
     }
