@@ -91,7 +91,7 @@ public class CustomDataMapPointGeneratorTest {
             lineProtocol1 = pointsToWrite[1].toLineProtocol();
             lineProtocol2 = pointsToWrite[0].toLineProtocol();
         }
-        assertTrue(lineProtocol1.startsWith("series1,build_result=SUCCESS,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master build_number=11i,project_name=\"test_prefix_master\",project_path=\"folder/master\",test1=11i,test2=22i"));
-        assertTrue(lineProtocol2.startsWith("series2,prefix=test_prefix,project_name=test_prefix_master,project_path=folder/master build_number=11i,project_name=\"test_prefix_master\",project_path=\"folder/master\",test3=33i,test4=44i"));
+        assertTrue(lineProtocol1.startsWith("series1,build_result=SUCCESS,prefix=test_prefix,project_name=test_prefix_master,project_namespace=folder,project_path=folder/master build_number=11i,project_name=\"test_prefix_master\",project_path=\"folder/master\",test1=11i,test2=22i"));
+        assertTrue(lineProtocol2.startsWith("series2,prefix=test_prefix,project_name=test_prefix_master,project_namespace=folder,project_path=folder/master build_number=11i,project_name=\"test_prefix_master\",project_path=\"folder/master\",test3=33i,test4=44i"));
     }
 }
