@@ -82,6 +82,7 @@ THE SOFTWARE.
         <slf4j.version>1.7.30</slf4j.version>
         <spotbugs-annotations.version>4.2.0</spotbugs-annotations.version>
         <spotbugs.failOnError>false</spotbugs.failOnError>
+        <sshd.version>3.0</sshd.version>
         <structs.version>1.23</structs.version>
         <symbol-annotation.version>1.10</symbol-annotation.version>
         <workflow-api.version>2.33</workflow-api.version>
@@ -223,6 +224,12 @@ THE SOFTWARE.
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-step-api</artifactId>
             <version>${workflow-step-api.version}</version>
+        </dependency>
+        <dependency>
+             <groupId>org.jenkins-ci.modules</groupId>
+             <artifactId>sshd</artifactId>
+            <version>${sshd.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- Optional dependencies -->
