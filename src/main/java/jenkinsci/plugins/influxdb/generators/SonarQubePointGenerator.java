@@ -8,12 +8,10 @@ import java.util.regex.Pattern;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.influxdb.client.write.Point;
 import hudson.EnvVars;
@@ -26,10 +24,8 @@ import okhttp3.ResponseBody;
 import org.apache.commons.lang3.StringUtils;
 import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 
-import hudson.model.ItemGroup;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import hudson.security.ACL;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
