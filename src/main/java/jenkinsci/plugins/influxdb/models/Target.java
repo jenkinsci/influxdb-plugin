@@ -226,10 +226,10 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
                         options.authenticate(credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray());
                     } else { // token auth
                         List<StringCredentials> lookupTokenCredentials = CredentialsProvider.lookupCredentials(//
-                                StringCredentials.class,//
-                                context,//
-                                ACL.SYSTEM,//
-                                URIRequirementBuilder.fromUri(url).build());//
+                                StringCredentials.class,
+                                context,
+                                ACL.SYSTEM,
+                                URIRequirementBuilder.fromUri(url).build());
                         StringCredentials c = CredentialsMatchers.firstOrNull(lookupTokenCredentials, CredentialsMatchers.withId(null == credentialsId ? "" : credentialsId));
                         assert c != null;
                         options.authenticateToken(c.getSecret().getPlainText().toCharArray());
