@@ -30,6 +30,7 @@ public class AgentPointGenerator extends AbstractPointGenerator {
 
     protected static final String AGENT_NAME = "agent_name";
     protected static final String AGENT_LABEL = "agent_label";
+    protected static final String UNIQUE_ID = "unique_id"; 
 
     private List<Map.Entry<String, String>> agentPoints;
     private String customPrefix;
@@ -49,8 +50,11 @@ public class AgentPointGenerator extends AbstractPointGenerator {
     @Override
     public Point[] generate() {
         List<Point> points = new ArrayList<>();
-        for (Map.Entry<String, String> agentPoint : agentPoints) {
+        Map.Entry<String, String> agentPoint = null;
+        for (int i = 0; i < agentPoints.size(); i++) {
+            agentPoint = agentPoints.get(i);
             Point point = buildPoint("agent_data", customPrefix, build)//
+                    .addTag(UNIQUE_ID, String.valueOf(i+1))//
                     .addField(AGENT_NAME, agentPoint.getKey())//
                     .addField(AGENT_LABEL, agentPoint.getValue());
             points.add(point);
@@ -87,7 +91,8 @@ public class AgentPointGenerator extends AbstractPointGenerator {
         List<Map.Entry<String, String>> agentPointsList = new ArrayList<>();
         Node node = build.getBuiltOn();
         if (node != null) {
-            agentPointsList.add(new AbstractMap.SimpleEntry<String, String>(node.getDisplayName(), node.getLabelString()));
+            agentPointsList
+                    .add(new AbstractMap.SimpleEntry<String, String>(node.getDisplayName(), node.getLabelString()));
         }
         return agentPointsList;
     }
@@ -115,7 +120,8 @@ public class AgentPointGenerator extends AbstractPointGenerator {
                             labelString.add(label.getName());
                         }
                         String nodeName = workspaceAction.getNode();
-                        agentPointsList.add(new AbstractMap.SimpleEntry<String, String>(nodeName, labelString.toString()));
+                        agentPointsList
+                                .add(new AbstractMap.SimpleEntry<String, String>(nodeName, labelString.toString()));
                     }
                 }
             }
