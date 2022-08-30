@@ -10,6 +10,7 @@ import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.InfluxDBClientOptions;
 import com.influxdb.client.domain.Bucket;
+import com.influxdb.client.domain.User;
 import com.influxdb.exceptions.InfluxException;
 
 import hudson.Extension;
@@ -243,8 +244,12 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
                                     credentials.getPassword().getPlainText().toCharArray(), database, retentionPolicy);
                 }
 
-                Bucket bucket = influxDB.getBucketsApi().findBucketByName(database);
-                return FormValidation.ok("Connection success for bucket/database " + bucket.getName());
+                boolean connected = influxDB.ping();
+                if(connected) {
+                    return FormValidation.ok("Connection success");
+                } else {
+                    return FormValidation.ok("Connection Failed");
+                }
             } catch (InfluxException | AccessDeniedException e) {
                 return FormValidation.error(e, "Connection Failed");
             } finally {
