@@ -10,9 +10,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.jvnet.hudson.test.JenkinsRule;
 import org.mockito.Mockito;
 
 import com.influxdb.client.write.Point;
@@ -32,9 +30,6 @@ import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
  */
 public class GitPointGeneratorTest {
 
-    @ClassRule
-    public static JenkinsRule jenkinsRule = new JenkinsRule();
-
     private static final String CUSTOM_PREFIX = "test_prefix";
     private static final String JOB_NAME = "job_name";
     private static final String GIT_REPOSITORY = "repository";
@@ -43,12 +38,15 @@ public class GitPointGeneratorTest {
 
     private Run<?, ?> build;
     private List<BuildData> gitActions;
-    private BuildData gitAction;
+    private BuildData gitAction1;
+    private BuildData gitAction2;
     private TaskListener listener;
     private long currTime;
     private ProjectNameRenderer measurementRenderer;
-    private Revision revision;
-    private Branch branch;
+    private Revision revision1;
+    private Revision revision2;
+    private Branch branch1;
+    private Branch branch2;
 
     @Before
     public void before() throws Exception {
@@ -63,21 +61,32 @@ public class GitPointGeneratorTest {
 
         build = Mockito.mock(Run.class);
         Mockito.doReturn(job).when(build).getParent();
-        gitAction = Mockito.mock(BuildData.class);
+        gitAction1 = Mockito.mock(BuildData.class);
+        gitAction2 = Mockito.mock(BuildData.class);
         gitActions = new ArrayList<>();
-        gitActions.add(gitAction);
-        branch = Mockito.mock(Branch.class);
-        revision = Mockito.mock(Revision.class);
+        gitActions.add(gitAction1);
+        gitActions.add(gitAction2);
+        branch1 = Mockito.mock(Branch.class);
+        branch2 = Mockito.mock(Branch.class);
+        revision1 = Mockito.mock(Revision.class);
+        revision2 = Mockito.mock(Revision.class);
         Mockito.when(build.getActions(BuildData.class)).thenReturn(gitActions);
-        Mockito.when(gitAction.getLastBuiltRevision()).thenReturn(revision);
-        List<Branch> branches = Arrays.asList(branch);
-        Mockito.when(revision.getBranches()).thenReturn(branches);
-        Mockito.when(branch.getName()).thenReturn(GIT_REFERENCE);
-        Mockito.when(revision.getSha1String()).thenReturn(GIT_REVISION);
-        Mockito.when(revision.getSha1String()).thenReturn(GIT_REVISION);
-        Set<String> remoteUrls = new HashSet<>();
-        remoteUrls.add(GIT_REPOSITORY);
-        Mockito.when(gitAction.getRemoteUrls()).thenReturn(remoteUrls);
+        Mockito.when(gitAction1.getLastBuiltRevision()).thenReturn(revision1);
+        Mockito.when(gitAction2.getLastBuiltRevision()).thenReturn(revision2);
+        List<Branch> branches1 = Arrays.asList(branch1);
+        List<Branch> branches2 = Arrays.asList(branch2);
+        Mockito.when(revision1.getBranches()).thenReturn(branches1);
+        Mockito.when(revision2.getBranches()).thenReturn(branches2);
+        Mockito.when(branch1.getName()).thenReturn(GIT_REFERENCE);
+        Mockito.when(branch2.getName()).thenReturn(GIT_REFERENCE + "2");
+        Mockito.when(revision1.getSha1String()).thenReturn(GIT_REVISION);
+        Mockito.when(revision2.getSha1String()).thenReturn(GIT_REVISION + "2");
+        Set<String> remoteUrls1 = new HashSet<>();
+        remoteUrls1.add(GIT_REPOSITORY);
+        Set<String> remoteUrls2 = new HashSet<>();
+        remoteUrls2.add(GIT_REPOSITORY + "2");
+        Mockito.when(gitAction1.getRemoteUrls()).thenReturn(remoteUrls1);
+        Mockito.when(gitAction2.getRemoteUrls()).thenReturn(remoteUrls2);
     }
 
     @Test
@@ -92,6 +101,10 @@ public class GitPointGeneratorTest {
         assertTrue(lineProtocol.contains("git_repository=\"repository\""));
         assertTrue(lineProtocol.contains("git_revision=\"revision\""));
         assertTrue(lineProtocol.contains("git_reference=\"reference\""));
+        String lineProtocol2 = points[1].toLineProtocol();
+        assertTrue(lineProtocol2.contains("git_repository=\"repository2\""));
+        assertTrue(lineProtocol2.contains("git_revision=\"revision2\""));
+        assertTrue(lineProtocol2.contains("git_reference=\"reference2\""));
     }
 
 }

@@ -24,6 +24,7 @@ public class GitPointGenerator extends AbstractPointGenerator {
     protected static final String GIT_REPOSITORY = "git_repository";
     protected static final String GIT_REVISION = "git_revision";
     protected static final String GIT_REFERENCE = "git_reference";
+    protected static final String UNIQUE_ID = "unique_id";
 
     private String customPrefix;
     private List<BuildData> gitActions;
@@ -55,7 +56,9 @@ public class GitPointGenerator extends AbstractPointGenerator {
         List<Point> points = new ArrayList<>();
         String sha1String = null;
         String branchName = null;
-        for (BuildData gitAction : gitActions) {
+        BuildData gitAction = null;
+        for (int i = 0; i < gitActions.size(); i++) {
+            gitAction = gitActions.get(i);
             Revision revision = gitAction.getLastBuiltRevision();
             if(revision != null) {
                 sha1String = revision.getSha1String();
@@ -64,10 +67,11 @@ public class GitPointGenerator extends AbstractPointGenerator {
                     branchName = branches.iterator().next().getName();
                 }
             }
-            Point point = buildPoint("git_data", customPrefix, build)//
+            Point point = buildPoint("git_data", customPrefix, build)
                     .addField(GIT_REPOSITORY, !CollectionUtils.isEmpty(gitAction.getRemoteUrls()) ? gitAction.getRemoteUrls().iterator().next() : "")//
-                    .addField(GIT_REFERENCE, branchName)//
-                    .addField(GIT_REVISION, sha1String);//
+                    .addTag(UNIQUE_ID, String.valueOf(i+1))
+                    .addField(GIT_REFERENCE, branchName)
+                    .addField(GIT_REVISION, sha1String);
             points.add(point);
         }
         return points.toArray(new Point[0]);
