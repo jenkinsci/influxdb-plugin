@@ -35,9 +35,6 @@ import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
  * @author Mathieu Delrocq
  */
 public class AgentPointGeneratorTest {
-    
-    @ClassRule
-    public static JenkinsRule jenkinsRule = new JenkinsRule();
 
     private static final String CUSTOM_PREFIX = "test_prefix";
     private static final String JOB_NAME = "job_name";
@@ -48,11 +45,13 @@ public class AgentPointGeneratorTest {
     private Run<?, ?> abstractBuild;
     private WorkflowRun pipelineBuild;
     private Node node;
-    private FlowNode flowNode;
+    private FlowNode flowNode1;
+    private FlowNode flowNode2;
     private List<FlowNode> flowNodeList;
     private FlowExecutionOwner flowExecutionOwner;
     private FlowExecution flowExecution;
-    private WorkspaceAction workspaceAction;
+    private WorkspaceAction workspaceAction1;
+    private WorkspaceAction workspaceAction2;
     private TaskListener listener;
     private long currTime;
     private ProjectNameRenderer measurementRenderer;
@@ -79,21 +78,27 @@ public class AgentPointGeneratorTest {
         // Mock for Pipeline
         pipelineBuild = Mockito.mock(WorkflowRun.class);
         Mockito.doReturn(job).when(pipelineBuild).getParent();
-        flowNode = Mockito.mock(FlowNode.class);
+        flowNode1 = Mockito.mock(FlowNode.class);
+        flowNode2 = Mockito.mock(FlowNode.class);
         flowExecutionOwner = Mockito.mock(FlowExecutionOwner.class);
         flowExecution = Mockito.mock(FlowExecution.class);
         flowNodeList = new ArrayList<FlowNode>();
-        flowNodeList.add(flowNode);
-        workspaceAction = Mockito.mock(WorkspaceAction.class);
+        flowNodeList.add(flowNode1);
+        flowNodeList.add(flowNode2);
+        workspaceAction1 = Mockito.mock(WorkspaceAction.class);
+        workspaceAction2 = Mockito.mock(WorkspaceAction.class);
         Set<LabelAtom> labels = new HashSet<LabelAtom>();
         LabelAtom label = new LabelAtom(NODE_LABEL);
         labels.add(label);
         Mockito.when(pipelineBuild.asFlowExecutionOwner()).thenReturn(flowExecutionOwner);
         Mockito.when(flowExecutionOwner.getOrNull()).thenReturn(flowExecution);
         Mockito.when(flowExecution.getCurrentHeads()).thenReturn(flowNodeList);
-        Mockito.when(flowNode.getAction(WorkspaceAction.class)).thenReturn(workspaceAction);
-        Mockito.when(workspaceAction.getNode()).thenReturn(NODE_NAME);
-        Mockito.when(workspaceAction.getLabels()).thenReturn(labels);
+        Mockito.when(flowNode1.getAction(WorkspaceAction.class)).thenReturn(workspaceAction1);
+        Mockito.when(flowNode2.getAction(WorkspaceAction.class)).thenReturn(workspaceAction2);
+        Mockito.when(workspaceAction1.getNode()).thenReturn(NODE_NAME);
+        Mockito.when(workspaceAction1.getLabels()).thenReturn(labels);
+        Mockito.when(workspaceAction2.getNode()).thenReturn(NODE_NAME + "2");
+        Mockito.when(workspaceAction2.getLabels()).thenReturn(labels);
     }
 
     @Test
@@ -104,9 +109,12 @@ public class AgentPointGeneratorTest {
         Point[] points = gen.generate();
         assertTrue(points != null && points.length != 0);
         assertTrue(points[0].hasFields());
-        String lineProtocol = points[0].toLineProtocol();
-        assertTrue(lineProtocol.contains("agent_name=\"node_name\""));
-        assertTrue(lineProtocol.contains("agent_label=\"node_label\""));
+        String lineProtocol1 = points[0].toLineProtocol();
+        String lineProtocol2 = points[1].toLineProtocol();
+        assertTrue(lineProtocol1.contains("agent_name=\"node_name2\""));
+        assertTrue(lineProtocol1.contains("agent_label=\"node_label\""));
+        assertTrue(lineProtocol2.contains("agent_name=\"node_name\""));
+        assertTrue(lineProtocol2.contains("agent_label=\"node_label\""));
     }
 
     @Test
