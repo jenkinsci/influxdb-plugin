@@ -378,7 +378,7 @@ Tags specific for this measurement:
 
 ### Git plugin
 
-#### `git_data`
+#### `git_data` (since 3.4)
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | git_repository | string | URL of the Git repository used by the build | |
