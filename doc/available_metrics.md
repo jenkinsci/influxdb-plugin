@@ -112,7 +112,7 @@ Tags specific for this measurement:
 | sqale_index | float | Technical Debt | 2.4 |
 | sqale_debt_ratio | float | Technical Debt Ratio | 2.4 |
 
-#### `agent_data`
+#### `agent_data` (since 3.4)
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | agent_name | string | Name of an agent called by the build |  |
