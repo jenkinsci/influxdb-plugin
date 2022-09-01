@@ -68,8 +68,8 @@ public class GitPointGenerator extends AbstractPointGenerator {
                 }
             }
             Point point = buildPoint("git_data", customPrefix, build)
-                    .addField(GIT_REPOSITORY, !CollectionUtils.isEmpty(gitAction.getRemoteUrls()) ? gitAction.getRemoteUrls().iterator().next() : "")//
                     .addTag(UNIQUE_ID, String.valueOf(i+1))
+                    .addField(GIT_REPOSITORY, !CollectionUtils.isEmpty(gitAction.getRemoteUrls()) ? gitAction.getRemoteUrls().iterator().next() : "")//
                     .addField(GIT_REFERENCE, branchName)
                     .addField(GIT_REVISION, sha1String);
             points.add(point);
