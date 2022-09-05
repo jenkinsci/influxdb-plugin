@@ -241,6 +241,18 @@ public class InfluxDbPublicationService {
             logger.log(Level.FINE, "Plugin skipped: Performance");
         }
 
+        try {
+            GitPointGenerator gitGen = new GitPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
+            if (gitGen.hasReport()) {
+                listener.getLogger().println("[InfluxDB Plugin] Git data found. Writing to InfluxDB...");
+                addPoints(pointsToWrite, gitGen, listener);
+            } else {
+                logger.log(Level.FINE, "Plugin skipped: Git");
+            }
+        } catch (NoClassDefFoundError ignore) {
+            logger.log(Level.FINE, "Plugin skipped: Git");
+        }
+
         JUnitPointGenerator junitGen = new JUnitPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix, env);
         if (junitGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] JUnit data found. Writing to InfluxDB...");
