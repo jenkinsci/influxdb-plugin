@@ -178,6 +178,13 @@ public class InfluxDbPublicationService {
         JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, jenkinsEnvParameterField, customPrefix, measurementName, env);
         addPoints(pointsToWrite, jGen, listener);
 
+        AgentPointGenerator agentGen = new AgentPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
+        if (agentGen.hasReport()) {
+            addPoints(pointsToWrite, agentGen, listener);
+        } else {
+            logger.log(Level.FINE, "Data source empty: Agent Point");
+        }
+
         CustomDataPointGenerator cdGen = new CustomDataPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix, customData, customDataTags, measurementName);
         if (cdGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] Custom data found. Writing to InfluxDB...");
