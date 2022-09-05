@@ -5,11 +5,11 @@ All measurements share the following metrics:
 
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
-| instance | string | Jenkins instance url | 3.4 |
 | build_number | integer | Build number |  |
+| instance | string | Jenkins instance url | 3.4 |
 | project_name | string | Build name |  |
+| project_namespace | string | Root folder of the project | 3.4 |
 | project_path | string | Build path | 1.15 |
-| project_namespace | string | Root path to the project (parent folder) | 3.4 |
 
 All measurements share the following tags:
 
