@@ -116,8 +116,11 @@ Tags specific for this measurement:
 | sqale_index | float | Technical Debt | 2.4 |
 | sqale_debt_ratio | float | Technical Debt Ratio | 2.4 |
 
-
-
+#### `agent_data` (since 3.4)
+| Metric | Type | Description | Introduced in |
+| --- | --- | --- | --- |
+| agent_name | string | Name of an agent called by the build |  |
+| agent_label | string | Label of an agent called by the build |  |
 
 ### Cobertura plugin
 
@@ -379,3 +382,12 @@ Tags specific for this measurement:
 | subtask_count | int | Amount of subtasks | |
 | total_duration | long | Build duration in milliseconds from when it entered the queue until it was finished. | |
 | waiting_time | long | Milliseconds in the queue waiting before it could be considered for execution. | |
+
+### Git plugin
+
+#### `git_data` (since 3.4)
+| Metric | Type | Description | Introduced in |
+| --- | --- | --- | --- |
+| git_repository | string | URL of the Git repository used by the build | |
+| git_revision | string | SHA-1 of the commit selected | |
+| git_reference | string | reference of the branch | |
