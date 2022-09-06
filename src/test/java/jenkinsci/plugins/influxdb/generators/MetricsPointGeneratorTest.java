@@ -5,6 +5,7 @@ import hudson.model.Job;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkins.metrics.impl.TimeInQueueAction;
+import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
@@ -38,6 +39,7 @@ public class MetricsPointGeneratorTest {
         Mockito.when(build.getParent()).thenReturn(job);
         Mockito.when(job.getName()).thenReturn(JOB_NAME);
         Mockito.when(build.getAction(TimeInQueueAction.class)).thenReturn(timeInQueueAction);
+        Mockito.when(job.getRelativeNameFrom(Mockito.nullable(Jenkins.class))).thenReturn("folder/" + JOB_NAME);
 
         currTime = System.currentTimeMillis();
     }

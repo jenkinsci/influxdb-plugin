@@ -6,7 +6,9 @@ All measurements share the following metrics:
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | build_number | integer | Build number |  |
+| instance | string | Jenkins instance url | 3.4 |
 | project_name | string | Build name |  |
+| project_namespace | string | Root folder of the project | 3.4 |
 | project_path | string | Build path | 1.15 |
 
 All measurements share the following tags:
@@ -28,6 +30,7 @@ All measurements share the following tags:
 | --- | --- | --- | --- |
 | build_agent_name | string | Name of the executor node | 1.15 |
 | build_branch_name | string | Branch name of multibranch pipeline | 2.4 |
+| build_cause | string | Trigger type | 3.4 |
 | build_causer | string | Short description of build causer| 2.4 |
 | build_exec_time | integer | Start time of the build | 1.17 |
 | build_measured_time | integer | Time when InfluxDB plugin is called | 1.17 |
@@ -37,6 +40,7 @@ All measurements share the following tags:
 | build_status_message | string | Status message (stable, back to normal, broken since #50, etc.) | |
 | build_successful | boolean | Boolean whether build succeeded | 1.10 |
 | build_time | integer | Build execution time |  |
+| build_user | string | User who launch the build | 3.4 |
 | last_stable_build | integer | Build number of the last stable build (0 if never) | 1.10 |
 | last_successful_build | integer | Build number of the last successful build (0 if never) | 1.10 |
 | project_build_health | integer | Health score from build | |

@@ -6,13 +6,19 @@ import hudson.model.Cause;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import hudson.model.Cause.UserIdCause;
 import hudson.tasks.test.AbstractTestResultAction;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.StringJoiner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
@@ -37,6 +43,8 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     public static final String BUILD_AGENT_NAME = "build_agent_name";
     public static final String BUILD_BRANCH_NAME = "build_branch_name";
     public static final String BUILD_CAUSER = "build_causer";
+    public static final String BUILD_USER = "build_user";
+    public static final String BUILD_CAUSE = "build_cause";
 
     public static final String PROJECT_BUILD_HEALTH = "project_build_health";
     public static final String PROJECT_LAST_SUCCESSFUL = "last_successful_build";
@@ -44,6 +52,8 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     public static final String TESTS_FAILED = "tests_failed";
     public static final String TESTS_SKIPPED = "tests_skipped";
     public static final String TESTS_TOTAL = "tests_total";
+
+    public static final String AGENT_LOG_PATTERN = "Running on ";
 
     private final Run<?, ?> build;
     private final String customPrefix;
@@ -87,6 +97,8 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             ordinal = buildResult.ordinal;
         }
 
+        String[] buildCause = getCauseDatas();
+
         Point point = buildPoint(measurementName, customPrefix, build);
 
         point.addField(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
@@ -97,12 +109,14 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             .addField(BUILD_RESULT, result)
             .addField(BUILD_RESULT_ORDINAL, ordinal)
             .addField(BUILD_IS_SUCCESSFUL, ordinal < 2)
-            .addField(BUILD_AGENT_NAME, getBuildEnv("NODE_NAME"))
+            .addField(BUILD_AGENT_NAME, getNodeName())
             .addField(BUILD_BRANCH_NAME, getBuildEnv("BRANCH_NAME"))
             .addField(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
             .addField(PROJECT_LAST_SUCCESSFUL, getLastSuccessfulBuild())
             .addField(PROJECT_LAST_STABLE, getLastStableBuild())
             .addField(BUILD_CAUSER , getCauseShortDescription())
+            .addField(BUILD_USER, buildCause[0])
+            .addField(BUILD_CAUSE, buildCause[1])
             .addTag(BUILD_RESULT, result);
 
         if (hasTestResults(build)) {
@@ -151,6 +165,24 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         }
     }
 
+    private String[] getCauseDatas() {
+        String userCause = "";
+        StringJoiner triggers = new StringJoiner(", ");
+        try {
+            for (Cause cause : build.getCauses()) {
+                triggers.add(cause.getClass().getSimpleName());
+                if (cause instanceof UserIdCause) {
+                    userCause = ((UserIdCause) cause).getUserId();
+                } else if (cause.getClass().getName().contains("GitlabWebhookCause")) {
+                    userCause = build.getEnvironment(listener).get("gitlabUserUsername");
+                }
+            }
+            return new String[] { userCause != null ? userCause : "", triggers.toString() };
+        } catch (IOException | InterruptedException e) {
+            return new String[] { "", "" };
+        }
+    }
+
     private int getLastSuccessfulBuild() {
         Run<?, ?> lastSuccessfulBuild = build.getParent().getLastSuccessfulBuild();
         return lastSuccessfulBuild != null ? lastSuccessfulBuild.getNumber() : 0;
@@ -159,5 +191,34 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
     private int getLastStableBuild() {
         Run<?, ?> lastStableBuild = build.getParent().getLastStableBuild();
         return lastStableBuild != null ? lastStableBuild.getNumber() : 0;
+    }
+
+    private String getNodeName() {
+        String nodeName = getBuildEnv("NODE_NAME");
+        if(StringUtils.isEmpty(nodeName)) {
+            nodeName = getNodeNameFromLogs();
+        }
+        return nodeName;
+    }
+
+    /**
+     * Retrieve agent name in the log of the build
+     * 
+     * @return agent name
+     */
+    private String getNodeNameFromLogs() {
+        String agentName = "";
+        try (BufferedReader br = new BufferedReader(build.getLogReader())) {
+            String line;
+            String[] splitLine;
+            while ((line = br.readLine()) != null) {
+                if (line.startsWith(AGENT_LOG_PATTERN)) {
+                    splitLine = line.split(" ");
+                    agentName = splitLine.length >= 3 ? splitLine[2] : "";
+                    break;
+                }
+            }
+        } catch (IOException e) {}
+        return agentName;
     }
 }

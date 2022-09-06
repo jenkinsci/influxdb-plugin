@@ -12,6 +12,9 @@ import org.mockito.Mockito;
 
 import static org.junit.Assert.*;
 
+import java.io.Reader;
+import java.io.StringReader;
+
 /**
  * @author Damien Coraboeuf <damien.coraboeuf@gmail.com>
  */
@@ -68,6 +71,7 @@ public class JenkinsBasePointGeneratorTest {
         Mockito.when(mockedEnvVars.get(JENKINS_ENV_VALUE_TAG)).thenReturn(JENKINS_ENV_RESOLVED_VALUE_TAG);
         Mockito.when(mockedEnvVars.get("NODE_NAME")).thenReturn(null);
         Mockito.when(mockedEnvVars.get("BRANCH_NAME")).thenReturn(null);
+        Mockito.when(build.getLogReader()).thenReturn(new StringReader(""));
 
         currTime = System.currentTimeMillis();
     }
@@ -76,6 +80,19 @@ public class JenkinsBasePointGeneratorTest {
     public void agent_present() {
         Mockito.when(build.getExecutor()).thenReturn(executor);
         Mockito.when(mockedEnvVars.get("NODE_NAME")).thenReturn("slave-1");
+        JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
+        Point[] points = generator.generate();
+        String lineProtocol = points[0].toLineProtocol();
+
+        assertTrue(lineProtocol.contains("build_agent_name=\"slave-1\""));
+        assertTrue(lineProtocol.contains("project_path=\"folder/master\""));
+    }
+
+    public void agent_present_in_log() throws Exception {
+        Mockito.when(build.getExecutor()).thenReturn(executor);
+        Mockito.when(mockedEnvVars.get("NODE_NAME")).thenReturn("");
+        Reader reader = new StringReader(JenkinsBasePointGenerator.AGENT_LOG_PATTERN + "slave-1");
+        Mockito.when(build.getLogReader()).thenReturn(reader);
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         Point[] points = generator.generate();
         String lineProtocol = points[0].toLineProtocol();
