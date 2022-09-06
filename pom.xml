@@ -58,8 +58,9 @@ THE SOFTWARE.
         <commons-lang3.version>3.11</commons-lang3.version>
         <configuration-as-code.version>1.55.1</configuration-as-code.version>
         <credentials.version>2.6.1.1</credentials.version>
+        <display-url-api.version>2.3.5</display-url-api.version>
         <doxia-sink-api.version>1.1.2</doxia-sink-api.version>
-        <git-plugin.version>3.9.1</git-plugin.version>
+        <git-plugin.version>4.11.4</git-plugin.version>
         <gson.version>2.8.9</gson.version>
         <hpi.compatibleSinceVersion>3.0</hpi.compatibleSinceVersion>
         <influxdb-client-java.version>4.1.0</influxdb-client-java.version>
@@ -68,10 +69,11 @@ THE SOFTWARE.
         <jenkins.version>2.289.1</jenkins.version>
         <jimfs.version>1.0</jimfs.version>
         <junit.version>4.13.1</junit.version>
-        <junit_plugin.version>1.24</junit_plugin.version>
+        <junit_plugin.version>1.47</junit_plugin.version>
         <kotlin-stdlib.version>1.6.0</kotlin-stdlib.version>
-        <mailer.version>391.ve4a_38c1b_cf4b_</mailer.version>
+        <mailer.version>408.vd726a_1130320</mailer.version>
         <maven-reporting-api.version>3.0</maven-reporting-api.version>
+        <matrix-project.version>1.20</matrix-project.version>
         <metrics.version>4.0.2.8.1</metrics.version>
         <mockito-core.version>2.26.0</mockito-core.version>
         <performance.version>3.0</performance.version>
@@ -80,14 +82,15 @@ THE SOFTWARE.
         <plexus-container-default.version>1.0-alpha-30</plexus-container-default.version>
         <plain-credentials.version>1.7</plain-credentials.version>
         <robot.version>3.0.0</robot.version>
-        <script-security.version>1.75</script-security.version>
+        <scm-api.version>595.vd5a_df5eb_0e39</scm-api.version>
+        <script-security.version>1131.v8b_b_5eda_c328e</script-security.version>
         <slf4j.version>1.7.30</slf4j.version>
         <spotbugs-annotations.version>4.2.0</spotbugs-annotations.version>
         <spotbugs.failOnError>false</spotbugs.failOnError>
-        <structs.version>1.23</structs.version>
+        <structs.version>308.v852b473a2b8c</structs.version>
         <symbol-annotation.version>1.10</symbol-annotation.version>
-        <workflow-api.version>2.33</workflow-api.version>
-        <workflow-step-api.version>2.20</workflow-step-api.version>
+        <workflow-api.version>2.40</workflow-api.version>
+        <workflow-step-api.version>622.vb_8e7c15b_c95a_</workflow-step-api.version>
         <workflow-durable-task-step.version>2.35</workflow-durable-task-step.version>
     </properties>
 
@@ -240,6 +243,12 @@ THE SOFTWARE.
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>git</artifactId>
+            <version>${git-plugin.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>jacoco</artifactId>
             <version>${jacoco.version}</version>
             <optional>true</optional>
@@ -277,6 +286,11 @@ THE SOFTWARE.
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>matrix-project</artifactId>
+            <version>${matrix-project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-durable-task-step</artifactId>
             <version>${workflow-durable-task-step.version}</version>
@@ -293,6 +307,11 @@ THE SOFTWARE.
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
             <version>${caffeine.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>display-url-api</artifactId>
+            <version>${display-url-api.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.spotbugs</groupId>
@@ -332,6 +351,11 @@ THE SOFTWARE.
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>scm-api</artifactId>
+            <version>${scm-api.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
             <version>${slf4j.version}</version>
@@ -350,12 +374,6 @@ THE SOFTWARE.
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
             <version>${slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.plugins</groupId>
-            <artifactId>git</artifactId>
-            <version>${git-plugin.version}</version>
-            <optional>true</optional>
         </dependency>
     </dependencies>
 
