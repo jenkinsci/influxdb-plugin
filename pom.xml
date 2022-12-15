@@ -69,7 +69,7 @@ THE SOFTWARE.
         <jenkins.version>2.289.1</jenkins.version>
         <jimfs.version>1.0</jimfs.version>
         <junit.version>4.13.1</junit.version>
-        <junit_plugin.version>1.47</junit_plugin.version>
+        <junit_plugin.version>1159.v0b_396e1e07dd</junit_plugin.version>
         <kotlin-stdlib.version>1.6.0</kotlin-stdlib.version>
         <mailer.version>408.vd726a_1130320</mailer.version>
         <maven-reporting-api.version>3.0</maven-reporting-api.version>
