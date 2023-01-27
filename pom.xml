@@ -83,7 +83,7 @@ THE SOFTWARE.
         <plain-credentials.version>1.7</plain-credentials.version>
         <robot.version>3.0.0</robot.version>
         <scm-api.version>595.vd5a_df5eb_0e39</scm-api.version>
-        <script-security.version>1131.v8b_b_5eda_c328e</script-security.version>
+        <script-security.version>1229.v4880b_b_e905a_6</script-security.version>
         <slf4j.version>1.7.30</slf4j.version>
         <spotbugs-annotations.version>4.2.0</spotbugs-annotations.version>
         <spotbugs.failOnError>false</spotbugs.failOnError>
