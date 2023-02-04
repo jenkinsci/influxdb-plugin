@@ -53,7 +53,7 @@ THE SOFTWARE.
         <bridge-method-annotation.version>1.18</bridge-method-annotation.version>
         <byte-buddy.version>1.9.10</byte-buddy.version>
         <caffeine.version>2.9.2</caffeine.version>
-        <cobertura.version>1.12.1</cobertura.version>
+        <cobertura.version>1.16</cobertura.version>
         <commons-csv.version>1.8</commons-csv.version>
         <commons-lang3.version>3.11</commons-lang3.version>
         <configuration-as-code.version>1.55.1</configuration-as-code.version>
