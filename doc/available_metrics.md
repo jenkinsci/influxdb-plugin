@@ -6,7 +6,9 @@ All measurements share the following metrics:
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | build_number | integer | Build number |  |
+| instance | string | Jenkins instance url | 3.4 |
 | project_name | string | Build name |  |
+| project_namespace | string | Root folder of the project | 3.4 |
 | project_path | string | Build path | 1.15 |
 
 All measurements share the following tags:
@@ -28,6 +30,7 @@ All measurements share the following tags:
 | --- | --- | --- | --- |
 | build_agent_name | string | Name of the executor node | 1.15 |
 | build_branch_name | string | Branch name of multibranch pipeline | 2.4 |
+| build_cause | string | Trigger type | 3.4 |
 | build_causer | string | Short description of build causer| 2.4 |
 | build_exec_time | integer | Start time of the build | 1.17 |
 | build_measured_time | integer | Time when InfluxDB plugin is called | 1.17 |
@@ -37,13 +40,14 @@ All measurements share the following tags:
 | build_status_message | string | Status message (stable, back to normal, broken since #50, etc.) | |
 | build_successful | boolean | Boolean whether build succeeded | 1.10 |
 | build_time | integer | Build execution time |  |
+| build_user | string | User who launch the build | 3.4 |
 | last_stable_build | integer | Build number of the last stable build (0 if never) | 1.10 |
 | last_successful_build | integer | Build number of the last successful build (0 if never) | 1.10 |
 | project_build_health | integer | Health score from build | |
 | tests_failed | integer | Amount of failed unit tests (from JUnit plugin) | |
 | tests_skipped | integer | Amount of skipped unit tests (from JUnit plugin) | |
 | tests_total | integer | total amount of unit tests (from JUnit plugin) | |
-| time_in_queue | integer | Time build was in queue (from Metrics plugin | 1.16 |
+| time_in_queue | integer | Time build was in queue (from Metrics plugin) | 1.16 |
 
 Tags specific for this measurement:
 
@@ -74,6 +78,8 @@ In order to publish data for this measurement, your job needs to set an environm
 | test_status | string | PASSED, SKIPPED, FAILED, FIXED, REGRESSION | |
 | test_status_ordinal | integer | 0-4 in order of test_status | |
 | test_duration | float | test duration in seconds | |
+| test_duration | float | test duration in seconds | 3.1 |
+| test_count | long | Test counter; Useful for aggregations. | 3.1 |
 
 Tags specific for this measurement:
 
@@ -90,6 +96,7 @@ Tags specific for this measurement:
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | alert_status | string | State of the Quality Gate | 2.4 |
+| quality_gate_details | string | Provides which quality gate condition is failing and which is not.| 3.1 |
 | blocker_issues | float | Total amount of blocker issues | |
 | branch_coverage | float | Branch coverage | 2.2 |
 | bugs | float | Total amount of bugs | 2.2 |
@@ -109,8 +116,11 @@ Tags specific for this measurement:
 | sqale_index | float | Technical Debt | 2.4 |
 | sqale_debt_ratio | float | Technical Debt Ratio | 2.4 |
 
-
-
+#### `agent_data` (since 3.4)
+| Metric | Type | Description | Introduced in |
+| --- | --- | --- | --- |
+| agent_name | string | Name of an agent called by the build |  |
+| agent_label | string | Label of an agent called by the build |  |
 
 ### Cobertura plugin
 
@@ -357,3 +367,27 @@ Tags specific for this measurement:
 | serenity_results_total_test_duration | integer | Total test duration in milliseconds |  |
 | serenity_tags_* | integer | Amount of tests for each tag |  |
 
+### Metrics plugin
+
+#### `metrics_data` (since 3.4)
+
+| Metric | Type | Description | Introduced in |
+| --- | --- | --- | --- |
+| blocked_time | long | Milliseconds in the queue because build was blocked. | |
+| buildable_time | long | Milliseconds in the queue in a buildable state. | |
+| building_time | long | Milliseconds of the builds | |
+| executing_time | long | Milliseconds building from when it left the queue until it was finished. | |
+| executor_utilization | double | 0-1 percentage of the executor utilization | |
+| queue_time | long | Milliseconds when build entered the queue until it left the queue. | |
+| subtask_count | int | Amount of subtasks | |
+| total_duration | long | Build duration in milliseconds from when it entered the queue until it was finished. | |
+| waiting_time | long | Milliseconds in the queue waiting before it could be considered for execution. | |
+
+### Git plugin
+
+#### `git_data` (since 3.4)
+| Metric | Type | Description | Introduced in |
+| --- | --- | --- | --- |
+| git_repository | string | URL of the Git repository used by the build | |
+| git_revision | string | SHA-1 of the commit selected | |
+| git_reference | string | reference of the branch | |

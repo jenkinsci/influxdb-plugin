@@ -18,6 +18,8 @@
     </f:entry>
     <f:entry title="Retention Policy" field="retentionPolicy">
         <f:textbox default="autogen"/>
+    <f:validateButton title="Test Connection" progress="Testing..." method="verifyConnection"
+        with="url,credentialsId,organization,database,retentionPolicy"/>
     </f:entry>
     <f:entry title="Job scheduled time as timestamp" field="jobScheduledTimeAsPointsTimestamp">
         <f:checkbox default="false"/>

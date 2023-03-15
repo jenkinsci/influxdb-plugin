@@ -1,5 +1,6 @@
 package jenkinsci.plugins.influxdb;
 
+import hudson.EnvVars;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.FreeStyleProject;
@@ -36,6 +37,8 @@ public class InfluxDbPublisherTest {
     private Launcher launcher;
     @Mock
     private TaskListener listener;
+    @Mock
+    private EnvVars envVars;
 
     @Test
     public void testEmptyTargetShouldThrowException() throws Exception {
@@ -48,7 +51,7 @@ public class InfluxDbPublisherTest {
         Mockito.when(jenkinsMock.getDescriptorByType(InfluxDbPublisher.DescriptorImpl.class)).thenReturn(descriptorMock);
 
         try {
-            new InfluxDbPublisher("").perform(build, workspace, launcher, listener);
+            new InfluxDbPublisher("").perform(build, workspace, envVars, launcher, listener);
         } catch (NullPointerException e) {
             Assert.fail("NullPointerException raised");
         }

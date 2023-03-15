@@ -2,6 +2,7 @@
 
 ## 3.0
 
+- InfluxDB 1.7 and lower are no longer supported. Only supported 1.x version is 1.8.x.
 - "username" and "password" are no longer used when defining new InfluxDB Targets.
 Credentials are used instead. Please check your InfluxDB Target configurations from
 Manage Jenkins --> Configure System.

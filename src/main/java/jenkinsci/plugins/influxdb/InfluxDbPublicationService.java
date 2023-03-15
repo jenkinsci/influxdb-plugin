@@ -18,7 +18,7 @@ import jenkinsci.plugins.influxdb.models.Target;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
-import org.jetbrains.annotations.NotNull;
+import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -65,7 +65,7 @@ public class InfluxDbPublicationService {
      * def myFields = [:]
      * myFields['field_a'] = 11
      * myFields['field_b'] = 12
-     * influxDbPublisher(target: 'my-target', customData: myFields)
+     * influxDbPublisher(selectedTarget: 'my-target', customData: myFields)
      * }</pre>
      */
     private final Map<String, Object> customData;
@@ -79,7 +79,7 @@ public class InfluxDbPublicationService {
      * def myTags = [:]
      * myTags['tag_1'] = 'foo'
      * myTags['tag_2'] = 'bar'
-     * influxDbPublisher(target: 'my-target', customData: ..., customDataTags: myTags)
+     * influxDbPublisher(selectedTarget: 'my-target', customData: ..., customDataTags: myTags)
      * }</pre>
      */
     private final Map<String, String> customDataTags;
@@ -102,7 +102,7 @@ public class InfluxDbPublicationService {
      * myFields2['field_d'] = 22
      * myCustomMeasurementFields['series_1'] = myFields1
      * myCustomMeasurementFields['series_2'] = myFields2
-     * influxDbPublisher(target: 'my-target', customDataMap: myCustomMeasurementFields)
+     * influxDbPublisher(selectedTarget: 'my-target', customDataMap: myCustomMeasurementFields)
      * }</pre>
      */
     private final Map<String, Map<String, Object>> customDataMap;
@@ -120,7 +120,7 @@ public class InfluxDbPublicationService {
      * myTags['buildResult'] = currentBuild.result
      * myTags['NODE_LABELS'] = env.NODE_LABELS
      * myCustomMeasurementTags['series_1'] = myTags
-     * influxDbPublisher(target: 'my-target', customDataMap: ..., customDataMapTags: myCustomMeasurementTags)
+     * influxDbPublisher(selectedTarget: 'my-target', customDataMap: ..., customDataMapTags: myCustomMeasurementTags)
      * }</pre>
      */
     private final Map<String, Map<String, String>> customDataMapTags;
@@ -178,6 +178,13 @@ public class InfluxDbPublicationService {
         JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, jenkinsEnvParameterField, customPrefix, measurementName, env);
         addPoints(pointsToWrite, jGen, listener);
 
+        AgentPointGenerator agentGen = new AgentPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
+        if (agentGen.hasReport()) {
+            addPoints(pointsToWrite, agentGen, listener);
+        } else {
+            logger.log(Level.FINE, "Data source empty: Agent Point");
+        }
+
         CustomDataPointGenerator cdGen = new CustomDataPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix, customData, customDataTags, measurementName);
         if (cdGen.hasReport()) {
             printIfFineLoggable(listener, "[InfluxDB Plugin] Custom data found. Writing to InfluxDB...");
@@ -234,6 +241,18 @@ public class InfluxDbPublicationService {
             logger.log(Level.FINE, "Plugin skipped: Performance");
         }
 
+        try {
+            GitPointGenerator gitGen = new GitPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
+            if (gitGen.hasReport()) {
+                listener.getLogger().println("[InfluxDB Plugin] Git data found. Writing to InfluxDB...");
+                addPoints(pointsToWrite, gitGen, listener);
+            } else {
+                logger.log(Level.FINE, "Plugin skipped: Git");
+            }
+        } catch (NoClassDefFoundError ignore) {
+            logger.log(Level.FINE, "Plugin skipped: Git");
+        }
+
         JUnitPointGenerator junitGen = new JUnitPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix, env);
         if (junitGen.hasReport()) {
             listener.getLogger().println("[InfluxDB Plugin] JUnit data found. Writing to InfluxDB...");
@@ -242,10 +261,9 @@ public class InfluxDbPublicationService {
             logger.log(Level.FINE, "Plugin skipped: JUnit");
         }
 
-        SonarQubePointGenerator sonarGen = new SonarQubePointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
+        SonarQubePointGenerator sonarGen = new SonarQubePointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix, env);
         if (sonarGen.hasReport()) {
             printIfFineLoggable(listener, "[InfluxDB Plugin] SonarQube data found. Writing to InfluxDB...");
-            sonarGen.setEnv(env);
             addPoints(pointsToWrite, sonarGen, listener);
         } else {
             logger.log(Level.FINE, "Plugin skipped: SonarQube");
@@ -278,6 +296,16 @@ public class InfluxDbPublicationService {
             logger.log(Level.FINE, "Plugin skipped: Performance Publisher");
         }
 
+        try {
+            MetricsPointGenerator metricsGen = new MetricsPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
+            if (metricsGen.hasReport()) {
+                listener.getLogger().println("[InfluxDB plugin] Metrics plugin data found. Writing to InfluxDB...");
+                addPoints(pointsToWrite, metricsGen, listener);
+            }
+        } catch (NoClassDefFoundError ignore) {
+            logger.log(Level.FINE, "Plugin skipped: Metrics");
+        }
+
         for (Target target : selectedTargets) {
             String logMessage = "[InfluxDB Plugin] Publishing data to: " + target;
             logger.log(Level.FINE, logMessage);
@@ -285,7 +313,7 @@ public class InfluxDbPublicationService {
 
             URL url;
             try {
-                new URL(target.getUrl());
+                url = new URL(target.getUrl());
             } catch (MalformedURLException e) {
                 printIfFineLoggable(listener, "[InfluxDB Plugin] Skipping target due to invalid URL: " + target.getUrl());
                 continue;
@@ -297,7 +325,7 @@ public class InfluxDbPublicationService {
                     target.getDatabase());
             printIfFineLoggable(listener, logMessage);
 
-            try (InfluxDBClient influxDB = getInfluxDBClient(build, target)) {
+            try (InfluxDBClient influxDB = getInfluxDBClient(build, target, url)) {
                 writeToInflux(target, influxDB, pointsToWrite);
             }
 
@@ -306,17 +334,24 @@ public class InfluxDbPublicationService {
         printIfFineLoggable(listener, "[InfluxDB Plugin] Completed.");
     }
 
-    private InfluxDBClient getInfluxDBClient(Run<?, ?> build, Target target) {
+    private InfluxDBClient getInfluxDBClient(Run<?, ?> build, Target target, URL url) {
         StandardUsernamePasswordCredentials credentials = CredentialsProvider.findCredentialById(target.getCredentialsId(), StandardUsernamePasswordCredentials.class, build);
         InfluxDBClient influxDB;
-        if (target.getOrganization() != null && !target.getOrganization().trim().isEmpty() && credentials != null){
-            InfluxDBClientOptions options = InfluxDBClientOptions.builder()
+
+        if (target.getOrganization() != null && !target.getOrganization().trim().isEmpty()) {
+            InfluxDBClientOptions.Builder options = InfluxDBClientOptions.builder()
                     .url(target.getUrl())
-                    .authenticate(credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray())
                     .org(target.getOrganization())
                     .bucket(target.getDatabase())
-                    .build();
-            influxDB = InfluxDBClientFactory.create(options);
+                    .okHttpClient(createHttpClient(url, target.isUsingJenkinsProxy()));
+            if (credentials != null) {  // basic auth
+                options.authenticate(credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray());
+            } else {    // token auth
+                StringCredentials c = CredentialsProvider.findCredentialById(target.getCredentialsId(), StringCredentials.class, build);
+                assert c != null;
+                options.authenticateToken(c.getSecret().getPlainText().toCharArray());
+            }
+            influxDB = InfluxDBClientFactory.create(options.build());
         } else {
             influxDB = credentials == null ?
                 InfluxDBClientFactory.createV1(target.getUrl(), "", "".toCharArray(), target.getDatabase(), target.getRetentionPolicy()) :
@@ -345,7 +380,7 @@ public class InfluxDbPublicationService {
                         return null; // Give up, we've already failed to authenticate.
                     }
 
-                    String credential = Credentials.basic(proxyConfig.getUserName(), proxyConfig.getPassword());
+                    String credential = Credentials.basic(proxyConfig.getUserName(), proxyConfig.getSecretPassword().getPlainText());
                     return response.request().newBuilder().header("Proxy-Authorization", credential).build();
                 });
             }

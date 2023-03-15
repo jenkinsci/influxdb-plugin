@@ -19,8 +19,10 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractPointGenerator implements PointGenerator {
 
+    public static final String PROJECT_NAMESPACE = "project_namespace";
     public static final String PROJECT_NAME = "project_name";
     public static final String PROJECT_PATH = "project_path";
+    public static final String INSTANCE = "instance";
     public static final String BUILD_NUMBER = "build_number";
     public static final String CUSTOM_PREFIX = "prefix";
 
@@ -41,8 +43,9 @@ public abstract class AbstractPointGenerator implements PointGenerator {
 
     @Override
     public Point buildPoint(String name, String customPrefix, Run<?, ?> build, long timestamp) {
+        Jenkins instance = Jenkins.getInstanceOrNull();
         String projectName = projectNameRenderer.render(build);
-        String projectPath = build.getParent().getRelativeNameFrom(Jenkins.getInstanceOrNull());
+        String projectPath = build.getParent().getRelativeNameFrom(instance);
 
         Point point = Point
                 .measurement(name)
@@ -57,6 +60,8 @@ public abstract class AbstractPointGenerator implements PointGenerator {
 
         point.addTag(PROJECT_NAME, projectName);
         point.addTag(PROJECT_PATH, projectPath);
+        point.addTag(INSTANCE, instance != null ? instance.getRootUrl() : "");
+        point.addTag(PROJECT_NAMESPACE, projectPath.split("/")[0]);
 
 
         if (StringUtils.isNotBlank(jenkinsEnvParameterTag)) {
