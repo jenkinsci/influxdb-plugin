@@ -2,11 +2,11 @@ package jenkinsci.plugins.influxdb.generators;
 
 import com.influxdb.client.write.Point;
 import hudson.EnvVars;
-import hudson.model.Cause.UserIdCause;
+import hudson.model.Cause;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import hudson.model.Cause;
+import hudson.model.Cause.UserIdCause;
 import hudson.tasks.test.AbstractTestResultAction;
 import jenkins.metrics.impl.TimeInQueueAction;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
