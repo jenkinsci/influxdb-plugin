@@ -1,25 +1,26 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.StringJoiner;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
-
 import com.influxdb.client.write.Point;
 import hudson.EnvVars;
-import hudson.model.Cause;
 import hudson.model.Cause.UserIdCause;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import hudson.model.Cause;
 import hudson.tasks.test.AbstractTestResultAction;
 import jenkins.metrics.impl.TimeInQueueAction;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang3.StringUtils;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.logging.Logger;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.StringJoiner;
+import java.util.regex.Pattern;
+
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper;
 
 public class JenkinsBasePointGenerator extends AbstractPointGenerator {
