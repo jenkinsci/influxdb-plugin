@@ -69,7 +69,13 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             + "(.*)";
     private static final String URL_PATTERN_IN_LOGS_QUALITY_GATE_STATUS = ".*" + Pattern.quote("QUALITY GATE STATUS: ") 
             + "(.*)" + Pattern.quote(" - View details on ") + "(.*)";
+    private static final String URL_PATTERN_IN_LOGS_QUALITY_GATE_STATUS_v4_8 = ".*" + Pattern.quote("ANALYSIS SUCCESSFUL, you can find the results at: ") 
+            + "(.*)";
+    private static final String URL_PATTERN_IN_LOGS_QUALITY_GATE_STATUS_TIMEOUT = ".*" + Pattern.quote("Quality Gate check timeout exceeded - View details on ") 
+            + "(.*)";
 
+
+            
     private String projectKey = null;
     private String sonarBuildURL = null;
     private String sonarBuildTaskIdUrl = null;
@@ -284,6 +290,9 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             Matcher match;
             Pattern p_analysis_url = Pattern.compile(URL_PATTERN_IN_LOGS_ANALYSIS);
             Pattern p_qg_url = Pattern.compile(URL_PATTERN_IN_LOGS_QUALITY_GATE_STATUS);
+            Pattern p_qg_url_timeout = Pattern.compile(URL_PATTERN_IN_LOGS_QUALITY_GATE_STATUS_TIMEOUT);
+            Pattern p_qg_url_v4_8 = Pattern.compile(URL_PATTERN_IN_LOGS_QUALITY_GATE_STATUS_v4_8);
+        
             Pattern p_taskUrl = Pattern.compile(TASK_URL_PATTERN_IN_LOGS);
             Pattern p_projName = Pattern.compile(PROJECT_NAME_PATTERN_IN_LOGS);
 
@@ -296,6 +305,18 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                 match = p_qg_url.matcher(line);
                 if (match.matches()) {
                     url  = match.group(2);
+                    //Task already executed.  No need to search for other lines
+                    break; 
+                }
+                match = p_qg_url_v4_8.matcher(line);
+                if (match.matches()) {
+                    url  = match.group(1);
+                    //Task already executed.  No need to search for other lines
+                    break; 
+                }
+                match = p_qg_url_timeout.matcher(line);
+                if (match.matches()) {
+                    url  = match.group(1);
                     //Task already executed.  No need to search for other lines
                     break; 
                 }
