@@ -47,14 +47,14 @@ THE SOFTWARE.
     </scm>
 
     <properties>
-        <cloudbees-folder.version>6.15</cloudbees-folder.version>
         <cobertura.version>1.16</cobertura.version>
         <commons-csv.version>1.8</commons-csv.version>
-        <commons-lang3.version>3.11</commons-lang3.version>
-        <configuration-as-code.version>1511.vb_f985b_894e40</configuration-as-code.version>
-        <credentials.version>1139.veb_9579fca_33b_</credentials.version>
+        <commons-lang3.version>3.12.0</commons-lang3.version>
+        <configuration-as-code.version>1625.v27444588cc3d</configuration-as-code.version>
+        <credentials.version>1189.vf61b_a_5e2f62e</credentials.version>
         <display-url-api.version>2.3.5</display-url-api.version>
         <git-plugin.version>4.11.5</git-plugin.version>
+        <gson.version>2.8.9</gson.version>
         <hpi.compatibleSinceVersion>3.0</hpi.compatibleSinceVersion>
         <influxdb-client-java.version>4.1.0</influxdb-client-java.version>
         <jacoco.version>1.0.12</jacoco.version>
@@ -67,17 +67,10 @@ THE SOFTWARE.
         <mockito-core.version>2.26.0</mockito-core.version>
         <performance.version>3.0</performance.version>
         <perfpublisher.version>8.05</perfpublisher.version>
-        <plain-credentials.version>1.7</plain-credentials.version>
+        <plain-credentials.version>143.v1b_df8b_d3b_e48</plain-credentials.version>
         <robot.version>3.0.0</robot.version>
-        <scm-api.version>595.vd5a_df5eb_0e39</scm-api.version>
-        <script-security.version>1229.v4880b_b_e905a_6</script-security.version>
+        <script-security.version>1244.ve463715a_f89c</script-security.version>
         <spotbugs.failOnError>false</spotbugs.failOnError>
-        <ssh-credentials.version>305.v8f4381501156</ssh-credentials.version>
-        <sshd.version>3.0</sshd.version>
-        <structs.version>318.va_f3ccb_729b_71</structs.version>
-        <workflow-api.version>2.40</workflow-api.version>
-        <workflow-step-api.version>622.vb_8e7c15b_c95a_</workflow-step-api.version>
-        <workflow-durable-task-step.version>2.35</workflow-durable-task-step.version>
     </properties>
 
     <licenses>
@@ -111,6 +104,8 @@ THE SOFTWARE.
                 <groupId>io.jenkins.tools.bom</groupId>
                 <artifactId>bom-2.387.x</artifactId>
                 <version>2143.ve4c3c9ec790a</version>
+                <scope>import</scope>
+                <type>pom</type>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -129,10 +124,8 @@ THE SOFTWARE.
             <artifactId>asm-tree</artifactId>
         </dependency>
         <dependency>
-            <!-- Cycle dependency prevention -->
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>structs</artifactId>
-            <version>${structs.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci</groupId>
@@ -184,12 +177,10 @@ THE SOFTWARE.
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-api</artifactId>
-            <version>${workflow-api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-step-api</artifactId>
-            <version>${workflow-step-api.version}</version>
         </dependency>
 
         <!-- Optional dependencies -->
@@ -245,21 +236,14 @@ THE SOFTWARE.
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-durable-task-step</artifactId>
-            <version>${workflow-durable-task-step.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>scm-api</artifactId>
-            <version>${scm-api.version}</version>
         </dependency>
 
         <!-- RequireUpperBounds fix -->
-        <dependency>
-            <groupId>org.jenkins-ci.plugins</groupId>
-            <artifactId>cloudbees-folder</artifactId>
-            <version>${cloudbees-folder.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
@@ -268,7 +252,6 @@ THE SOFTWARE.
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>display-url-api</artifactId>
-            <version>${display-url-api.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.spotbugs</groupId>
@@ -312,7 +295,11 @@ THE SOFTWARE.
         <dependency>
         <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>ssh-credentials</artifactId>
-            <version>${ssh-credentials.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
         </dependency>
 
     </dependencies>
