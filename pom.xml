@@ -41,7 +41,7 @@ THE SOFTWARE.
 
     <scm>
         <connection>scm:git:ssh://github.com/jenkinsci/influxdb-plugin.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/jenkinsci/influxdb-plugin.git</developerConnection>
+        <developerConnection>scm:git:git@github.com/jenkinsci/influxdb-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/influxdb-plugin</url>
         <tag>HEAD</tag>
     </scm>
