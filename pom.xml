@@ -49,7 +49,6 @@ THE SOFTWARE.
     <properties>
         <access-modifier-annotation.version>1.27</access-modifier-annotation.version>
         <annotation-indexer.version>1.16</annotation-indexer.version>
-        <asm.version>9.3</asm.version>
         <bridge-method-annotation.version>1.18</bridge-method-annotation.version>
         <byte-buddy.version>1.9.10</byte-buddy.version>
         <caffeine.version>2.9.3</caffeine.version>
@@ -65,7 +64,6 @@ THE SOFTWARE.
         <hpi.compatibleSinceVersion>3.0</hpi.compatibleSinceVersion>
         <influxdb-client-java.version>4.1.0</influxdb-client-java.version>
         <jacoco.version>1.0.12</jacoco.version>
-<!--        <java.level>8</java.level>-->
         <jenkins.version>2.387.3</jenkins.version>
         <jimfs.version>1.0</jimfs.version>
         <junit.version>4.13.2</junit.version>
@@ -127,65 +125,57 @@ THE SOFTWARE.
                 <artifactId>bom-2.387.x</artifactId>
                 <version>2143.ve4c3c9ec790a</version>
             </dependency>
-            <dependency>
-                <groupId>org.ow2.asm</groupId>
-                <artifactId>asm</artifactId>
-                <version>${asm.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ow2.asm</groupId>
-                <artifactId>asm-commons</artifactId>
-                <version>${asm.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ow2.asm</groupId>
-                <artifactId>asm-tree</artifactId>
-                <version>${asm.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.bytebuddy</groupId>
-                <artifactId>byte-buddy-agent</artifactId>
-                <version>${byte-buddy.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.maven.doxia</groupId>
-                <artifactId>doxia-sink-api</artifactId>
-                <version>${doxia-sink-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.maven.reporting</groupId>
-                <artifactId>maven-reporting-api</artifactId>
-                <version>${maven-reporting-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-container-default</artifactId>
-                <version>${plexus-container-default.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-utils</artifactId>
-                <version>${plexus-utils.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jenkins-ci.plugins</groupId>
-                <artifactId>structs</artifactId>
-                <version>${structs.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jenkins-ci</groupId>
-                <artifactId>symbol-annotation</artifactId>
-                <version>${symbol-annotation.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.infradna.tool</groupId>
-                <artifactId>bridge-method-annotation</artifactId>
-                <version>${bridge-method-annotation.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-tree</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-agent</artifactId>
+            <version>${byte-buddy.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.doxia</groupId>
+            <artifactId>doxia-sink-api</artifactId>
+            <version>${doxia-sink-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.reporting</groupId>
+            <artifactId>maven-reporting-api</artifactId>
+            <version>${maven-reporting-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-container-default</artifactId>
+            <version>${plexus-container-default.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-utils</artifactId>
+            <version>${plexus-utils.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>structs</artifactId>
+            <version>${structs.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci</groupId>
+            <artifactId>symbol-annotation</artifactId>
+            <version>${symbol-annotation.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -239,12 +229,6 @@ THE SOFTWARE.
             <artifactId>workflow-step-api</artifactId>
             <version>${workflow-step-api.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--             <groupId>org.jenkins-ci.modules</groupId>-->
-<!--             <artifactId>sshd</artifactId>-->
-<!--            <version>${sshd.version}</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
 
         <!-- Optional dependencies -->
         <dependency>
