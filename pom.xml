@@ -64,7 +64,7 @@ THE SOFTWARE.
         <kotlin-stdlib.version>1.6.0</kotlin-stdlib.version>
         <matrix-project.version>1.20</matrix-project.version>
         <metrics.version>4.0.2.8.1</metrics.version>
-        <mockito-core.version>2.26.0</mockito-core.version>
+        <mockito-core.version>3.3.3</mockito-core.version>
         <performance.version>3.0</performance.version>
         <perfpublisher.version>8.05</perfpublisher.version>
         <plain-credentials.version>143.v1b_df8b_d3b_e48</plain-credentials.version>
