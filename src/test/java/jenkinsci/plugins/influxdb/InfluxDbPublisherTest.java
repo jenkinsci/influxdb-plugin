@@ -71,10 +71,9 @@ public class InfluxDbPublisherTest {
         InfluxDbPublisher before = new InfluxDbPublisher("Target2");
         assertEquals(before.getSelectedTarget(), "Target2");
         assertEquals(before.getTarget(), target2);
-
         FreeStyleProject project = j.createFreeStyleProject();
         project.getPublishersList().add(before);
-        j.submit(j.createWebClient().getPage(project,"configure").getFormByName("config"));
+        j.configRoundtrip(project);
 
         InfluxDbPublisher after = project.getPublishersList().get(InfluxDbPublisher.class);
         j.assertEqualBeans(before, after, "selectedTarget");
