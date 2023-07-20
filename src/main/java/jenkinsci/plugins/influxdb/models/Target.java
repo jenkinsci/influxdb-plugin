@@ -9,8 +9,6 @@ import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.InfluxDBClientOptions;
-import com.influxdb.client.domain.Bucket;
-import com.influxdb.client.domain.User;
 import com.influxdb.exceptions.InfluxException;
 
 import hudson.Extension;
@@ -26,8 +24,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.jenkinsci.plugins.plaincredentials.StringCredentials;
-import org.kohsuke.accmod.Restricted;
-import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -200,7 +196,7 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
         public FormValidation doCheckDatabase(@QueryParameter String value) {
             return FormValidation.validateRequired(value);
         }
-        
+
         @POST
         public FormValidation doVerifyConnection(@QueryParameter String url, @QueryParameter String credentialsId,
                                                  @QueryParameter String organization, @QueryParameter String database,
