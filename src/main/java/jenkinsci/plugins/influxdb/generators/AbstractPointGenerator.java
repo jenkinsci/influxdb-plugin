@@ -8,7 +8,7 @@ import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.StrSubstitutor;
+import org.apache.commons.text.StringSubstitutor;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -107,7 +107,7 @@ public abstract class AbstractPointGenerator implements PointGenerator {
     private String resolveEnvParameter(String stringValue) {
         try {
             EnvVars envVars = build.getEnvironment(listener);
-            return StrSubstitutor.replace(stringValue, envVars);
+            return StringSubstitutor.replace(stringValue, envVars);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }

@@ -8,10 +8,8 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.models.Target;
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.mockito.Mock;
@@ -21,14 +19,12 @@ import java.io.File;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class InfluxDbPublisherTest {
 
     @Rule
     public JenkinsRule j = new JenkinsRule();
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     private FilePath workspace = new FilePath(new File("."));
     @Mock
@@ -41,20 +37,14 @@ public class InfluxDbPublisherTest {
     private EnvVars envVars;
 
     @Test
-    public void testEmptyTargetShouldThrowException() throws Exception {
-        exception.expect(RuntimeException.class);
-        exception.expectMessage("Target was null!");
+    public void testEmptyTargetShouldThrowException() {
 
         InfluxDbPublisher.DescriptorImpl descriptorMock = Mockito.mock(InfluxDbPublisher.DescriptorImpl.class);
         Jenkins jenkinsMock = Mockito.mock(Jenkins.class);
         Mockito.when(descriptorMock.getTargets()).thenReturn(Collections.emptyList());
         Mockito.when(jenkinsMock.getDescriptorByType(InfluxDbPublisher.DescriptorImpl.class)).thenReturn(descriptorMock);
 
-        try {
-            new InfluxDbPublisher("").perform(build, workspace, envVars, launcher, listener);
-        } catch (NullPointerException e) {
-            Assert.fail("NullPointerException raised");
-        }
+        assertThrows("Target was null!", RuntimeException.class, () -> new InfluxDbPublisher("").perform(build, workspace, envVars, launcher, listener));
     }
 
     @Test
