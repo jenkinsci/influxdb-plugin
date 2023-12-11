@@ -17,10 +17,17 @@ public class SerenityJsonSummaryFile implements ISerenityJsonSummaryFile {
     }
 
     public boolean exists() {
-        return Files.exists(getPath());
+        try {
+            return Files.exists(getPath());
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     public Path getPath() {
+        if (workspace == null) {
+            throw new IllegalArgumentException("no workspace");
+        }
         return java.nio.file.Paths.get(workspace, SERENITY_OUTPUT_DIRECTORY, SERENITY_JSON_SUMMARY_FILE);
     }
 
