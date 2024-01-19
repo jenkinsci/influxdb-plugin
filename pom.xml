@@ -47,7 +47,7 @@ THE SOFTWARE.
     </scm>
 
     <properties>
-        <jenkins.version>2.401.3</jenkins.version>
+        <jenkins.version>2.387.3</jenkins.version>
         <hpi.compatibleSinceVersion>3.0</hpi.compatibleSinceVersion>
         <influxdb-client-java.version>4.1.0</influxdb-client-java.version>
         <cobertura.version>1.17</cobertura.version>
@@ -86,8 +86,8 @@ THE SOFTWARE.
         <dependencies>
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
-                <artifactId>bom-2.401.x</artifactId>
-                <version>2718.v7e8a_d43b_3f0b_</version>
+                <artifactId>bom-2.387.x</artifactId>
+                <version>2543.vfb_1a_5fb_9496d</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
