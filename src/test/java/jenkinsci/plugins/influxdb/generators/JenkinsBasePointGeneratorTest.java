@@ -41,6 +41,9 @@ public class JenkinsBasePointGeneratorTest {
     private static final String JENKINS_ENV_RESOLVED_VALUE_TAG = "resolvedEnvValueTag";
     private static final String MEASUREMENT_NAME = "jenkins_data";
 
+    private static final String PROJECT_PATH = "project_path=\"folder/master\"";
+    private static final String NODE_NAME = "slave-1";
+
     private Run<?, ?> build;
     private ProjectNameRenderer measurementRenderer;
     private Executor executor;
@@ -63,7 +66,7 @@ public class JenkinsBasePointGeneratorTest {
         Mockito.doReturn(job).when(build).getParent();
         Mockito.when(build.getEnvironment(listener)).thenReturn(mockedEnvVars);
         Mockito.when(executor.getOwner()).thenReturn(computer);
-        Mockito.when(computer.getName()).thenReturn("slave-1");
+        Mockito.when(computer.getName()).thenReturn(NODE_NAME);
         Mockito.when(job.getName()).thenReturn(JOB_NAME);
         Mockito.when(job.getRelativeNameFrom(Mockito.nullable(Jenkins.class))).thenReturn("folder/" + JOB_NAME);
         Mockito.when(job.getBuildHealth()).thenReturn(new HealthReport());
@@ -79,26 +82,27 @@ public class JenkinsBasePointGeneratorTest {
     @Test
     public void agent_present() {
         Mockito.when(build.getExecutor()).thenReturn(executor);
-        Mockito.when(mockedEnvVars.get("NODE_NAME")).thenReturn("slave-1");
+        Mockito.when(mockedEnvVars.get("NODE_NAME")).thenReturn(NODE_NAME);
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         Point[] points = generator.generate();
         String lineProtocol = points[0].toLineProtocol();
 
-        assertTrue(lineProtocol.contains("build_agent_name=\"slave-1\""));
-        assertTrue(lineProtocol.contains("project_path=\"folder/master\""));
+        assertTrue(lineProtocol.contains("build_agent_name=\"" + NODE_NAME + "\""));
+        assertTrue(lineProtocol.contains(PROJECT_PATH));
     }
 
+    @Test
     public void agent_present_in_log() throws Exception {
         Mockito.when(build.getExecutor()).thenReturn(executor);
         Mockito.when(mockedEnvVars.get("NODE_NAME")).thenReturn("");
-        Reader reader = new StringReader(JenkinsBasePointGenerator.AGENT_LOG_PATTERN + "slave-1");
+        Reader reader = new StringReader(JenkinsBasePointGenerator.AGENT_LOG_PATTERN + NODE_NAME);
         Mockito.when(build.getLogReader()).thenReturn(reader);
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         Point[] points = generator.generate();
         String lineProtocol = points[0].toLineProtocol();
 
-        assertTrue(lineProtocol.contains("build_agent_name=\"slave-1\""));
-        assertTrue(lineProtocol.contains("project_path=\"folder/master\""));
+        assertTrue(lineProtocol.contains("build_agent_name=\"" + NODE_NAME + "\""));
+        assertTrue(lineProtocol.contains(PROJECT_PATH));
     }
 
     @Test
@@ -109,7 +113,7 @@ public class JenkinsBasePointGeneratorTest {
         String lineProtocol = points[0].toLineProtocol();
 
         assertTrue(lineProtocol.contains("build_agent_name=\"\""));
-        assertTrue(lineProtocol.contains("project_path=\"folder/master\""));
+        assertTrue(lineProtocol.contains(PROJECT_PATH));
     }
 
     @Test
@@ -121,7 +125,7 @@ public class JenkinsBasePointGeneratorTest {
         String lineProtocol = points[0].toLineProtocol();
 
         assertTrue(lineProtocol.contains("build_branch_name=\"develop\""));
-        assertTrue(lineProtocol.contains("project_path=\"folder/master\""));
+        assertTrue(lineProtocol.contains(PROJECT_PATH));
     }
 
     @Test
@@ -132,7 +136,7 @@ public class JenkinsBasePointGeneratorTest {
         String lineProtocol = points[0].toLineProtocol();
 
         assertTrue(lineProtocol.contains("build_branch_name=\"\""));
-        assertTrue(lineProtocol.contains("project_path=\"folder/master\""));
+        assertTrue(lineProtocol.contains(PROJECT_PATH));
     }
 
 
