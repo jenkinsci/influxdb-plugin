@@ -32,28 +32,28 @@ public class ProjectNameRendererTest {
     public void customProjectNameWithCustomPrefix() {
         ProjectNameRenderer projectNameRenderer = new ProjectNameRenderer(CUSTOM_PREFIX, CUSTOM_PROJECT_NAME);
         String renderedProjectName = projectNameRenderer.render(build);
-        assertTrue(renderedProjectName.startsWith("test_prefix_test_projectname"));
+        assertTrue(renderedProjectName.startsWith(CUSTOM_PREFIX + "_" + CUSTOM_PROJECT_NAME));
     }
 
     @Test
     public void customProjectNameWithNullPrefix() {
         ProjectNameRenderer projectNameRenderer = new ProjectNameRenderer(null, CUSTOM_PROJECT_NAME);
         String renderedProjectName = projectNameRenderer.render(build);
-        assertTrue(renderedProjectName.startsWith("test_projectname"));
+        assertTrue(renderedProjectName.startsWith(CUSTOM_PROJECT_NAME));
     }
 
     @Test
     public void nullProjectNameWithCustomPrefix() {
         ProjectNameRenderer projectNameRenderer = new ProjectNameRenderer(CUSTOM_PREFIX, null);
         String renderedProjectName = projectNameRenderer.render(build);
-        assertTrue(renderedProjectName.startsWith("test_prefix_master"));
+        assertTrue(renderedProjectName.startsWith(CUSTOM_PREFIX + "_" + JOB_NAME));
     }
 
     @Test
     public void nullProjectNameWithNullPrefix() {
         ProjectNameRenderer projectNameRenderer = new ProjectNameRenderer(null, null);
         String renderedProjectName = projectNameRenderer.render(build);
-        assertTrue(renderedProjectName.startsWith("master"));
+        assertTrue(renderedProjectName.startsWith(JOB_NAME));
     }
 
     @Test
