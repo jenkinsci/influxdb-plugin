@@ -191,35 +191,35 @@ public class InfluxDbPublicationService {
             CoberturaPointGenerator cGen = new CoberturaPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
             addPointsFromPlugin(pointsToWrite, cGen, listener, "Cobertura");
         } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.FINE, "Plugin skipped: Cobertura");
+            logger.fine("Plugin skipped: Cobertura");
         }
 
         try {
             RobotFrameworkPointGenerator rfGen = new RobotFrameworkPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
             addPointsFromPlugin(pointsToWrite, rfGen, listener, "Robot Framework");
         } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.FINE, "Plugin skipped: Robot Framework");
+            logger.fine("Plugin skipped: Robot Framework");
         }
 
         try {
             JacocoPointGenerator jacoGen = new JacocoPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
             addPointsFromPlugin(pointsToWrite, jacoGen, listener, "JaCoCo");
         } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.FINE, "Plugin skipped: JaCoCo");
+            logger.fine("Plugin skipped: JaCoCo");
         }
 
         try {
             PerformancePointGenerator perfGen = new PerformancePointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
             addPointsFromPlugin(pointsToWrite, perfGen, listener, "Performance");
         } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.FINE, "Plugin skipped: Performance");
+            logger.fine("Plugin skipped: Performance");
         }
 
         try {
             GitPointGenerator gitGen = new GitPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
             addPointsFromPlugin(pointsToWrite, gitGen, listener, "Git");
         } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.FINE, "Plugin skipped: Git");
+            logger.fine("Plugin skipped: Git");
         }
 
         JUnitPointGenerator junitGen = new JUnitPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix, env);
@@ -239,14 +239,14 @@ public class InfluxDbPublicationService {
             PerfPublisherPointGenerator perfPublisherGen = new PerfPublisherPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
             addPointsFromPlugin(pointsToWrite, perfPublisherGen, listener, "Performance Publisher");
         } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.FINE, "Plugin skipped: Performance Publisher");
+            logger.fine("Plugin skipped: Performance Publisher");
         }
 
         try {
             MetricsPointGenerator metricsGen = new MetricsPointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
             addPointsFromPlugin(pointsToWrite, metricsGen, listener, "Metrics");
         } catch (NoClassDefFoundError ignore) {
-            logger.log(Level.FINE, "Plugin skipped: Metrics");
+            logger.fine("Plugin skipped: Metrics");
         }
 
         for (Target target : selectedTargets) {
@@ -257,7 +257,7 @@ public class InfluxDbPublicationService {
                 String logMessage = String.format("[InfluxDB Plugin] Skipping target '%s' due to invalid URL '%s'",
                         target.getDescription(),
                         target.getUrl());
-                logger.log(Level.WARNING, logMessage);
+                logger.warning(logMessage);
                 listener.getLogger().println(logMessage);
                 continue;
             }
@@ -266,7 +266,7 @@ public class InfluxDbPublicationService {
                     target.getDescription(),
                     target.getUrl(),
                     target.getDatabase());
-            logger.log(Level.FINE, logMessage);
+            logger.fine(logMessage);
             listener.getLogger().println(logMessage);
 
             try (InfluxDBClient influxDB = getInfluxDBClient(build, target, url)) {
@@ -283,7 +283,7 @@ public class InfluxDbPublicationService {
             listener.getLogger().println("[InfluxDB plugin] " + plugin + " plugin data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, generator, listener);
         } else {
-            logger.log(Level.FINE, "Data not found: " + plugin);
+            logger.fine("Data not found: " + plugin);
         }
     }
 
