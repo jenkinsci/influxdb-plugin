@@ -83,20 +83,16 @@ public class GlobalRunListener extends RunListener<Run<?, ?>> {
             if (publisher != null) {
                 String buildTarget = publisher.getSelectedTarget();
                 return buildTarget != null && StringUtils.equals(buildTarget, target.getDescription());
-            } else {
-                return false;
             }
-        } else {
-            return false;
         }
+        return false;
     }
 
     private boolean isTargetMatchingPath(@Nonnull Target target, @Nonnull String path) {
         if (target.isGlobalListener()) {
             String pattern = target.getGlobalListenerFilter();
             return StringUtils.isBlank(pattern) || Pattern.matches(pattern, path);
-        } else {
-            return false;
         }
+        return false;
     }
 }
