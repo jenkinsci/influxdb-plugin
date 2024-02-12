@@ -69,27 +69,27 @@ Tags specific for this measurement:
 In order to publish data for this measurement, your job needs to set an environment variable
 `LOG_JUNIT_RESULTS` to `true`.
 
-| Metric | Type | Description | Introduced in |
-| --- | --- | --- | --- |
-| suite_name | string | Testsuite name | |
-| test_name | string | Test function name | Changed in 3.0 |
-| test_full_class_name | string | Test fully-qualified class name (`pacakge.ClassName`) | 3.0 |
-| pipeline_step | string | Pipeline steps, separated by ` / ` | 3.0 |
-| test_status | string | PASSED, SKIPPED, FAILED, FIXED, REGRESSION | |
-| test_status_ordinal | integer | 0-4 in order of test_status | |
-| test_duration | float | test duration in seconds | |
-| test_duration | float | test duration in seconds | 3.1 |
-| test_count | long | Test counter; Useful for aggregations. | 3.1 |
+| Metric               | Type | Description | Introduced in |
+|----------------------| --- | --- | --- |
+| suite_name           | string | Testsuite name | |
+| test_name            | string | Test function name | Changed in 3.0 |
+| test_class_full_name | string | Test fully-qualified class name (`pacakge.ClassName`) | 3.0 |
+| pipeline_step        | string | Pipeline steps, separated by ` / ` | 3.0 |
+| test_status          | string | PASSED, SKIPPED, FAILED, FIXED, REGRESSION | |
+| test_status_ordinal  | integer | 0-4 in order of test_status | |
+| test_duration        | float | test duration in seconds | |
+| test_duration        | float | test duration in seconds | 3.1 |
+| test_count           | long | Test counter; Useful for aggregations. | 3.1 |
 
 Tags specific for this measurement:
 
-| Tag | Description | Introduced in |
-| --- | --- | --- |
-| suite_name | Testsuite name | |
-| test_name | Test function name | Changed in 3.0 |
-| test_full_class_name | Test fully-qualified class name (`pacakge.ClassName`) | 3.0 |
-| pipeline_step | Pipeline steps, separated by ` / ` | 3.0 |
-| test_status | Test result | |
+| Tag                  | Description | Introduced in |
+|----------------------| --- | --- |
+| suite_name           | Testsuite name | |
+| test_name            | Test function name | Changed in 3.0 |
+| test_class_full_name | Test fully-qualified class name (`pacakge.ClassName`) | 3.0 |
+| pipeline_step        | Pipeline steps, separated by ` / ` | 3.0 |
+| test_status          | Test result | |
 
 #### `sonarqube_data` (since 1.11)
 
