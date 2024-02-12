@@ -16,6 +16,7 @@ import org.junit.rules.TemporaryFolder;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 
+import java.io.File;
 import java.util.List;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -215,5 +216,24 @@ public class SonarQubePointGeneratorTest {
         } catch(Exception e){
             System.err.println("[InfluxDB Plugin Test] ERROR: Failed to find custom report file path - " + e.getMessage());
         }
+    }
+
+    @Test
+    public void hasReportFindsCorrectInformationFromReportFile() throws Exception {
+        EnvVars envVars = new EnvVars();
+        envVars.put("SONARQUBE_BUILD_REPORT_NAME", "report-task.txt");
+        File directory = new File(SonarQubePointGeneratorTest.class.getResource(".").toURI());
+        envVars.put("WORKSPACE", directory.getAbsolutePath());
+
+        SonarQubePointGenerator generator = new SonarQubePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, envVars);
+        boolean hasReport = generator.hasReport();
+
+        String id = "123EXAMPLE";
+        String url = "http://sonarqube:9000";
+        assertTrue(hasReport);
+        assertEquals("InfluxDBPlugin",generator.getProjectKey());
+        assertEquals(url,generator.getSonarBuildURL());
+        assertEquals(id,generator.getSonarBuildTaskId());
+        assertEquals(url + "/api/ce/task?id=" + id,generator.getSonarBuildTaskIdUrl());
     }
 }

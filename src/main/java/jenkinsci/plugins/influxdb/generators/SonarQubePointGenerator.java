@@ -113,6 +113,22 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         this.env = env;
     }
 
+    public String getProjectKey() {
+        return projectKey;
+    }
+
+    public String getSonarBuildURL() {
+        return sonarBuildURL;
+    }
+
+    public String getSonarBuildTaskIdUrl() {
+        return sonarBuildTaskIdUrl;
+    }
+
+    public String getSonarBuildTaskId() {
+        return sonarBuildTaskId;
+    }
+
     /**
      * @return true, if environment variable LOG_SONAR_QUBE_RESULTS is set to true and SQ Reports exist
      */
