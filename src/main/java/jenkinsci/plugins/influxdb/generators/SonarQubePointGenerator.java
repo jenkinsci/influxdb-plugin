@@ -326,15 +326,14 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                 }
                 match = p_qg_url_v4_8.matcher(line);
                 if (match.matches()) {
-                    url  = match.group(1);
-                    //Task already executed.  No need to search for other lines
-                    break; 
+                    url  = match.group(1);  // https://<url>/dashboard?id=<id>
+                    url = url.substring(0,url.lastIndexOf(('/')));  // strip '/dashboard?id=<id>'
+                    continue;
                 }
                 match = p_qg_url_timeout.matcher(line);
                 if (match.matches()) {
                     url  = match.group(1);
-                    //Task already executed.  No need to search for other lines
-                    break; 
+                    continue;
                 }
                 match = p_analysis_url.matcher(line);
                 if (match.matches()) {
