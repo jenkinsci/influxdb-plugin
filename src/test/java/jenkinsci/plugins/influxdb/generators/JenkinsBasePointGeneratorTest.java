@@ -129,7 +129,7 @@ public class JenkinsBasePointGeneratorTest {
     }
 
     @Test
-    public void brach_not_present() {
+    public void branch_not_present() {
         Mockito.when(build.getExecutor()).thenReturn(null);
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         Point[] points = generator.generate();

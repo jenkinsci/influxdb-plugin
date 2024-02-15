@@ -16,6 +16,10 @@ import org.junit.rules.TemporaryFolder;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,6 +47,8 @@ public class SonarQubePointGeneratorTest {
     private static final String defaultReportName = "report-task.txt";
     private static final String[] customReportPath = {"custom", "report", "path"};
     private static final String customReportName  = "custom-report.txt";
+
+    private File resourceDirectory;
 
     @BeforeClass
     public static void beforeClass() {
@@ -85,6 +91,12 @@ public class SonarQubePointGeneratorTest {
         Job job = Mockito.mock(Job.class);
         listener = Mockito.mock(TaskListener.class);
         measurementRenderer = new ProjectNameRenderer(CUSTOM_PREFIX, null);
+
+        try {
+            resourceDirectory = new File(SonarQubePointGeneratorTest.class.getResource(".").toURI());
+        } catch (Exception ignored) {
+            resourceDirectory = null;
+        }
 
         Mockito.when(build.getNumber()).thenReturn(BUILD_NUMBER);
         Mockito.when(build.getParent()).thenReturn(job);
@@ -215,5 +227,44 @@ public class SonarQubePointGeneratorTest {
         } catch(Exception e){
             System.err.println("[InfluxDB Plugin Test] ERROR: Failed to find custom report file path - " + e.getMessage());
         }
+    }
+
+    @Test
+    public void hasReportFindsCorrectInformationFromReportFile() {
+        EnvVars envVars = new EnvVars();
+        envVars.put("SONARQUBE_BUILD_REPORT_NAME", "report-task.txt");
+        envVars.put("WORKSPACE", resourceDirectory.getAbsolutePath());
+
+        SonarQubePointGenerator generator = new SonarQubePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, envVars);
+        boolean hasReport = generator.hasReport();
+
+        String id = "123EXAMPLE";
+        String url = "http://sonarqube:9000";
+        assertTrue(hasReport);
+        assertEquals("InfluxDBPlugin",generator.getProjectKey());
+        assertEquals(url,generator.getSonarBuildURL());
+        assertEquals(id,generator.getSonarBuildTaskId());
+        assertEquals(url + "/api/ce/task?id=" + id,generator.getSonarBuildTaskIdUrl());
+    }
+
+    @Test
+    public void hasReportFindsCorrectInformationFromBuildLogs() throws Exception {
+        File directory = new File(resourceDirectory, "sonarqube");
+        File file = new File(directory, "build-log.txt");
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        Mockito.when(build.getLogReader()).thenReturn(reader);
+        EnvVars envVars = new EnvVars();
+        envVars.put("WORKSPACE", "mikki hiiri");
+
+        SonarQubePointGenerator generator = new SonarQubePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, envVars);
+        boolean hasReport = generator.hasReport();
+
+        String id = "321EXAMPLE";
+        String url = "http://sonarqube:9001";
+        assertTrue(hasReport);
+        assertEquals("InfluxDBPlugin-log",generator.getProjectKey());
+        assertEquals(url,generator.getSonarBuildURL());
+        assertEquals(id,generator.getSonarBuildTaskId());
+        assertEquals(url + "/api/ce/task?id=" + id,generator.getSonarBuildTaskIdUrl());
     }
 }

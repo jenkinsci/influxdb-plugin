@@ -1,0 +1,144 @@
+INFO: Scanner configuration file: /var/jenkins_home/tools/hudson.plugins.sonar.SonarRunnerInstallation/my-sonar-scanner/conf/sonar-scanner.properties
+INFO: Project root configuration file: /var/jenkins_home/workspace/influxdb-plugin/build-influxdb-plugin/sonar-project.properties
+INFO: SonarScanner 4.8.0.2856
+INFO: Java 11.0.19 Eclipse Adoptium (64-bit)
+INFO: Linux 6.6.12-linuxkit amd64
+INFO: User cache: /var/jenkins_home/.sonar/cache
+INFO: Analyzing on SonarQube server 9.9.1.69595
+INFO: Default locale: "en", source code encoding: "UTF-8" (analysis is platform dependent)
+INFO: Load global settings
+INFO: Load global settings (done) | time=116ms
+INFO: Server id: 147B411E-AY1qOJnrLVom97iUZedE
+INFO: User cache: /var/jenkins_home/.sonar/cache
+INFO: Load/download plugins
+INFO: Load plugins index
+INFO: Load plugins index (done) | time=42ms
+INFO: Load/download plugins (done) | time=166ms
+INFO: Process project properties
+INFO: Process project properties (done) | time=27ms
+INFO: Execute project builders
+INFO: Execute project builders (done) | time=44ms
+INFO: Project key: InfluxDBPlugin-log
+INFO: Base dir: /var/jenkins_home/workspace/influxdb-plugin/build-influxdb-plugin
+INFO: Working dir: /var/jenkins_home/workspace/influxdb-plugin/build-influxdb-plugin/.scannerwork
+INFO: Load project settings for component key: 'InfluxDBPlugin-log'
+INFO: Load project settings for component key: 'InfluxDBPlugin-log' (done) | time=29ms
+INFO: Auto-configuring with CI 'Jenkins'
+INFO: Load quality profiles
+INFO: Load quality profiles (done) | time=137ms
+INFO: Load active rules
+INFO: Load active rules (done) | time=2180ms
+INFO: Load analysis cache
+INFO: Load analysis cache (830 bytes) | time=27ms
+INFO: Load project repositories
+INFO: Load project repositories (done) | time=23ms
+INFO: Indexing files...
+INFO: Project configuration:
+INFO: 73 files indexed
+INFO: 1 file ignored because of scm ignore settings
+INFO: Quality profile for java: Sonar way
+INFO: Quality profile for json: Sonar way
+INFO: Quality profile for web: Sonar way
+INFO: Quality profile for yaml: Sonar way
+INFO: ------------- Run sensors on module InfluxDBPlugin-log
+INFO: Load metrics repository
+INFO: Load metrics repository (done) | time=164ms
+INFO: Sensor JavaSensor [java]
+INFO: Configured Java source version (sonar.java.source): none
+INFO: JavaClasspath initialization
+INFO: JavaClasspath initialization (done) | time=5ms
+INFO: JavaTestClasspath initialization
+INFO: JavaTestClasspath initialization (done) | time=1ms
+INFO: Server-side caching is enabled. The Java analyzer will not try to leverage data from a previous analysis.
+INFO: Using ECJ batch to parse 30 Main java source files with batch size 117 KB.
+INFO: Starting batch processing.
+INFO: The Java analyzer cannot skip unchanged files in this context. A full analysis is performed for all files.
+INFO: 100% analyzed
+INFO: Batch processing: Done.
+INFO: Did not optimize analysis for any files, performed a full analysis for all 30 files.
+WARN: Dependencies/libraries were not provided for analysis of SOURCE files. The 'sonar.java.libraries' property is empty. Verify your configuration, as you might end up with less precise results.
+WARN: Dependencies/libraries were not provided for analysis of TEST files. The 'sonar.java.test.libraries' property is empty. Verify your configuration, as you might end up with less precise results.
+WARN: Unresolved imports/types have been detected during analysis. Enable DEBUG mode to see them.
+WARN: Use of preview features have been detected during analysis. Enable DEBUG mode to see them.
+INFO: Using ECJ batch to parse 15 Test java source files with batch size 117 KB.
+INFO: Starting batch processing.
+INFO: 100% analyzed
+INFO: Batch processing: Done.
+INFO: Did not optimize analysis for any files, performed a full analysis for all 15 files.
+WARN: Unresolved imports/types have been detected during analysis. Enable DEBUG mode to see them.
+WARN: Use of preview features have been detected during analysis. Enable DEBUG mode to see them.
+INFO: No "Generated" source files to scan.
+INFO: Sensor JavaSensor [java] (done) | time=11072ms
+INFO: Sensor JaCoCo XML Report Importer [jacoco]
+INFO: 'sonar.coverage.jacoco.xmlReportPaths' is not defined. Using default locations: target/site/jacoco/jacoco.xml,target/site/jacoco-it/jacoco.xml,build/reports/jacoco/test/jacocoTestReport.xml
+INFO: Importing 1 report(s). Turn your logs in debug mode in order to see the exhaustive list.
+INFO: Sensor JaCoCo XML Report Importer [jacoco] (done) | time=147ms
+INFO: Sensor IaC CloudFormation Sensor [iac]
+INFO: 0 source files to be analyzed
+INFO: 0/0 source files have been analyzed
+INFO: Sensor IaC CloudFormation Sensor [iac] (done) | time=25ms
+INFO: Sensor IaC Kubernetes Sensor [iac]
+INFO: 0 source files to be analyzed
+INFO: 0/0 source files have been analyzed
+INFO: Sensor IaC Kubernetes Sensor [iac] (done) | time=8ms
+INFO: Sensor JavaScript inside YAML analysis [javascript]
+INFO: No input files found for analysis
+INFO: Hit the cache for 0 out of 0
+INFO: Miss the cache for 0 out of 0
+INFO: Sensor JavaScript inside YAML analysis [javascript] (done) | time=15ms
+INFO: Sensor CSS Rules [javascript]
+WARN: Error when running: 'node -v'. Is Node.js available during analysis?
+INFO: Hit the cache for 0 out of 0
+INFO: Miss the cache for 0 out of 0
+INFO: Sensor CSS Rules [javascript] (done) | time=10760ms
+INFO: Sensor C# Project Type Information [csharp]
+INFO: Sensor C# Project Type Information [csharp] (done) | time=1ms
+INFO: Sensor C# Analysis Log [csharp]
+INFO: Sensor C# Analysis Log [csharp] (done) | time=13ms
+INFO: Sensor C# Properties [csharp]
+INFO: Sensor C# Properties [csharp] (done) | time=0ms
+INFO: Sensor SurefireSensor [java]
+INFO: parsing [/var/jenkins_home/workspace/influxdb-plugin/build-influxdb-plugin/target/surefire-reports]
+INFO: Sensor SurefireSensor [java] (done) | time=146ms
+INFO: Sensor HTML [web]
+INFO: Sensor HTML [web] (done) | time=175ms
+INFO: Sensor TextAndSecretsSensor [text]
+INFO: 67 source files to be analyzed
+INFO: 67/67 source files have been analyzed
+INFO: Sensor TextAndSecretsSensor [text] (done) | time=173ms
+INFO: Sensor VB.NET Project Type Information [vbnet]
+INFO: Sensor VB.NET Project Type Information [vbnet] (done) | time=1ms
+INFO: Sensor VB.NET Analysis Log [vbnet]
+INFO: Sensor VB.NET Analysis Log [vbnet] (done) | time=17ms
+INFO: Sensor VB.NET Properties [vbnet]
+INFO: Sensor VB.NET Properties [vbnet] (done) | time=0ms
+INFO: Sensor IaC Docker Sensor [iac]
+INFO: 0 source files to be analyzed
+INFO: 0/0 source files have been analyzed
+INFO: Sensor IaC Docker Sensor [iac] (done) | time=61ms
+INFO: ------------- Run sensors on project
+INFO: Sensor Analysis Warnings import [csharp]
+INFO: Sensor Analysis Warnings import [csharp] (done) | time=3ms
+INFO: Sensor Zero Coverage Sensor
+INFO: Sensor Zero Coverage Sensor (done) | time=5ms
+INFO: Sensor Java CPD Block Indexer
+INFO: Sensor Java CPD Block Indexer (done) | time=92ms
+INFO: SCM Publisher SCM provider for this project is: git
+INFO: SCM Publisher 2 source files to be analyzed
+INFO: SCM Publisher 2/2 source files have been analyzed (done) | time=262ms
+INFO: CPD Executor 25 files had no CPD blocks
+INFO: CPD Executor Calculating CPD for 25 files
+INFO: CPD Executor CPD calculation finished (done) | time=34ms
+INFO: Analysis report generated in 161ms, dir size=507.9 kB
+INFO: Analysis report compressed in 4801ms, zip size=207.0 kB
+INFO: Analysis report uploaded in 342ms
+INFO: ANALYSIS SUCCESSFUL, you can find the results at: http://sonarqube:9001/dashboard?id=InfluxDBPlugin-log
+INFO: Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report
+INFO: More about the report processing at http://sonarqube:9001/api/ce/task?id=321EXAMPLE
+INFO: Analysis total time: 52.300 s
+INFO: ------------------------------------------------------------------------
+INFO: EXECUTION SUCCESS
+INFO: ------------------------------------------------------------------------
+INFO: Total time: 54.302s
+INFO: Final Memory: 24M/84M
+INFO: ------------------------------------------------------------------------

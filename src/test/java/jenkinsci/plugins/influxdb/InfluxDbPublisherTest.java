@@ -68,4 +68,16 @@ public class InfluxDbPublisherTest {
         InfluxDbPublisher after = project.getPublishersList().get(InfluxDbPublisher.class);
         j.assertEqualBeans(before, after, "selectedTarget");
     }
+
+    @Test
+    public void testGetTargetShouldReturnFirstTargetWithNull() {
+        InfluxDbGlobalConfig globalConfig = InfluxDbGlobalConfig.getInstance();
+
+        Target target1 = new Target();
+        target1.setDescription("Target1");
+        globalConfig.addTarget(target1);
+
+        InfluxDbPublisher publisher = new InfluxDbPublisher(null);
+        assertEquals(target1, publisher.getTarget());
+    }
 }
