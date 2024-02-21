@@ -1,11 +1,13 @@
 package jenkinsci.plugins.influxdb.generators;
 
 import java.util.Collection;
+import java.util.List;
 
 import com.influxdb.client.write.Point;
 import hudson.model.TaskListener;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import hudson.model.AbstractBuild;
 import hudson.model.Run;
 import hudson.scm.ChangeLogSet;
@@ -30,14 +32,19 @@ public class ChangeLogPointGenerator extends AbstractPointGenerator {
                                    String customPrefix) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
         this.customPrefix = customPrefix;
+        this.affectedPaths = new StringBuilder();
+        this.messages = new StringBuilder();
+        this.culprits = new StringBuilder();
     }
 
     public boolean hasReport() {
-        if (build instanceof AbstractBuild) {
-            getChangeLog(build);
-            return (this.getCommitCount() > 0);
+        if (build instanceof AbstractBuild) {   // freestyle job
+            getChangeLogFromAbstractBuild(build);
         }
-        return false;
+        else if (build instanceof WorkflowRun) {     // pipeline
+            getChangeLogFromPipeline(build);
+        }
+        return this.getCommitCount() > 0;
     }
 
     public Point[] generate() {
@@ -52,16 +59,22 @@ public class ChangeLogPointGenerator extends AbstractPointGenerator {
         return new Point[] { point };
     }
 
-    private void getChangeLog(Run<?, ?> run) {
-        this.affectedPaths = new StringBuilder();
-
-        this.messages = new StringBuilder();
-
-        this.culprits = new StringBuilder();
-
+    private void getChangeLogFromAbstractBuild(Run<?, ?> run) {
         AbstractBuild<?,?> abstractBuild = (AbstractBuild<?,?>) run;
         ChangeLogSet<? extends ChangeLogSet.Entry> changeset = abstractBuild.getChangeSet();
-        for (ChangeLogSet.Entry str : changeset) {
+        addChangeLogData(changeset);
+    }
+
+    private void getChangeLogFromPipeline(Run<?, ?> run) {
+        WorkflowRun workflowRun = (WorkflowRun) run;
+        List<ChangeLogSet<? extends ChangeLogSet.Entry>> changeLogsSets = workflowRun.getChangeSets();
+        for (ChangeLogSet<? extends ChangeLogSet.Entry> changeLogSet : changeLogsSets) {
+            addChangeLogData(changeLogSet);
+        }
+    }
+
+    private void addChangeLogData(ChangeLogSet<? extends ChangeLogSet.Entry> changeLogSet) {
+        for (ChangeLogSet.Entry str : changeLogSet) {
             Collection<? extends ChangeLogSet.AffectedFile> affectedFiles = str.getAffectedFiles();
             for (ChangeLogSet.AffectedFile affectedFile : affectedFiles) {
                 this.affectedPaths.append(affectedFile.getPath());

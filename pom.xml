@@ -144,6 +144,10 @@ THE SOFTWARE.
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>junit</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins.workflow</groupId>
+            <artifactId>workflow-job</artifactId>
+        </dependency>
 
         <!-- Optional dependencies -->
         <dependency>
@@ -191,11 +195,6 @@ THE SOFTWARE.
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-durable-task-step</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.plugins.workflow</groupId>
-            <artifactId>workflow-job</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
