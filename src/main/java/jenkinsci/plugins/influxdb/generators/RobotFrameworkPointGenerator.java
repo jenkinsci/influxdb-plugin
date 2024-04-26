@@ -32,6 +32,7 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     private static final String RF_SUITE_NAME = "rf_suite_name";
     private static final String RF_TESTCASES = "rf_testcases";
     private static final String RF_TAG_NAME = "rf_tag_name";
+    private static final String RF_AGE = "rf_age";
 
     private final String customPrefix;
     private final Map<String, RobotTagResult> tagResults;
@@ -129,7 +130,8 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
             .addField(RF_FAILED, caseResult.getFailed())
             .addField(RF_PASSED, caseResult.getPassed())
             .addField(RF_SKIPPED, caseResult.getSkipped())
-            .addField(RF_DURATION, caseResult.getDuration());
+            .addField(RF_DURATION, caseResult.getDuration())
+            .addField(RF_AGE, caseResult.getAge());
 
         for (String tag : caseResult.getTags()) {
             markTagResult(tag, caseResult);
