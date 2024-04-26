@@ -331,6 +331,7 @@ Tags specific for this measurement:
 | rf_passed | integer | 0 or 1 |  |
 | rf_skipped | integer | 0 or 1 | 3.0 |
 | rf_suite_name | string | Name of the suite of the test case |  |
+| rf_age | int | How many times test has failed since last pass | 3.7 |
 
 Tags specific for this measurement:
 
