@@ -28,7 +28,7 @@ THE SOFTWARE.
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>4.75</version>
+        <version>4.82</version>
     </parent>
 
     <artifactId>influxdb</artifactId>
@@ -47,7 +47,7 @@ THE SOFTWARE.
     </scm>
 
     <properties>
-        <jenkins.version>2.387.3</jenkins.version>
+        <jenkins.version>2.462.3</jenkins.version>
         <hpi.compatibleSinceVersion>3.0</hpi.compatibleSinceVersion>
         <influxdb-client-java.version>4.1.0</influxdb-client-java.version>
         <cobertura.version>1.17</cobertura.version>
@@ -86,8 +86,8 @@ THE SOFTWARE.
         <dependencies>
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
-                <artifactId>bom-2.387.x</artifactId>
-                <version>2543.vfb_1a_5fb_9496d</version>
+                <artifactId>bom-2.462.x</artifactId>
+                <version>3696.vb_b_4e2d1a_0542</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -189,6 +189,13 @@ THE SOFTWARE.
             <version>${robot.version}</version>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>io.jenkins.plugins</groupId>
+            <artifactId>coverage</artifactId>
+            <version>1.16.1</version>
+            <optional>true</optional>
+        </dependency>
+
 
 
         <!-- Test dependencies -->
