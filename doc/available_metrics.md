@@ -392,3 +392,29 @@ Tags specific for this measurement:
 | git_repository | string | URL of the Git repository used by the build | |
 | git_revision | string | SHA-1 of the commit selected | |
 | git_reference | string | reference of the branch | |
+
+### Coverage plugin (since 4.0)
+
+Dynamically gathers available data for Project, Modified Lines, and Modified Files (see
+[coverage plugin documentation](https://plugins.jenkins.io/coverage/#plugin-content-remote-api) for more information).
+The `delta` metrics are not sent to InfluxDB.
+
+#### `coverage_project_data`, `coverage_modified_lines_data`, `coverage_modified_files_data`
+
+| Metric | Type | Description                                 | Introduced in |
+| --- | --- |---------------------------------------------| --- |
+| branch | float | Branch coverage percentage                  | |
+| class  | float | Class coverage percentage \*                | |
+| complexity | integer | Code complexity percentage \*               | |
+| complexity-density | float | 0-1 decimal calculated by complexity/loc \* | |
+| complexity-maximum | integer | Maximum complexity                          | |
+| file | float | File coverage percentage                    | |
+| instruction | float | Instruction coverage percentage \*          | |
+| line | float | Line coverage percentage                    | |
+| loc | integer | Lines of code percentage                    | |
+| method | float | Method coverage percentage \*               | |
+| module | float | Module coverage percentage                  | |
+| package | float | Package coverage percentage                 | |
+| tests | integer | Amount of tests                             | |
+
+\* These metrics are not available for `coverage_modified_lines_data`.
