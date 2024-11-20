@@ -53,7 +53,7 @@ THE SOFTWARE.
         <cobertura.version>1.17</cobertura.version>
         <performance.version>951.v5600a_c6422ed</performance.version>
         <perfpublisher.version>8.09</perfpublisher.version>
-        <robot.version>3.5.0</robot.version>
+        <robot.version>5.0.0</robot.version>
         <spotbugs.failOnError>false</spotbugs.failOnError>
     </properties>
 
