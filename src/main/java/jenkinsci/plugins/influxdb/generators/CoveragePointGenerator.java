@@ -54,20 +54,18 @@ public class CoveragePointGenerator extends AbstractPointGenerator {
         Point point = buildPoint(name, customPrefix, build);
         ElementFormatter formatter = new ElementFormatter();
         for (Metric m : Metric.values()) {
-            coverageStatistics.getValue(baseline, m)
-                    .ifPresent(value -> {
-                        String x = formatter.format(value);
-                        try {
-                            Number number = NumberFormat.getInstance().parse(StringUtils.substringBefore(x, "%"));
-                            if (StringUtils.contains(x, "%")) {
-                                number = number.floatValue();
-                            }
-                            listener.getLogger().println("Adding field '" + m.toTagName() + "' with value " + number);
-                            point.addField(m.toTagName(), number);
-                        } catch (ParseException e) {
-                            // No operation
-                        }
-                    });
+            coverageStatistics.getValue(baseline, m).ifPresent(value -> {
+                String x = formatter.format(value);
+                try {
+                    Number number = NumberFormat.getInstance().parse(StringUtils.substringBefore(x, "%"));
+                    if (StringUtils.contains(x, "%")) { // failsafe to enforce percentage values as floats
+                        number = number.floatValue();
+                    }
+                    point.addField(m.toTagName(), number);
+                } catch (ParseException e) {
+                    // No operation
+                }
+            });
         }
 
         return point;
