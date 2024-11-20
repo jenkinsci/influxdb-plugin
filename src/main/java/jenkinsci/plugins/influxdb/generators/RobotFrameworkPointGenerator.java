@@ -21,9 +21,6 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     private static final String RF_PASSED = "rf_passed";
     private static final String RF_SKIPPED = "rf_skipped";
     private static final String RF_TOTAL = "rf_total";
-    private static final String RF_CRITICAL_FAILED = "rf_critical_failed";
-    private static final String RF_CRITICAL_PASSED = "rf_critical_passed";
-    private static final String RF_CRITICAL_TOTAL = "rf_critical_total";
     private static final String RF_CRITICAL_PASS_PERCENTAGE = "rf_critical_pass_percentage";
     private static final String RF_PASS_PERCENTAGE = "rf_pass_percentage";
     private static final String RF_SKIP_PERCENTAGE = "rf_skip_percentage";
@@ -68,9 +65,6 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
             .addField(RF_PASSED, robotBuildAction.getResult().getOverallPassed())
             .addField(RF_TOTAL, robotBuildAction.getResult().getOverallTotal())
             .addField(RF_SKIPPED, robotBuildAction.getResult().getOverallSkipped())
-            .addField(RF_CRITICAL_FAILED, robotBuildAction.getResult().getCriticalFailed())
-            .addField(RF_CRITICAL_PASSED, robotBuildAction.getResult().getCriticalPassed())
-            .addField(RF_CRITICAL_TOTAL, robotBuildAction.getResult().getCriticalTotal())
             .addField(RF_CRITICAL_PASS_PERCENTAGE, robotBuildAction.getCriticalPassPercentage())
             .addField(RF_PASS_PERCENTAGE, robotBuildAction.getOverallPassPercentage())
             .addField(RF_SKIP_PERCENTAGE, robotBuildAction.getResult().getSkipPercentage())
@@ -125,8 +119,6 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
             .addTag(RF_NAME, caseResult.getName())
             .addField(RF_NAME, caseResult.getName())
             .addField(RF_SUITE_NAME, caseResult.getParent().getName())
-            .addField(RF_CRITICAL_FAILED, caseResult.getCriticalFailed())
-            .addField(RF_CRITICAL_PASSED, caseResult.getCriticalPassed())
             .addField(RF_FAILED, caseResult.getFailed())
             .addField(RF_PASSED, caseResult.getPassed())
             .addField(RF_SKIPPED, caseResult.getSkipped())
@@ -147,8 +139,6 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
         private int failed = 0;
         private int passed = 0;
         private int skipped = 0;
-        private long criticalFailed = 0;
-        private long criticalPassed = 0;
         private long duration = 0;
 
         private RobotTagResult(String name) {
@@ -165,8 +155,6 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
             tagResult.failed += caseResult.getFailed();
             tagResult.passed += caseResult.getPassed();
             tagResult.skipped += caseResult.getSkipped();
-            tagResult.criticalFailed += caseResult.getCriticalFailed();
-            tagResult.criticalPassed += caseResult.getCriticalPassed();
             tagResult.duration += caseResult.getDuration();
             tagResult.testCases.add(caseResult.getDuplicateSafeName());
         }
@@ -176,9 +164,6 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
         return buildPoint("tag_point", customPrefix, build, timestamp)
             .addTag(RF_TAG_NAME, tagResult.name)
             .addField(RF_TAG_NAME, tagResult.name)
-            .addField(RF_CRITICAL_FAILED, (int)tagResult.criticalFailed)    // Send data as int for backwards compatibility
-            .addField(RF_CRITICAL_PASSED, (int)tagResult.criticalPassed)    // Send data as int for backwards compatibility
-            .addField(RF_CRITICAL_TOTAL, (int)(tagResult.criticalPassed + tagResult.criticalFailed))    // Send data as int for backwards compatibility
             .addField(RF_FAILED, tagResult.failed)
             .addField(RF_PASSED, tagResult.passed)
             .addField(RF_SKIPPED, tagResult.skipped)
@@ -191,9 +176,6 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
             .addTag(RF_SUITE_NAME, suiteResult.getName())
             .addField(RF_SUITE_NAME, suiteResult.getName())
             .addField(RF_TESTCASES, suiteResult.getAllCases().size())
-            .addField(RF_CRITICAL_FAILED, suiteResult.getCriticalFailed())
-            .addField(RF_CRITICAL_PASSED, suiteResult.getCriticalPassed())
-            .addField(RF_CRITICAL_TOTAL, suiteResult.getCriticalTotal())
             .addField(RF_FAILED, suiteResult.getFailed())
             .addField(RF_PASSED, suiteResult.getPassed())
             .addField(RF_SKIPPED, suiteResult.getSkipped())

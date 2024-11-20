@@ -1,5 +1,12 @@
 # Breaking Changes
 
+## 4.0
+
+- Changes to Robot Framework metrics:
+  - All `rf_critical_*` metrics have been removed as criticality has been deprecated by the Robot Framework plugin.
+    - EXCEPT `rf_critical_pass_percentage`. It now sends the percentage of tests that passed including skipped tests.
+    - `rf_pass_percentage` continues behaviour as before and sends the percentage of tests that passed excluding skipped tests.
+
 ## 3.0
 
 - InfluxDB 1.7 and lower are no longer supported. Only supported 1.x version is 1.8.x.

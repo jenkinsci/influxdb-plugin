@@ -263,28 +263,28 @@ Tags specific for this measurement:
 
 #### `rf_results`
 
-| Metric | Type | Description | Introduced in |
-| --- | --- | --- | --- |
-| rf_critical_failed | integer | Amount of failed critical tests |  |
-| rf_critical_pass_percentage | float | Percentage of passed critical tests |  |
-| rf_critical_passed | integer | Amount of passed critical tests |  |
-| rf_critical_total | integer | Total amount of critical tests |  |
-| rf_duration | integer | Test execution duration |  |
-| rf_failed | integer | Amount of failed tests |  |
-| rf_pass_percentage | float | Percentage of passed tests |  |
-| rf_passed | integer | Amount of passed tests |  |
-| rf_suites | integer | Amount of test suites |  |
-| rf_skipped | integer | Amount of skipped tests | 3.0 |
-| rf_skip_percentage | float | Percentage of skipped tests | 3.0 |
-| rf_total | integer | Total amount of tests |  |
+| Metric | Type | Description                                                                                              | Introduced in |
+| --- | --- |----------------------------------------------------------------------------------------------------------| --- |
+| rf_critical_failed | integer | Amount of failed critical tests                                                                          | REMOVED IN 4.0 |
+| rf_critical_pass_percentage | float | Percentage of passed critical tests.<br/>Since 4.0 this is the total pass percentage including skipped tests. |  |
+| rf_critical_passed | integer | Amount of passed critical tests                                                                          | REMOVED IN 4.0 |
+| rf_critical_total | integer | Total amount of critical tests                                                                           | REMOVED IN 4.0 |
+| rf_duration | integer | Test execution duration                                                                                  |  |
+| rf_failed | integer | Amount of failed tests                                                                                   |  |
+| rf_pass_percentage | float | Percentage of passed tests, excuding skipped tests                                                       |  |
+| rf_passed | integer | Amount of passed tests                                                                                   |  |
+| rf_suites | integer | Amount of test suites                                                                                    |  |
+| rf_skipped | integer | Amount of skipped tests                                                                                  | 3.0 |
+| rf_skip_percentage | float | Percentage of skipped tests                                                                              | 3.0 |
+| rf_total | integer | Total amount of tests                                                                                    |  |
 
 #### `suite_result`
 
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
-| rf_critical_failed | integer | Amount of failed critical tests |  |
-| rf_critical_passed | integer | Amount of passed critical tests |  |
-| rf_critical_total | integer | Total amount of critical tests |  |
+| rf_critical_failed | integer | Amount of failed critical tests | REMOVED IN 4.0 |
+| rf_critical_passed | integer | Amount of passed critical tests | REMOVED IN 4.0 |
+| rf_critical_total | integer | Total amount of critical tests | REMOVED IN 4.0 |
 | rf_duration | integer | Test execution duration |  |
 | rf_failed | integer | Amount of failed tests |  |
 | rf_passed | integer | Amount of passed tests |  |
@@ -301,17 +301,17 @@ Tags specific for this measurement:
 
 #### `tag_point`
 
-| Metric | Type | Description | Introduced in |
-| --- | --- | --- | --- |
-| rf_critical_failed | integer | Amount of failed critical tests |  |
-| rf_critical_passed | integer | Amount of passed critical tests |  |
-| rf_critical_total | integer | Total amount of critical tests |  |
-| rf_duration | integer | Test execution duration |  |
-| rf_failed | integer | Amount of failed tests |  |
-| rf_passed | integer | Amount of passed tests |  |
-| rf_skipped | integer | Amount of skipped tests | 3.0 |
-| rf_total | integer | Total amount of tests |  |
-| rf_tag_name | string | Test tag name | 1.20.1 |
+| Metric | Type | Description | Introduced in   |
+| --- | --- | --- |-----------------|
+| rf_critical_failed | integer | Amount of failed critical tests | REMOVED IN 4.0 |
+| rf_critical_passed | integer | Amount of passed critical tests | REMOVED IN 4.0 |
+| rf_critical_total | integer | Total amount of critical tests | REMOVED IN 4.0  |
+| rf_duration | integer | Test execution duration |                 |
+| rf_failed | integer | Amount of failed tests |                 |
+| rf_passed | integer | Amount of passed tests |                 |
+| rf_skipped | integer | Amount of skipped tests | 3.0             |
+| rf_total | integer | Total amount of tests |                 |
+| rf_tag_name | string | Test tag name | 1.20.1          |
 
 Tags specific for this measurement:
 
@@ -321,17 +321,17 @@ Tags specific for this measurement:
 
 #### `testcase_point`
 
-| Metric | Type | Description | Introduced in |
-| --- | --- | --- | --- |
-| rf_critical_failed | integer | 0 or 1 |  |
-| rf_critical_passed | integer | 0 or 1 |  |
-| rf_duration | integer | Test case execution duration |  |
-| rf_failed | integer | 0 or 1 |  |
-| rf_name | string | Name of the test case |  |
-| rf_passed | integer | 0 or 1 |  |
-| rf_skipped | integer | 0 or 1 | 3.0 |
-| rf_suite_name | string | Name of the suite of the test case |  |
-| rf_age | int | How many times test has failed since last pass | 3.7 |
+| Metric | Type | Description | Introduced in  |
+| --- | --- | --- |----------------|
+| rf_critical_failed | integer | 0 or 1 | REMOVED IN 4.0 |
+| rf_critical_passed | integer | 0 or 1 | REMOVED IN 4.0 |
+| rf_duration | integer | Test case execution duration |                |
+| rf_failed | integer | 0 or 1 |                |
+| rf_name | string | Name of the test case |                |
+| rf_passed | integer | 0 or 1 |                |
+| rf_skipped | integer | 0 or 1 | 3.0            |
+| rf_suite_name | string | Name of the suite of the test case |                |
+| rf_age | int | How many times test has failed since last pass | 3.7            |
 
 Tags specific for this measurement:
 
