@@ -249,6 +249,13 @@ public class InfluxDbPublicationService {
             logger.fine("Plugin skipped: Metrics");
         }
 
+        try {
+            CoveragePointGenerator coverageGen = new CoveragePointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, customPrefix);
+            addPointsFromPlugin(pointsToWrite, coverageGen, listener, "Coverage");
+        } catch (NoClassDefFoundError ignore) {
+            logger.fine("Plugin skipped: Coverage");
+        }
+
         for (Target target : selectedTargets) {
             URL url;
             try {
