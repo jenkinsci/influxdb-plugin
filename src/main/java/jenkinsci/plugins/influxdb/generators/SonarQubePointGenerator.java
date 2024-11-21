@@ -80,7 +80,6 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private String sonarBuildURL = null;
     private String sonarBuildTaskIdUrl = null;
     private String sonarBuildTaskId = null;
-    private String branchName = null;
 
     // https://sonarcloud.io/web_api/api/issues
     private static final String SONAR_ISSUES_BASE_URL = "/api/issues/search?ps=1";
