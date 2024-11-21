@@ -16,10 +16,10 @@ import org.junit.rules.TemporaryFolder;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -266,5 +266,120 @@ public class SonarQubePointGeneratorTest {
         assertEquals(url,generator.getSonarBuildURL());
         assertEquals(id,generator.getSonarBuildTaskId());
         assertEquals(url + "/api/ce/task?id=" + id,generator.getSonarBuildTaskIdUrl());
+    }
+
+    @Test
+    public void setSonarDetailsUsesSonarHostUrlFromEnv() throws Exception {
+        TaskListener listener = Mockito.mock(TaskListener.class);
+        PrintStream logger = Mockito.mock(PrintStream.class);
+        Mockito.when(listener.getLogger()).thenReturn(logger);
+
+        EnvVars envVars = new EnvVars();
+        envVars.put("SONAR_HOST_URL", "http://custom.sonar.url");
+
+        SonarQubePointGenerator generator = new SonarQubePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, envVars);
+
+        Method method = SonarQubePointGenerator.class.getDeclaredMethod("setSonarDetails", String.class);
+        method.setAccessible(true);
+        method.invoke(generator, "http://default.sonar.url");
+
+        Field sonarIssuesUrlField = SonarQubePointGenerator.class.getDeclaredField("sonarIssuesUrl");
+        sonarIssuesUrlField.setAccessible(true);
+        String sonarIssuesUrl = (String) sonarIssuesUrlField.get(generator);
+
+        Field sonarMetricsUrlField = SonarQubePointGenerator.class.getDeclaredField("sonarMetricsUrl");
+        sonarMetricsUrlField.setAccessible(true);
+        String sonarMetricsUrl = (String) sonarMetricsUrlField.get(generator);
+
+        assertEquals("http://custom.sonar.url/api/issues/search?ps=1&componentKeys=null&resolved=false&severities=", sonarIssuesUrl);
+        assertEquals("http://custom.sonar.url/api/measures/component?componentKey=null&component=null", sonarMetricsUrl);
+    }
+
+    @Test
+    public void setSonarDetailsUsesDefaultSonarUrlWhenEnvVarNotSet() throws Exception {
+        TaskListener listener = Mockito.mock(TaskListener.class);
+        PrintStream logger = Mockito.mock(PrintStream.class);
+        Mockito.when(listener.getLogger()).thenReturn(logger);
+
+        EnvVars envVars = new EnvVars();
+        SonarQubePointGenerator generator = new SonarQubePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, envVars);
+
+        Method method = SonarQubePointGenerator.class.getDeclaredMethod("setSonarDetails", String.class);
+        method.setAccessible(true);
+        method.invoke(generator, "http://default.sonar.url");
+
+        Field sonarIssuesUrlField = SonarQubePointGenerator.class.getDeclaredField("sonarIssuesUrl");
+        sonarIssuesUrlField.setAccessible(true);
+        String sonarIssuesUrl = (String) sonarIssuesUrlField.get(generator);
+
+        Field sonarMetricsUrlField = SonarQubePointGenerator.class.getDeclaredField("sonarMetricsUrl");
+        sonarMetricsUrlField.setAccessible(true);
+        String sonarMetricsUrl = (String) sonarMetricsUrlField.get(generator);
+
+        assertEquals("http://default.sonar.url/api/issues/search?ps=1&componentKeys=null&resolved=false&severities=", sonarIssuesUrl);
+        assertEquals("http://default.sonar.url/api/measures/component?componentKey=null&component=null", sonarMetricsUrl);
+    }
+
+    @Test
+    public void setSonarDetailsUsesBranchNameFromEnv() throws Exception {
+        // Mock TaskListener and its logger
+        TaskListener listener = Mockito.mock(TaskListener.class);
+        PrintStream logger = Mockito.mock(PrintStream.class);
+        Mockito.when(listener.getLogger()).thenReturn(logger);
+
+        EnvVars envVars = new EnvVars();
+        envVars.put("SONAR_BRANCH_NAME", "feature-branch");
+
+        SonarQubePointGenerator generator = new SonarQubePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, envVars);
+
+        Method method = SonarQubePointGenerator.class.getDeclaredMethod("setSonarDetails", String.class);
+        method.setAccessible(true);
+        method.invoke(generator, "http://default.sonar.url");
+
+        Field sonarIssuesUrlField = SonarQubePointGenerator.class.getDeclaredField("sonarIssuesUrl");
+        sonarIssuesUrlField.setAccessible(true);
+        String sonarIssuesUrl = (String) sonarIssuesUrlField.get(generator);
+
+        Field sonarMetricsUrlField = SonarQubePointGenerator.class.getDeclaredField("sonarMetricsUrl");
+        sonarMetricsUrlField.setAccessible(true);
+        String sonarMetricsUrl = (String) sonarMetricsUrlField.get(generator);
+
+        assertEquals("http://default.sonar.url/api/issues/search?ps=1&branch=feature-branch&componentKeys=null&resolved=false&severities=", sonarIssuesUrl);
+        assertEquals("http://default.sonar.url/api/measures/component?componentKey=null&component=null&branch=feature-branch", sonarMetricsUrl);
+    }
+
+    @Test
+    public void setSonarDetailsLogsAuthTokenUsageWhenTokenIsPresent() throws Exception {
+        TaskListener listener = Mockito.mock(TaskListener.class);
+        PrintStream logger = Mockito.mock(PrintStream.class);
+        Mockito.when(listener.getLogger()).thenReturn(logger);
+
+        EnvVars envVars = new EnvVars();
+        envVars.put("SONAR_AUTH_TOKEN", "dummy-token");
+
+        SonarQubePointGenerator generator = new SonarQubePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, envVars);
+
+        Method method = SonarQubePointGenerator.class.getDeclaredMethod("setSonarDetails", String.class);
+        method.setAccessible(true);
+        method.invoke(generator, "http://default.sonar.url");
+
+        Mockito.verify(logger).println("[InfluxDB Plugin] INFO: Using SonarQube auth token found in environment variable SONAR_AUTH_TOKEN");
+    }
+
+    @Test
+    public void setSonarDetailsLogsWarningWhenAuthTokenIsAbsent() throws Exception {
+        TaskListener listener = Mockito.mock(TaskListener.class);
+        PrintStream logger = Mockito.mock(PrintStream.class);
+        Mockito.when(listener.getLogger()).thenReturn(logger);
+
+        EnvVars envVars = new EnvVars();
+
+        SonarQubePointGenerator generator = new SonarQubePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, envVars);
+
+        Method method = SonarQubePointGenerator.class.getDeclaredMethod("setSonarDetails", String.class);
+        method.setAccessible(true);
+        method.invoke(generator, "http://default.sonar.url");
+
+        Mockito.verify(logger).println("[InfluxDB Plugin] WARNING: No SonarQube auth token found in environment variable SONAR_AUTH_TOKEN. Depending on access rights, this might result in a HTTP/401.");
     }
 }

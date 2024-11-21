@@ -80,6 +80,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private String sonarBuildURL = null;
     private String sonarBuildTaskIdUrl = null;
     private String sonarBuildTaskId = null;
+    private String branchName = null;
 
     // https://sonarcloud.io/web_api/api/issues
     private static final String SONAR_ISSUES_BASE_URL = "/api/issues/search?ps=1";
@@ -90,6 +91,8 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private static final String SONAR_METRICS_BASE_URL = "/api/measures/component?componentKey=%s&component=%s";
     private static final String SONAR_METRICS_BASE_METRIC = "&metricKeys=";
     private static final OkHttpClient httpClient = new OkHttpClient();
+
+    private static final String BRANCH_NAME_BASE_URL = "&branch=";
 
     private String sonarIssuesUrl;
     private String sonarMetricsUrl;  
@@ -214,13 +217,21 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         // Use SONAR_HOST_URL environment variable if provided, sonarBuildURL otherwise
         String sonarServer = env.get("SONAR_HOST_URL", sonarBuildURL);
         listener.getLogger().println("[InfluxDB Plugin] INFO: Using SonarQube host URL: " + sonarServer);
-        
+
+        // Use SONAR_BRANCH_NAME environment variable if provided, default branch otherwise
+        String branchName = env.get("SONAR_BRANCH_NAME","");
+        if (!branchName.isEmpty()) {
+            listener.getLogger().println("[InfluxDB Plugin] INFO: Using SonarQube branch: " + branchName);
+            branchName = BRANCH_NAME_BASE_URL + branchName;
+        }
+
         // https://sonarcloud.io/web_api/api/issues
-        sonarIssuesUrl = sonarServer + SONAR_ISSUES_BASE_URL 
-                            + "&componentKeys=" + projectKey 
+        sonarIssuesUrl = sonarServer + SONAR_ISSUES_BASE_URL
+                            + branchName
+                            + "&componentKeys=" + projectKey
                             + "&resolved=false&severities=";
 
-        sonarMetricsUrl = sonarServer + String.format(SONAR_METRICS_BASE_URL, projectKey, projectKey);
+        sonarMetricsUrl = sonarServer + String.format(SONAR_METRICS_BASE_URL, projectKey, projectKey) + branchName;
 
         token = env.get("SONAR_AUTH_TOKEN");
         if (token != null) {
