@@ -47,7 +47,9 @@ THE SOFTWARE.
     </scm>
 
     <properties>
-        <jenkins.version>2.462.3</jenkins.version>
+        <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
+        <jenkins.baseline>2.462</jenkins.baseline>
+        <jenkins.version>${jenkins.baseline}.3</jenkins.version>
         <hpi.compatibleSinceVersion>3.0</hpi.compatibleSinceVersion>
         <influxdb-client-java.version>4.1.0</influxdb-client-java.version>
         <cobertura.version>1.17</cobertura.version>
@@ -86,7 +88,7 @@ THE SOFTWARE.
         <dependencies>
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
-                <artifactId>bom-2.462.x</artifactId>
+                <artifactId>bom-${jenkins.baseline}.x</artifactId>
                 <version>3696.vb_b_4e2d1a_0542</version>
                 <scope>import</scope>
                 <type>pom</type>
