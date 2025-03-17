@@ -59,7 +59,7 @@ public class InfluxDbPublisherTest {
         globalConfig.addTarget(target2);
 
         InfluxDbPublisher before = new InfluxDbPublisher("Target2");
-        assertEquals(before.getSelectedTarget(), "Target2");
+        assertEquals("Target2", before.getSelectedTarget());
         assertEquals(before.getTarget(), target2);
         FreeStyleProject project = j.createFreeStyleProject();
         project.getPublishersList().add(before);

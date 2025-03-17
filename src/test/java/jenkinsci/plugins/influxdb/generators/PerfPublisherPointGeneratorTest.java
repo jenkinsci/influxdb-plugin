@@ -14,7 +14,6 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.util.HashMap;
@@ -53,12 +52,7 @@ public class PerfPublisherPointGeneratorTest {
         Mockito.when(job.getRelativeNameFrom(Mockito.nullable(Jenkins.class))).thenReturn("folder/" + JOB_NAME);
         Mockito.when(build.getAction(PerfPublisherBuildAction.class)).thenReturn(buildAction);
 
-        Mockito.when(buildAction.getReport()).thenAnswer(new Answer<Report>() {
-            @Override
-            public Report answer(InvocationOnMock invocationOnMock) {
-                return reports.getReports().isEmpty() ? null : reports.getReports().get(0);
-            }
-        });
+        Mockito.when(buildAction.getReport()).thenAnswer((Answer<Report>) invocationOnMock -> reports.getReports().isEmpty() ? null : reports.getReports().get(0));
         Mockito.when(buildAction.getReports()).thenReturn(reports);
 
         currTime = System.currentTimeMillis();

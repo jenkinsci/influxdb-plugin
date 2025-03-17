@@ -30,7 +30,7 @@ public class AgentPointGenerator extends AbstractPointGenerator {
 
     protected static final String AGENT_NAME = "agent_name";
     protected static final String AGENT_LABEL = "agent_label";
-    protected static final String UNIQUE_ID = "unique_id"; 
+    protected static final String UNIQUE_ID = "unique_id";
 
     private List<Map.Entry<String, String>> agentPoints;
     private String customPrefix;
@@ -68,7 +68,7 @@ public class AgentPointGenerator extends AbstractPointGenerator {
 
     /**
      * Retrieve agent(s) used by the build and return {@link AgentPoint}
-     * 
+     *
      * @param build
      * @return list of {@link AgentPoint}
      */
@@ -83,7 +83,7 @@ public class AgentPointGenerator extends AbstractPointGenerator {
 
     /**
      * Retrieve agent(s) for traditional jobs
-     * 
+     *
      * @param build
      * @return list of {@link AgentPoint}
      */
@@ -92,14 +92,14 @@ public class AgentPointGenerator extends AbstractPointGenerator {
         Node node = build.getBuiltOn();
         if (node != null) {
             agentPointsList
-                    .add(new AbstractMap.SimpleEntry<String, String>(node.getDisplayName(), node.getLabelString()));
+                    .add(new AbstractMap.SimpleEntry<>(node.getDisplayName(), node.getLabelString()));
         }
         return agentPointsList;
     }
 
     /**
      * Retrieve agent(s) for pipeline jobs
-     * 
+     *
      * @param build
      * @return list of {@link AgentPoint}
      */
@@ -121,7 +121,7 @@ public class AgentPointGenerator extends AbstractPointGenerator {
                         }
                         String nodeName = workspaceAction.getNode();
                         agentPointsList
-                                .add(new AbstractMap.SimpleEntry<String, String>(nodeName, labelString.toString()));
+                                .add(new AbstractMap.SimpleEntry<>(nodeName, labelString.toString()));
                     }
                 }
             }
