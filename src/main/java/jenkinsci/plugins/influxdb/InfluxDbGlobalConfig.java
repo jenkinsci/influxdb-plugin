@@ -7,7 +7,7 @@ import hudson.init.Initializer;
 import jenkins.model.GlobalConfiguration;
 import jenkinsci.plugins.influxdb.models.Target;
 import net.sf.json.JSONObject;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,7 +58,7 @@ public class InfluxDbGlobalConfig extends GlobalConfiguration {
     }
 
     @Override
-    public boolean configure(StaplerRequest req, JSONObject formData) {
+    public boolean configure(StaplerRequest2 req, JSONObject formData) {
         targets = new CopyOnWriteArrayList<>();
         targets.addAll(req.bindJSONToList(Target.class, formData.get("targets")));
         save();
