@@ -80,12 +80,12 @@ public class AgentPointGeneratorTest {
         flowNode2 = Mockito.mock(FlowNode.class);
         flowExecutionOwner = Mockito.mock(FlowExecutionOwner.class);
         flowExecution = Mockito.mock(FlowExecution.class);
-        flowNodeList = new ArrayList<FlowNode>();
+        flowNodeList = new ArrayList<>();
         flowNodeList.add(flowNode1);
         flowNodeList.add(flowNode2);
         workspaceAction1 = Mockito.mock(WorkspaceAction.class);
         workspaceAction2 = Mockito.mock(WorkspaceAction.class);
-        Set<LabelAtom> labels = new HashSet<LabelAtom>();
+        Set<LabelAtom> labels = new HashSet<>();
         LabelAtom label = new LabelAtom(NODE_LABEL);
         labels.add(label);
         Mockito.when(pipelineBuild.asFlowExecutionOwner()).thenReturn(flowExecutionOwner);

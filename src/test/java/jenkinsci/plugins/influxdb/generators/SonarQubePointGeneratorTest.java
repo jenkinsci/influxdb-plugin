@@ -18,7 +18,6 @@ import static org.mockito.ArgumentMatchers.any;
 
 import java.io.*;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.nio.file.Path;
@@ -31,7 +30,7 @@ public class SonarQubePointGeneratorTest {
     private static final int BUILD_NUMBER = 11;
     private static final String CUSTOM_PREFIX = "test_prefix";
 
-            
+
     private Run build;
     private TaskListener listener;
     private ProjectNameRenderer measurementRenderer;
@@ -39,10 +38,10 @@ public class SonarQubePointGeneratorTest {
 
     private long currTime;
 
-    // temp file system settings for testing find report file 
+    // temp file system settings for testing find report file
     @ClassRule
     public static TemporaryFolder folder = new TemporaryFolder();
-    
+
     private static final String[] mvnReportPath = {"maven-basic", "target", "sonar"};
     private static final String defaultReportName = "report-task.txt";
     private static final String[] customReportPath = {"custom", "report", "path"};
@@ -52,7 +51,7 @@ public class SonarQubePointGeneratorTest {
 
     @BeforeClass
     public static void beforeClass() {
-        
+
         // create a dummy file system with the scanner report file
         // temp-dir/
         //  - maven-basic/target/sonar/report-task.txt
@@ -61,16 +60,16 @@ public class SonarQubePointGeneratorTest {
         //      - temfiles...
         String wsRoot = folder.getRoot().toString();
         Path wsSonarDir = Paths.get(wsRoot, mvnReportPath);
-        Path sonarReport = wsSonarDir.resolve(defaultReportName); 
+        Path sonarReport = wsSonarDir.resolve(defaultReportName);
         Path customSonarReportDir = Paths.get(wsRoot, customReportPath);
-        Path sonarCustomReport = customSonarReportDir.resolve(customReportName); 
+        Path sonarCustomReport = customSonarReportDir.resolve(customReportName);
 
         try {
-            Files.createDirectories(wsSonarDir);  
+            Files.createDirectories(wsSonarDir);
             Files.createFile(sonarReport);
-            Files.createDirectories(customSonarReportDir); 
+            Files.createDirectories(customSonarReportDir);
             Files.createFile(sonarCustomReport);
-            
+
             // create temp dirs and files
             for (int i = 0; i < 5; i++) {
                 String tmpDirName = "temp" + i;
@@ -132,27 +131,27 @@ public class SonarQubePointGeneratorTest {
         assertNull(gen.getSonarMetric(url, metric_key));
     }
 
-   
+
     @Test
     public void getSonarDefaultReportFilePath() {
-        // Find default sonar report-task.txt file 
+        // Find default sonar report-task.txt file
         EnvVars envVars = new EnvVars();
 
         SonarQubePointGenerator gen = Mockito.spy(
-                                    new SonarQubePointGenerator(build, 
-                                                                listener, 
-                                                                measurementRenderer, 
-                                                                currTime, 
-                                                                StringUtils.EMPTY, 
-                                                                CUSTOM_PREFIX, 
+                                    new SonarQubePointGenerator(build,
+                                                                listener,
+                                                                measurementRenderer,
+                                                                currTime,
+                                                                StringUtils.EMPTY,
+                                                                CUSTOM_PREFIX,
                                                                 envVars));
 
         String wsRoot = folder.getRoot().toString();
         Path wsSonarDir = Paths.get(wsRoot, mvnReportPath);
-        Path sonarReport = wsSonarDir.resolve(defaultReportName); 
+        Path sonarReport = wsSonarDir.resolve(defaultReportName);
 
         try {
-            List<Path> result = gen.findReportByFileName(wsRoot);    
+            List<Path> result = gen.findReportByFileName(wsRoot);
             assertEquals(1, result.size());
 
             Files.deleteIfExists(sonarReport);
@@ -165,28 +164,28 @@ public class SonarQubePointGeneratorTest {
 
     @Test
     public void getSonarCustomReportFileName() {
-        // Find a custom report file defined by SONARQUBE_BUILD_REPORT_NAME env var 
+        // Find a custom report file defined by SONARQUBE_BUILD_REPORT_NAME env var
         // Example: custom-report.txt
         EnvVars envVars = Mockito.spy(new EnvVars());
 
         SonarQubePointGenerator gen = Mockito.spy(
-                                    new SonarQubePointGenerator(build, 
-                                                                listener, 
-                                                                measurementRenderer, 
-                                                                currTime, 
-                                                                StringUtils.EMPTY, 
-                                                                CUSTOM_PREFIX, 
+                                    new SonarQubePointGenerator(build,
+                                                                listener,
+                                                                measurementRenderer,
+                                                                currTime,
+                                                                StringUtils.EMPTY,
+                                                                CUSTOM_PREFIX,
                                                                 envVars));
 
         String wsRoot = folder.getRoot().toString();
 
         try {
-            
+
             Mockito.doReturn(customReportName)
                 .when(envVars)
                 .get(any(String.class));
 
-            List<Path> result = gen.findReportByFileName(wsRoot);    
+            List<Path> result = gen.findReportByFileName(wsRoot);
             assertEquals(1, result.size());
 
         } catch(Exception e){
@@ -201,27 +200,27 @@ public class SonarQubePointGeneratorTest {
         EnvVars envVars = Mockito.spy(new EnvVars());
 
         SonarQubePointGenerator gen = Mockito.spy(
-                                    new SonarQubePointGenerator(build, 
-                                                                listener, 
-                                                                measurementRenderer, 
-                                                                currTime, 
-                                                                StringUtils.EMPTY, 
-                                                                CUSTOM_PREFIX, 
+                                    new SonarQubePointGenerator(build,
+                                                                listener,
+                                                                measurementRenderer,
+                                                                currTime,
+                                                                StringUtils.EMPTY,
+                                                                CUSTOM_PREFIX,
                                                                 envVars));
 
         String wsRoot = folder.getRoot().toString();
 
         try {
-            
+
             String parentCustomDir = customReportPath[customReportPath.length - 1];
             Path customReportPathPattern = Paths.get(parentCustomDir,
                                                     customReportName);
-                                                    
+
             Mockito.doReturn(customReportPathPattern.toString())
                 .when(envVars)
                 .get(any(String.class));
 
-            List<Path>  result = gen.findReportByFileName(wsRoot);    
+            List<Path>  result = gen.findReportByFileName(wsRoot);
             assertEquals(1, result.size());
 
         } catch(Exception e){

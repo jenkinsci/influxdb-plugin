@@ -26,21 +26,21 @@ public class ConfigurationAsCodeTest {
         String yamlUrl = getClass().getResource(getClass().getSimpleName() + "/configuration-as-code.yml").toString();
         ConfigurationAsCode.get().configure(yamlUrl);
 
-        assertEquals(globalConfig.getTargets().size(), 1);
+        assertEquals(1, globalConfig.getTargets().size());
 
         Target target = globalConfig.getTargets().get(0);
-        assertEquals(target.getDescription(), "some description");
-        assertEquals(target.getUrl(), "http://some/url");
+        assertEquals("some description", target.getDescription());
+        assertEquals("http://some/url", target.getUrl());
 
-        assertEquals(target.getCredentialsId(), "some_id");
-        assertEquals(target.getDatabase(), "some_database");
-        assertEquals(target.getRetentionPolicy(), "some_policy");
+        assertEquals("some_id", target.getCredentialsId());
+        assertEquals("some_database", target.getDatabase());
+        assertEquals("some_policy", target.getRetentionPolicy());
         assertTrue(target.isJobScheduledTimeAsPointsTimestamp());
         assertTrue(target.isExposeExceptions());
         assertTrue(target.isUsingJenkinsProxy());
         assertTrue(target.isGlobalListener());
-        assertEquals(target.getGlobalListenerFilter(), "some filter");
-        assertEquals(target.getOrganization(), "some_organization");
+        assertEquals("some filter", target.getGlobalListenerFilter());
+        assertEquals("some_organization", target.getOrganization());
     }
 
     @Test
@@ -64,7 +64,7 @@ public class ConfigurationAsCodeTest {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ConfigurationAsCode.get().export(outputStream);
-        String exportedYaml = outputStream.toString("UTF-8");
+        String exportedYaml = outputStream.toString(StandardCharsets.UTF_8);
 
         InputStream yamlStream = getClass().getResourceAsStream(getClass().getSimpleName() + "/configuration-as-code.yml");
         String expectedYaml = IOUtils.toString(yamlStream, StandardCharsets.UTF_8)

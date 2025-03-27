@@ -3,7 +3,7 @@ package jenkinsci.plugins.influxdb.generators;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -73,8 +73,8 @@ public class GitPointGeneratorTest {
         Mockito.when(build.getActions(BuildData.class)).thenReturn(gitActions);
         Mockito.when(gitAction1.getLastBuiltRevision()).thenReturn(revision1);
         Mockito.when(gitAction2.getLastBuiltRevision()).thenReturn(revision2);
-        List<Branch> branches1 = Arrays.asList(branch1);
-        List<Branch> branches2 = Arrays.asList(branch2);
+        List<Branch> branches1 = Collections.singletonList(branch1);
+        List<Branch> branches2 = Collections.singletonList(branch2);
         Mockito.when(revision1.getBranches()).thenReturn(branches1);
         Mockito.when(revision2.getBranches()).thenReturn(branches2);
         Mockito.when(branch1.getName()).thenReturn(GIT_REFERENCE);

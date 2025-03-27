@@ -67,15 +67,15 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             + "(.*)";
     private static final String PROJECT_NAME_PATTERN_IN_LOGS = ".*" + Pattern.quote("Project key: ")
             + "(.*)";
-    private static final String URL_PATTERN_IN_LOGS_QUALITY_GATE_STATUS = ".*" + Pattern.quote("QUALITY GATE STATUS: ") 
+    private static final String URL_PATTERN_IN_LOGS_QUALITY_GATE_STATUS = ".*" + Pattern.quote("QUALITY GATE STATUS: ")
             + "(.*)" + Pattern.quote(" - View details on ") + "(.*)";
-    private static final String URL_PATTERN_IN_LOGS_QUALITY_GATE_STATUS_v4_8 = ".*" + Pattern.quote("ANALYSIS SUCCESSFUL, you can find the results at: ") 
+    private static final String URL_PATTERN_IN_LOGS_QUALITY_GATE_STATUS_v4_8 = ".*" + Pattern.quote("ANALYSIS SUCCESSFUL, you can find the results at: ")
             + "(.*)";
-    private static final String URL_PATTERN_IN_LOGS_QUALITY_GATE_STATUS_TIMEOUT = ".*" + Pattern.quote("Quality Gate check timeout exceeded - View details on ") 
+    private static final String URL_PATTERN_IN_LOGS_QUALITY_GATE_STATUS_TIMEOUT = ".*" + Pattern.quote("Quality Gate check timeout exceeded - View details on ")
             + "(.*)";
 
 
-            
+
     private String projectKey = null;
     private String sonarBuildURL = null;
     private String sonarBuildTaskIdUrl = null;
@@ -94,7 +94,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     private static final String BRANCH_NAME_BASE_URL = "&branch=";
 
     private String sonarIssuesUrl;
-    private String sonarMetricsUrl;  
+    private String sonarMetricsUrl;
 
     private final String customPrefix;
     private final TaskListener listener;
@@ -135,33 +135,33 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
      * @return true, if environment variable LOG_SONAR_QUBE_RESULTS is set to true and SQ Reports exist
      */
     public boolean hasReport() {
- 
+
         String[] result = null;
- 
+
         try {
             result = getSonarProjectFromBuildReport();
                 projectKey = result[0];
                 sonarBuildURL = result[1];
                 sonarBuildTaskId = result[2];
                 sonarBuildTaskIdUrl = result[3];
- 
+
                 return !StringUtils.isEmpty(sonarBuildURL);
         } catch (IOException | IndexOutOfBoundsException | UncheckedIOException ignored) {}
- 
+
         try {
             //try build logs
             result = getSonarProjectFromBuildLog(build);
- 
+
             if (!StringUtils.isEmpty(result[1])){
                 projectKey = result[0];
                 sonarBuildURL = result[1];
                 sonarBuildTaskId = result[2];
                 sonarBuildTaskIdUrl = result[3];
- 
+
                 return !StringUtils.isEmpty(sonarBuildURL);
             }
         } catch (IOException | IndexOutOfBoundsException | UncheckedIOException ignored) {}
- 
+
         return false;
     }
 
@@ -197,13 +197,13 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
             if (status.equals("FAILED") || status.equals("CANCELED")) {
                 logMessage = "[InfluxDB Plugin] Warning: SonarQube task " + sonarBuildTaskId +  " failed. Status is " + status + "! Getting the QG metrics from the latest completed task!";
-                listener.getLogger().println(logMessage);                   
+                listener.getLogger().println(logMessage);
                 break;
             }
 
             logMessage = "[InfluxDB Plugin] INFO: SonarQube task " + sonarBuildTaskId +  " status is " + status;
             listener.getLogger().println(logMessage);
-            
+
         } while (!status.equals("SUCCESS") && count <= MAX_RETRY_COUNT);
 
         if(!status.equals("SUCCESS") && count > MAX_RETRY_COUNT) {
@@ -305,12 +305,12 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     }
 
     private String[] getSonarProjectFromBuildLog(Run<?, ?> build) throws IOException {
- 
+
         String projName = null;
         String url = null;
         String taskId = null;
         String taskUrl = null;
- 
+
         try (BufferedReader br = new BufferedReader(build.getLogReader())) {
             String line;
             Matcher match;
@@ -318,7 +318,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             Pattern p_qg_url = Pattern.compile(URL_PATTERN_IN_LOGS_QUALITY_GATE_STATUS);
             Pattern p_qg_url_timeout = Pattern.compile(URL_PATTERN_IN_LOGS_QUALITY_GATE_STATUS_TIMEOUT);
             Pattern p_qg_url_v4_8 = Pattern.compile(URL_PATTERN_IN_LOGS_QUALITY_GATE_STATUS_v4_8);
-        
+
             Pattern p_taskUrl = Pattern.compile(TASK_URL_PATTERN_IN_LOGS);
             Pattern p_projName = Pattern.compile(PROJECT_NAME_PATTERN_IN_LOGS);
 
@@ -332,7 +332,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                 if (match.matches()) {
                     url  = match.group(2);
                     //Task already executed.  No need to search for other lines
-                    break; 
+                    break;
                 }
                 match = p_qg_url_v4_8.matcher(line);
                 if (match.matches()) {
@@ -369,17 +369,17 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
         String workspaceDir = env.get("WORKSPACE");
         List<Path> reportsPaths = workspaceDir == null ? null : this.findReportByFileName(workspaceDir);
-        
+
         if (reportsPaths == null || reportsPaths.size() != 1) {
             return new String[]{null, null, null, null};
         }
         String reportFilePath = reportsPaths.get(0).toFile().getPath();
-        
+
         try (BufferedReader br = new BufferedReader(
                                     new InputStreamReader(
                                         new FileInputStream(reportFilePath), StandardCharsets.UTF_8))) {
             String line;
-            
+
             Pattern p_proj_name = Pattern.compile(PROJECT_KEY_PATTERN_IN_REPORT);
             Pattern p_url = Pattern.compile(URL_PATTERN_IN_REPORT);
             Pattern p_task = Pattern.compile(TASK_ID_PATTERN_IN_REPORT);
@@ -390,19 +390,19 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                 if (match.matches()) {
                     projName = match.group(1);
                     continue;
-                } 
+                }
 
                 match = p_url.matcher(line);
                 if (match.matches()) {
                     url = match.group(1);
                     continue;
-                } 
-                
+                }
+
                 match = p_task.matcher(line);
                 if (match.matches()) {
                     taskId = match.group(1);
                     continue;
-                } 
+                }
 
                 match = p_url_task.matcher(line);
                 if (match.matches()) {
@@ -417,15 +417,15 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     public List<Path> findReportByFileName(String workspacePath)
             throws IOException, UncheckedIOException {
 
-        Path path = Paths.get(workspacePath);                
-        String reportName = env.get("SONARQUBE_BUILD_REPORT_NAME", 
+        Path path = Paths.get(workspacePath);
+        String reportName = env.get("SONARQUBE_BUILD_REPORT_NAME",
                                     SONARQUBE_DEFAULT_BUILD_REPORT_NAME);
 
         try (Stream<Path> pathStream = Files.find(path,
                 Integer.MAX_VALUE,
                 (p, basicFileAttributes) ->
-                    basicFileAttributes.isRegularFile() && 
-                    p.endsWith(reportName));
+                    basicFileAttributes.isRegularFile() &&
+                    p.endsWith(reportName))
         ) {
             return pathStream.collect(Collectors.toList());
         }
