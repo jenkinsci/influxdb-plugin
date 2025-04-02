@@ -8,13 +8,13 @@ import jenkins.metrics.impl.TimeInQueueAction;
 import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class MetricsPointGeneratorTest {
+class MetricsPointGeneratorTest {
 
     private static final String JOB_NAME = "master";
     private static final int BUILD_NUMBER = 11;
@@ -27,8 +27,8 @@ public class MetricsPointGeneratorTest {
 
     private long currTime;
 
-    @Before
-    public void before() {
+    @BeforeEach
+    void before() {
         build = Mockito.mock(Run.class);
         Job job = Mockito.mock(Job.class);
         listener = Mockito.mock(TaskListener.class);
@@ -45,7 +45,7 @@ public class MetricsPointGeneratorTest {
     }
 
     @Test
-    public void measurement_successfully_generated() {
+    void measurement_successfully_generated() {
         Mockito.when(timeInQueueAction.getBlockedDurationMillis()).thenReturn((long)10);
         Mockito.when(timeInQueueAction.getBuildableDurationMillis()).thenReturn((long)20);
         Mockito.when(timeInQueueAction.getBuildingDurationMillis()).thenReturn((long)30);

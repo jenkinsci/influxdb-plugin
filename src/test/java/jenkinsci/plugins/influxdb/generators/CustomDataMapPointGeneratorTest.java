@@ -7,17 +7,18 @@ import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
-public class CustomDataMapPointGeneratorTest {
+class CustomDataMapPointGeneratorTest {
 
     private static final String JOB_NAME = "master";
     private static final int BUILD_NUMBER = 11;
@@ -30,8 +31,8 @@ public class CustomDataMapPointGeneratorTest {
 
     private long currTime;
 
-    @Before
-    public void before() {
+    @BeforeEach
+    void before() {
         build = Mockito.mock(Run.class);
         Job job = Mockito.mock(Job.class);
         listener = Mockito.mock(TaskListener.class);
@@ -46,7 +47,7 @@ public class CustomDataMapPointGeneratorTest {
     }
 
     @Test
-    public void hasReport() {
+    void hasReport() {
         //check with customDataMap = null
 
         CustomDataMapPointGenerator cdmGen1 = new CustomDataMapPointGenerator(build, listener, measurementRenderer,
@@ -60,7 +61,7 @@ public class CustomDataMapPointGeneratorTest {
     }
 
     @Test
-    public void generate() {
+    void generate() {
         Map<String, Object> customData1 = new HashMap<>();
         customData1.put("test1", 11);
         customData1.put("test2", 22);

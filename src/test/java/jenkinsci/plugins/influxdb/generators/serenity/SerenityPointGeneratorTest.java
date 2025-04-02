@@ -3,8 +3,8 @@ package jenkinsci.plugins.influxdb.generators.serenity;
 import com.influxdb.client.write.Point;
 import hudson.model.TaskListener;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
@@ -16,9 +16,9 @@ import hudson.model.Run;
 import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class SerenityPointGeneratorTest {
+class SerenityPointGeneratorTest {
 
     private static final String JOB_NAME = "master";
     private static final int BUILD_NUMBER = 11;
@@ -33,8 +33,8 @@ public class SerenityPointGeneratorTest {
 
     String points = null;
 
-    @Before
-    public void before() {
+    @BeforeEach
+    void before() {
         build = Mockito.mock(Run.class);
         Job job = Mockito.mock(Job.class);
         listener = Mockito.mock(TaskListener.class);
@@ -60,7 +60,7 @@ public class SerenityPointGeneratorTest {
     }
 
     @Test
-    public void verifyResultsCounts() {
+    void verifyResultsCounts() {
         assertTrue(points.contains("serenity_results_counts_total=99"));
         assertTrue(points.contains("serenity_results_counts_success=91"));
         assertTrue(points.contains("serenity_results_counts_pending=8"));
@@ -68,21 +68,21 @@ public class SerenityPointGeneratorTest {
     }
 
     @Test
-    public void verifyResultsPercentages() {
+    void verifyResultsPercentages() {
         assertTrue(points.contains("serenity_results_percentages_success=92"));
         assertTrue(points.contains("serenity_results_percentages_pending=8"));
         assertTrue(points.contains("serenity_results_percentages_ignored=0"));
     }
 
     @Test
-    public void verifyResultsTimings() {
+    void verifyResultsTimings() {
         assertTrue(points.contains("serenity_results_max_test_duration=199957"));
         assertTrue(points.contains("serenity_results_total_clock_duration=489836"));
         assertTrue(points.contains("serenity_results_min_test_duration=1714"));
     }
 
     @Test
-    public void verifyTags() {
+    void verifyTags() {
         assertTrue(points.contains("serenity_tags_:branding=14"));
         assertTrue(points.contains("serenity_tags_context:API=73"));
         assertTrue(points.contains("serenity_tags_context:UI=26"));

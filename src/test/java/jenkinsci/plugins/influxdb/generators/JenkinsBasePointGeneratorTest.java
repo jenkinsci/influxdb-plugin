@@ -6,11 +6,12 @@ import hudson.model.*;
 import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -18,25 +19,27 @@ import java.io.StringReader;
 /**
  * @author Damien Coraboeuf <damien.coraboeuf@gmail.com>
  */
-public class JenkinsBasePointGeneratorTest {
+class JenkinsBasePointGeneratorTest {
 
     private static final String JOB_NAME = "master";
     private static final int BUILD_NUMBER = 11;
     private static final String CUSTOM_PREFIX = "test_prefix";
 
     private static final String JENKINS_ENV_PARAMETER_FIELD =
-                    "testKey1=testValueField\n" +
-                    "testKey2=${incompleteEnvValueField\n" +
-                    "testEnvKeyField1=${testEnvValueField}\n" +
-                    "testEnvKeyField2=PREFIX_${testEnvValueField}_${testEnvValueField}_SUFFIX";
+            """
+                    testKey1=testValueField
+                    testKey2=${incompleteEnvValueField
+                    testEnvKeyField1=${testEnvValueField}
+                    testEnvKeyField2=PREFIX_${testEnvValueField}_${testEnvValueField}_SUFFIX""";
     private static final String JENKINS_ENV_VALUE_FIELD = "testEnvValueField";
     private static final String JENKINS_ENV_RESOLVED_VALUE_FIELD = "resolvedEnvValueField";
 
     private static final String JENKINS_ENV_PARAMETER_TAG =
-                    "testKey1=testValueTag\n" +
-                    "testKey2=${incompleteEnvValueTag\n" +
-                    "testEnvKeyTag1=${testEnvValueTag}\n" +
-                    "testEnvKeyTag2=PREFIX_${testEnvValueTag}_${testEnvValueTag}_SUFFIX";
+            """
+                    testKey1=testValueTag
+                    testKey2=${incompleteEnvValueTag
+                    testEnvKeyTag1=${testEnvValueTag}
+                    testEnvKeyTag2=PREFIX_${testEnvValueTag}_${testEnvValueTag}_SUFFIX""";
     private static final String JENKINS_ENV_VALUE_TAG = "testEnvValueTag";
     private static final String JENKINS_ENV_RESOLVED_VALUE_TAG = "resolvedEnvValueTag";
     private static final String MEASUREMENT_NAME = "jenkins_data";
@@ -51,8 +54,8 @@ public class JenkinsBasePointGeneratorTest {
     private long currTime;
     private EnvVars mockedEnvVars;
 
-    @Before
-    public void before() throws Exception {
+    @BeforeEach
+    void before() throws Exception {
         build = Mockito.mock(Run.class);
         Job job = Mockito.mock(Job.class);
         executor = Mockito.mock(Executor.class);
@@ -80,7 +83,7 @@ public class JenkinsBasePointGeneratorTest {
     }
 
     @Test
-    public void agent_present() {
+    void agent_present() {
         Mockito.when(build.getExecutor()).thenReturn(executor);
         Mockito.when(mockedEnvVars.get("NODE_NAME")).thenReturn(NODE_NAME);
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
@@ -92,7 +95,7 @@ public class JenkinsBasePointGeneratorTest {
     }
 
     @Test
-    public void agent_present_in_log() throws Exception {
+    void agent_present_in_log() throws Exception {
         Mockito.when(build.getExecutor()).thenReturn(executor);
         Mockito.when(mockedEnvVars.get("NODE_NAME")).thenReturn("");
         Reader reader = new StringReader(JenkinsBasePointGenerator.AGENT_LOG_PATTERN + NODE_NAME);
@@ -106,7 +109,7 @@ public class JenkinsBasePointGeneratorTest {
     }
 
     @Test
-    public void agent_not_present() {
+    void agent_not_present() {
         Mockito.when(build.getExecutor()).thenReturn(null);
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         Point[] points = generator.generate();
@@ -117,7 +120,7 @@ public class JenkinsBasePointGeneratorTest {
     }
 
     @Test
-    public void branch_present() {
+    void branch_present() {
         Mockito.when(build.getExecutor()).thenReturn(executor);
         Mockito.when(mockedEnvVars.get("BRANCH_NAME")).thenReturn("develop");
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
@@ -129,7 +132,7 @@ public class JenkinsBasePointGeneratorTest {
     }
 
     @Test
-    public void branch_not_present() {
+    void branch_not_present() {
         Mockito.when(build.getExecutor()).thenReturn(null);
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         Point[] points = generator.generate();
@@ -141,7 +144,7 @@ public class JenkinsBasePointGeneratorTest {
 
 
     @Test
-    public void scheduled_and_start_and_end_time_present() {
+    void scheduled_and_start_and_end_time_present() {
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, MEASUREMENT_NAME, mockedEnvVars);
         Point[] generatedPoints = generator.generate();
         String lineProtocol = generatedPoints[0].toLineProtocol();
@@ -152,7 +155,7 @@ public class JenkinsBasePointGeneratorTest {
     }
 
     @Test
-    public void valid_jenkins_env_parameter_for_fields_present() {
+    void valid_jenkins_env_parameter_for_fields_present() {
         JenkinsBasePointGenerator jenkinsBasePointGenerator =
                 new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, JENKINS_ENV_PARAMETER_FIELD, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         Point[] generatedPoints = jenkinsBasePointGenerator.generate();
@@ -171,7 +174,7 @@ public class JenkinsBasePointGeneratorTest {
     }
 
     @Test
-    public void valid_jenkins_env_parameter_for_tags_present() {
+    void valid_jenkins_env_parameter_for_tags_present() {
         JenkinsBasePointGenerator jenkinsBasePointGenerator =
                 new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, JENKINS_ENV_PARAMETER_TAG, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         Point[] generatedPoints = jenkinsBasePointGenerator.generate();
@@ -191,7 +194,7 @@ public class JenkinsBasePointGeneratorTest {
     }
 
     @Test
-    public void valid_jenkins_env_parameter_for_fields_and_tags_present() {
+    void valid_jenkins_env_parameter_for_fields_and_tags_present() {
         JenkinsBasePointGenerator jenkinsBasePointGenerator =
                 new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, JENKINS_ENV_PARAMETER_TAG, JENKINS_ENV_PARAMETER_FIELD, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         Point[] generatedPoints = jenkinsBasePointGenerator.generate();
@@ -211,7 +214,7 @@ public class JenkinsBasePointGeneratorTest {
     }
 
     @Test
-    public void custom_measurement_included() {
+    void custom_measurement_included() {
         String customMeasurement = "custom_measurement";
         JenkinsBasePointGenerator jenkinsBasePointGenerator =
                 new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, JENKINS_ENV_PARAMETER_TAG, JENKINS_ENV_PARAMETER_FIELD, CUSTOM_PREFIX, customMeasurement, mockedEnvVars);

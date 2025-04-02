@@ -8,23 +8,21 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.models.Target;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.io.File;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class InfluxDbPublisherTest {
-
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+@WithJenkins
+class InfluxDbPublisherTest {
 
     private FilePath workspace = new FilePath(new File("."));
     @Mock
@@ -37,19 +35,19 @@ public class InfluxDbPublisherTest {
     private EnvVars envVars;
 
     @Test
-    public void testEmptyTargetShouldThrowException() {
+    void testEmptyTargetShouldThrowException(JenkinsRule j) {
 
         InfluxDbPublisher.DescriptorImpl descriptorMock = Mockito.mock(InfluxDbPublisher.DescriptorImpl.class);
         Jenkins jenkinsMock = Mockito.mock(Jenkins.class);
         Mockito.when(descriptorMock.getTargets()).thenReturn(Collections.emptyList());
         Mockito.when(jenkinsMock.getDescriptorByType(InfluxDbPublisher.DescriptorImpl.class)).thenReturn(descriptorMock);
 
-        assertThrows("Target was null!", RuntimeException.class, () -> new InfluxDbPublisher("").perform(build, workspace, envVars, launcher, listener));
+        assertThrows(RuntimeException.class, () -> new InfluxDbPublisher("").perform(build, workspace, envVars, launcher, listener), "Target was null!");
     }
 
     @Test
     @Issue("JENKINS-61305")
-    public void testConfigRoundTripShouldPreserveSelectedTarget() throws Exception {
+    void testConfigRoundTripShouldPreserveSelectedTarget(JenkinsRule j) throws Exception {
         InfluxDbGlobalConfig globalConfig = InfluxDbGlobalConfig.getInstance();
         Target target1 = new Target();
         target1.setDescription("Target1");
@@ -70,7 +68,7 @@ public class InfluxDbPublisherTest {
     }
 
     @Test
-    public void testGetTargetShouldReturnFirstTargetWithNull() {
+    void testGetTargetShouldReturnFirstTargetWithNull(JenkinsRule j) {
         InfluxDbGlobalConfig globalConfig = InfluxDbGlobalConfig.getInstance();
 
         Target target1 = new Target();

@@ -1,6 +1,6 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -13,8 +13,8 @@ import org.jenkinsci.plugins.workflow.flow.FlowExecution;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.influxdb.client.write.Point;
@@ -32,7 +32,7 @@ import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 /**
  * @author Mathieu Delrocq
  */
-public class AgentPointGeneratorTest {
+class AgentPointGeneratorTest {
 
     private static final String CUSTOM_PREFIX = "test_prefix";
     private static final String JOB_NAME = "job_name";
@@ -54,8 +54,8 @@ public class AgentPointGeneratorTest {
     private long currTime;
     private ProjectNameRenderer measurementRenderer;
 
-    @Before
-    public void before() throws Exception {
+    @BeforeEach
+    void before() {
         // Global Mocks
         listener = Mockito.mock(TaskListener.class);
         currTime = System.currentTimeMillis();
@@ -100,7 +100,7 @@ public class AgentPointGeneratorTest {
     }
 
     @Test
-    public void pipeline_agent_present() {
+    void pipeline_agent_present() {
         AgentPointGenerator gen = new AgentPointGenerator(pipelineBuild, listener, measurementRenderer, currTime,
                 StringUtils.EMPTY, CUSTOM_PREFIX);
         assertTrue(gen.hasReport());
@@ -116,7 +116,7 @@ public class AgentPointGeneratorTest {
     }
 
     @Test
-    public void abstractbuild_agent_present() {
+    void abstractbuild_agent_present() {
         AgentPointGenerator gen = new AgentPointGenerator(abstractBuild, listener, measurementRenderer, currTime,
                 StringUtils.EMPTY, CUSTOM_PREFIX);
         assertTrue(gen.hasReport());
