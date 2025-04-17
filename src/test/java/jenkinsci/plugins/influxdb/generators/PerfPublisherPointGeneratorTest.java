@@ -11,20 +11,21 @@ import hudson.plugins.PerfPublisher.Report.ReportContainer;
 import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Eugene Schava <eschava@gmail.com>
  */
-public class PerfPublisherPointGeneratorTest {
+class PerfPublisherPointGeneratorTest {
 
     private static final String JOB_NAME = "master";
     private static final int BUILD_NUMBER = 11;
@@ -37,8 +38,8 @@ public class PerfPublisherPointGeneratorTest {
 
     private long currTime;
 
-    @Before
-    public void before() {
+    @BeforeEach
+    void before() {
         build = Mockito.mock(Run.class);
         Job job = Mockito.mock(Job.class);
         listener = Mockito.mock(TaskListener.class);
@@ -59,7 +60,7 @@ public class PerfPublisherPointGeneratorTest {
     }
 
     @Test
-    public void hasReport() {
+    void hasReport() {
         PerfPublisherPointGenerator generator = new PerfPublisherPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX);
         assertFalse(generator.hasReport());
 
@@ -69,7 +70,7 @@ public class PerfPublisherPointGeneratorTest {
     }
 
     @Test
-    public void generate() {
+    void generate() {
         Report report = new Report();
 
         hudson.plugins.PerfPublisher.Report.Test test = new hudson.plugins.PerfPublisher.Report.Test();

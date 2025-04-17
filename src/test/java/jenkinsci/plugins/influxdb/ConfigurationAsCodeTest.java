@@ -3,24 +3,23 @@ package jenkinsci.plugins.influxdb;
 import io.jenkins.plugins.casc.ConfigurationAsCode;
 import jenkinsci.plugins.influxdb.models.Target;
 import org.apache.commons.io.IOUtils;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ConfigurationAsCodeTest {
-
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+@WithJenkins
+class ConfigurationAsCodeTest {
 
     @Test
-    public void should_support_jcasc_from_yaml() throws Exception {
+    void should_support_jcasc_from_yaml(JenkinsRule j) {
         InfluxDbGlobalConfig globalConfig = InfluxDbGlobalConfig.getInstance();
 
         String yamlUrl = getClass().getResource(getClass().getSimpleName() + "/configuration-as-code.yml").toString();
@@ -44,7 +43,7 @@ public class ConfigurationAsCodeTest {
     }
 
     @Test
-    public void should_support_jcasc_to_yaml() throws Exception {
+    void should_support_jcasc_to_yaml(JenkinsRule j) throws Exception {
         InfluxDbGlobalConfig globalConfig = InfluxDbGlobalConfig.getInstance();
 
         Target target = new Target();

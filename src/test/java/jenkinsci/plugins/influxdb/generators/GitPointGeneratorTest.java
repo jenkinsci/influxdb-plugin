@@ -1,6 +1,6 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.influxdb.client.write.Point;
@@ -28,7 +28,7 @@ import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 /**
  * @author Mathieu Delrocq
  */
-public class GitPointGeneratorTest {
+class GitPointGeneratorTest {
 
     private static final String CUSTOM_PREFIX = "test_prefix";
     private static final String JOB_NAME = "job_name";
@@ -48,8 +48,8 @@ public class GitPointGeneratorTest {
     private Branch branch1;
     private Branch branch2;
 
-    @Before
-    public void before() throws Exception {
+    @BeforeEach
+    void before() {
         // Global Mocks
         listener = Mockito.mock(TaskListener.class);
         currTime = System.currentTimeMillis();
@@ -90,7 +90,7 @@ public class GitPointGeneratorTest {
     }
 
     @Test
-    public void test_with_datas() {
+    void test_with_datas() {
         GitPointGenerator gen = new GitPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY,
                 CUSTOM_PREFIX);
         assertTrue(gen.hasReport());

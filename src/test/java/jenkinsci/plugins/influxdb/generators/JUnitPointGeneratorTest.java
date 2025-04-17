@@ -11,18 +11,18 @@ import hudson.tasks.test.AbstractTestResultAction;
 import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class JUnitPointGeneratorTest {
+class JUnitPointGeneratorTest {
 
     private static final String JOB_NAME = "master";
     private static final int BUILD_NUMBER = 11;
@@ -35,8 +35,8 @@ public class JUnitPointGeneratorTest {
     private CaseResult caseResult;
     private long currTime;
 
-    @Before
-    public void before() {
+    @BeforeEach
+    void before() {
         build = Mockito.mock(Run.class);
         Job job = Mockito.mock(Job.class);
         listener = Mockito.mock(TaskListener.class);
@@ -52,7 +52,7 @@ public class JUnitPointGeneratorTest {
     }
 
     @Test
-    public void hasReport_tests_exist_and_flag_is_true() {
+    void hasReport_tests_exist_and_flag_is_true() {
         EnvVars envVars = new EnvVars();
         envVars.put("LOG_JUNIT_RESULTS", "true");
 
@@ -63,54 +63,54 @@ public class JUnitPointGeneratorTest {
     }
 
     @Test
-    public void hasReport_tests_exist_and_flag_is_false() {
+    void hasReport_tests_exist_and_flag_is_false() {
         EnvVars envVars = new EnvVars();
         envVars.put("LOG_JUNIT_RESULTS", "false");
 
         Mockito.when(build.getAction(AbstractTestResultAction.class)).thenReturn(Mockito.mock(AbstractTestResultAction.class));
 
         JUnitPointGenerator junitGen = new JUnitPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, envVars);
-        Assert.assertFalse(junitGen.hasReport());
+        assertFalse(junitGen.hasReport());
     }
 
     @Test
-    public void hasReport_tests_exist_and_flag_is_missing() {
+    void hasReport_tests_exist_and_flag_is_missing() {
         EnvVars envVars = new EnvVars();
 
         Mockito.when(build.getAction(AbstractTestResultAction.class)).thenReturn(Mockito.mock(AbstractTestResultAction.class));
 
         JUnitPointGenerator junitGen = new JUnitPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, envVars);
-        Assert.assertFalse(junitGen.hasReport());
+        assertFalse(junitGen.hasReport());
     }
 
     @Test
-    public void hasReport_no_tests_and_flag_is_true() {
+    void hasReport_no_tests_and_flag_is_true() {
         EnvVars envVars = new EnvVars();
         envVars.put("LOG_JUNIT_RESULTS", "true");
 
         JUnitPointGenerator junitGen = new JUnitPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, envVars);
-        Assert.assertFalse(junitGen.hasReport());
+        assertFalse(junitGen.hasReport());
     }
 
     @Test
-    public void hasReport_no_tests_and_flag_is_false() {
+    void hasReport_no_tests_and_flag_is_false() {
         EnvVars envVars = new EnvVars();
         envVars.put("LOG_JUNIT_RESULTS", "false");
 
         JUnitPointGenerator junitGen = new JUnitPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, envVars);
-        Assert.assertFalse(junitGen.hasReport());
+        assertFalse(junitGen.hasReport());
     }
 
     @Test
-    public void hasReport_no_tests_and_flag_is_missing() {
+    void hasReport_no_tests_and_flag_is_missing() {
         EnvVars envVars = new EnvVars();
 
         JUnitPointGenerator junitGen = new JUnitPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, envVars);
-        Assert.assertFalse(junitGen.hasReport());
+        assertFalse(junitGen.hasReport());
     }
 
     @Test
-    public void measurement_successfully_generated() {
+    void measurement_successfully_generated() {
         CaseResult.Status status = Mockito.mock(CaseResult.Status.class);
         SuiteResult suiteResult = Mockito.mock(SuiteResult.class);
         Mockito.when(caseResult.getStatus()).thenReturn(status);

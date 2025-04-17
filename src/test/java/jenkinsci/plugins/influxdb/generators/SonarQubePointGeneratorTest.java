@@ -6,14 +6,13 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.ClassRule;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
-import org.junit.rules.TemporaryFolder;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.io.*;
@@ -39,8 +38,8 @@ public class SonarQubePointGeneratorTest {
     private long currTime;
 
     // temp file system settings for testing find report file
-    @ClassRule
-    public static TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    private static File folder;
 
     private static final String[] mvnReportPath = {"maven-basic", "target", "sonar"};
     private static final String defaultReportName = "report-task.txt";
@@ -49,8 +48,8 @@ public class SonarQubePointGeneratorTest {
 
     private File resourceDirectory;
 
-    @BeforeClass
-    public static void beforeClass() {
+    @BeforeAll
+    static void beforeClass() {
 
         // create a dummy file system with the scanner report file
         // temp-dir/
@@ -58,7 +57,7 @@ public class SonarQubePointGeneratorTest {
         //  - custom/report/path/custom-report.txt
         //  - temp{1..5}/
         //      - temfiles...
-        String wsRoot = folder.getRoot().toString();
+        String wsRoot = folder.toString();
         Path wsSonarDir = Paths.get(wsRoot, mvnReportPath);
         Path sonarReport = wsSonarDir.resolve(defaultReportName);
         Path customSonarReportDir = Paths.get(wsRoot, customReportPath);
@@ -84,8 +83,8 @@ public class SonarQubePointGeneratorTest {
         }
     }
 
-    @Before
-    public void before() {
+    @BeforeEach
+    void before() {
         build = Mockito.mock(Run.class);
         Job job = Mockito.mock(Job.class);
         listener = Mockito.mock(TaskListener.class);
@@ -105,7 +104,7 @@ public class SonarQubePointGeneratorTest {
     }
 
     @Test
-    public void getSonarProjectMetric() throws Exception {
+    void getSonarProjectMetric() throws Exception {
         EnvVars envVars = new EnvVars();
         String name = "org.namespace:feature%2Fmy-sub-project";
         String metric_key = "code_smells";
@@ -119,7 +118,7 @@ public class SonarQubePointGeneratorTest {
     }
 
     @Test
-    public void getSonarProjectMetric_NoMetric() throws Exception {
+    void getSonarProjectMetric_NoMetric() throws Exception {
         EnvVars envVars = new EnvVars();
         String name = "org.namespace:feature%2Fmy-sub-project";
         String metric_key = "branch_coverage";
@@ -133,7 +132,7 @@ public class SonarQubePointGeneratorTest {
 
 
     @Test
-    public void getSonarDefaultReportFilePath() {
+    void getSonarDefaultReportFilePath() {
         // Find default sonar report-task.txt file
         EnvVars envVars = new EnvVars();
 
@@ -146,7 +145,7 @@ public class SonarQubePointGeneratorTest {
                                                                 CUSTOM_PREFIX,
                                                                 envVars));
 
-        String wsRoot = folder.getRoot().toString();
+        String wsRoot = folder.toString();
         Path wsSonarDir = Paths.get(wsRoot, mvnReportPath);
         Path sonarReport = wsSonarDir.resolve(defaultReportName);
 
@@ -163,7 +162,7 @@ public class SonarQubePointGeneratorTest {
     }
 
     @Test
-    public void getSonarCustomReportFileName() {
+    void getSonarCustomReportFileName() {
         // Find a custom report file defined by SONARQUBE_BUILD_REPORT_NAME env var
         // Example: custom-report.txt
         EnvVars envVars = Mockito.spy(new EnvVars());
@@ -177,7 +176,7 @@ public class SonarQubePointGeneratorTest {
                                                                 CUSTOM_PREFIX,
                                                                 envVars));
 
-        String wsRoot = folder.getRoot().toString();
+        String wsRoot = folder.toString();
 
         try {
 
@@ -194,7 +193,7 @@ public class SonarQubePointGeneratorTest {
     }
 
     @Test
-    public void getSonarCustomReportFilePath() {
+    void getSonarCustomReportFilePath() {
         // Find a custom report path defined by SONARQUBE_BUILD_REPORT_NAME env var
         // Example: path/custom-report.txt
         EnvVars envVars = Mockito.spy(new EnvVars());
@@ -208,7 +207,7 @@ public class SonarQubePointGeneratorTest {
                                                                 CUSTOM_PREFIX,
                                                                 envVars));
 
-        String wsRoot = folder.getRoot().toString();
+        String wsRoot = folder.toString();
 
         try {
 
@@ -229,7 +228,7 @@ public class SonarQubePointGeneratorTest {
     }
 
     @Test
-    public void hasReportFindsCorrectInformationFromReportFile() {
+    void hasReportFindsCorrectInformationFromReportFile() {
         EnvVars envVars = new EnvVars();
         envVars.put("SONARQUBE_BUILD_REPORT_NAME", "report-task.txt");
         envVars.put("WORKSPACE", resourceDirectory.getAbsolutePath());
@@ -247,7 +246,7 @@ public class SonarQubePointGeneratorTest {
     }
 
     @Test
-    public void hasReportFindsCorrectInformationFromBuildLogs() throws Exception {
+    void hasReportFindsCorrectInformationFromBuildLogs() throws Exception {
         File directory = new File(resourceDirectory, "sonarqube");
         File file = new File(directory, "build-log.txt");
         BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -268,7 +267,7 @@ public class SonarQubePointGeneratorTest {
     }
 
     @Test
-    public void setSonarDetailsUsesSonarHostUrlFromEnv() throws Exception {
+    void setSonarDetailsUsesSonarHostUrlFromEnv() throws Exception {
         TaskListener listener = Mockito.mock(TaskListener.class);
         PrintStream logger = Mockito.mock(PrintStream.class);
         Mockito.when(listener.getLogger()).thenReturn(logger);
@@ -295,7 +294,7 @@ public class SonarQubePointGeneratorTest {
     }
 
     @Test
-    public void setSonarDetailsUsesDefaultSonarUrlWhenEnvVarNotSet() throws Exception {
+    void setSonarDetailsUsesDefaultSonarUrlWhenEnvVarNotSet() throws Exception {
         TaskListener listener = Mockito.mock(TaskListener.class);
         PrintStream logger = Mockito.mock(PrintStream.class);
         Mockito.when(listener.getLogger()).thenReturn(logger);
@@ -320,7 +319,7 @@ public class SonarQubePointGeneratorTest {
     }
 
     @Test
-    public void setSonarDetailsUsesBranchNameFromEnv() throws Exception {
+    void setSonarDetailsUsesBranchNameFromEnv() throws Exception {
         // Mock TaskListener and its logger
         TaskListener listener = Mockito.mock(TaskListener.class);
         PrintStream logger = Mockito.mock(PrintStream.class);
@@ -348,7 +347,7 @@ public class SonarQubePointGeneratorTest {
     }
 
     @Test
-    public void setSonarDetailsLogsAuthTokenUsageWhenTokenIsPresent() throws Exception {
+    void setSonarDetailsLogsAuthTokenUsageWhenTokenIsPresent() throws Exception {
         TaskListener listener = Mockito.mock(TaskListener.class);
         PrintStream logger = Mockito.mock(PrintStream.class);
         Mockito.when(listener.getLogger()).thenReturn(logger);
@@ -366,7 +365,7 @@ public class SonarQubePointGeneratorTest {
     }
 
     @Test
-    public void setSonarDetailsLogsWarningWhenAuthTokenIsAbsent() throws Exception {
+    void setSonarDetailsLogsWarningWhenAuthTokenIsAbsent() throws Exception {
         TaskListener listener = Mockito.mock(TaskListener.class);
         PrintStream logger = Mockito.mock(PrintStream.class);
         Mockito.when(listener.getLogger()).thenReturn(logger);

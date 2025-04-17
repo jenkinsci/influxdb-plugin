@@ -2,13 +2,13 @@ package jenkinsci.plugins.influxdb.renderer;
 
 import hudson.model.Job;
 import hudson.model.Run;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ProjectNameRendererTest {
+class ProjectNameRendererTest {
 
     private static final String JOB_NAME = "master";
     private static final int BUILD_NUMBER = 11;
@@ -18,8 +18,8 @@ public class ProjectNameRendererTest {
     private Run<?,?> build;
     private Job job;
 
-    @Before
-    public void before() {
+    @BeforeEach
+    void before() {
         build = Mockito.mock(Run.class);
         job = Mockito.mock(Job.class);
 
@@ -29,35 +29,35 @@ public class ProjectNameRendererTest {
     }
 
     @Test
-    public void customProjectNameWithCustomPrefix() {
+    void customProjectNameWithCustomPrefix() {
         ProjectNameRenderer projectNameRenderer = new ProjectNameRenderer(CUSTOM_PREFIX, CUSTOM_PROJECT_NAME);
         String renderedProjectName = projectNameRenderer.render(build);
         assertTrue(renderedProjectName.startsWith(CUSTOM_PREFIX + "_" + CUSTOM_PROJECT_NAME));
     }
 
     @Test
-    public void customProjectNameWithNullPrefix() {
+    void customProjectNameWithNullPrefix() {
         ProjectNameRenderer projectNameRenderer = new ProjectNameRenderer(null, CUSTOM_PROJECT_NAME);
         String renderedProjectName = projectNameRenderer.render(build);
         assertTrue(renderedProjectName.startsWith(CUSTOM_PROJECT_NAME));
     }
 
     @Test
-    public void nullProjectNameWithCustomPrefix() {
+    void nullProjectNameWithCustomPrefix() {
         ProjectNameRenderer projectNameRenderer = new ProjectNameRenderer(CUSTOM_PREFIX, null);
         String renderedProjectName = projectNameRenderer.render(build);
         assertTrue(renderedProjectName.startsWith(CUSTOM_PREFIX + "_" + JOB_NAME));
     }
 
     @Test
-    public void nullProjectNameWithNullPrefix() {
+    void nullProjectNameWithNullPrefix() {
         ProjectNameRenderer projectNameRenderer = new ProjectNameRenderer(null, null);
         String renderedProjectName = projectNameRenderer.render(build);
         assertTrue(renderedProjectName.startsWith(JOB_NAME));
     }
 
     @Test
-    public void nullProjectNameWithNullPrefix_NoSideEffects() {
+    void nullProjectNameWithNullPrefix_NoSideEffects() {
         ProjectNameRenderer projectNameRenderer = new ProjectNameRenderer(null, null);
 
         Mockito.when(job.getName()).thenReturn("job 1");

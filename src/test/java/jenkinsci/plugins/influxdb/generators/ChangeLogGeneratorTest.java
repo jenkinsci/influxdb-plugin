@@ -8,8 +8,8 @@ import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang3.StringUtils;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
@@ -17,10 +17,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 
-public class ChangeLogGeneratorTest {
+class ChangeLogGeneratorTest {
 
     private Run<?, ?> build;
     private ProjectNameRenderer measurementRenderer;
@@ -68,8 +69,8 @@ public class ChangeLogGeneratorTest {
         return affectedFile;
     }
 
-    @Before
-    public void before() {
+    @BeforeEach
+    void before() {
         build = Mockito.mock(Run.class);
         measurementRenderer = new ProjectNameRenderer("", null);
         listener = Mockito.mock(TaskListener.class);
@@ -83,13 +84,13 @@ public class ChangeLogGeneratorTest {
     }
 
     @Test
-    public void testHasReportWithoutCommitsShouldReturnFalse() {
+    void testHasReportWithoutCommitsShouldReturnFalse() {
         ChangeLogPointGenerator generator = new ChangeLogPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY);
         assertFalse(generator.hasReport());
     }
 
     @Test
-    public void testAbstractBuildShouldGenerateData() {
+    void testAbstractBuildShouldGenerateData() {
         String name = "John Doe";
         String message = "Awesome commit message";
         String path = "path/to/file.txt";
@@ -120,7 +121,7 @@ public class ChangeLogGeneratorTest {
     }
 
     @Test
-    public void testWorkflowBuildShouldGenerateData() {
+    void testWorkflowBuildShouldGenerateData() {
         WorkflowRun workflowRun = mockWorkflow("workflow_run", 1);
 
         // Generate mock data

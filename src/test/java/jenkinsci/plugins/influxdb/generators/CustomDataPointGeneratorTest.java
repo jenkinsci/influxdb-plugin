@@ -7,17 +7,18 @@ import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
-public class CustomDataPointGeneratorTest {
+class CustomDataPointGeneratorTest {
 
     private static final String JOB_NAME = "master";
     private static final int BUILD_NUMBER = 11;
@@ -31,8 +32,8 @@ public class CustomDataPointGeneratorTest {
 
     private long currTime;
 
-    @Before
-    public void before() {
+    @BeforeEach
+    void before() {
         build = Mockito.mock(Run.class);
         Job job = Mockito.mock(Job.class);
         listener = Mockito.mock(TaskListener.class);
@@ -47,7 +48,7 @@ public class CustomDataPointGeneratorTest {
     }
 
     @Test
-    public void hasReport() {
+    void hasReport() {
         //check with customDataMap = null
         CustomDataPointGenerator cdGen1 = new CustomDataPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, null, null, MEASUREMENT_NAME);
         assertFalse(cdGen1.hasReport());
@@ -58,7 +59,7 @@ public class CustomDataPointGeneratorTest {
     }
 
     @Test
-    public void generate() {
+    void generate() {
         Map<String, Object> customData = new HashMap<>();
         customData.put("test1", 11);
         customData.put("test2", 22);
@@ -74,7 +75,7 @@ public class CustomDataPointGeneratorTest {
     }
 
     @Test
-    public void custom_measurement_included() {
+    void custom_measurement_included() {
         String customMeasurement = "custom_measurement";
         Map<String, Object> customData = new HashMap<>();
         customData.put("test1", 11);
