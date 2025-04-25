@@ -21,8 +21,8 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
     private static final String RF_PASSED = "rf_passed";
     private static final String RF_SKIPPED = "rf_skipped";
     private static final String RF_TOTAL = "rf_total";
-    private static final String RF_CRITICAL_PASS_PERCENTAGE = "rf_critical_pass_percentage";
     private static final String RF_PASS_PERCENTAGE = "rf_pass_percentage";
+    private static final String RF_PASS_PERCENTAGE_TOTAL = "rf_pass_percentage_total";
     private static final String RF_SKIP_PERCENTAGE = "rf_skip_percentage";
     private static final String RF_DURATION = "rf_duration";
     private static final String RF_SUITES = "rf_suites";
@@ -65,8 +65,8 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
             .addField(RF_PASSED, robotBuildAction.getResult().getOverallPassed())
             .addField(RF_TOTAL, robotBuildAction.getResult().getOverallTotal())
             .addField(RF_SKIPPED, robotBuildAction.getResult().getOverallSkipped())
-            .addField(RF_CRITICAL_PASS_PERCENTAGE, robotBuildAction.getCriticalPassPercentage())
             .addField(RF_PASS_PERCENTAGE, robotBuildAction.getOverallPassPercentage())
+            .addField(RF_PASS_PERCENTAGE_TOTAL, robotBuildAction.getPassPercentageWithSkipped())
             .addField(RF_SKIP_PERCENTAGE, robotBuildAction.getResult().getSkipPercentage())
             .addField(RF_DURATION, robotBuildAction.getResult().getDuration())
             .addField(RF_SUITES, robotBuildAction.getResult().getAllSuites().size());

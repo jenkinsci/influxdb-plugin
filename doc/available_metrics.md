@@ -263,20 +263,21 @@ Tags specific for this measurement:
 
 #### `rf_results`
 
-| Metric | Type | Description                                                                                              | Introduced in |
-| --- | --- |----------------------------------------------------------------------------------------------------------| --- |
-| rf_critical_failed | integer | Amount of failed critical tests                                                                          | REMOVED IN 4.0 |
-| rf_critical_pass_percentage | float | Percentage of passed critical tests.<br/>Since 4.0 this is the total pass percentage including skipped tests. |  |
-| rf_critical_passed | integer | Amount of passed critical tests                                                                          | REMOVED IN 4.0 |
-| rf_critical_total | integer | Total amount of critical tests                                                                           | REMOVED IN 4.0 |
-| rf_duration | integer | Test execution duration                                                                                  |  |
-| rf_failed | integer | Amount of failed tests                                                                                   |  |
-| rf_pass_percentage | float | Percentage of passed tests, excuding skipped tests                                                       |  |
-| rf_passed | integer | Amount of passed tests                                                                                   |  |
-| rf_suites | integer | Amount of test suites                                                                                    |  |
-| rf_skipped | integer | Amount of skipped tests                                                                                  | 3.0 |
-| rf_skip_percentage | float | Percentage of skipped tests                                                                              | 3.0 |
-| rf_total | integer | Total amount of tests                                                                                    |  |
+| Metric                      | Type | Description                                                                                                   | Introduced in  |
+|-----------------------------| --- |---------------------------------------------------------------------------------------------------------------|----------------|
+| rf_critical_failed          | integer | Amount of failed critical tests                                                                               | REMOVED IN 4.0 |
+| rf_critical_pass_percentage | float | Percentage of passed critical tests.<br/>Since 4.0 this is the total pass percentage including skipped tests. | REMOVED IN 5.0 |
+| rf_critical_passed          | integer | Amount of passed critical tests                                                                               | REMOVED IN 4.0 |
+| rf_critical_total           | integer | Total amount of critical tests                                                                                | REMOVED IN 4.0 |
+| rf_duration                 | integer | Test execution duration                                                                                       |                |
+| rf_failed                   | integer | Amount of failed tests                                                                                        |                |
+| rf_pass_percentage          | float | Percentage of passed tests, excuding skipped tests                                                            |                |
+| rf_pass_percentage_total    | float | Percentage of passed tests, including skipped tests                                                           | 5.0            |
+| rf_passed                   | integer | Amount of passed tests                                                                                        |                |
+| rf_suites                   | integer | Amount of test suites                                                                                         |                |
+| rf_skipped                  | integer | Amount of skipped tests                                                                                       | 3.0            |
+| rf_skip_percentage          | float | Percentage of skipped tests                                                                                   | 3.0            |
+| rf_total                    | integer | Total amount of tests                                                                                         |                |
 
 #### `suite_result`
 

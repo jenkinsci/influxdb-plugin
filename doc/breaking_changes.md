@@ -1,5 +1,11 @@
 # Breaking Changes
 
+## 5.0
+
+- Changes to Robt Framework metrics:
+  - `rf_critical_pass_percentage` has been removed. It has been replaced by `rf_pass_percentage_total`, 
+    which sends the percentage of tests that passed including skipped tests.
+
 ## 4.0
 
 - Changes to Robot Framework metrics:
