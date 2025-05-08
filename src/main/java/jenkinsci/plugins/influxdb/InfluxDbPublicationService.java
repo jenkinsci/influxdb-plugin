@@ -2,9 +2,6 @@ package jenkinsci.plugins.influxdb;
 
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
-import com.influxdb.client.InfluxDBClient;
-import com.influxdb.client.InfluxDBClientFactory;
-import com.influxdb.client.InfluxDBClientOptions;
 import com.influxdb.client.write.Point;
 import hudson.EnvVars;
 import hudson.ProxyConfiguration;
@@ -14,6 +11,7 @@ import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.generators.*;
 import jenkinsci.plugins.influxdb.generators.serenity.SerenityJsonSummaryFile;
 import jenkinsci.plugins.influxdb.generators.serenity.SerenityPointGenerator;
+import jenkinsci.plugins.influxdb.models.InfluxDBClientWrapper;
 import jenkinsci.plugins.influxdb.models.Target;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import okhttp3.Credentials;
@@ -276,10 +274,39 @@ public class InfluxDbPublicationService {
             logger.fine(logMessage);
             listener.getLogger().println(logMessage);
 
-            try (InfluxDBClient influxDB = getInfluxDBClient(build, target, url)) {
-                writeToInflux(target, influxDB, pointsToWrite);
+            InfluxDBClientWrapper influxDB = null;
+            try {
+                StandardUsernamePasswordCredentials basicAuthCredentials = CredentialsProvider.findCredentialById(
+                        target.getCredentialsId(),
+                        StandardUsernamePasswordCredentials.class,
+                        build
+                );
+                StringCredentials tokenCredentials = CredentialsProvider.findCredentialById(
+                        target.getCredentialsId(),
+                        StringCredentials.class,
+                        build
+                );
+                influxDB = new InfluxDBClientWrapper(
+                        target.getUrl(),
+                        target.getOrganization(),
+                        target.getDatabase(),
+                        target.getRetentionPolicy(),
+                        basicAuthCredentials,
+                        tokenCredentials
+                );
+                influxDB.writePoints(pointsToWrite);
+            } catch (Exception e) {
+                if (target.isExposeExceptions()) {
+                    throw new InfluxReportException(e);
+                } else {
+                    //Exceptions not exposed by configuration. Just log and ignore.
+                    logger.log(Level.WARNING, "Could not report to InfluxDB. Ignoring Exception.", e);
+                }
+            } finally {
+                if (influxDB != null) {
+                    influxDB.close();
+                }
             }
-
         }
 
         listener.getLogger().println("[InfluxDB Plugin] Completed.");
@@ -292,32 +319,6 @@ public class InfluxDbPublicationService {
         } else {
             logger.fine("Data not found: " + plugin);
         }
-    }
-
-    private InfluxDBClient getInfluxDBClient(Run<?, ?> build, Target target, URL url) {
-        StandardUsernamePasswordCredentials credentials = CredentialsProvider.findCredentialById(target.getCredentialsId(), StandardUsernamePasswordCredentials.class, build);
-        InfluxDBClient influxDB;
-
-        if (target.getOrganization() != null && !target.getOrganization().trim().isEmpty()) {
-            InfluxDBClientOptions.Builder options = InfluxDBClientOptions.builder()
-                    .url(target.getUrl())
-                    .org(target.getOrganization())
-                    .bucket(target.getDatabase())
-                    .okHttpClient(createHttpClient(url, target.isUsingJenkinsProxy()));
-            if (credentials != null) {  // basic auth
-                options.authenticate(credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray());
-            } else {    // token auth
-                StringCredentials c = CredentialsProvider.findCredentialById(target.getCredentialsId(), StringCredentials.class, build);
-                assert c != null;
-                options.authenticateToken(c.getSecret().getPlainText().toCharArray());
-            }
-            influxDB = InfluxDBClientFactory.create(options.build());
-        } else {
-            influxDB = credentials == null ?
-                InfluxDBClientFactory.createV1(target.getUrl(), "", "".toCharArray(), target.getDatabase(), target.getRetentionPolicy()) :
-                InfluxDBClientFactory.createV1(target.getUrl(), credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray(), target.getDatabase(), target.getRetentionPolicy());
-        }
-        return influxDB;
     }
 
     private void addPoints(List<Point> pointsToWrite, PointGenerator generator, TaskListener listener) {
@@ -346,21 +347,5 @@ public class InfluxDbPublicationService {
             }
         }
         return builder;
-    }
-
-    private void writeToInflux(Target target, InfluxDBClient influxDB, List<Point> pointsToWrite) {
-        /*
-         * build batchpoints for a single write.
-         */
-        try {
-            influxDB.getWriteApiBlocking().writePoints(pointsToWrite);
-        } catch (Exception e) {
-            if (target.isExposeExceptions()) {
-                throw new InfluxReportException(e);
-            } else {
-                //Exceptions not exposed by configuration. Just log and ignore.
-                logger.log(Level.WARNING, "Could not report to InfluxDB. Ignoring Exception.", e);
-            }
-        }
     }
 }

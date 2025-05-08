@@ -6,11 +6,6 @@ import com.cloudbees.plugins.credentials.common.StandardCredentials;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
-import com.influxdb.client.InfluxDBClient;
-import com.influxdb.client.InfluxDBClientFactory;
-import com.influxdb.client.InfluxDBClientOptions;
-import com.influxdb.exceptions.InfluxException;
-
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
@@ -19,16 +14,14 @@ import hudson.security.ACL;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
-
-import java.util.List;
-
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.verb.POST;
-import org.springframework.security.access.AccessDeniedException;
+
+import java.util.List;
 
 public class Target extends AbstractDescribableImpl<Target> implements java.io.Serializable {
 
@@ -50,8 +43,8 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
 
     @DataBoundConstructor
     public Target(String description, String url, String credentialsId, String organization, String database,
-            String retentionPolicy, boolean jobScheduledTimeAsPointsTimestamp, boolean exposeExceptions,
-            boolean usingJenkinsProxy, boolean globalListener, String globalListenerFilter) {
+                  String retentionPolicy, boolean jobScheduledTimeAsPointsTimestamp, boolean exposeExceptions,
+                  boolean usingJenkinsProxy, boolean globalListener, String globalListenerFilter) {
         this.description = description;
         this.url = url;
         this.credentialsId = credentialsId;
@@ -167,6 +160,35 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
     @Extension
     public static class DescriptorImpl extends Descriptor<Target> {
 
+        public static StandardUsernamePasswordCredentials getUsernamePasswordCredentials(
+                String credentialsId,
+                String url,
+                @AncestorInPath Item context
+        ) {
+            List<StandardUsernamePasswordCredentials> lookupCredentials = CredentialsProvider.lookupCredentialsInItem(
+                    StandardUsernamePasswordCredentials.class,
+                    context,
+                    ACL.SYSTEM2,
+                    URIRequirementBuilder.fromUri(url).build());
+
+            return CredentialsMatchers.firstOrNull(
+                    lookupCredentials,
+                    CredentialsMatchers.withId(null == credentialsId ? "" : credentialsId)
+            );
+        }
+
+        public static StringCredentials getTokenCredentials(String url, String credentialsId, @AncestorInPath Item context) {
+            List<StringCredentials> lookupTokenCredentials = CredentialsProvider.lookupCredentialsInItem(
+                    StringCredentials.class,
+                    context,
+                    ACL.SYSTEM2,
+                    URIRequirementBuilder.fromUri(url).build());
+            return CredentialsMatchers.firstOrNull(
+                    lookupTokenCredentials,
+                    CredentialsMatchers.withId(null == credentialsId ? "" : credentialsId)
+            );
+        }
+
         public ListBoxModel doFillCredentialsIdItems(@QueryParameter String url,
                                                      @QueryParameter String credentialsId) {
             if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
@@ -201,56 +223,29 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
         public FormValidation doVerifyConnection(@QueryParameter String url, @QueryParameter String credentialsId,
                                                  @QueryParameter String organization, @QueryParameter String database,
                                                  @QueryParameter String retentionPolicy, @AncestorInPath Item context) {
-            InfluxDBClient influxDB = null;
-            doCheckUrl(url);
-            doCheckDatabase(database);
+
+            InfluxDBClientWrapper client = null;
             try {
+                doCheckUrl(url);
+                doCheckDatabase(database);
                 Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-
-                List<StandardUsernamePasswordCredentials> lookupCredentials = CredentialsProvider.lookupCredentials(
-                        StandardUsernamePasswordCredentials.class,
-                        context,
-                        ACL.SYSTEM,
-                        URIRequirementBuilder.fromUri(url).build());
-
-                StandardUsernamePasswordCredentials credentials = CredentialsMatchers.firstOrNull(lookupCredentials, CredentialsMatchers.withId(null == credentialsId ? "" : credentialsId));
-
-                if (organization != null && !organization.trim().isEmpty()) {
-                    InfluxDBClientOptions.Builder options = InfluxDBClientOptions.builder().url(url).org(organization).bucket(database);
-
-                    if (credentials != null) { // basic auth
-                        options.authenticate(credentials.getUsername(), credentials.getPassword().getPlainText().toCharArray());
-                    } else { // token auth
-                        List<StringCredentials> lookupTokenCredentials = CredentialsProvider.lookupCredentials(//
-                                StringCredentials.class,
-                                context,
-                                ACL.SYSTEM,
-                                URIRequirementBuilder.fromUri(url).build());
-                        StringCredentials c = CredentialsMatchers.firstOrNull(lookupTokenCredentials, CredentialsMatchers.withId(null == credentialsId ? "" : credentialsId));
-                        assert c != null;
-                        options.authenticateToken(c.getSecret().getPlainText().toCharArray());
-                    }
-
-                    influxDB = InfluxDBClientFactory.create(options.build());
-
-                } else {
-                    influxDB = credentials == null
-                            ? InfluxDBClientFactory.createV1(url, "", "".toCharArray(), database, retentionPolicy)
-                            : InfluxDBClientFactory.createV1(url, credentials.getUsername(),
-                                    credentials.getPassword().getPlainText().toCharArray(), database, retentionPolicy);
-                }
-
-                boolean connected = influxDB.ping();
-                if(connected) {
-                    return FormValidation.ok("Connection success");
-                } else {
-                    return FormValidation.ok("Connection Failed");
-                }
-            } catch (InfluxException | AccessDeniedException e) {
+                StandardUsernamePasswordCredentials basicAuthCredentials = getUsernamePasswordCredentials(credentialsId, url, context);
+                StringCredentials tokenCredentials = getTokenCredentials(url, credentialsId, context);
+                client = new InfluxDBClientWrapper(
+                        url,
+                        organization,
+                        database,
+                        retentionPolicy,
+                        basicAuthCredentials,
+                        tokenCredentials
+                );
+                String apiVersion = client.getAPIVersion();
+                return FormValidation.ok("Connection success (API version " + apiVersion + ")");
+            } catch (Exception e) {
                 return FormValidation.error(e, "Connection Failed");
             } finally {
-                if (influxDB != null) {
-                    influxDB.close();
+                if (client != null) {
+                    client.close();
                 }
             }
         }
