@@ -1,13 +1,13 @@
 package jenkinsci.plugins.influxdb.generators;
 
 import com.influxdb.client.domain.WritePrecision;
-import com.influxdb.client.write.Point;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.plugins.PerfPublisher.PerfPublisherBuildAction;
 import hudson.plugins.PerfPublisher.Report.Metric;
 import hudson.plugins.PerfPublisher.Report.ReportContainer;
 import hudson.plugins.PerfPublisher.Report.Test;
+import jenkinsci.plugins.influxdb.models.AbstractPoint;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 
 import java.util.ArrayList;
@@ -35,16 +35,16 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
     }
 
     @Override
-    public Point buildPoint(String name, String customPrefix, Run<?, ?> build) {
+    public AbstractPoint buildPoint(String name, String customPrefix, Run<?, ?> build) {
         // add unique time to guarantee correct point adding to DB
         return super.buildPoint(name, customPrefix, build)
                 .time(timeGenerator.next(), WritePrecision.NS);
     }
 
-    public Point[] generate() {
+    public AbstractPoint[] generate() {
         ReportContainer reports = performanceBuildAction.getReports();
 
-        List<Point> points = new ArrayList<>();
+        List<AbstractPoint> points = new ArrayList<>();
 
         points.add(generateSummaryPoint(reports));
         points.addAll(generateMetricsPoints(reports));
@@ -54,11 +54,11 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
             points.addAll(generateTestMetricsPoints(test));
         }
 
-        return points.toArray(new Point[0]);
+        return points.toArray(new AbstractPoint[0]);
     }
 
-    private Point generateSummaryPoint(ReportContainer reports) {
-        Point point = buildPoint("perfpublisher_summary", customPrefix, build)
+    private AbstractPoint generateSummaryPoint(ReportContainer reports) {
+        AbstractPoint point = buildPoint("perfpublisher_summary", customPrefix, build)
                 .addField("number_of_tests", reports.getNumberOfTest())
                 .addField("number_of_executed_tests", reports.getNumberOfExecutedTest())
                 .addField("number_of_not_executed_tests", reports.getNumberOfNotExecutedTest())
@@ -97,12 +97,12 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
         return point;
     }
 
-    private List<Point> generateMetricsPoints(ReportContainer reports) {
-        List<Point> points = new ArrayList<>();
+    private List<AbstractPoint> generateMetricsPoints(ReportContainer reports) {
+        List<AbstractPoint> points = new ArrayList<>();
 
         for (Map.Entry<String, Double> entry : reports.getAverageValuePerMetrics().entrySet()) {
             String metricName = entry.getKey();
-            Point point = buildPoint("perfpublisher_metric", customPrefix, build)
+            AbstractPoint point = buildPoint("perfpublisher_metric", customPrefix, build)
                     .addField("metric_name", metricName)
                     .addField("average", entry.getValue())
                     .addField("worst", reports.getWorstValuePerMetrics().get(metricName))
@@ -113,8 +113,8 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
         return points;
     }
 
-    private Point generateTestPoint(Test test) {
-        Point point = buildPoint("perfpublisher_test", customPrefix, build)
+    private AbstractPoint generateTestPoint(Test test) {
+        AbstractPoint point = buildPoint("perfpublisher_test", customPrefix, build)
                 .addField("test_name", test.getName())
                 .addTag("test_name", test.getName())
                 .addField("successful", test.isSuccessfull())
@@ -139,14 +139,14 @@ public class PerfPublisherPointGenerator extends AbstractPointGenerator {
         return point;
     }
 
-    private List<Point> generateTestMetricsPoints(Test test) {
-        List<Point> points = new ArrayList<>();
+    private List<AbstractPoint> generateTestMetricsPoints(Test test) {
+        List<AbstractPoint> points = new ArrayList<>();
 
         for (Map.Entry<String, Metric> entry : test.getMetrics().entrySet()) {
             String metricName = entry.getKey();
             Metric metric = entry.getValue();
 
-            Point point = buildPoint("perfpublisher_test_metric", customPrefix, build)
+            AbstractPoint point = buildPoint("perfpublisher_test_metric", customPrefix, build)
                     .addField("test_name", test.getName())
                     .addTag("test_name", test.getName())
                     .addField("metric_name", metricName)

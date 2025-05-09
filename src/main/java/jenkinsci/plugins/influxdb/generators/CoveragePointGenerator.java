@@ -1,6 +1,5 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import com.influxdb.client.write.Point;
 import edu.hm.hafner.coverage.Metric;
 import hudson.model.Run;
 import hudson.model.TaskListener;
@@ -8,6 +7,7 @@ import io.jenkins.plugins.coverage.metrics.model.Baseline;
 import io.jenkins.plugins.coverage.metrics.model.CoverageStatistics;
 import io.jenkins.plugins.coverage.metrics.model.ElementFormatter;
 import io.jenkins.plugins.coverage.metrics.steps.CoverageBuildAction;
+import jenkinsci.plugins.influxdb.models.AbstractPoint;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang3.StringUtils;
 
@@ -38,20 +38,20 @@ public class CoveragePointGenerator extends AbstractPointGenerator {
     }
 
     @Override
-    public Point[] generate() {
+    public AbstractPoint[] generate() {
 
-        List<Point> points = new ArrayList<>();
+        List<AbstractPoint> points = new ArrayList<>();
         CoverageBuildAction action = build.getAction(CoverageBuildAction.class);
         CoverageStatistics coverageStatistics = action.getStatistics();
         for (Baseline baseline : new Baseline[]{Baseline.PROJECT, Baseline.MODIFIED_LINES, Baseline.MODIFIED_FILES}) {
             points.add(buildSubPoint("coverage_" + baseline.toString().toLowerCase() + "_data", customPrefix, build, baseline, coverageStatistics));
         }
 
-        return points.toArray(new Point[0]);
+        return points.toArray(new AbstractPoint[0]);
     }
 
-    private Point buildSubPoint(String name, String customPrefix, Run<?, ?> build, Baseline baseline, CoverageStatistics coverageStatistics) {
-        Point point = buildPoint(name, customPrefix, build);
+    private AbstractPoint buildSubPoint(String name, String customPrefix, Run<?, ?> build, Baseline baseline, CoverageStatistics coverageStatistics) {
+        AbstractPoint point = buildPoint(name, customPrefix, build);
         ElementFormatter formatter = new ElementFormatter();
         for (Metric m : Metric.values()) {
             coverageStatistics.getValue(baseline, m).ifPresent(value -> {

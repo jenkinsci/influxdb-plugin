@@ -1,15 +1,14 @@
 package jenkinsci.plugins.influxdb.generators.serenity;
 
-import com.influxdb.client.write.Point;
+import hudson.model.Run;
+import hudson.model.TaskListener;
+import jenkinsci.plugins.influxdb.generators.AbstractPointGenerator;
+import jenkinsci.plugins.influxdb.models.AbstractPoint;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import java.io.IOException;
-
-import hudson.model.Run;
-import hudson.model.TaskListener;
-import jenkinsci.plugins.influxdb.generators.AbstractPointGenerator;
 
 public class SerenityPointGenerator extends AbstractPointGenerator {
 
@@ -70,7 +69,7 @@ public class SerenityPointGenerator extends AbstractPointGenerator {
         return serenityJsonSummaryFile.exists();
     }
 
-    public Point[] generate() {
+    public AbstractPoint[] generate() {
         String contents;
         try {
             contents = serenityJsonSummaryFile.getContents();
@@ -85,36 +84,36 @@ public class SerenityPointGenerator extends AbstractPointGenerator {
         JSONObject resultsPercentages = results.getJSONObject("percentages");
         JSONArray tagTypes = root.getJSONArray("tags");
 
-        Point point = buildPoint("serenity_data", customPrefix, build);
+        AbstractPoint point = buildPoint("serenity_data", customPrefix, build);
 
         // include results.counts fields
         point
-            .addField(SERENITY_RESULTS_COUNTS_TOTAL, resultsCounts.getInt("total"))
-            .addField(SERENITY_RESULTS_COUNTS_SUCCESS, resultsCounts.getInt("success"))
-            .addField(SERENITY_RESULTS_COUNTS_PENDING, resultsCounts.getInt("pending"))
-            .addField(SERENITY_RESULTS_COUNTS_IGNORED, resultsCounts.getInt("ignored"))
-            .addField(SERENITY_RESULTS_COUNTS_SKIPPED, resultsCounts.getInt("skipped"))
-            .addField(SERENITY_RESULTS_COUNTS_FAILURE, resultsCounts.getInt("failure"))
-            .addField(SERENITY_RESULTS_COUNTS_ERROR, resultsCounts.getInt("error"))
-            .addField(SERENITY_RESULTS_COUNTS_COMPROMISED, resultsCounts.getInt("compromised"));
+                .addField(SERENITY_RESULTS_COUNTS_TOTAL, resultsCounts.getInt("total"))
+                .addField(SERENITY_RESULTS_COUNTS_SUCCESS, resultsCounts.getInt("success"))
+                .addField(SERENITY_RESULTS_COUNTS_PENDING, resultsCounts.getInt("pending"))
+                .addField(SERENITY_RESULTS_COUNTS_IGNORED, resultsCounts.getInt("ignored"))
+                .addField(SERENITY_RESULTS_COUNTS_SKIPPED, resultsCounts.getInt("skipped"))
+                .addField(SERENITY_RESULTS_COUNTS_FAILURE, resultsCounts.getInt("failure"))
+                .addField(SERENITY_RESULTS_COUNTS_ERROR, resultsCounts.getInt("error"))
+                .addField(SERENITY_RESULTS_COUNTS_COMPROMISED, resultsCounts.getInt("compromised"));
 
         // include results.percentages fields
         point
-            .addField(SERENITY_RESULTS_PERCENTAGES_SUCCESS, resultsPercentages.getInt("success"))
-            .addField(SERENITY_RESULTS_PERCENTAGES_PENDING, resultsPercentages.getInt("pending"))
-            .addField(SERENITY_RESULTS_PERCENTAGES_IGNORED, resultsPercentages.getInt("ignored"))
-            .addField(SERENITY_RESULTS_PERCENTAGES_SKIPPED, resultsPercentages.getInt("skipped"))
-            .addField(SERENITY_RESULTS_PERCENTAGES_FAILURE, resultsPercentages.getInt("failure"))
-            .addField(SERENITY_RESULTS_PERCENTAGES_ERROR, resultsPercentages.getInt("error"))
-            .addField(SERENITY_RESULTS_PERCENTAGES_COMPROMISED, resultsPercentages.getInt("compromised"));
+                .addField(SERENITY_RESULTS_PERCENTAGES_SUCCESS, resultsPercentages.getInt("success"))
+                .addField(SERENITY_RESULTS_PERCENTAGES_PENDING, resultsPercentages.getInt("pending"))
+                .addField(SERENITY_RESULTS_PERCENTAGES_IGNORED, resultsPercentages.getInt("ignored"))
+                .addField(SERENITY_RESULTS_PERCENTAGES_SKIPPED, resultsPercentages.getInt("skipped"))
+                .addField(SERENITY_RESULTS_PERCENTAGES_FAILURE, resultsPercentages.getInt("failure"))
+                .addField(SERENITY_RESULTS_PERCENTAGES_ERROR, resultsPercentages.getInt("error"))
+                .addField(SERENITY_RESULTS_PERCENTAGES_COMPROMISED, resultsPercentages.getInt("compromised"));
 
         // include remaining results fields
         point
-            .addField(SERENITY_RESULTS_TOTAL_TEST_DURATION, results.getLong("totalTestDuration"))
-            .addField(SERENITY_RESULTS_TOTAL_CLOCK_DURATION, results.getLong("totalClockDuration"))
-            .addField(SERENITY_RESULTS_MIN_TEST_DURATION, results.getLong("minTestDuration"))
-            .addField(SERENITY_RESULTS_MAX_TEST_DURATION, results.getLong("maxTestDuration"))
-            .addField(SERENITY_RESULTS_AVERAGE_TEST_DURATION, results.getLong("averageTestDuration"));
+                .addField(SERENITY_RESULTS_TOTAL_TEST_DURATION, results.getLong("totalTestDuration"))
+                .addField(SERENITY_RESULTS_TOTAL_CLOCK_DURATION, results.getLong("totalClockDuration"))
+                .addField(SERENITY_RESULTS_MIN_TEST_DURATION, results.getLong("minTestDuration"))
+                .addField(SERENITY_RESULTS_MAX_TEST_DURATION, results.getLong("maxTestDuration"))
+                .addField(SERENITY_RESULTS_AVERAGE_TEST_DURATION, results.getLong("averageTestDuration"));
 
         // include tags fields
         for (int iTagType = 0; iTagType < tagTypes.size(); iTagType++) {
@@ -125,10 +124,10 @@ public class SerenityPointGenerator extends AbstractPointGenerator {
                 JSONObject tagResult = tagResults.getJSONObject(iTag);
                 String field = "serenity_tags_" + tagTypeType + ":" + tagResult.getString("tagName");
                 point
-                    .addField(field, tagResult.getInt("count"));
+                        .addField(field, tagResult.getInt("count"));
             }
         }
 
-        return new Point[]{point};
+        return new AbstractPoint[]{point};
     }
 }
