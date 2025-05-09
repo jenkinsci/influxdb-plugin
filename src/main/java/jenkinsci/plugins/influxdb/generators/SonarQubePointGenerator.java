@@ -1,31 +1,25 @@
 package jenkinsci.plugins.influxdb.generators;
 
+import hudson.EnvVars;
+import hudson.model.Run;
+import hudson.model.TaskListener;
+import jenkinsci.plugins.influxdb.models.AbstractPoint;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import okhttp3.*;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.influxdb.client.write.Point;
-import hudson.EnvVars;
-import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
-import okhttp3.Credentials;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
-import org.apache.commons.lang3.StringUtils;
-
-import hudson.model.Run;
-import hudson.model.TaskListener;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 public class SonarQubePointGenerator extends AbstractPointGenerator {
 
@@ -73,32 +67,23 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             + "(.*)";
     private static final String URL_PATTERN_IN_LOGS_QUALITY_GATE_STATUS_TIMEOUT = ".*" + Pattern.quote("Quality Gate check timeout exceeded - View details on ")
             + "(.*)";
-
-
-
-    private String projectKey = null;
-    private String sonarBuildURL = null;
-    private String sonarBuildTaskIdUrl = null;
-    private String sonarBuildTaskId = null;
-
     // https://sonarcloud.io/web_api/api/issues
     private static final String SONAR_ISSUES_BASE_URL = "/api/issues/search?ps=1";
-
     // SonarQube 5.4+ expects componentKey=, SonarQube 8.1 expects component=, we
     // can make both of them happy
     // https://sonarcloud.io/web_api/api/measures
     private static final String SONAR_METRICS_BASE_URL = "/api/measures/component?componentKey=%s&component=%s";
     private static final String SONAR_METRICS_BASE_METRIC = "&metricKeys=";
     private static final OkHttpClient httpClient = new OkHttpClient();
-
     private static final String BRANCH_NAME_BASE_URL = "&branch=";
-
-    private String sonarIssuesUrl;
-    private String sonarMetricsUrl;
-
     private final String customPrefix;
     private final TaskListener listener;
-
+    private String projectKey = null;
+    private String sonarBuildURL = null;
+    private String sonarBuildTaskIdUrl = null;
+    private String sonarBuildTaskId = null;
+    private String sonarIssuesUrl;
+    private String sonarMetricsUrl;
     private String token = null;
 
     private EnvVars env;
@@ -140,19 +125,20 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
         try {
             result = getSonarProjectFromBuildReport();
-                projectKey = result[0];
-                sonarBuildURL = result[1];
-                sonarBuildTaskId = result[2];
-                sonarBuildTaskIdUrl = result[3];
+            projectKey = result[0];
+            sonarBuildURL = result[1];
+            sonarBuildTaskId = result[2];
+            sonarBuildTaskIdUrl = result[3];
 
-                return !StringUtils.isEmpty(sonarBuildURL);
-        } catch (IOException | IndexOutOfBoundsException | UncheckedIOException ignored) {}
+            return !StringUtils.isEmpty(sonarBuildURL);
+        } catch (IOException | IndexOutOfBoundsException | UncheckedIOException ignored) {
+        }
 
         try {
             //try build logs
             result = getSonarProjectFromBuildLog(build);
 
-            if (!StringUtils.isEmpty(result[1])){
+            if (!StringUtils.isEmpty(result[1])) {
                 projectKey = result[0];
                 sonarBuildURL = result[1];
                 sonarBuildTaskId = result[2];
@@ -160,7 +146,8 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
                 return !StringUtils.isEmpty(sonarBuildURL);
             }
-        } catch (IOException | IndexOutOfBoundsException | UncheckedIOException ignored) {}
+        } catch (IOException | IndexOutOfBoundsException | UncheckedIOException ignored) {
+        }
 
         return false;
     }
@@ -181,13 +168,15 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         if (max_retry != null && !max_retry.isEmpty()) {
             try {
                 MAX_RETRY_COUNT = Integer.parseInt(max_retry);
-            } catch(NumberFormatException ignored) { }
+            } catch (NumberFormatException ignored) {
+            }
         }
 
         do {
             try {
                 Thread.sleep(DEFAULT_RETRY_SLEEP);
-            } catch(InterruptedException ignored) {}
+            } catch (InterruptedException ignored) {
+            }
 
             output = getResult(sonarBuildTaskIdUrl);
             JSONObject taskObjects = JSONObject.fromObject(output);
@@ -196,17 +185,17 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             ++count;
 
             if (status.equals("FAILED") || status.equals("CANCELED")) {
-                logMessage = "[InfluxDB Plugin] Warning: SonarQube task " + sonarBuildTaskId +  " failed. Status is " + status + "! Getting the QG metrics from the latest completed task!";
+                logMessage = "[InfluxDB Plugin] Warning: SonarQube task " + sonarBuildTaskId + " failed. Status is " + status + "! Getting the QG metrics from the latest completed task!";
                 listener.getLogger().println(logMessage);
                 break;
             }
 
-            logMessage = "[InfluxDB Plugin] INFO: SonarQube task " + sonarBuildTaskId +  " status is " + status;
+            logMessage = "[InfluxDB Plugin] INFO: SonarQube task " + sonarBuildTaskId + " status is " + status;
             listener.getLogger().println(logMessage);
 
         } while (!status.equals("SUCCESS") && count <= MAX_RETRY_COUNT);
 
-        if(!status.equals("SUCCESS") && count > MAX_RETRY_COUNT) {
+        if (!status.equals("SUCCESS") && count > MAX_RETRY_COUNT) {
             logMessage = "[InfluxDB Plugin] WARNING: Timeout! SonarQube task " + sonarBuildTaskId + " is still in progress. Getting the QG metrics from the latest completed task!";
             listener.getLogger().println(logMessage);
         }
@@ -218,7 +207,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         listener.getLogger().println("[InfluxDB Plugin] INFO: Using SonarQube host URL: " + sonarServer);
 
         // Use SONAR_BRANCH_NAME environment variable if provided, default branch otherwise
-        String branchName = env.get("SONAR_BRANCH_NAME","");
+        String branchName = env.get("SONAR_BRANCH_NAME", "");
         if (!branchName.isEmpty()) {
             listener.getLogger().println("[InfluxDB Plugin] INFO: Using SonarQube branch: " + branchName);
             branchName = BRANCH_NAME_BASE_URL + branchName;
@@ -226,9 +215,9 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
         // https://sonarcloud.io/web_api/api/issues
         sonarIssuesUrl = sonarServer + SONAR_ISSUES_BASE_URL
-                            + branchName
-                            + "&componentKeys=" + projectKey
-                            + "&resolved=false&severities=";
+                + branchName
+                + "&componentKeys=" + projectKey
+                + "&resolved=false&severities=";
 
         sonarMetricsUrl = sonarServer + String.format(SONAR_METRICS_BASE_URL, projectKey, projectKey) + branchName;
 
@@ -242,12 +231,12 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         }
     }
 
-    public Point[] generate() {
+    public AbstractPoint[] generate() {
         setSonarDetails(sonarBuildURL);
 
-        Point point = null;
+        AbstractPoint point = null;
         try {
-            if(sonarBuildTaskId != null){
+            if (sonarBuildTaskId != null) {
                 waitForQualityGateTask();
             }
 
@@ -277,7 +266,7 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             listener.getLogger().println(logMessage);
             e.printStackTrace(listener.getLogger());
         }
-        return new Point[] { point };
+        return new AbstractPoint[]{point};
     }
 
     protected String getResult(String url) throws IOException {
@@ -330,24 +319,24 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
                 }
                 match = p_qg_url.matcher(line);
                 if (match.matches()) {
-                    url  = match.group(2);
+                    url = match.group(2);
                     //Task already executed.  No need to search for other lines
                     break;
                 }
                 match = p_qg_url_v4_8.matcher(line);
                 if (match.matches()) {
-                    url  = match.group(1);  // https://<url>/dashboard?id=<id>
-                    url = url.substring(0,url.lastIndexOf(('/')));  // strip '/dashboard?id=<id>'
+                    url = match.group(1);  // https://<url>/dashboard?id=<id>
+                    url = url.substring(0, url.lastIndexOf(('/')));  // strip '/dashboard?id=<id>'
                     continue;
                 }
                 match = p_qg_url_timeout.matcher(line);
                 if (match.matches()) {
-                    url  = match.group(1);
+                    url = match.group(1);
                     continue;
                 }
                 match = p_analysis_url.matcher(line);
                 if (match.matches()) {
-                    url  = match.group(1);
+                    url = match.group(1);
                     continue;
                 }
                 match = p_taskUrl.matcher(line);
@@ -376,8 +365,8 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         String reportFilePath = reportsPaths.get(0).toFile().getPath();
 
         try (BufferedReader br = new BufferedReader(
-                                    new InputStreamReader(
-                                        new FileInputStream(reportFilePath), StandardCharsets.UTF_8))) {
+                new InputStreamReader(
+                        new FileInputStream(reportFilePath), StandardCharsets.UTF_8))) {
             String line;
 
             Pattern p_proj_name = Pattern.compile(PROJECT_KEY_PATTERN_IN_REPORT);
@@ -419,13 +408,13 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
 
         Path path = Paths.get(workspacePath);
         String reportName = env.get("SONARQUBE_BUILD_REPORT_NAME",
-                                    SONARQUBE_DEFAULT_BUILD_REPORT_NAME);
+                SONARQUBE_DEFAULT_BUILD_REPORT_NAME);
 
         try (Stream<Path> pathStream = Files.find(path,
                 Integer.MAX_VALUE,
                 (p, basicFileAttributes) ->
-                    basicFileAttributes.isRegularFile() &&
-                    p.endsWith(reportName))
+                        basicFileAttributes.isRegularFile() &&
+                                p.endsWith(reportName))
         ) {
             return pathStream.collect(Collectors.toList());
         }
@@ -439,7 +428,8 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         Float value = null;
         try {
             value = Float.parseFloat(getSonarMetricValue(url, metric));
-        } catch (NumberFormatException ignored) {}
+        } catch (NumberFormatException ignored) {
+        }
 
         return value;
     }
@@ -454,7 +444,8 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
             JSONArray array = metricsObjects.getJSONObject("component").getJSONArray("measures");
             JSONObject metricsObject = array.getJSONObject(0);
             value = metricsObject.getString("value");
-        } catch (IndexOutOfBoundsException ignored) {}
+        } catch (IndexOutOfBoundsException ignored) {
+        }
 
         return value;
     }

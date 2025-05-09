@@ -1,10 +1,9 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import com.influxdb.client.write.Point;
-
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkins.metrics.impl.TimeInQueueAction;
+import jenkinsci.plugins.influxdb.models.AbstractPoint;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 
 public class MetricsPointGenerator extends AbstractPointGenerator {
@@ -23,9 +22,9 @@ public class MetricsPointGenerator extends AbstractPointGenerator {
     private final TimeInQueueAction timeInQueueAction;
 
     public MetricsPointGenerator(Run<?, ?> build, TaskListener listener,
-                                        ProjectNameRenderer projectNameRenderer,
-                                        long timestamp, String jenkinsEnvParameterTag,
-                                        String customPrefix) {
+                                 ProjectNameRenderer projectNameRenderer,
+                                 long timestamp, String jenkinsEnvParameterTag,
+                                 String customPrefix) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
         this.build = build;
         this.customPrefix = customPrefix;
@@ -36,8 +35,8 @@ public class MetricsPointGenerator extends AbstractPointGenerator {
         return timeInQueueAction != null;
     }
 
-    public Point[] generate() {
-        Point point = buildPoint("metrics_data", customPrefix, build);
+    public AbstractPoint[] generate() {
+        AbstractPoint point = buildPoint("metrics_data", customPrefix, build);
         point.addField(BLOCKED_TIME, timeInQueueAction.getBlockedDurationMillis());
         point.addField(BUILDABLE_TIME, timeInQueueAction.getBuildableDurationMillis());
         point.addField(BUILDING_TIME, timeInQueueAction.getBuildingDurationMillis());
@@ -47,6 +46,6 @@ public class MetricsPointGenerator extends AbstractPointGenerator {
         point.addField(SUBTASK_COUNT, timeInQueueAction.getSubTaskCount());
         point.addField(TOTAL_DURATION, timeInQueueAction.getTotalDurationMillis());
         point.addField(WAITING_TIME, timeInQueueAction.getWaitingDurationMillis());
-        return new Point[] {point};
+        return new AbstractPoint[]{point};
     }
 }

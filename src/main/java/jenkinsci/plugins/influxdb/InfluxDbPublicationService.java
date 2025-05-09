@@ -2,7 +2,6 @@ package jenkinsci.plugins.influxdb;
 
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
-import com.influxdb.client.write.Point;
 import hudson.EnvVars;
 import hudson.ProxyConfiguration;
 import hudson.model.Run;
@@ -11,6 +10,7 @@ import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.generators.*;
 import jenkinsci.plugins.influxdb.generators.serenity.SerenityJsonSummaryFile;
 import jenkinsci.plugins.influxdb.generators.serenity.SerenityPointGenerator;
+import jenkinsci.plugins.influxdb.models.AbstractPoint;
 import jenkinsci.plugins.influxdb.models.InfluxDBClientWrapper;
 import jenkinsci.plugins.influxdb.models.Target;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
@@ -170,7 +170,7 @@ public class InfluxDbPublicationService {
         ProjectNameRenderer measurementRenderer = new ProjectNameRenderer(customPrefix, customProjectName);
 
         // Points to write
-        List<Point> pointsToWrite = new ArrayList<>();
+        List<AbstractPoint> pointsToWrite = new ArrayList<>();
 
         // Basic metrics
         JenkinsBasePointGenerator jGen = new JenkinsBasePointGenerator(build, listener, measurementRenderer, timestamp, jenkinsEnvParameterTag, jenkinsEnvParameterField, customPrefix, measurementName, env);
@@ -255,9 +255,8 @@ public class InfluxDbPublicationService {
         }
 
         for (Target target : selectedTargets) {
-            URL url;
             try {
-                url = new URL(target.getUrl());
+                new URL(target.getUrl());
             } catch (MalformedURLException e) {
                 String logMessage = String.format("[InfluxDB Plugin] Skipping target '%s' due to invalid URL '%s'",
                         target.getDescription(),
@@ -312,7 +311,7 @@ public class InfluxDbPublicationService {
         listener.getLogger().println("[InfluxDB Plugin] Completed.");
     }
 
-    private void addPointsFromPlugin(List<Point> pointsToWrite, PointGenerator generator, TaskListener listener, String plugin) {
+    private void addPointsFromPlugin(List<AbstractPoint> pointsToWrite, PointGenerator generator, TaskListener listener, String plugin) {
         if (generator.hasReport()) {
             listener.getLogger().println("[InfluxDB plugin] " + plugin + " plugin data found. Writing to InfluxDB...");
             addPoints(pointsToWrite, generator, listener);
@@ -321,7 +320,7 @@ public class InfluxDbPublicationService {
         }
     }
 
-    private void addPoints(List<Point> pointsToWrite, PointGenerator generator, TaskListener listener) {
+    private void addPoints(List<AbstractPoint> pointsToWrite, PointGenerator generator, TaskListener listener) {
         try {
             pointsToWrite.addAll(Arrays.stream(generator.generate()).filter(Objects::nonNull).collect(Collectors.toList()));
         } catch (Exception e) {

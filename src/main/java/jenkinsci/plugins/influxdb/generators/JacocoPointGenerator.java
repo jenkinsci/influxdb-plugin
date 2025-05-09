@@ -1,12 +1,11 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import com.influxdb.client.write.Point;
-import hudson.model.TaskListener;
-import hudson.plugins.jacoco.model.Coverage;
-import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
-
 import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.plugins.jacoco.JacocoBuildAction;
+import hudson.plugins.jacoco.model.Coverage;
+import jenkinsci.plugins.influxdb.models.AbstractPoint;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 
 public class JacocoPointGenerator extends AbstractPointGenerator {
     private static final String JACOCO_CLASS = "jacoco_class";
@@ -32,9 +31,9 @@ public class JacocoPointGenerator extends AbstractPointGenerator {
         return jacocoBuildAction != null && jacocoBuildAction.getResult() != null;
     }
 
-    public Point[] generate() {
-        
-        Point point = buildPoint("jacoco_data", customPrefix, build);
+    public AbstractPoint[] generate() {
+
+        AbstractPoint point = buildPoint("jacoco_data", customPrefix, build);
         addFields(point, JACOCO_CLASS, jacocoBuildAction.getResult().getClassCoverage());
         addFields(point, JACOCO_LINE, jacocoBuildAction.getResult().getLineCoverage());
         addFields(point, JACOCO_BRANCH, jacocoBuildAction.getResult().getBranchCoverage());
@@ -42,10 +41,10 @@ public class JacocoPointGenerator extends AbstractPointGenerator {
         addFields(point, JACOCO_INSTRUCTION, jacocoBuildAction.getResult().getInstructionCoverage());
         addFields(point, JACOCO_COMPLEXITY, jacocoBuildAction.getResult().getComplexityScore());
 
-        return new Point[] {point};
+        return new AbstractPoint[]{point};
     }
 
-    private void addFields(Point point, String prefix, Coverage coverage) {
+    private void addFields(AbstractPoint point, String prefix, Coverage coverage) {
         point.addField(prefix + "_coverage_rate", coverage.getPercentageFloat());
         point.addField(prefix + "_covered", coverage.getCovered());
         point.addField(prefix + "_missed", coverage.getMissed());

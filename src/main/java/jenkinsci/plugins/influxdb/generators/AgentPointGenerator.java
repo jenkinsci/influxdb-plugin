@@ -1,12 +1,12 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringJoiner;
-
+import hudson.model.AbstractBuild;
+import hudson.model.Node;
+import hudson.model.Run;
+import hudson.model.TaskListener;
+import hudson.model.labels.LabelAtom;
+import jenkinsci.plugins.influxdb.models.AbstractPoint;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.collections.CollectionUtils;
 import org.jenkinsci.plugins.workflow.actions.WorkspaceAction;
 import org.jenkinsci.plugins.workflow.flow.FlowExecution;
@@ -14,14 +14,8 @@ import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.graph.FlowGraphWalker;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
 
-import com.influxdb.client.write.Point;
+import java.util.*;
 
-import hudson.model.AbstractBuild;
-import hudson.model.Node;
-import hudson.model.Run;
-import hudson.model.TaskListener;
-import hudson.model.labels.LabelAtom;
-import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 
 /**
  * @author Mathieu Delrocq
@@ -36,7 +30,7 @@ public class AgentPointGenerator extends AbstractPointGenerator {
     private String customPrefix;
 
     public AgentPointGenerator(Run<?, ?> build, TaskListener listener, ProjectNameRenderer projectNameRenderer,
-            long timestamp, String jenkinsEnvParameterTag, String customPrefix) {
+                               long timestamp, String jenkinsEnvParameterTag, String customPrefix) {
         super(build, listener, projectNameRenderer, timestamp, jenkinsEnvParameterTag);
         this.agentPoints = getAgentPoints(build);
         this.customPrefix = customPrefix;
@@ -48,18 +42,18 @@ public class AgentPointGenerator extends AbstractPointGenerator {
     }
 
     @Override
-    public Point[] generate() {
-        List<Point> points = new ArrayList<>();
+    public AbstractPoint[] generate() {
+        List<AbstractPoint> points = new ArrayList<>();
         Map.Entry<String, String> agentPoint = null;
         for (int i = 0; i < agentPoints.size(); i++) {
             agentPoint = agentPoints.get(i);
-            Point point = buildPoint("agent_data", customPrefix, build)//
-                    .addTag(UNIQUE_ID, String.valueOf(i+1))//
+            AbstractPoint point = buildPoint("agent_data", customPrefix, build)//
+                    .addTag(UNIQUE_ID, String.valueOf(i + 1))//
                     .addField(AGENT_NAME, agentPoint.getKey())//
                     .addField(AGENT_LABEL, agentPoint.getValue());
             points.add(point);
         }
-        return points.toArray(new Point[0]);
+        return points.toArray(new AbstractPoint[0]);
     }
 
     public String getFirstAgent() {

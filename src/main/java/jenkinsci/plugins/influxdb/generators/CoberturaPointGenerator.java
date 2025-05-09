@@ -1,14 +1,13 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import com.influxdb.client.write.Point;
-import hudson.model.TaskListener;
-import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
-
 import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.plugins.cobertura.CoberturaBuildAction;
 import hudson.plugins.cobertura.Ratio;
 import hudson.plugins.cobertura.targets.CoverageMetric;
 import hudson.plugins.cobertura.targets.CoverageResult;
+import jenkinsci.plugins.influxdb.models.AbstractPoint;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 
 public class CoberturaPointGenerator extends AbstractPointGenerator {
 
@@ -36,7 +35,7 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
         return coberturaBuildAction != null && coberturaBuildAction.getResult() != null;
     }
 
-    public Point[] generate() {
+    public AbstractPoint[] generate() {
         CoverageResult result = coberturaBuildAction.getResult();
         Ratio conditionals = result.getCoverage(CoverageMetric.CONDITIONAL);
         Ratio lines = result.getCoverage(CoverageMetric.LINE);
@@ -44,15 +43,15 @@ public class CoberturaPointGenerator extends AbstractPointGenerator {
         Ratio classes = result.getCoverage(CoverageMetric.CLASSES);
         Ratio files = result.getCoverage(CoverageMetric.FILES);
 
-        Point point = buildPoint("cobertura_data", customPrefix, build)
-            .addField(COBERTURA_NUMBER_OF_PACKAGES, packages.denominator)
-            .addField(COBERTURA_NUMBER_OF_SOURCEFILES, files.denominator)
-            .addField(COBERTURA_NUMBER_OF_CLASSES, classes.denominator)
-            .addField(COBERTURA_BRANCH_COVERAGE_RATE, conditionals.getPercentageFloat())
-            .addField(COBERTURA_LINE_COVERAGE_RATE, lines.getPercentageFloat())
-            .addField(COBERTURA_PACKAGE_COVERAGE_RATE, packages.getPercentageFloat())
-            .addField(COBERTURA_CLASS_COVERAGE_RATE, classes.getPercentageFloat());
+        AbstractPoint point = buildPoint("cobertura_data", customPrefix, build)
+                .addField(COBERTURA_NUMBER_OF_PACKAGES, packages.denominator)
+                .addField(COBERTURA_NUMBER_OF_SOURCEFILES, files.denominator)
+                .addField(COBERTURA_NUMBER_OF_CLASSES, classes.denominator)
+                .addField(COBERTURA_BRANCH_COVERAGE_RATE, conditionals.getPercentageFloat())
+                .addField(COBERTURA_LINE_COVERAGE_RATE, lines.getPercentageFloat())
+                .addField(COBERTURA_PACKAGE_COVERAGE_RATE, packages.getPercentageFloat())
+                .addField(COBERTURA_CLASS_COVERAGE_RATE, classes.getPercentageFloat());
 
-        return new Point[] {point};
+        return new AbstractPoint[]{point};
     }
 }

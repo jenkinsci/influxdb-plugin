@@ -1,14 +1,15 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import com.influxdb.client.write.Point;
-import hudson.model.TaskListener;
-import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
-
 import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.plugins.performance.actions.PerformanceBuildAction;
 import hudson.plugins.performance.reports.PerformanceReport;
+import jenkinsci.plugins.influxdb.models.AbstractPoint;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class PerformancePointGenerator extends AbstractPointGenerator {
 
@@ -38,30 +39,28 @@ public class PerformancePointGenerator extends AbstractPointGenerator {
         return performanceBuildAction != null && performanceBuildAction.getPerformanceReportMap() != null;
     }
 
-    public Point[] generate() {
+    public AbstractPoint[] generate() {
         Map<String, PerformanceReport> reportMap = performanceBuildAction.getPerformanceReportMap().getPerformanceReportMap();
 
-        List<Point> points = new ArrayList<>();
+        List<AbstractPoint> points = new ArrayList<>();
 
         for (PerformanceReport report : reportMap.values()) {
             points.add(generateReportPoint(report));
         }
 
-        return points.toArray(new Point[0]);
+        return points.toArray(new AbstractPoint[0]);
     }
 
-    private Point generateReportPoint(PerformanceReport performanceReport) {
-        Point point = buildPoint("performance_data", customPrefix, build)
-            .addField(PERFORMANCE_ERROR_PERCENT, performanceReport.errorPercent())
-            .addField(PERFORMANCE_ERROR_COUNT, performanceReport.countErrors())
-            .addField(PERFORMANCE_AVERAGE, performanceReport.getAverage())
-            .addField(PERFORMANCE_MAX, performanceReport.getMax())
-            .addField(PERFORMANCE_MIN, performanceReport.getMin())
-            .addField(PERFORMANCE_TOTAL_TRAFFIC, performanceReport.getTotalTrafficInKb())
-            .addField(PERFORMANCE_SIZE, performanceReport.samplesCount())
-            .addField(PERFORMANCE_90PERCENTILE, performanceReport.get90Line())
-            .addField(PERFORMANCE_MEDIAN, performanceReport.getMedian());
-
-        return point;
+    private AbstractPoint generateReportPoint(PerformanceReport performanceReport) {
+        return buildPoint("performance_data", customPrefix, build)
+                .addField(PERFORMANCE_ERROR_PERCENT, performanceReport.errorPercent())
+                .addField(PERFORMANCE_ERROR_COUNT, performanceReport.countErrors())
+                .addField(PERFORMANCE_AVERAGE, performanceReport.getAverage())
+                .addField(PERFORMANCE_MAX, performanceReport.getMax())
+                .addField(PERFORMANCE_MIN, performanceReport.getMin())
+                .addField(PERFORMANCE_TOTAL_TRAFFIC, performanceReport.getTotalTrafficInKb())
+                .addField(PERFORMANCE_SIZE, performanceReport.samplesCount())
+                .addField(PERFORMANCE_90PERCENTILE, performanceReport.get90Line())
+                .addField(PERFORMANCE_MEDIAN, performanceReport.getMedian());
     }
 }

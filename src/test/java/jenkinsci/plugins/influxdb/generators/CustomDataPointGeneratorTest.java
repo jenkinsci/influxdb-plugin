@@ -1,10 +1,10 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import com.influxdb.client.write.Point;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
+import jenkinsci.plugins.influxdb.models.AbstractPoint;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,17 +15,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class CustomDataPointGeneratorTest {
+class CustomDataPointGeneratorTest extends PointGeneratorBaseTest {
 
     private static final String JOB_NAME = "master";
     private static final int BUILD_NUMBER = 11;
     private static final String CUSTOM_PREFIX = "test_prefix";
     private static final String MEASUREMENT_NAME = "jenkins_data";
 
-    private Run<?,?> build;
+    private Run<?, ?> build;
     private TaskListener listener;
 
     private ProjectNameRenderer measurementRenderer;
@@ -67,11 +67,10 @@ class CustomDataPointGeneratorTest {
         Map<String, String> customDataTags = new HashMap<>();
         customDataTags.put("tag1", "myTag");
         CustomDataPointGenerator cdGen = new CustomDataPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, customData, customDataTags, MEASUREMENT_NAME);
-        Point[] pointsToWrite = cdGen.generate();
+        AbstractPoint[] points = cdGen.generate();
 
-        String lineProtocol = pointsToWrite[0].toLineProtocol();
-        assertTrue(lineProtocol.startsWith("jenkins_custom_data,prefix=test_prefix,project_name=test_prefix_master,project_namespace=folder,project_path=folder/master,tag1=myTag build_number=11i,build_time="));
-        assertTrue(lineProtocol.contains("jenkins_custom_data,prefix=test_prefix,project_name=test_prefix_master,project_namespace=folder,project_path=folder/master,tag1=myTag build_number=11i"));
+        assertTrue(allLineProtocolsStartWith(points[0], "jenkins_custom_data,prefix=test_prefix,project_name=test_prefix_master,project_namespace=folder,project_path=folder/master,tag1=myTag build_number=11i,build_time="));
+        assertTrue(allLineProtocolsContain(points[0], "jenkins_custom_data,prefix=test_prefix,project_name=test_prefix_master,project_namespace=folder,project_path=folder/master,tag1=myTag build_number=11i"));
     }
 
     @Test
@@ -84,9 +83,8 @@ class CustomDataPointGeneratorTest {
         customDataTags.put("tag1", "myTag");
 
         CustomDataPointGenerator cdGen = new CustomDataPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX, customData, customDataTags, customMeasurement);
-        Point[] pointsToWrite = cdGen.generate();
+        AbstractPoint[] pointsToWrite = cdGen.generate();
 
-        String lineProtocol = pointsToWrite[0].toLineProtocol();
-        assertTrue(lineProtocol.startsWith("custom_" + customMeasurement));
+        assertTrue(allLineProtocolsStartWith(pointsToWrite[0], "custom_" + customMeasurement));
     }
 }

@@ -1,12 +1,10 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import hudson.model.*;
+import hudson.model.labels.LabelAtom;
+import jenkins.model.Jenkins;
+import jenkinsci.plugins.influxdb.models.AbstractPoint;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang3.StringUtils;
 import org.jenkinsci.plugins.workflow.actions.WorkspaceAction;
 import org.jenkinsci.plugins.workflow.flow.FlowExecution;
@@ -17,22 +15,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import com.influxdb.client.write.Point;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import hudson.model.AbstractBuild;
-import hudson.model.HealthReport;
-import hudson.model.Job;
-import hudson.model.Node;
-import hudson.model.Run;
-import hudson.model.TaskListener;
-import hudson.model.labels.LabelAtom;
-import jenkins.model.Jenkins;
-import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Mathieu Delrocq
  */
-class AgentPointGeneratorTest {
+class AgentPointGeneratorTest extends PointGeneratorBaseTest {
 
     private static final String CUSTOM_PREFIX = "test_prefix";
     private static final String JOB_NAME = "job_name";
@@ -104,15 +97,13 @@ class AgentPointGeneratorTest {
         AgentPointGenerator gen = new AgentPointGenerator(pipelineBuild, listener, measurementRenderer, currTime,
                 StringUtils.EMPTY, CUSTOM_PREFIX);
         assertTrue(gen.hasReport());
-        Point[] points = gen.generate();
+        AbstractPoint[] points = gen.generate();
         assertTrue(points != null && points.length != 0);
-        assertTrue(points[0].hasFields());
-        String lineProtocol1 = points[0].toLineProtocol();
-        String lineProtocol2 = points[1].toLineProtocol();
-        assertTrue(lineProtocol1.contains("agent_name=\"node_name2\""));
-        assertTrue(lineProtocol1.contains("agent_label=\"node_label\""));
-        assertTrue(lineProtocol2.contains("agent_name=\"node_name\""));
-        assertTrue(lineProtocol2.contains("agent_label=\"node_label\""));
+        assertTrue(points[0].getV1v2Point().hasFields());
+        assertTrue(allLineProtocolsContain(points[0], "agent_name=\"node_name2\""));
+        assertTrue(allLineProtocolsContain(points[0], "agent_label=\"node_label\""));
+        assertTrue(allLineProtocolsContain(points[1], "agent_name=\"node_name\""));
+        assertTrue(allLineProtocolsContain(points[1], "agent_label=\"node_label\""));
     }
 
     @Test
@@ -120,11 +111,10 @@ class AgentPointGeneratorTest {
         AgentPointGenerator gen = new AgentPointGenerator(abstractBuild, listener, measurementRenderer, currTime,
                 StringUtils.EMPTY, CUSTOM_PREFIX);
         assertTrue(gen.hasReport());
-        Point[] points = gen.generate();
+        AbstractPoint[] points = gen.generate();
         assertTrue(points != null && points.length != 0);
-        assertTrue(points[0].hasFields());
-        String lineProtocol = points[0].toLineProtocol();
-        assertTrue(lineProtocol.contains("agent_name=\"node_name\""));
-        assertTrue(lineProtocol.contains("agent_label=\"node_label\""));
+        assertTrue(points[0].getV1v2Point().hasFields());
+        assertTrue(allLineProtocolsContain(points[0], "agent_name=\"node_name\""));
+        assertTrue(allLineProtocolsContain(points[0], "agent_label=\"node_label\""));
     }
 }
