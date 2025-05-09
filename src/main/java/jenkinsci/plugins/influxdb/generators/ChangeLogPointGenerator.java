@@ -1,16 +1,15 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import java.util.Collection;
-import java.util.List;
-
-import com.influxdb.client.write.Point;
-import hudson.model.TaskListener;
-import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
-
-import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import hudson.model.AbstractBuild;
 import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.scm.ChangeLogSet;
+import jenkinsci.plugins.influxdb.models.AbstractPoint;
+import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
+
+import java.util.Collection;
+import java.util.List;
 
 public class ChangeLogPointGenerator extends AbstractPointGenerator {
 
@@ -40,15 +39,14 @@ public class ChangeLogPointGenerator extends AbstractPointGenerator {
     public boolean hasReport() {
         if (build instanceof AbstractBuild) {   // freestyle job
             getChangeLogFromAbstractBuild(build);
-        }
-        else if (build instanceof WorkflowRun) {     // pipeline
+        } else if (build instanceof WorkflowRun) {     // pipeline
             getChangeLogFromPipeline(build);
         }
         return this.getCommitCount() > 0;
     }
 
-    public Point[] generate() {
-        Point point = buildPoint("changelog_data", customPrefix, build);
+    public AbstractPoint[] generate() {
+        AbstractPoint point = buildPoint("changelog_data", customPrefix, build);
 
         point.addField(BUILD_DISPLAY_NAME, build.getDisplayName())
                 .addField("commit_messages", this.getMessages())
@@ -56,11 +54,11 @@ public class ChangeLogPointGenerator extends AbstractPointGenerator {
                 .addField("affected_paths", this.getAffectedPaths())
                 .addField("commit_count", this.getCommitCount());
 
-        return new Point[] { point };
+        return new AbstractPoint[]{point};
     }
 
     private void getChangeLogFromAbstractBuild(Run<?, ?> run) {
-        AbstractBuild<?,?> abstractBuild = (AbstractBuild<?,?>) run;
+        AbstractBuild<?, ?> abstractBuild = (AbstractBuild<?, ?>) run;
         ChangeLogSet<? extends ChangeLogSet.Entry> changeset = abstractBuild.getChangeSet();
         addChangeLogData(changeset);
     }

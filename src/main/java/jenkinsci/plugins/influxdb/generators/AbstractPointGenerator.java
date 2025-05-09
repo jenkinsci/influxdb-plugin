@@ -1,11 +1,11 @@
 package jenkinsci.plugins.influxdb.generators;
 
 import com.influxdb.client.domain.WritePrecision;
-import com.influxdb.client.write.Point;
 import hudson.EnvVars;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
+import jenkinsci.plugins.influxdb.models.AbstractPoint;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
@@ -42,13 +42,11 @@ public abstract class AbstractPointGenerator implements PointGenerator {
     }
 
     @Override
-    public Point buildPoint(String name, String customPrefix, Run<?, ?> build, long timestamp) {
+    public AbstractPoint buildPoint(String name, String customPrefix, Run<?, ?> build, long timestamp) {
         Jenkins instance = Jenkins.getInstanceOrNull();
         String projectName = projectNameRenderer.render(build);
         String projectPath = build.getParent().getRelativeNameFrom(instance);
-
-        Point point = Point
-                .measurement(name)
+        AbstractPoint point = new AbstractPoint(name)
                 .addField(PROJECT_NAME, projectName)
                 .addField(PROJECT_PATH, projectPath)
                 .addField(BUILD_NUMBER, build.getNumber())
@@ -73,7 +71,7 @@ public abstract class AbstractPointGenerator implements PointGenerator {
         return point;
     }
 
-    public Point buildPoint(String name, String customPrefix, Run<?, ?> build) {
+    public AbstractPoint buildPoint(String name, String customPrefix, Run<?, ?> build) {
         return buildPoint(name, customPrefix, build, timestamp);
     }
 

@@ -1,13 +1,13 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import com.influxdb.client.write.Point;
 import hudson.EnvVars;
 import hudson.model.Cause;
+import hudson.model.Cause.UserIdCause;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import hudson.model.Cause.UserIdCause;
 import hudson.tasks.test.AbstractTestResultAction;
+import jenkinsci.plugins.influxdb.models.AbstractPoint;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang3.StringUtils;
 
@@ -77,7 +77,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         return true;
     }
 
-    public Point[] generate() {
+    public AbstractPoint[] generate() {
         // Build is not finished when running with pipelines. Duration must be calculated manually
         long startTime = build.getTimeInMillis();
         long currTime = System.currentTimeMillis();
@@ -97,25 +97,25 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
         String[] buildCause = getCauseDatas();
 
-        Point point = buildPoint(measurementName, customPrefix, build);
+        AbstractPoint point = buildPoint(measurementName, customPrefix, build);
 
         point.addField(BUILD_TIME, build.getDuration() == 0 ? dt : build.getDuration())
-            .addField(BUILD_SCHEDULED_TIME, build.getTimeInMillis())
-            .addField(BUILD_EXEC_TIME, build.getStartTimeInMillis())
-            .addField(BUILD_MEASURED_TIME, currTime)
-            .addField(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
-            .addField(BUILD_RESULT, result)
-            .addField(BUILD_RESULT_ORDINAL, ordinal)
-            .addField(BUILD_IS_SUCCESSFUL, ordinal < 2)
-            .addField(BUILD_AGENT_NAME, getNodeName())
-            .addField(BUILD_BRANCH_NAME, getBuildEnv("BRANCH_NAME"))
-            .addField(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
-            .addField(PROJECT_LAST_SUCCESSFUL, getLastSuccessfulBuild())
-            .addField(PROJECT_LAST_STABLE, getLastStableBuild())
-            .addField(BUILD_CAUSER , getCauseShortDescription())
-            .addField(BUILD_USER, buildCause[0])
-            .addField(BUILD_CAUSE, buildCause[1])
-            .addTag(BUILD_RESULT, result);
+                .addField(BUILD_SCHEDULED_TIME, build.getTimeInMillis())
+                .addField(BUILD_EXEC_TIME, build.getStartTimeInMillis())
+                .addField(BUILD_MEASURED_TIME, currTime)
+                .addField(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
+                .addField(BUILD_RESULT, result)
+                .addField(BUILD_RESULT_ORDINAL, ordinal)
+                .addField(BUILD_IS_SUCCESSFUL, ordinal < 2)
+                .addField(BUILD_AGENT_NAME, getNodeName())
+                .addField(BUILD_BRANCH_NAME, getBuildEnv("BRANCH_NAME"))
+                .addField(PROJECT_BUILD_HEALTH, build.getParent().getBuildHealth().getScore())
+                .addField(PROJECT_LAST_SUCCESSFUL, getLastSuccessfulBuild())
+                .addField(PROJECT_LAST_STABLE, getLastStableBuild())
+                .addField(BUILD_CAUSER, getCauseShortDescription())
+                .addField(BUILD_USER, buildCause[0])
+                .addField(BUILD_CAUSE, buildCause[1])
+                .addTag(BUILD_RESULT, result);
 
         if (hasTestResults(build)) {
             point.addField(TESTS_FAILED, build.getAction(AbstractTestResultAction.class).getFailCount());
@@ -133,7 +133,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
             point.addFields(fieldMap);
         }
 
-        return new Point[] {point};
+        return new AbstractPoint[]{point};
     }
 
     private String getBuildEnv(String buildEnv) {
@@ -175,9 +175,9 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
                     userCause = build.getEnvironment(listener).get("gitlabUserUsername");
                 }
             }
-            return new String[] { userCause != null ? userCause : "", triggers.toString() };
+            return new String[]{userCause != null ? userCause : "", triggers.toString()};
         } catch (IOException | InterruptedException e) {
-            return new String[] { "", "" };
+            return new String[]{"", ""};
         }
     }
 
@@ -193,7 +193,7 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
 
     private String getNodeName() {
         String nodeName = getBuildEnv("NODE_NAME");
-        if(StringUtils.isEmpty(nodeName)) {
+        if (StringUtils.isEmpty(nodeName)) {
             nodeName = getNodeNameFromLogs();
         }
         return nodeName;
@@ -216,7 +216,8 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
                     break;
                 }
             }
-        } catch (IOException e) {}
+        } catch (IOException e) {
+        }
         return agentName;
     }
 }

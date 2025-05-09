@@ -1,11 +1,13 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import com.influxdb.client.write.Point;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import jenkinsci.plugins.influxdb.models.AbstractPoint;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class CustomDataMapPointGenerator extends AbstractPointGenerator {
 
@@ -28,11 +30,11 @@ public class CustomDataMapPointGenerator extends AbstractPointGenerator {
         return (customDataMap != null && customDataMap.size() > 0);
     }
 
-    public Point[] generate() {
-        List<Point> points = new ArrayList<>();
+    public AbstractPoint[] generate() {
+        List<AbstractPoint> points = new ArrayList<>();
 
         for (Map.Entry<String, Map<String, Object>> entry : customDataMap.entrySet()) {
-            Point point = buildPoint(entry.getKey(), customPrefix, build).addFields(entry.getValue());
+            AbstractPoint point = buildPoint(entry.getKey(), customPrefix, build).addFields(entry.getValue());
 
             if (customDataMapTags != null) {
                 Map<String, String> customTags = customDataMapTags.get(entry.getKey());
@@ -47,6 +49,6 @@ public class CustomDataMapPointGenerator extends AbstractPointGenerator {
             points.add(point);
         }
 
-        return points.toArray(new Point[0]);
+        return points.toArray(new AbstractPoint[0]);
     }
 }
