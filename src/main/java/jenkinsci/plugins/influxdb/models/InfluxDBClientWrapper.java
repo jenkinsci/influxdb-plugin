@@ -111,7 +111,9 @@ public class InfluxDBClientWrapper {
                 logger.fine("Attempting connection without credentials");
                 this.v1v2client = InfluxDBClientFactory.createV1(url, "", "".toCharArray(), database, retentionPolicy);
             }
-            if (this.v1v2client.ping() && this.getAPIVersion().startsWith("v1")) {
+            String apiVersion = this.getAPIVersion();
+            // InfluxDB v1.11 returns v1.X instead of 1.X
+            if (this.v1v2client.ping() && (apiVersion.startsWith("1") || apiVersion.startsWith("v1"))) {
                 logger.fine("Connection success");
                 success = true;
             } else {
