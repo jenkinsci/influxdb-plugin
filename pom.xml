@@ -69,6 +69,10 @@ THE SOFTWARE.
 
     <repositories>
         <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+        <repository>
             <id>repo.jenkins-ci.org</id>
             <url>https://repo.jenkins-ci.org/public/</url>
         </repository>
@@ -200,7 +204,6 @@ THE SOFTWARE.
         </dependency>
 
 
-
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
@@ -215,6 +218,24 @@ THE SOFTWARE.
         <dependency>
             <groupId>io.jenkins</groupId>
             <artifactId>configuration-as-code</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>1.21.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>1.21.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>influxdb</artifactId>
+            <version>1.21.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -239,6 +260,11 @@ THE SOFTWARE.
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jenkins-ci.tools</groupId>
+                <artifactId>maven-hpi-plugin</artifactId>
+                <version>3.61</version>
             </plugin>
         </plugins>
     </build>
