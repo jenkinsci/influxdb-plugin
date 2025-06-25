@@ -4,11 +4,17 @@ import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredenti
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.InfluxDBClientOptions;
 import com.influxdb.exceptions.InfluxException;
+import hudson.ProxyConfiguration;
+import jenkins.model.Jenkins;
+import okhttp3.Credentials;
+import okhttp3.OkHttpClient;
 import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -20,9 +26,9 @@ public class InfluxDBClientWrapper {
     private static final Logger logger = Logger.getLogger(InfluxDBClientWrapper.class.getName());
 
     /**
-     * Store for the v3 API version. Can be removed as soon as the v3 client library offers a .version() method.
+     * Shared HTTP client which can make use of connection and thread pooling.
      */
-    private String v3Version = null;
+    private static final OkHttpClient httpClient = new OkHttpClient();
 
     /**
      * InfluxDB v1.X/v2.X client
@@ -35,11 +41,12 @@ public class InfluxDBClientWrapper {
             @Nonnull String database,
             @Nullable String retentionPolicy,
             @Nullable StandardUsernamePasswordCredentials basicAuthCredentials,
-            @Nullable StringCredentials tokenCredentials
+            @Nullable StringCredentials tokenCredentials,
+            boolean usingJenkinsProxy
     ) {
         // InfluxDB v2.X
         if (organization != null && !organization.trim().isEmpty()) {
-            if (tryConnectV2(url, organization, database, basicAuthCredentials, tokenCredentials)) {
+            if (tryConnectV2(url, organization, database, basicAuthCredentials, tokenCredentials, usingJenkinsProxy)) {
                 return;
             }
         }
@@ -57,12 +64,17 @@ public class InfluxDBClientWrapper {
             String organization,
             String bucket,
             @Nullable StandardUsernamePasswordCredentials basicAuthCredentials,
-            @Nullable StringCredentials tokenCredentials
+            @Nullable StringCredentials tokenCredentials,
+            boolean usingJenkinsProxy
     ) {
         logger.fine("Attempting connection to InfluxDB v2.X API at " + url);
         boolean success = false;
         try {
-            InfluxDBClientOptions.Builder options = InfluxDBClientOptions.builder().url(url).org(organization).bucket(bucket);
+            InfluxDBClientOptions.Builder options = InfluxDBClientOptions.builder()
+                    .url(url)
+                    .org(organization)
+                    .bucket(bucket)
+                    .okHttpClient(createHttpClient(new URL(url), usingJenkinsProxy));
             if (basicAuthCredentials != null) {
                 logger.fine("Attempting username/password authentication");
                 options.authenticate(basicAuthCredentials.getUsername(), basicAuthCredentials.getPassword().getPlainText().toCharArray());
@@ -78,7 +90,7 @@ public class InfluxDBClientWrapper {
                 this.v1v2client.close();
                 logger.fine("Connection failed");
             }
-        } catch (InfluxException | AccessDeniedException e) {
+        } catch (InfluxException | AccessDeniedException | MalformedURLException e) {
             logger.warning("Connection failed: " + e.getMessage());
         } finally {
             if (!success) {
@@ -113,6 +125,26 @@ public class InfluxDBClientWrapper {
             }
         }
         return success;
+    }
+
+    private OkHttpClient.Builder createHttpClient(URL url, boolean useProxy) {
+        OkHttpClient.Builder builder = httpClient.newBuilder();
+        Jenkins jenkins = Jenkins.getInstanceOrNull();
+        ProxyConfiguration proxyConfig = jenkins == null ? null : jenkins.proxy;
+        if (useProxy && proxyConfig != null) {
+            builder.proxy(proxyConfig.createProxy(url.getHost()));
+            if (proxyConfig.getUserName() != null) {
+                builder.proxyAuthenticator((route, response) -> {
+                    if (response.request().header("Proxy-Authorization") != null) {
+                        return null; // Give up, we've already failed to authenticate.
+                    }
+
+                    String credential = Credentials.basic(proxyConfig.getUserName(), proxyConfig.getSecretPassword().getPlainText());
+                    return response.request().newBuilder().header("Proxy-Authorization", credential).build();
+                });
+            }
+        }
+        return builder;
     }
 
     public String getAPIVersion() {

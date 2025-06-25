@@ -222,7 +222,9 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
         @POST
         public FormValidation doVerifyConnection(@QueryParameter String url, @QueryParameter String credentialsId,
                                                  @QueryParameter String organization, @QueryParameter String database,
-                                                 @QueryParameter String retentionPolicy, @AncestorInPath Item context) {
+                                                 @QueryParameter String retentionPolicy,
+                                                 @QueryParameter boolean usingJenkinsProxy,
+                                                 @AncestorInPath Item context) {
 
             InfluxDBClientWrapper client = null;
             try {
@@ -237,7 +239,8 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
                         database,
                         retentionPolicy,
                         basicAuthCredentials,
-                        tokenCredentials
+                        tokenCredentials,
+                        usingJenkinsProxy
                 );
                 String apiVersion = client.getAPIVersion();
                 return FormValidation.ok("Connection success (API version " + apiVersion + ")");

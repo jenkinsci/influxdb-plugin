@@ -33,11 +33,6 @@ public class InfluxDbPublicationService {
     private static final Logger logger = Logger.getLogger(InfluxDbPublicationService.class.getName());
 
     /**
-     * Shared HTTP client which can make use of connection and thread pooling.
-     */
-    private static final OkHttpClient httpClient = new OkHttpClient();
-
-    /**
      * Targets to write to.
      */
     private final List<Target> selectedTargets;
@@ -291,7 +286,8 @@ public class InfluxDbPublicationService {
                         target.getDatabase(),
                         target.getRetentionPolicy(),
                         basicAuthCredentials,
-                        tokenCredentials
+                        tokenCredentials,
+                        target.isUsingJenkinsProxy()
                 );
                 influxDB.writePoints(pointsToWrite);
             } catch (Exception e) {
@@ -326,25 +322,5 @@ public class InfluxDbPublicationService {
         } catch (Exception e) {
             listener.getLogger().println("[InfluxDB Plugin] Failed to collect data. Ignoring Exception:" + e);
         }
-    }
-
-    private OkHttpClient.Builder createHttpClient(URL url, boolean useProxy) {
-        OkHttpClient.Builder builder = httpClient.newBuilder();
-        Jenkins jenkins = Jenkins.getInstanceOrNull();
-        ProxyConfiguration proxyConfig = jenkins == null ? null : jenkins.proxy;
-        if (useProxy && proxyConfig != null) {
-            builder.proxy(proxyConfig.createProxy(url.getHost()));
-            if (proxyConfig.getUserName() != null) {
-                builder.proxyAuthenticator((route, response) -> {
-                    if (response.request().header("Proxy-Authorization") != null) {
-                        return null; // Give up, we've already failed to authenticate.
-                    }
-
-                    String credential = Credentials.basic(proxyConfig.getUserName(), proxyConfig.getSecretPassword().getPlainText());
-                    return response.request().newBuilder().header("Proxy-Authorization", credential).build();
-                });
-            }
-        }
-        return builder;
     }
 }
