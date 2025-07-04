@@ -52,7 +52,12 @@ public class IntegrationBaseTest {
                     .withUsername(testEnv.get("INFLUXDB_USERNAME"))
                     .withPassword(testEnv.get("INFLUXDB_PASSWORD"))
                     .withAdminToken(testEnv.get("INFLUXDB_V2_TOKEN"))
-                    .withOrganization(testEnv.get("INFLUXDB_ORGANIZATION"))
+                    .withOrganization(testEnv.get("INFLUXDB_ORGANIZATION")),
+            "V3",
+            new GenericContainer<>(DockerImageName.parse("influxdb:3.2-core"))
+                    .withCommand("influxdb3 serve --node-id=node0 --object-store=file --data-dir=/var/lib/influxdb3")
+                    .withExposedPorts(8181)
+
     );
     protected static JenkinsRule jenkinsRule;
 
@@ -96,8 +101,39 @@ public class IntegrationBaseTest {
             assertTrue(container.isRunning());
             testEnv.put(
                     "INFLUXDB_%s_URL".formatted(version),
-                    "http://localhost:" + container.getMappedPort(8086).toString()
+                    "http://localhost:" + container.getMappedPort(version.equals("V3") ? 8181 : 8086).toString()
             );
+            if (version.equals("V3")) {
+                Container.ExecResult createTokenResult = null;
+                Container.ExecResult createDatabaseResult = null;
+                try {
+                    // Create admin token
+                    createTokenResult = container.execInContainer(
+                            "influxdb3",
+                            "create",
+                            "token",
+                            "--admin",
+                            "--format",
+                            "json"
+                    );
+                    assertEquals(0, createTokenResult.getExitCode());
+                    JsonNode jsonNode = new ObjectMapper().readTree(createTokenResult.getStdout());
+                    testEnv.put("INFLUXDB_V3_TOKEN", jsonNode.get("token").asText());
+
+                    // Create the test database
+                    createDatabaseResult = container.execInContainer("influxdb3",
+                            "create",
+                            "database",
+                            testEnv.get("INFLUXDB_DATABASE_OR_BUCKET"),
+                            "--token",
+                            testEnv.get("INFLUXDB_V3_TOKEN")
+                    );
+                    assertEquals(0, createDatabaseResult.getExitCode());
+
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
         });
     }
 
@@ -124,6 +160,13 @@ public class IntegrationBaseTest {
                                 .org(testEnv.get("INFLUXDB_ORGANIZATION"))
                                 .bucket(testEnv.get("INFLUXDB_DATABASE_OR_BUCKET"))
                                 .authenticateToken(testEnv.get("INFLUXDB_V2_TOKEN").toCharArray()).build()
+                );
+                com.influxdb.v3.client.InfluxDBClient v3Client = com.influxdb.v3.client.InfluxDBClient.getInstance(
+                        new com.influxdb.v3.client.config.ClientConfig.Builder()
+                                .host(testEnv.get("INFLUXDB_V3_URL"))
+                                .token(testEnv.get("INFLUXDB_V3_TOKEN").toCharArray())
+                                .database(testEnv.get("INFLUXDB_DATABASE_OR_BUCKET"))
+                                .build()
                 );
         ) {
             List<String> tablesToQuery = Arrays.asList("jenkins_data", "metrics_data", "agent_data");
@@ -165,6 +208,44 @@ public class IntegrationBaseTest {
                 Map<String, Object> recordValues = record.getValues();
                 recordValues.remove("_stop");
                 valueList.add(recordValues);
+            }
+            result.put(tableName, valueList);
+        }
+        return result;
+    }
+
+    private static Map<String, List<Map<String, Object>>> queryV3API(
+            com.influxdb.v3.client.InfluxDBClient v3Client,
+            List<String> tables
+    ) {
+        Map<String, List<Map<String, Object>>> result = new HashMap<>();
+        for (String tableName : tables) {
+            ArrayList<Map<String, Object>> valueList = new ArrayList<>();
+
+            try (Stream<com.influxdb.v3.client.PointValues> stream = v3Client.queryPoints("SELECT * FROM %s".formatted(tableName))) {
+                stream.forEach(point -> {
+                    Map<String, Object> tags = new HashMap<>();
+                    Map<String, Object> fields = new HashMap<>();
+
+                    for (String tagName : point.getTagNames()) {
+                        String tagValue = point.getTag(tagName);
+                        tags.put(tagName, tagValue);
+                    }
+
+                    for (String fieldName : point.getFieldNames()) {
+                        Object fieldValue = point.getField(fieldName);
+                        fields.put(fieldName, fieldValue);
+                    }
+
+                    // Ensure that fields and tags do not declare duplicated keys
+                    assertTrue(Collections.disjoint(fields.keySet(), tags.keySet()));
+
+                    // Add record to the list of records
+                    Map<String, Object> merged = new HashMap<>(tags);
+                    merged.putAll(fields);
+                    merged.remove("_stop");
+                    valueList.add(merged);
+                });
             }
             result.put(tableName, valueList);
         }

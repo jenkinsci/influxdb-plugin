@@ -125,7 +125,7 @@ public class PointGeneratorBaseTest {
      * @return True if the line protocol of both, v1v2 and v3 points contains the given string, false otherwise.
      */
     public static boolean allLineProtocolsContain(AbstractPoint point, String match) {
-        return point.getV1v2Point().toLineProtocol().contains(match);
+        return point.getV1v2Point().toLineProtocol().contains(match) && point.getV3Point().toLineProtocol().contains(match);
     }
 
     /**
@@ -135,6 +135,6 @@ public class PointGeneratorBaseTest {
      * @return True if the line protocol of both, v1v2 and v3 points starts with the given string, false otherwise.
      */
     public static boolean allLineProtocolsStartWith(AbstractPoint point, String match) {
-        return point.getV1v2Point().toLineProtocol().startsWith(match);
+        return point.getV1v2Point().toLineProtocol().startsWith(match) && point.getV3Point().toLineProtocol().startsWith(match);
     }
 }

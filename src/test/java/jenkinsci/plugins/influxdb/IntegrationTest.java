@@ -20,11 +20,13 @@ public class IntegrationTest extends IntegrationBaseTest {
     public void testInfluxDBTargetsAreAvailable() {
         InfluxDbGlobalConfig globalConfig = InfluxDbGlobalConfig.getInstance();
         List<Target> targets = globalConfig.getTargets();
-        assertEquals(2, targets.size());
+        assertEquals(3, targets.size());
         assertTrue(targets.get(0).isGlobalListener());
         assertTrue(targets.get(1).isGlobalListener());
+        assertTrue(targets.get(2).isGlobalListener());
         assertEquals(testEnv.get("INFLUXDB_V1_URL"), targets.get(0).getUrl());
         assertEquals(testEnv.get("INFLUXDB_V2_URL"), targets.get(1).getUrl());
+        assertEquals(testEnv.get("INFLUXDB_V3_URL"), targets.get(2).getUrl());
     }
 
     @Test
@@ -91,5 +93,6 @@ public class IntegrationTest extends IntegrationBaseTest {
 
         this.assertInfluxRecordsAreIdentical(influxData.get(0), expectedValues, ignoreKeys);
         this.assertInfluxRecordsAreIdentical(influxData.get(1), expectedValues, ignoreKeys);
+        this.assertInfluxRecordsAreIdentical(influxData.get(2), expectedValues, ignoreKeys);
     }
 }
