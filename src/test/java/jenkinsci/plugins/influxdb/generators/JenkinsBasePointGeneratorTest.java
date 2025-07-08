@@ -12,9 +12,9 @@ import org.mockito.Mockito;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.TreeMap;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Damien Coraboeuf <damien.coraboeuf@gmail.com>
@@ -83,13 +83,18 @@ class JenkinsBasePointGeneratorTest extends PointGeneratorBaseTest {
     }
 
     @Test
-    void agent_present() {
+    void agent_present() throws Exception {
         Mockito.when(build.getExecutor()).thenReturn(executor);
         Mockito.when(mockedEnvVars.get("NODE_NAME")).thenReturn(NODE_NAME);
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         AbstractPoint[] points = generator.generate();
-        assertTrue(allLineProtocolsContain(points[0], "build_agent_name=\"" + NODE_NAME + "\""));
-        assertTrue(allLineProtocolsContain(points[0], PROJECT_PATH));
+
+        assertEquals("jenkins_data", points[0].getName());
+
+        TreeMap<String, Object> fields = getPointFields(points[0]);
+        TreeMap<String, Object> tags = getPointTags(points[0]);
+        assertEquals(NODE_NAME, fields.get("build_agent_name"));
+        assertEquals("folder/master", tags.get("project_path"));
     }
 
     @Test
@@ -101,109 +106,108 @@ class JenkinsBasePointGeneratorTest extends PointGeneratorBaseTest {
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         AbstractPoint[] points = generator.generate();
 
-        assertTrue(allLineProtocolsContain(points[0], "build_agent_name=\"" + NODE_NAME + "\""));
-        assertTrue(allLineProtocolsContain(points[0], PROJECT_PATH));
+        TreeMap<String, Object> fields = getPointFields(points[0]);
+        TreeMap<String, Object> tags = getPointTags(points[0]);
+        assertEquals(NODE_NAME, fields.get("build_agent_name"));
+        assertEquals("folder/master", tags.get("project_path"));
     }
 
     @Test
-    void agent_not_present() {
+    void agent_not_present() throws Exception {
         Mockito.when(build.getExecutor()).thenReturn(null);
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         AbstractPoint[] points = generator.generate();
 
-        assertTrue(allLineProtocolsContain(points[0], "build_agent_name=\"\""));
-        assertTrue(allLineProtocolsContain(points[0], PROJECT_PATH));
+        TreeMap<String, Object> fields = getPointFields(points[0]);
+        assertEquals("", fields.get("build_agent_name"));
     }
 
     @Test
-    void branch_present() {
+    void branch_present() throws Exception {
         Mockito.when(build.getExecutor()).thenReturn(executor);
         Mockito.when(mockedEnvVars.get("BRANCH_NAME")).thenReturn("develop");
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         AbstractPoint[] points = generator.generate();
 
-        assertTrue(allLineProtocolsContain(points[0], "build_branch_name=\"develop\""));
-        assertTrue(allLineProtocolsContain(points[0], PROJECT_PATH));
+        TreeMap<String, Object> fields = getPointFields(points[0]);
+        assertEquals("develop", fields.get("build_branch_name"));
     }
 
     @Test
-    void branch_not_present() {
+    void branch_not_present() throws Exception {
         Mockito.when(build.getExecutor()).thenReturn(null);
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         AbstractPoint[] points = generator.generate();
 
-        assertTrue(allLineProtocolsContain(points[0], "build_branch_name=\"\""));
-        assertTrue(allLineProtocolsContain(points[0], PROJECT_PATH));
+        TreeMap<String, Object> fields = getPointFields(points[0]);
+        assertEquals("", fields.get("build_branch_name"));
     }
 
 
     @Test
-    void scheduled_and_start_and_end_time_present() {
+    void scheduled_and_start_and_end_time_present() throws Exception {
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, MEASUREMENT_NAME, mockedEnvVars);
         AbstractPoint[] points = generator.generate();
 
-        assertTrue(allLineProtocolsContain(points[0], String.format("%s=", JenkinsBasePointGenerator.BUILD_SCHEDULED_TIME)));
-        assertTrue(allLineProtocolsContain(points[0], String.format("%s=", JenkinsBasePointGenerator.BUILD_EXEC_TIME)));
-        assertTrue(allLineProtocolsContain(points[0], String.format("%s=", JenkinsBasePointGenerator.BUILD_MEASURED_TIME)));
+        TreeMap<String, Object> fields = getPointFields(points[0]);
+        assertTrue(fields.containsKey(JenkinsBasePointGenerator.BUILD_SCHEDULED_TIME));
+        assertTrue(fields.containsKey(JenkinsBasePointGenerator.BUILD_EXEC_TIME));
+        assertTrue(fields.containsKey(JenkinsBasePointGenerator.BUILD_MEASURED_TIME));
     }
 
     @Test
-    void valid_jenkins_env_parameter_for_fields_present() {
+    void valid_jenkins_env_parameter_for_fields_present() throws Exception {
         JenkinsBasePointGenerator jenkinsBasePointGenerator =
                 new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, JENKINS_ENV_PARAMETER_FIELD, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         AbstractPoint[] points = jenkinsBasePointGenerator.generate();
 
-        assertTrue(allLineProtocolsContain(points[0], "testKey1=\"testValueField\""));
-        assertTrue(allLineProtocolsContain(points[0], "testKey2=\"${incompleteEnvValueField\""));
-        assertTrue(allLineProtocolsContain(points[0], "testEnvKeyField1=\"" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "\""));
-        assertTrue(allLineProtocolsContain(points[0], "testEnvKeyField2=\"PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "_" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "_SUFFIX\""));
-        assertFalse(allLineProtocolsContain(points[0], "testValueTag"));
-        assertFalse(allLineProtocolsContain(points[0], "${incompleteEnvValueTag"));
-        assertFalse(allLineProtocolsContain(points[0], "testEnvKeyTag1"));
-        assertFalse(allLineProtocolsContain(points[0], JENKINS_ENV_RESOLVED_VALUE_TAG));
-        assertFalse(allLineProtocolsContain(points[0], "testEnvKeyTag2"));
-        assertFalse(allLineProtocolsContain(points[0], "PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_TAG + "_SUFFIX"));
+        TreeMap<String, Object> fields = getPointFields(points[0]);
+        assertEquals("testValueField", fields.get("testKey1"));
+        assertEquals("${incompleteEnvValueField", fields.get("testKey2"));
+        assertEquals(JENKINS_ENV_RESOLVED_VALUE_FIELD, fields.get("testEnvKeyField1"));
+        assertEquals("PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "_" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "_SUFFIX", fields.get("testEnvKeyField2"));
+        assertEquals("resolvedEnvValueField", fields.get("testEnvKeyField1"));
     }
 
     @Test
-    void valid_jenkins_env_parameter_for_tags_present() {
+    void valid_jenkins_env_parameter_for_tags_present() throws Exception {
         JenkinsBasePointGenerator jenkinsBasePointGenerator =
                 new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, JENKINS_ENV_PARAMETER_TAG, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         AbstractPoint[] points = jenkinsBasePointGenerator.generate();
 
-        assertTrue(allLineProtocolsContain(points[0], "testKey1=testValueTag"));
-        assertTrue(allLineProtocolsContain(points[0], "testKey2=${incompleteEnvValueTag"));
-        assertTrue(allLineProtocolsContain(points[0], "testEnvKeyTag1=" + JENKINS_ENV_RESOLVED_VALUE_TAG));
-        assertTrue(allLineProtocolsContain(points[0], "testEnvKeyTag2=PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_TAG + "_" + JENKINS_ENV_RESOLVED_VALUE_TAG + "_SUFFIX"));
-        assertFalse(allLineProtocolsContain(points[0], "testValueField"));
-        assertFalse(allLineProtocolsContain(points[0], "${incompleteEnvValueField"));
-        assertFalse(allLineProtocolsContain(points[0], "testEnvKeyField1"));
-        assertFalse(allLineProtocolsContain(points[0], JENKINS_ENV_RESOLVED_VALUE_FIELD));
-        assertFalse(allLineProtocolsContain(points[0], "testEnvKeyField2"));
-        assertFalse(allLineProtocolsContain(points[0], "PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "_SUFFIX"));
+        TreeMap<String, Object> tags = getPointTags(points[0]);
+        assertEquals("testValueTag", tags.get("testKey1"));
+        assertEquals("${incompleteEnvValueTag", tags.get("testKey2"));
+        assertEquals(JENKINS_ENV_RESOLVED_VALUE_TAG, tags.get("testEnvKeyTag1"));
+        assertEquals("PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_TAG + "_" + JENKINS_ENV_RESOLVED_VALUE_TAG + "_SUFFIX", tags.get("testEnvKeyTag2"));
+        assertFalse(tags.containsKey("testValueField"));
+        assertFalse(tags.containsKey("testEnvKeyField1"));
+        assertFalse(tags.containsKey("testEnvKeyField2"));
     }
 
     @Test
-    void valid_jenkins_env_parameter_for_fields_and_tags_present() {
+    void valid_jenkins_env_parameter_for_fields_and_tags_present() throws Exception {
         JenkinsBasePointGenerator jenkinsBasePointGenerator =
                 new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, JENKINS_ENV_PARAMETER_TAG, JENKINS_ENV_PARAMETER_FIELD, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         AbstractPoint[] points = jenkinsBasePointGenerator.generate();
 
-        assertTrue(allLineProtocolsContain(points[0], "testKey1=\"testValueField\""));
-        assertTrue(allLineProtocolsContain(points[0], "testKey2=\"${incompleteEnvValueField\""));
+        TreeMap<String, Object> fields = getPointFields(points[0]);
+        TreeMap<String, Object> tags = getPointTags(points[0]);
 
-        assertTrue(allLineProtocolsContain(points[0], "testEnvKeyField1=\"" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "\""));
-        assertTrue(allLineProtocolsContain(points[0], "testEnvKeyField2=\"PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "_" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "_SUFFIX\""));
-
-        assertTrue(allLineProtocolsContain(points[0], "testKey1=testValueTag"));
-        assertTrue(allLineProtocolsContain(points[0], "testKey2=${incompleteEnvValueTag"));
-
-        assertTrue(allLineProtocolsContain(points[0], "testEnvKeyTag1=" + JENKINS_ENV_RESOLVED_VALUE_TAG));
-        assertTrue(allLineProtocolsContain(points[0], "testEnvKeyTag2=PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_TAG + "_" + JENKINS_ENV_RESOLVED_VALUE_TAG + "_SUFFIX"));
+        // Check fields
+        assertEquals("testValueField", fields.get("testKey1"));
+        assertEquals("${incompleteEnvValueField", fields.get("testKey2"));
+        assertEquals(JENKINS_ENV_RESOLVED_VALUE_FIELD, fields.get("testEnvKeyField1"));
+        assertEquals("PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "_" + JENKINS_ENV_RESOLVED_VALUE_FIELD + "_SUFFIX", fields.get("testEnvKeyField2"));
+        // Check tags
+        assertEquals("testValueTag", tags.get("testKey1"));
+        assertEquals("${incompleteEnvValueTag", tags.get("testKey2"));
+        assertEquals(JENKINS_ENV_RESOLVED_VALUE_TAG, tags.get("testEnvKeyTag1"));
+        assertEquals("PREFIX_" + JENKINS_ENV_RESOLVED_VALUE_TAG + "_" + JENKINS_ENV_RESOLVED_VALUE_TAG + "_SUFFIX", tags.get("testEnvKeyTag2"));
     }
 
     @Test
-    void custom_measurement_included() {
+    void custom_measurement_included() throws Exception {
         String customMeasurement = "custom_measurement";
         JenkinsBasePointGenerator jenkinsBasePointGenerator =
                 new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, JENKINS_ENV_PARAMETER_TAG, JENKINS_ENV_PARAMETER_FIELD, CUSTOM_PREFIX, customMeasurement, mockedEnvVars);

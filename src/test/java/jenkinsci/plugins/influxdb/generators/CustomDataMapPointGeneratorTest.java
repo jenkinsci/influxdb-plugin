@@ -14,9 +14,10 @@ import org.mockito.Mockito;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CustomDataMapPointGeneratorTest extends PointGeneratorBaseTest {
 
@@ -61,7 +62,7 @@ class CustomDataMapPointGeneratorTest extends PointGeneratorBaseTest {
     }
 
     @Test
-    void generate() {
+    void generate() throws NoSuchFieldException, IllegalAccessException {
         Map<String, Object> customData1 = new HashMap<>();
         customData1.put("test1", 11);
         customData1.put("test2", 22);
@@ -83,17 +84,40 @@ class CustomDataMapPointGeneratorTest extends PointGeneratorBaseTest {
                 currTime, StringUtils.EMPTY, CUSTOM_PREFIX, customDataMap, customDataMapTags);
         AbstractPoint[] pointsToWrite = cdmGen.generate();
 
-        AbstractPoint p1;
-        AbstractPoint p2;
-        if (pointsToWrite[0].getV1v2Point().toLineProtocol().startsWith("series1")) {
-            p1 = pointsToWrite[0];
-            p2 = pointsToWrite[1];
-        } else {
-            p1 = pointsToWrite[1];
-            p2 = pointsToWrite[0];
-        }
+        assertEquals("series2", pointsToWrite[0].getName());
+        assertEquals("series1", pointsToWrite[1].getName());
 
-        assertTrue(allLineProtocolsStartWith(p1, "series1,build_result=SUCCESS,prefix=test_prefix,project_name=test_prefix_master,project_namespace=folder,project_path=folder/master build_number=11i,project_name=\"test_prefix_master\",project_path=\"folder/master\",test1=11i,test2=22i"));
-        assertTrue(allLineProtocolsStartWith(p2, "series2,prefix=test_prefix,project_name=test_prefix_master,project_namespace=folder,project_path=folder/master build_number=11i,project_name=\"test_prefix_master\",project_path=\"folder/master\",test3=33i,test4=44i"));
+        AbstractPoint p1 = pointsToWrite[1];
+        AbstractPoint p2 = pointsToWrite[0];
+
+        TreeMap<String, Object> expectedFieldsP1 = new TreeMap<>(Map.of(
+                "build_number", 11,
+                "test1", 11,
+                "test2", 22
+        ));
+        TreeMap<String, Object> expectedTagsP1 = new TreeMap<>(Map.of(
+                "build_result", "SUCCESS",
+                "instance", "",
+                "prefix", "test_prefix",
+                "project_name", "test_prefix_master",
+                "project_namespace", "folder",
+                "project_path", "folder/master"
+        ));
+        checkPointTagsAndFields(p1, expectedFieldsP1, expectedTagsP1);
+
+        TreeMap<String, Object> expectedFieldsP2 = new TreeMap<>(Map.of(
+                "build_number", 11,
+                "test3", 33,
+                "test4", 44
+        ));
+
+        TreeMap<String, Object> expectedTagsP2 = new TreeMap<>(Map.of(
+                "instance", "",
+                "prefix", "test_prefix",
+                "project_name", "test_prefix_master",
+                "project_namespace", "folder",
+                "project_path", "folder/master"
+        ));
+        checkPointTagsAndFields(p2, expectedFieldsP2, expectedTagsP2);
     }
 }

@@ -104,7 +104,6 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
                 .addField(BUILD_EXEC_TIME, build.getStartTimeInMillis())
                 .addField(BUILD_MEASURED_TIME, currTime)
                 .addField(BUILD_STATUS_MESSAGE, build.getBuildStatusSummary().message)
-                .addField(BUILD_RESULT, result)
                 .addField(BUILD_RESULT_ORDINAL, ordinal)
                 .addField(BUILD_IS_SUCCESSFUL, ordinal < 2)
                 .addField(BUILD_AGENT_NAME, getNodeName())
@@ -136,33 +135,6 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         return new AbstractPoint[]{point};
     }
 
-    private String getBuildEnv(String buildEnv) {
-        String s = env.get(buildEnv);
-        return s == null ? "" : s;
-    }
-
-    private boolean hasTestResults(Run<?, ?> build) {
-        return build.getAction(AbstractTestResultAction.class) != null;
-    }
-
-    private boolean hasMetricsPlugin(Run<?, ?> build) {
-        try {
-            return build.getAction(jenkins.metrics.impl.TimeInQueueAction.class) != null;
-        } catch (NoClassDefFoundError e) {
-            return false;
-        }
-    }
-
-    private String getCauseShortDescription() {
-        try {
-            List<Cause> shortDescriptionList = build.getCauses();
-            Cause shortDescription = shortDescriptionList.get(0);
-            return shortDescription != null ? shortDescription.getShortDescription() : "";
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
     private String[] getCauseDatas() {
         String userCause = "";
         StringJoiner triggers = new StringJoiner(", ");
@@ -181,6 +153,19 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         }
     }
 
+    private String getNodeName() {
+        String nodeName = getBuildEnv("NODE_NAME");
+        if (StringUtils.isEmpty(nodeName)) {
+            nodeName = getNodeNameFromLogs();
+        }
+        return nodeName;
+    }
+
+    private String getBuildEnv(String buildEnv) {
+        String s = env.get(buildEnv);
+        return s == null ? "" : s;
+    }
+
     private int getLastSuccessfulBuild() {
         Run<?, ?> lastSuccessfulBuild = build.getParent().getLastSuccessfulBuild();
         return lastSuccessfulBuild != null ? lastSuccessfulBuild.getNumber() : 0;
@@ -191,12 +176,26 @@ public class JenkinsBasePointGenerator extends AbstractPointGenerator {
         return lastStableBuild != null ? lastStableBuild.getNumber() : 0;
     }
 
-    private String getNodeName() {
-        String nodeName = getBuildEnv("NODE_NAME");
-        if (StringUtils.isEmpty(nodeName)) {
-            nodeName = getNodeNameFromLogs();
+    private String getCauseShortDescription() {
+        try {
+            List<Cause> shortDescriptionList = build.getCauses();
+            Cause shortDescription = shortDescriptionList.get(0);
+            return shortDescription != null ? shortDescription.getShortDescription() : "";
+        } catch (Exception e) {
+            return "";
         }
-        return nodeName;
+    }
+
+    private boolean hasTestResults(Run<?, ?> build) {
+        return build.getAction(AbstractTestResultAction.class) != null;
+    }
+
+    private boolean hasMetricsPlugin(Run<?, ?> build) {
+        try {
+            return build.getAction(jenkins.metrics.impl.TimeInQueueAction.class) != null;
+        } catch (NoClassDefFoundError e) {
+            return false;
+        }
     }
 
     /**

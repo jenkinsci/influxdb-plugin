@@ -10,6 +10,15 @@ public class AbstractPoint {
         this.v1v2Point = new com.influxdb.client.write.Point(measurement);
     }
 
+    public String getName() {
+        String v1v2Name = this.v1v2Point.toLineProtocol().split(",")[0];
+        String v3Name = this.v3Point.toLineProtocol().split(",")[0];
+        if (!v1v2Name.equals(v3Name)) {
+            throw new RuntimeException("V1V2 point name '%s' differs from V3 point name '%s'".formatted(v1v2Name, v3Name));
+        }
+        return v1v2Name;
+    }
+
     public com.influxdb.client.write.Point getV1v2Point() {
         return v1v2Point;
     }

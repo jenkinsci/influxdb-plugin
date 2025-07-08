@@ -30,7 +30,6 @@ public class IntegrationBaseTest {
             "INFLUXDB_V2_TOKEN", "test_token",
             "INFLUXDB_DATABASE_OR_BUCKET", "test_db_or_bucket",
             "INFLUXDB_ORGANIZATION", "test_org"
-
     ));
 
     protected static final Map<String, GenericContainer<?>> influxContainers = Map.of(
