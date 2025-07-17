@@ -1,10 +1,10 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import com.influxdb.client.write.Point;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
+import jenkinsci.plugins.influxdb.models.AbstractPoint;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,16 +15,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class CustomDataMapPointGeneratorTest {
+class CustomDataMapPointGeneratorTest extends PointGeneratorBaseTest {
 
     private static final String JOB_NAME = "master";
     private static final int BUILD_NUMBER = 11;
     private static final String CUSTOM_PREFIX = "test_prefix";
 
-    private Run<?,?> build;
+    private Run<?, ?> build;
     private TaskListener listener;
 
     private ProjectNameRenderer measurementRenderer;
@@ -81,18 +81,19 @@ class CustomDataMapPointGeneratorTest {
 
         CustomDataMapPointGenerator cdmGen = new CustomDataMapPointGenerator(build, listener, measurementRenderer,
                 currTime, StringUtils.EMPTY, CUSTOM_PREFIX, customDataMap, customDataMapTags);
-        Point[] pointsToWrite = cdmGen.generate();
+        AbstractPoint[] pointsToWrite = cdmGen.generate();
 
-        String lineProtocol1;
-        String lineProtocol2;
-        if (pointsToWrite[0].toLineProtocol().startsWith("series1")) {
-            lineProtocol1 = pointsToWrite[0].toLineProtocol();
-            lineProtocol2 = pointsToWrite[1].toLineProtocol();
+        AbstractPoint p1;
+        AbstractPoint p2;
+        if (pointsToWrite[0].getV1v2Point().toLineProtocol().startsWith("series1")) {
+            p1 = pointsToWrite[0];
+            p2 = pointsToWrite[1];
         } else {
-            lineProtocol1 = pointsToWrite[1].toLineProtocol();
-            lineProtocol2 = pointsToWrite[0].toLineProtocol();
+            p1 = pointsToWrite[1];
+            p2 = pointsToWrite[0];
         }
-        assertTrue(lineProtocol1.startsWith("series1,build_result=SUCCESS,prefix=test_prefix,project_name=test_prefix_master,project_namespace=folder,project_path=folder/master build_number=11i,project_name=\"test_prefix_master\",project_path=\"folder/master\",test1=11i,test2=22i"));
-        assertTrue(lineProtocol2.startsWith("series2,prefix=test_prefix,project_name=test_prefix_master,project_namespace=folder,project_path=folder/master build_number=11i,project_name=\"test_prefix_master\",project_path=\"folder/master\",test3=33i,test4=44i"));
+
+        assertTrue(allLineProtocolsStartWith(p1, "series1,build_result=SUCCESS,prefix=test_prefix,project_name=test_prefix_master,project_namespace=folder,project_path=folder/master build_number=11i,project_name=\"test_prefix_master\",project_path=\"folder/master\",test1=11i,test2=22i"));
+        assertTrue(allLineProtocolsStartWith(p2, "series2,prefix=test_prefix,project_name=test_prefix_master,project_namespace=folder,project_path=folder/master build_number=11i,project_name=\"test_prefix_master\",project_path=\"folder/master\",test3=33i,test4=44i"));
     }
 }

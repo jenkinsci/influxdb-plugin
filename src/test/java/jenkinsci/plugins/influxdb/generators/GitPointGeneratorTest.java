@@ -1,20 +1,5 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
-import com.influxdb.client.write.Point;
-
 import hudson.model.HealthReport;
 import hudson.model.Job;
 import hudson.model.Run;
@@ -23,12 +8,21 @@ import hudson.plugins.git.Branch;
 import hudson.plugins.git.Revision;
 import hudson.plugins.git.util.BuildData;
 import jenkins.model.Jenkins;
+import jenkinsci.plugins.influxdb.models.AbstractPoint;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Mathieu Delrocq
  */
-class GitPointGeneratorTest {
+class GitPointGeneratorTest extends PointGeneratorBaseTest {
 
     private static final String CUSTOM_PREFIX = "test_prefix";
     private static final String JOB_NAME = "job_name";
@@ -94,17 +88,15 @@ class GitPointGeneratorTest {
         GitPointGenerator gen = new GitPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY,
                 CUSTOM_PREFIX);
         assertTrue(gen.hasReport());
-        Point[] points = gen.generate();
+        AbstractPoint[] points = gen.generate();
         assertTrue(points != null && points.length != 0);
-        assertTrue(points[0].hasFields());
-        String lineProtocol = points[0].toLineProtocol();
-        assertTrue(lineProtocol.contains("git_repository=\"repository\""));
-        assertTrue(lineProtocol.contains("git_revision=\"revision\""));
-        assertTrue(lineProtocol.contains("git_reference=\"reference\""));
-        String lineProtocol2 = points[1].toLineProtocol();
-        assertTrue(lineProtocol2.contains("git_repository=\"repository2\""));
-        assertTrue(lineProtocol2.contains("git_revision=\"revision2\""));
-        assertTrue(lineProtocol2.contains("git_reference=\"reference2\""));
+        assertTrue(points[0].getV1v2Point().hasFields());
+        assertTrue(allLineProtocolsContain(points[0], "git_repository=\"repository\""));
+        assertTrue(allLineProtocolsContain(points[0], "git_revision=\"revision\""));
+        assertTrue(allLineProtocolsContain(points[0], "git_reference=\"reference\""));
+        assertTrue(allLineProtocolsContain(points[1], "git_repository=\"repository2\""));
+        assertTrue(allLineProtocolsContain(points[1], "git_revision=\"revision2\""));
+        assertTrue(allLineProtocolsContain(points[1], "git_reference=\"reference2\""));
     }
 
 }

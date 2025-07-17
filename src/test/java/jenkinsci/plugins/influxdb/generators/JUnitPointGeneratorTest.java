@@ -1,6 +1,5 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import com.influxdb.client.write.Point;
 import hudson.EnvVars;
 import hudson.model.Job;
 import hudson.model.Run;
@@ -9,6 +8,7 @@ import hudson.tasks.junit.CaseResult;
 import hudson.tasks.junit.SuiteResult;
 import hudson.tasks.test.AbstractTestResultAction;
 import jenkins.model.Jenkins;
+import jenkinsci.plugins.influxdb.models.AbstractPoint;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +22,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class JUnitPointGeneratorTest {
+class JUnitPointGeneratorTest extends PointGeneratorBaseTest {
 
     private static final String JOB_NAME = "master";
     private static final int BUILD_NUMBER = 11;
@@ -131,14 +131,13 @@ class JUnitPointGeneratorTest {
         Mockito.when(caseResult.getDuration()).thenReturn(10.0f);
 
         JUnitPointGenerator generator = new JUnitPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, new EnvVars());
-        Point[] points = generator.generate();
-        String lineProtocol = points[0].toLineProtocol();
+        AbstractPoint[] points = generator.generate();
 
-        assertTrue(lineProtocol.contains("suite_name=\"my_suite\""));
-        assertTrue(lineProtocol.contains("test_name=\"my_test\""));
-        assertTrue(lineProtocol.contains("test_class_full_name=\"my_class_name\""));
-        assertTrue(lineProtocol.contains("test_status=\"PASSED\""));
-        assertTrue(lineProtocol.contains("test_status_ordinal=0"));
-        assertTrue(lineProtocol.contains("test_duration=10.0"));
+        assertTrue(allLineProtocolsContain(points[0], "suite_name=\"my_suite\""));
+        assertTrue(allLineProtocolsContain(points[0], "test_name=\"my_test\""));
+        assertTrue(allLineProtocolsContain(points[0], "test_class_full_name=\"my_class_name\""));
+        assertTrue(allLineProtocolsContain(points[0], "test_status=\"PASSED\""));
+        assertTrue(allLineProtocolsContain(points[0], "test_status_ordinal=0"));
+        assertTrue(allLineProtocolsContain(points[0], "test_duration=10.0"));
     }
 }

@@ -1,11 +1,11 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import com.influxdb.client.write.Point;
 import hudson.EnvVars;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.junit.CaseResult;
 import hudson.tasks.test.AbstractTestResultAction;
+import jenkinsci.plugins.influxdb.models.AbstractPoint;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.collections.iterators.ReverseListIterator;
 import org.apache.commons.lang.StringUtils;
@@ -13,7 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JUnitPointGenerator extends AbstractPointGenerator{
+public class JUnitPointGenerator extends AbstractPointGenerator {
 
     private static final String JUNIT_SUITE_NAME = "suite_name";
     private static final String JUNIT_TEST_NAME = "test_name";
@@ -48,15 +48,15 @@ public class JUnitPointGenerator extends AbstractPointGenerator{
     }
 
     @Override
-    public Point[] generate() {
+    public AbstractPoint[] generate() {
 
-        List<Point> points = new ArrayList<>();
+        List<AbstractPoint> points = new ArrayList<>();
 
         // iterate each caseResult to get suiteName, testName and testStatus
         List<CaseResult> allTestResults = getAllTestResults(build);
 
         for (CaseResult caseResult : allTestResults) {
-            Point point = buildPoint("junit_data", customPrefix, build)
+            AbstractPoint point = buildPoint("junit_data", customPrefix, build)
                     .addField(JUNIT_SUITE_NAME, caseResult.getSuiteResult().getName())
                     .addField(JUNIT_TEST_NAME, caseResult.getName())
                     .addField(JUNIT_TEST_CLASS_FULL_NAME, caseResult.getClassName())
@@ -73,11 +73,11 @@ public class JUnitPointGenerator extends AbstractPointGenerator{
             points.add(point);
         }
 
-        return points.toArray(new Point[0]);
+        return points.toArray(new AbstractPoint[0]);
     }
 
     private String getCaseResultEnclosingFlowNodeString(CaseResult caseResult) {
-        if(!caseResult.getEnclosingFlowNodeNames().isEmpty()) {
+        if (!caseResult.getEnclosingFlowNodeNames().isEmpty()) {
             return StringUtils.join(new ReverseListIterator(caseResult.getEnclosingFlowNodeNames()), " / ");
         }
         return "";

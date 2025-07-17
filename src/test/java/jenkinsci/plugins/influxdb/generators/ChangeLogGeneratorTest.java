@@ -1,10 +1,10 @@
 package jenkinsci.plugins.influxdb.generators;
 
-import com.influxdb.client.write.Point;
 import hudson.model.*;
 import hudson.scm.ChangeLogSet;
 import hudson.scm.EditType;
 import jenkins.model.Jenkins;
+import jenkinsci.plugins.influxdb.models.AbstractPoint;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
 import org.apache.commons.lang3.StringUtils;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
@@ -17,11 +17,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-class ChangeLogGeneratorTest {
+class ChangeLogGeneratorTest extends PointGeneratorBaseTest {
 
     private Run<?, ?> build;
     private ProjectNameRenderer measurementRenderer;
@@ -111,8 +111,8 @@ class ChangeLogGeneratorTest {
         ChangeLogPointGenerator generator = new ChangeLogPointGenerator(abstractBuild, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY);
         assertTrue(generator.hasReport());
 
-        Point[] points = generator.generate();
-        String lineProtocol = points[0].toLineProtocol();
+        AbstractPoint[] points = generator.generate();
+        String lineProtocol = points[0].getV1v2Point().toLineProtocol();
 
         assertTrue(lineProtocol.contains("culprits=\"" + name + "\""));
         assertTrue(lineProtocol.contains("commit_messages=\"" + message + "\""));
@@ -150,13 +150,12 @@ class ChangeLogGeneratorTest {
         // Generate point
         ChangeLogPointGenerator generator = new ChangeLogPointGenerator(workflowRun, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY);
         assertTrue(generator.hasReport());
-        Point[] points = generator.generate();
-        String lineProtocol = points[0].toLineProtocol();
+        AbstractPoint[] points = generator.generate();
 
         String paths = path1 + ", " + path2;
-        assertTrue(lineProtocol.contains("culprits=\"" + name1 + ", " + name2 + "\""));
-        assertTrue(lineProtocol.contains("commit_messages=\"" + message1 + ", " + message2 + "\""));
-        assertTrue(lineProtocol.contains("affected_paths=\"" + paths + ", " + paths + "\""));
-        assertTrue(lineProtocol.contains("commit_count=2"));
+        assertTrue(allLineProtocolsContain(points[0], "culprits=\"" + name1 + ", " + name2 + "\""));
+        assertTrue(allLineProtocolsContain(points[0], "commit_messages=\"" + message1 + ", " + message2 + "\""));
+        assertTrue(allLineProtocolsContain(points[0], "affected_paths=\"" + paths + ", " + paths + "\""));
+        assertTrue(allLineProtocolsContain(points[0], "commit_count=2"));
     }
 }

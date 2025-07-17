@@ -1,0 +1,44 @@
+jenkins:
+  systemMessage: "Jenkins with JCasC provisioned InfluxDB instances"
+  log:
+    recorders:
+      - loggers:
+          - level: "FINE"
+            name: "jenkinsci.plugins.influxdb.*"
+        name: "InfluxDB"
+
+unclassified:
+  influxDbGlobalConfig:
+    targets:
+      - credentialsId: "influxdb-v1-credentials"
+        database: "${INFLUXDB_DATABASE_OR_BUCKET}"
+        description: "InfluxDB v1"
+        exposeExceptions: true
+        globalListener: true
+        jobScheduledTimeAsPointsTimestamp: true
+        url: "${INFLUXDB_V1_URL}"
+
+      - credentialsId: "influxdb-v2-credentials"
+        database: "${INFLUXDB_DATABASE_OR_BUCKET}"
+        description: "InfluxDB v2"
+        exposeExceptions: true
+        globalListener: true
+        organization: "${INFLUXDB_ORGANIZATION}"
+        jobScheduledTimeAsPointsTimestamp: true
+        url: "${INFLUXDB_V2_URL}"
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - usernamePassword:
+              scope: GLOBAL
+              id: "influxdb-v1-credentials"
+              username: "${INFLUXDB_USERNAME}"
+              password: "${INFLUXDB_PASSWORD}"
+              description: "Username/Password for InfluxDB v1"
+          - string:
+              scope: GLOBAL
+              id: "influxdb-v2-credentials"
+              secret: "${INFLUXDB_V2_TOKEN}"
+              description: "Token for InfluxDB v2"
