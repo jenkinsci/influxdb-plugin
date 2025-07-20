@@ -7,9 +7,9 @@ All measurements share the following metrics:
 | --- | --- | --- | --- |
 | build_number | integer | Build number |  |
 | instance | string | Jenkins instance url | 3.4 |
-| project_name | string | Build name |  |
+| project_name | string | Build name | REMOVED IN 6.0 |
 | project_namespace | string | Root folder of the project | 3.4 |
-| project_path | string | Build path | 1.15 |
+| project_path | string | Build path | 1.15, REMOVED IN 6.0 |
 
 All measurements share the following tags:
 
@@ -34,7 +34,7 @@ All measurements share the following tags:
 | build_causer | string | Short description of build causer| 2.4 |
 | build_exec_time | integer | Start time of the build | 1.17 |
 | build_measured_time | integer | Time when InfluxDB plugin is called | 1.17 |
-| build_result | string | SUCCESS, FAILURE, NOT BUILT, UNSTABLE, ABORTED, ?  | 1.10 |
+| build_result | string | SUCCESS, FAILURE, NOT BUILT, UNSTABLE, ABORTED, ?  | 1.10, REMOVED IN 6.0 |
 | build_result_ordinal | integer | 0-5 in order of `build_result`. 5 is only for pipelines if build result is not set manually.  | 1.10 |
 | build_scheduled_time | integer | Time when build was scheduled to run | 1.17 |
 | build_status_message | string | Status message (stable, back to normal, broken since #50, etc.) | |
