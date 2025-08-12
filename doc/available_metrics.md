@@ -83,13 +83,13 @@ In order to publish data for this measurement, your job needs to set an environm
 
 Tags specific for this measurement:
 
-| Tag                  | Description | Introduced in |
-|----------------------| --- | --- |
-| suite_name           | Testsuite name | |
-| test_name            | Test function name | Changed in 3.0 |
-| test_class_full_name | Test fully-qualified class name (`pacakge.ClassName`) | 3.0 |
-| pipeline_step        | Pipeline steps, separated by ` / ` | 3.0 |
-| test_status          | Test result | |
+| Tag                  | Description                                           | Introduced in                  |
+|----------------------|-------------------------------------------------------|--------------------------------|
+| suite_name           | Testsuite name                                        | REMOVED IN 6.0                 |
+| test_name            | Test function name                                    | Changed in 3.0, REMOVED IN 6.0 |
+| test_class_full_name | Test fully-qualified class name (`pacakge.ClassName`) | 3.0, REMOVED IN 6.0            |
+| pipeline_step        | Pipeline steps, separated by ` / `                    | 3.0, REMOVED IN 6.0            |
+| test_status          | Test result                                           | REMOVED IN 6.0                 |
 
 #### `sonarqube_data` (since 1.11)
 
@@ -238,9 +238,9 @@ Tags specific for this measurement:
 
 Tags specific for this measurement:
 
-| Tag | Description | Introduced in |
-| --- | --- | --- |
-| test_name | Test name | |
+| Tag       | Description | Introduced in  |
+|-----------|-------------|----------------|
+| test_name | Test name   | REMOVED IN 6.0 |
 
 #### `perfpublisher_test_metric` (since 1.13)
 
@@ -254,9 +254,9 @@ Tags specific for this measurement:
 
 Tags specific for this measurement:
 
-| Tag | Description | Introduced in |
-| --- | --- | --- |
-| test_name | Test name | |
+| Tag       | Description | Introduced in  |
+|-----------|-------------|----------------|
+| test_name | Test name   | REMOVED IN 6.0 |
 
 
 ### Robot Framework plugin
@@ -296,9 +296,9 @@ Tags specific for this measurement:
 
 Tags specific for this measurement:
 
-| Tag | Description | Introduced in |
-| --- | --- | --- |
-| rf_suite_name | Name of the test suite | 1.20.1 |
+| Tag           | Description            | Introduced in          |
+|---------------|------------------------|------------------------|
+| rf_suite_name | Name of the test suite | 1.20.1, REMOVED IN 6.0 |
 
 #### `tag_point`
 
@@ -316,9 +316,9 @@ Tags specific for this measurement:
 
 Tags specific for this measurement:
 
-| Tag | Description | Introduced in |
-| --- | --- | --- |
-| rf_tag_name | Tag name | 1.20.1 |
+| Tag         | Description | Introduced in          |
+|-------------|-------------|------------------------|
+| rf_tag_name | Tag name    | 1.20.1, REMOVED IN 6.0 |
 
 #### `testcase_point`
 
@@ -336,9 +336,9 @@ Tags specific for this measurement:
 
 Tags specific for this measurement:
 
-| Tag | Description | Introduced in |
-| --- | --- | --- |
-| rf_name | Name of the test case | 1.20.1 |
+| Tag     | Description           | Introduced in          |
+|---------|-----------------------|------------------------|
+| rf_name | Name of the test case | 1.20.1, REMOVED IN 6.0 |
 
 
 ### Serenity plugin
