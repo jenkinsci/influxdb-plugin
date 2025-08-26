@@ -1,5 +1,11 @@
 # Breaking Changes
 
+## 6.0
+
+- Fields `project_name` and `project_path` have been removed from **all metrics** since they are already defined as
+  tags.
+- Field `build_result` has been removed from the **jenkins_data** metrics since it is already defined as tag.
+
 ## 5.0
 
 - Changes to Robt Framework metrics:

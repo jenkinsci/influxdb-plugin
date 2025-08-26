@@ -4,6 +4,7 @@ import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredenti
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.InfluxDBClientOptions;
 import com.influxdb.exceptions.InfluxException;
+import com.influxdb.v3.client.config.ClientConfig;
 import hudson.ProxyConfiguration;
 import jenkins.model.Jenkins;
 import okhttp3.Credentials;
@@ -17,7 +18,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.logging.Logger;
-
+import java.util.stream.Collectors;
 
 public class InfluxDBClientWrapper {
     /**
@@ -35,6 +36,11 @@ public class InfluxDBClientWrapper {
      */
     private com.influxdb.client.InfluxDBClient v1v2client;
 
+    /**
+     * InfluxDB v3.X client
+     */
+    private com.influxdb.v3.client.InfluxDBClient v3client;
+
     public InfluxDBClientWrapper(
             @Nonnull String url,
             @Nullable String organization,
@@ -50,9 +56,11 @@ public class InfluxDBClientWrapper {
                 return;
             }
         }
-        // InfluxDB v1.X
+        // InfluxDB v3.X/v1.X
         else {
-            if (tryConnectV1(url, database, retentionPolicy, basicAuthCredentials)) {
+            if (tryConnectV3(url, database, tokenCredentials)) {
+                return;
+            } else if (tryConnectV1(url, database, retentionPolicy, basicAuthCredentials)) {
                 return;
             }
         }
@@ -91,6 +99,42 @@ public class InfluxDBClientWrapper {
                 logger.fine("Connection failed");
             }
         } catch (InfluxException | AccessDeniedException | MalformedURLException e) {
+            logger.warning("Connection failed: " + e.getMessage());
+        } finally {
+            if (!success) {
+                this.closeAndResetAllClients();
+            }
+        }
+        return success;
+    }
+
+    private boolean tryConnectV3(
+            String url,
+            String database,
+            @Nullable StringCredentials tokenCredentials
+    ) {
+        logger.fine("Attempting connection to InfluxDB v3.X API at " + url);
+        boolean success = false;
+        try {
+            if (tokenCredentials != null) {
+                logger.fine("Attempting token authentication");
+                com.influxdb.v3.client.config.ClientConfig config = new ClientConfig.Builder()
+                        .host(url)
+                        .token(tokenCredentials.getSecret().getPlainText().toCharArray())
+                        .database(database)
+                        .build();
+                this.v3client = com.influxdb.v3.client.InfluxDBClient.getInstance(config);
+                if (this.getAPIVersion().startsWith("3")) {
+                    logger.fine("Connection success");
+                    success = true;
+                } else {
+                    logger.fine("Connection failed");
+                    this.v3client.close();
+                }
+            } else {
+                logger.fine("Token credentials not found, skipping InfluxDB v3.X API");
+            }
+        } catch (Exception e) {
             logger.warning("Connection failed: " + e.getMessage());
         } finally {
             if (!success) {
@@ -150,7 +194,14 @@ public class InfluxDBClientWrapper {
     }
 
     public String getAPIVersion() {
-        String version = this.v1v2client.version();
+        String version;
+        if (this.v1v2client != null) {
+            version = this.v1v2client.version();
+        } else if (this.v3client != null) {
+            version = this.v3client.getServerVersion();
+        } else {
+            throw new RuntimeException("Unable to query InfluxDB server version, all servers are NULL.");
+        }
         logger.fine("API version: " + version);
         return version;
     }
@@ -165,10 +216,25 @@ public class InfluxDBClientWrapper {
                 this.v1v2client = null;
             }
         }
+        if (v3client != null) {
+            try {
+                v3client.close();
+            } catch (Exception e) {
+                logger.warning("Failed to close InfluxDB v3.X client: " + e.getMessage());
+            } finally {
+                this.v3client = null;
+            }
+        }
     }
 
     public void writePoints(List<AbstractPoint> pointsToWrite) {
-        if (this.v1v2client != null) {
+        if (this.v3client != null) {
+            List<com.influxdb.v3.client.Point> v3Points = pointsToWrite.stream()
+                    .map(AbstractPoint::getV3Point)
+                    .collect(Collectors.toList());
+            this.v3client.writePoints(v3Points);
+
+        } else if (this.v1v2client != null) {
             List<com.influxdb.client.write.Point> v1v2Points = pointsToWrite.stream()
                     .map(AbstractPoint::getV1v2Point)
                     .toList();

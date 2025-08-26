@@ -27,6 +27,14 @@ unclassified:
         jobScheduledTimeAsPointsTimestamp: true
         url: "${INFLUXDB_V2_URL}"
 
+      - credentialsId: "influxdb-v3-credentials"
+        database: "${INFLUXDB_DATABASE_OR_BUCKET}"
+        description: "InfluxDB v3"
+        exposeExceptions: true
+        globalListener: true
+        jobScheduledTimeAsPointsTimestamp: true
+        url: "${INFLUXDB_V3_URL}"
+
 credentials:
   system:
     domainCredentials:
@@ -42,3 +50,8 @@ credentials:
               id: "influxdb-v2-credentials"
               secret: "${INFLUXDB_V2_TOKEN}"
               description: "Token for InfluxDB v2"
+          - string:
+              scope: GLOBAL
+              id: "influxdb-v3-credentials"
+              secret: "${INFLUXDB_V3_TOKEN}"
+              description: "Token for InfluxDB v3"

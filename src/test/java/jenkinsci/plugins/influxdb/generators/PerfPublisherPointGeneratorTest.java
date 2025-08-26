@@ -18,9 +18,9 @@ import org.mockito.stubbing.Answer;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Eugene Schava <eschava@gmail.com>
@@ -70,7 +70,7 @@ class PerfPublisherPointGeneratorTest extends PointGeneratorBaseTest {
     }
 
     @Test
-    void generate() {
+    void generate() throws Exception {
         Report report = new Report();
 
         hudson.plugins.PerfPublisher.Report.Test test = new hudson.plugins.PerfPublisher.Report.Test();
@@ -90,9 +90,30 @@ class PerfPublisherPointGeneratorTest extends PointGeneratorBaseTest {
         PerfPublisherPointGenerator generator = new PerfPublisherPointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, CUSTOM_PREFIX);
         AbstractPoint[] points = generator.generate();
 
-        assertTrue(allLineProtocolsStartWith(points[0], "perfpublisher_summary,prefix=test_prefix,project_name=test_prefix_master,project_namespace=folder,project_path=folder/master build_number=11i,number_of_executed_tests=1i"));
-        assertTrue(allLineProtocolsStartWith(points[1], "perfpublisher_metric,prefix=test_prefix,project_name=test_prefix_master,project_namespace=folder,project_path=folder/master average=50.0,best=50.0,build_number=11i,metric_name=\"metric1\",project_name=\"test_prefix_master\",project_path=\"folder/master\",worst=50.0"));
-        assertTrue(allLineProtocolsStartWith(points[2], "perfpublisher_test,prefix=test_prefix,project_name=test_prefix_master,project_namespace=folder,project_path=folder/master,test_name=test.txt build_number=11i,executed=true,project_name=\"test_prefix_master\",project_path=\"folder/master\",successful=false,test_name=\"test.txt\""));
-        assertTrue(allLineProtocolsStartWith(points[3], "perfpublisher_test_metric,prefix=test_prefix,project_name=test_prefix_master,project_namespace=folder,project_path=folder/master,test_name=test.txt build_number=11i,metric_name=\"metric1\",project_name=\"test_prefix_master\",project_path=\"folder/master\",relevant=true,test_name=\"test.txt\",unit=\"ms\",value=50.0"));
+        // Check point/table names
+        assertEquals("perfpublisher_summary", points[0].getName());
+        assertEquals("perfpublisher_metric", points[1].getName());
+        assertEquals("perfpublisher_test", points[2].getName());
+        assertEquals("perfpublisher_test_metric", points[3].getName());
+
+        TreeMap<String, Object> p1Fields = getPointFields(points[0]);
+        assertEquals(1L, p1Fields.get("number_of_executed_tests"));
+
+        TreeMap<String, Object> p2Fields = getPointFields(points[1]);
+        assertEquals(50.0, p2Fields.get("average"));
+        assertEquals(50.0, p2Fields.get("best"));
+        assertEquals(50.0, p2Fields.get("worst"));
+        assertEquals("metric1", p2Fields.get("metric_name"));
+        assertEquals(50.0, p2Fields.get("average"));
+
+        TreeMap<String, Object> p3Fields = getPointFields(points[2]);
+        assertEquals("test.txt", p3Fields.get("test_name"));
+        assertEquals(true, p3Fields.get("executed"));
+
+        TreeMap<String, Object> p4Fields = getPointFields(points[3]);
+        assertEquals("test.txt", p4Fields.get("test_name"));
+        assertEquals(true, p4Fields.get("relevant"));
+        assertEquals("ms", p4Fields.get("unit"));
+        assertEquals(50.0, p4Fields.get("value"));
     }
 }

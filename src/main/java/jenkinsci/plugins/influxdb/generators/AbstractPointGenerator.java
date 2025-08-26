@@ -41,14 +41,16 @@ public abstract class AbstractPointGenerator implements PointGenerator {
         this.jenkinsEnvParameterTag = jenkinsEnvParameterTag;
     }
 
+    public AbstractPoint buildPoint(String name, String customPrefix, Run<?, ?> build) {
+        return buildPoint(name, customPrefix, build, timestamp);
+    }
+
     @Override
     public AbstractPoint buildPoint(String name, String customPrefix, Run<?, ?> build, long timestamp) {
         Jenkins instance = Jenkins.getInstanceOrNull();
         String projectName = projectNameRenderer.render(build);
         String projectPath = build.getParent().getRelativeNameFrom(instance);
         AbstractPoint point = new AbstractPoint(name)
-                .addField(PROJECT_NAME, projectName)
-                .addField(PROJECT_PATH, projectPath)
                 .addField(BUILD_NUMBER, build.getNumber())
                 .time(timestamp, precision);
 
@@ -69,10 +71,6 @@ public abstract class AbstractPointGenerator implements PointGenerator {
         }
 
         return point;
-    }
-
-    public AbstractPoint buildPoint(String name, String customPrefix, Run<?, ?> build) {
-        return buildPoint(name, customPrefix, build, timestamp);
     }
 
     protected Properties parsePropertiesString(String propertiesString) {

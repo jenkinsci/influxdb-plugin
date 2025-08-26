@@ -116,7 +116,6 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
 
     private AbstractPoint generateCasePoint(RobotCaseResult caseResult, long timestamp) {
         AbstractPoint point = buildPoint("testcase_point", customPrefix, build, timestamp)
-                .addTag(RF_NAME, caseResult.getName())
                 .addField(RF_NAME, caseResult.getName())
                 .addField(RF_SUITE_NAME, caseResult.getParent().getName())
                 .addField(RF_FAILED, caseResult.getFailed())
@@ -148,7 +147,6 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
 
     private AbstractPoint generateTagPoint(RobotTagResult tagResult, long timestamp) {
         return buildPoint("tag_point", customPrefix, build, timestamp)
-                .addTag(RF_TAG_NAME, tagResult.name)
                 .addField(RF_TAG_NAME, tagResult.name)
                 .addField(RF_FAILED, tagResult.failed)
                 .addField(RF_PASSED, tagResult.passed)
@@ -159,7 +157,6 @@ public class RobotFrameworkPointGenerator extends AbstractPointGenerator {
 
     private AbstractPoint generateSuitePoint(RobotSuiteResult suiteResult, long timestamp) {
         return buildPoint("suite_result", customPrefix, build, timestamp)
-                .addTag(RF_SUITE_NAME, suiteResult.getName())
                 .addField(RF_SUITE_NAME, suiteResult.getName())
                 .addField(RF_TESTCASES, suiteResult.getAllCases().size())
                 .addField(RF_FAILED, suiteResult.getFailed())
