@@ -22,8 +22,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -34,7 +33,7 @@ THE SOFTWARE.
 
     <artifactId>influxdb</artifactId>
     <url>https://github.com/jenkinsci/influxdb-plugin</url>
-    <version>5.1-SNAPSHOT</version>
+    <version>6.0</version>
     <packaging>hpi</packaging>
 
     <name>InfluxDB Plugin</name>
@@ -44,7 +43,7 @@ THE SOFTWARE.
         <connection>scm:git:ssh://github.com/jenkinsci/influxdb-plugin.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/jenkinsci/influxdb-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/influxdb-plugin</url>
-        <tag>HEAD</tag>
+        <tag>influxdb-6.0</tag>
     </scm>
 
     <properties>
