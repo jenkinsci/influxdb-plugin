@@ -28,7 +28,7 @@ THE SOFTWARE.
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>5.9</version>
+        <version>5.26</version>
     </parent>
 
     <artifactId>influxdb</artifactId>
@@ -58,6 +58,7 @@ THE SOFTWARE.
         <perfpublisher.version>8.09</perfpublisher.version>
         <robot.version>6.0.0</robot.version>
         <spotbugs.failOnError>false</spotbugs.failOnError>
+        <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
     </properties>
 
     <licenses>
