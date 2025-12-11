@@ -242,8 +242,9 @@ public class Target extends AbstractDescribableImpl<Target> implements java.io.S
                         tokenCredentials,
                         usingJenkinsProxy
                 );
-                String apiVersion = client.getAPIVersion();
-                return FormValidation.ok("Connection success (API version " + apiVersion + ")");
+                String connectedApi = client.getConnectedApiVersion();
+                String serverVersion = client.getAPIVersion();
+                return FormValidation.ok("Connection success using " + connectedApi + " API (server version: " + serverVersion + ")");
             } catch (Exception e) {
                 return FormValidation.error(e, "Connection Failed");
             } finally {

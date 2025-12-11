@@ -41,6 +41,11 @@ public class InfluxDBClientWrapper {
      */
     private com.influxdb.v3.client.InfluxDBClient v3client;
 
+    /**
+     * Tracks which API version was successfully used for connection
+     */
+    private String connectedApiVersion;
+
     public InfluxDBClientWrapper(
             @Nonnull String url,
             @Nullable String organization,
@@ -91,15 +96,16 @@ public class InfluxDBClientWrapper {
                 options.authenticateToken(tokenCredentials.getSecret().getPlainText().toCharArray());
             }
             this.v1v2client = InfluxDBClientFactory.create(options.build());
-            if (this.v1v2client.ping() && this.getAPIVersion().startsWith("v2")) {
+            if (this.v1v2client.ping() && (this.getAPIVersion().startsWith("v2") || isMaybeValidVersion(this.getAPIVersion()))) {
                 logger.fine("Connection success");
+                this.connectedApiVersion = "v2";
                 success = true;
             } else {
                 this.v1v2client.close();
                 logger.fine("Connection failed");
             }
         } catch (InfluxException | AccessDeniedException | MalformedURLException e) {
-            logger.warning("Connection failed: " + e.getMessage());
+            logConnectionFailure(e, "v2");
         } finally {
             if (!success) {
                 this.closeAndResetAllClients();
@@ -124,8 +130,9 @@ public class InfluxDBClientWrapper {
                         .database(database)
                         .build();
                 this.v3client = com.influxdb.v3.client.InfluxDBClient.getInstance(config);
-                if (this.getAPIVersion().startsWith("3")) {
+                if (this.getAPIVersion().startsWith("3") || isMaybeValidVersion(this.getAPIVersion())) {
                     logger.fine("Connection success");
+                    this.connectedApiVersion = "v3";
                     success = true;
                 } else {
                     logger.fine("Connection failed");
@@ -134,8 +141,9 @@ public class InfluxDBClientWrapper {
             } else {
                 logger.fine("Token credentials not found, skipping InfluxDB v3.X API");
             }
-        } catch (Exception e) {
-            logger.warning("Connection failed: " + e.getMessage());
+        } catch (ExceptionInInitializerError | NoClassDefFoundError | Exception e) {
+            // catch influxdb v3 initialization failures or regular InfluxDB client exceptions
+            logConnectionFailure(e, "v3");
         } finally {
             if (!success) {
                 this.closeAndResetAllClients();
@@ -157,14 +165,15 @@ public class InfluxDBClientWrapper {
             }
             String apiVersion = this.getAPIVersion();
             // InfluxDB v1.11 returns v1.X instead of 1.X
-            if (this.v1v2client.ping() && (apiVersion.startsWith("1") || apiVersion.startsWith("v1"))) {
+            if (this.v1v2client.ping() && (apiVersion.startsWith("1") || apiVersion.startsWith("v1") || isMaybeValidVersion(apiVersion))) {
                 logger.fine("Connection success");
+                this.connectedApiVersion = "v1";
                 success = true;
             } else {
                 logger.fine("Connection failed");
             }
         } catch (InfluxException | AccessDeniedException e) {
-            logger.warning("Connection failed: " + e.getMessage());
+            logConnectionFailure(e, "v1");
         } finally {
             if (!success) {
                 this.closeAndResetAllClients();
@@ -204,6 +213,41 @@ public class InfluxDBClientWrapper {
         }
         logger.fine("API version: " + version);
         return version;
+    }
+
+    /**
+     * Returns which API version (v1, v2, or v3) was used to establish the connection.
+     *
+     * @return The API version used ("v1", "v2", or "v3")
+     */
+    public String getConnectedApiVersion() {
+        return this.connectedApiVersion;
+    }
+
+    /**
+     * Checks if a version string might be valid even if it doesn't match expected formats.
+     * Some cloud providers like AWS Timestream return "dev" instead of standard version strings.
+     *
+     * @param version The version string to check
+     * @return true if the version might be valid (e.g., "dev")
+     */
+    private boolean isMaybeValidVersion(String version) {
+        if (version == null) {
+            return false;
+        }
+        return version.equalsIgnoreCase("dev");
+    }
+
+    /**
+     * Logs connection failure with appropriate detail.
+     *
+     * @param error The exception or error that occurred
+     * @param apiVersion The API version being attempted (e.g., "v1", "v2", "v3")
+     */
+    private void logConnectionFailure(Throwable error, String apiVersion) {
+        // Simple message - just indicate which API didn't work and why
+        String reason = error.getClass().getSimpleName();
+        logger.info(apiVersion + " API not supported (" + reason + ")");
     }
 
     private void closeAndResetAllClients() {
