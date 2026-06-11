@@ -121,35 +121,41 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
      */
     public boolean hasReport() {
 
-        String[] result = null;
-
         try {
-            result = getSonarProjectFromBuildReport();
-            projectKey = result[0];
-            sonarBuildURL = result[1];
-            sonarBuildTaskId = result[2];
-            sonarBuildTaskIdUrl = result[3];
-
-            return !StringUtils.isEmpty(sonarBuildURL);
+            if (applySonarProjectResult(getSonarProjectFromBuildReport())) {
+                return true;
+            }
         } catch (IOException | IndexOutOfBoundsException | UncheckedIOException ignored) {
         }
 
         try {
-            //try build logs
-            result = getSonarProjectFromBuildLog(build);
+            if (applySonarProjectResult(getSonarProjectFromBuildArtifact())) {
+                return true;
+            }
+        } catch (IOException | IndexOutOfBoundsException | UncheckedIOException ignored) {
+        }
 
-            if (!StringUtils.isEmpty(result[1])) {
-                projectKey = result[0];
-                sonarBuildURL = result[1];
-                sonarBuildTaskId = result[2];
-                sonarBuildTaskIdUrl = result[3];
-
-                return !StringUtils.isEmpty(sonarBuildURL);
+        try {
+            if (applySonarProjectResult(getSonarProjectFromBuildLog(build))) {
+                return true;
             }
         } catch (IOException | IndexOutOfBoundsException | UncheckedIOException ignored) {
         }
 
         return false;
+    }
+
+    private boolean applySonarProjectResult(String[] result) {
+        if (result == null || result.length < 4 || StringUtils.isEmpty(result[1])) {
+            return false;
+        }
+
+        projectKey = result[0];
+        sonarBuildURL = result[1];
+        sonarBuildTaskId = result[2];
+        sonarBuildTaskIdUrl = result[3];
+
+        return true;
     }
 
     public void setEnv(EnvVars env) {
@@ -351,18 +357,59 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
     }
 
     private String[] getSonarProjectFromBuildReport() throws IOException, UncheckedIOException {
+        String workspaceDir = env.get("WORKSPACE");
+        Path reportPath = workspaceDir == null ? null : findSingleReportPath(Paths.get(workspaceDir));
+        if (reportPath == null) {
+            return new String[]{null, null, null, null};
+        }
+
+        return parseSonarProjectFromReportFile(reportPath.toFile().getPath());
+    }
+
+    private String[] getSonarProjectFromBuildArtifact() throws IOException, UncheckedIOException {
+        File artifactsDir = build.getArtifactsDir();
+        if (artifactsDir == null || !artifactsDir.exists() || !artifactsDir.isDirectory()) {
+            return new String[]{null, null, null, null};
+        }
+
+        Path reportPath = findSingleReportPath(artifactsDir.toPath());
+        if (reportPath == null) {
+            return new String[]{null, null, null, null};
+        }
+
+        return parseSonarProjectFromReportFile(reportPath.toFile().getPath());
+    }
+
+    private Path findSingleReportPath(Path rootPath) throws IOException, UncheckedIOException {
+        if (rootPath == null || !Files.exists(rootPath) || !Files.isDirectory(rootPath)) {
+            return null;
+        }
+
+        String reportName = env.get("SONARQUBE_BUILD_REPORT_NAME",
+                SONARQUBE_DEFAULT_BUILD_REPORT_NAME);
+
+        List<Path> reportsPaths;
+        try (Stream<Path> pathStream = Files.find(rootPath,
+                Integer.MAX_VALUE,
+                (p, basicFileAttributes) ->
+                        basicFileAttributes.isRegularFile() &&
+                    p.endsWith(reportName))
+        ) {
+            reportsPaths = pathStream.collect(Collectors.toList());
+        }
+
+        if (reportsPaths.size() != 1) {
+            return null;
+        }
+
+        return reportsPaths.get(0);
+    }
+
+    private String[] parseSonarProjectFromReportFile(String reportFilePath) throws IOException {
         String projName = null;
         String url = null;
         String taskId = null;
         String taskUrl = null;
-
-        String workspaceDir = env.get("WORKSPACE");
-        List<Path> reportsPaths = workspaceDir == null ? null : this.findReportByFileName(workspaceDir);
-
-        if (reportsPaths == null || reportsPaths.size() != 1) {
-            return new String[]{null, null, null, null};
-        }
-        String reportFilePath = reportsPaths.get(0).toFile().getPath();
 
         try (BufferedReader br = new BufferedReader(
                 new InputStreamReader(
@@ -401,23 +448,6 @@ public class SonarQubePointGenerator extends AbstractPointGenerator {
         }
 
         return new String[]{projName, url, taskId, taskUrl};
-    }
-
-    public List<Path> findReportByFileName(String workspacePath)
-            throws IOException, UncheckedIOException {
-
-        Path path = Paths.get(workspacePath);
-        String reportName = env.get("SONARQUBE_BUILD_REPORT_NAME",
-                SONARQUBE_DEFAULT_BUILD_REPORT_NAME);
-
-        try (Stream<Path> pathStream = Files.find(path,
-                Integer.MAX_VALUE,
-                (p, basicFileAttributes) ->
-                        basicFileAttributes.isRegularFile() &&
-                                p.endsWith(reportName))
-        ) {
-            return pathStream.collect(Collectors.toList());
-        }
     }
 
     public String getSonarMetricStr(String url, String metric) throws IOException {

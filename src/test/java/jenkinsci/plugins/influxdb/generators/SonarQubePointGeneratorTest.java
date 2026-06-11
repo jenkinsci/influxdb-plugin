@@ -21,7 +21,6 @@ import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -147,12 +146,12 @@ public class SonarQubePointGeneratorTest {
         Path sonarReport = wsSonarDir.resolve(defaultReportName);
 
         try {
-            List<Path> result = gen.findReportByFileName(wsRoot);
-            assertEquals(1, result.size());
+            Path result = invokeFindSingleReportPath(gen, Paths.get(wsRoot));
+            assertNotNull(result);
 
             Files.deleteIfExists(sonarReport);
-            result = gen.findReportByFileName(wsRoot);
-            assertEquals(0, result.size());
+            result = invokeFindSingleReportPath(gen, Paths.get(wsRoot));
+            assertNull(result);
         } catch (Exception e) {
             System.err.println("[InfluxDB Plugin Test] ERROR: Failed to find default report file - " + e.getMessage());
         }
@@ -162,7 +161,8 @@ public class SonarQubePointGeneratorTest {
     void getSonarCustomReportFileName() {
         // Find a custom report file defined by SONARQUBE_BUILD_REPORT_NAME env var
         // Example: custom-report.txt
-        EnvVars envVars = Mockito.spy(new EnvVars());
+        EnvVars envVars = new EnvVars();
+        envVars.put("SONARQUBE_BUILD_REPORT_NAME", customReportName);
 
         SonarQubePointGenerator gen = Mockito.spy(
                 new SonarQubePointGenerator(build,
@@ -176,14 +176,8 @@ public class SonarQubePointGeneratorTest {
         String wsRoot = folder.toString();
 
         try {
-
-            Mockito.doReturn(customReportName)
-                    .when(envVars)
-                    .get(any(String.class));
-
-            List<Path> result = gen.findReportByFileName(wsRoot);
-            assertEquals(1, result.size());
-
+            Path result = invokeFindSingleReportPath(gen, Paths.get(wsRoot));
+            assertNotNull(result);
         } catch (Exception e) {
             System.err.println("[InfluxDB Plugin Test] ERROR: Failed to find custom report file - " + e.getMessage());
         }
@@ -193,7 +187,7 @@ public class SonarQubePointGeneratorTest {
     void getSonarCustomReportFilePath() {
         // Find a custom report path defined by SONARQUBE_BUILD_REPORT_NAME env var
         // Example: path/custom-report.txt
-        EnvVars envVars = Mockito.spy(new EnvVars());
+        EnvVars envVars = new EnvVars();
 
         SonarQubePointGenerator gen = Mockito.spy(
                 new SonarQubePointGenerator(build,
@@ -207,21 +201,38 @@ public class SonarQubePointGeneratorTest {
         String wsRoot = folder.toString();
 
         try {
-
             String parentCustomDir = customReportPath[customReportPath.length - 1];
             Path customReportPathPattern = Paths.get(parentCustomDir,
                     customReportName);
+            envVars.put("SONARQUBE_BUILD_REPORT_NAME", customReportPathPattern.toString());
 
-            Mockito.doReturn(customReportPathPattern.toString())
-                    .when(envVars)
-                    .get(any(String.class));
-
-            List<Path> result = gen.findReportByFileName(wsRoot);
-            assertEquals(1, result.size());
+            Path result = invokeFindSingleReportPath(gen, Paths.get(wsRoot));
+            assertNotNull(result);
 
         } catch (Exception e) {
             System.err.println("[InfluxDB Plugin Test] ERROR: Failed to find custom report file path - " + e.getMessage());
         }
+    }
+
+    @Test
+    void hasReportFindsCorrectInformationFromBuildArtifact() {
+        File artifactsDir = new File(resourceDirectory, "sonarqube");
+        Mockito.when(build.getArtifactsDir()).thenReturn(artifactsDir);
+
+        EnvVars envVars = new EnvVars();
+        envVars.put("SONARQUBE_BUILD_REPORT_NAME", "report-task.txt");
+        envVars.put("WORKSPACE", "non-existing-workspace");
+
+        SonarQubePointGenerator generator = new SonarQubePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, envVars);
+        boolean hasReport = generator.hasReport();
+
+        String id = "123EXAMPLE";
+        String url = "http://sonarqube:9000";
+        assertTrue(hasReport);
+        assertEquals("InfluxDBPlugin", generator.getProjectKey());
+        assertEquals(url, generator.getSonarBuildURL());
+        assertEquals(id, generator.getSonarBuildTaskId());
+        assertEquals(url + "/api/ce/task?id=" + id, generator.getSonarBuildTaskIdUrl());
     }
 
     @Test
@@ -376,5 +387,11 @@ public class SonarQubePointGeneratorTest {
         method.invoke(generator, "http://default.sonar.url");
 
         Mockito.verify(logger).println("[InfluxDB Plugin] WARNING: No SonarQube auth token found in environment variable SONAR_AUTH_TOKEN. Depending on access rights, this might result in a HTTP/401.");
+    }
+
+    private Path invokeFindSingleReportPath(SonarQubePointGenerator generator, Path rootPath) throws Exception {
+        Method method = SonarQubePointGenerator.class.getDeclaredMethod("findSingleReportPath", Path.class);
+        method.setAccessible(true);
+        return (Path) method.invoke(generator, rootPath);
     }
 }
