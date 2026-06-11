@@ -23,6 +23,8 @@ import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 public class InfluxDbPublicationService {
@@ -119,6 +121,12 @@ public class InfluxDbPublicationService {
     private final Map<String, Map<String, String>> customDataMapTags;
 
     /**
+     * Optional measurement name regex.
+     * If null or blank, all collected points are published.
+     */
+    private final String measurementRegex;
+
+    /**
      * Jenkins parameter(s) which will be added as field set to measurement 'jenkins_data'.
      * If parameter value has a $-prefix, it will be resolved from current Jenkins job environment properties.
      */
@@ -143,7 +151,7 @@ public class InfluxDbPublicationService {
 
     private final long timestamp;
 
-    public InfluxDbPublicationService(List<Target> selectedTargets, String customProjectName, String customPrefix, Map<String, Object> customData, Map<String, String> customDataTags, Map<String, Map<String, String>> customDataMapTags, Map<String, Map<String, Object>> customDataMap, long timestamp, String jenkinsEnvParameterField, String jenkinsEnvParameterTag, String measurementName) {
+    public InfluxDbPublicationService(List<Target> selectedTargets, String customProjectName, String customPrefix, Map<String, Object> customData, Map<String, String> customDataTags, Map<String, Map<String, String>> customDataMapTags, Map<String, Map<String, Object>> customDataMap, String measurementRegex, long timestamp, String jenkinsEnvParameterField, String jenkinsEnvParameterTag, String measurementName) {
         this.selectedTargets = selectedTargets;
         this.customProjectName = customProjectName;
         this.customPrefix = customPrefix;
@@ -151,6 +159,7 @@ public class InfluxDbPublicationService {
         this.customDataTags = customDataTags;
         this.customDataMap = customDataMap;
         this.customDataMapTags = customDataMapTags;
+        this.measurementRegex = measurementRegex;
         this.timestamp = timestamp;
         this.jenkinsEnvParameterField = jenkinsEnvParameterField;
         this.jenkinsEnvParameterTag = jenkinsEnvParameterTag;
@@ -249,6 +258,8 @@ public class InfluxDbPublicationService {
             logger.fine("Plugin skipped: Coverage");
         }
 
+        pointsToWrite = filterByMeasurementRegex(pointsToWrite, listener);
+
         for (Target target : selectedTargets) {
             try {
                 new URL(target.getUrl());
@@ -305,6 +316,37 @@ public class InfluxDbPublicationService {
         }
 
         listener.getLogger().println("[InfluxDB Plugin] Completed.");
+    }
+
+    private List<AbstractPoint> filterByMeasurementRegex(List<AbstractPoint> pointsToWrite, TaskListener listener) {
+        if (measurementRegex == null || measurementRegex.trim().isEmpty()) {
+            return pointsToWrite;
+        }
+
+        final Pattern pattern;
+        try {
+            pattern = Pattern.compile(measurementRegex.trim());
+        } catch (PatternSyntaxException e) {
+            listener.getLogger().println(String.format(
+                    "[InfluxDB Plugin] Invalid measurementRegex '%s': %s",
+                    measurementRegex,
+                    e.getMessage()));
+            listener.getLogger().println(
+                    "[InfluxDB Plugin] Publishing 0 point(s).");
+            return Collections.emptyList();
+        }
+
+        List<AbstractPoint> filtered = pointsToWrite.stream()
+                .filter(point -> pattern.matcher(point.getName()).matches())
+                .collect(Collectors.toList());
+
+        listener.getLogger().println(String.format(
+                "[InfluxDB Plugin] measurementRegex active: publishing %d/%d point(s) matching regex '%s'",
+                filtered.size(),
+                pointsToWrite.size(),
+                measurementRegex));
+
+        return filtered;
     }
 
     private void addPointsFromPlugin(List<AbstractPoint> pointsToWrite, PointGenerator generator, TaskListener listener, String plugin) {

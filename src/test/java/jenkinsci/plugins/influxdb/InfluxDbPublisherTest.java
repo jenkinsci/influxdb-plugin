@@ -78,4 +78,11 @@ class InfluxDbPublisherTest {
         InfluxDbPublisher publisher = new InfluxDbPublisher(null);
         assertEquals(target1, publisher.getTarget());
     }
+
+    @Test
+    void testMeasurementRegexSetterGetter() {
+        InfluxDbPublisher publisher = new InfluxDbPublisher("Target1");
+        publisher.setMeasurementRegex("^(jenkins_data|my_coverage_data)$");
+        assertEquals("^(jenkins_data|my_coverage_data)$", publisher.getMeasurementRegex());
+    }
 }

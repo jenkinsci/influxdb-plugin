@@ -38,6 +38,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
     private Map<String, String> customDataTags;
     private Map<String, Map<String, Object>> customDataMap;
     private Map<String, Map<String, String>> customDataMapTags;
+    private String measurementRegex;
     private String jenkinsEnvParameterField;
     private String jenkinsEnvParameterTag;
     private String measurementName;
@@ -118,6 +119,15 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
     @DataBoundSetter
     public void setCustomDataMapTags(Map<String, Map<String, String>> customDataMapTags) {
         this.customDataMapTags = customDataMapTags;
+    }
+
+    public String getMeasurementRegex() {
+        return measurementRegex;
+    }
+
+    @DataBoundSetter
+    public void setMeasurementRegex(String measurementRegex) {
+        this.measurementRegex = measurementRegex;
     }
 
     public String getJenkinsEnvParameterField() {
@@ -218,6 +228,7 @@ public class InfluxDbPublisher extends Notifier implements SimpleBuildStep {
                 customDataTags,
                 customDataMapTags,
                 customDataMap,
+                measurementRegex,
                 currTime,
                 jenkinsEnvParameterField,
                 jenkinsEnvParameterTag,

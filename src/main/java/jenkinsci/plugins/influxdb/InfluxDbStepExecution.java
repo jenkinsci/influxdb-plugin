@@ -26,6 +26,7 @@ public class InfluxDbStepExecution extends SynchronousNonBlockingStepExecution<V
         publisher.setCustomData(step.getCustomData());
         publisher.setCustomDataMap(step.getCustomDataMap());
         publisher.setCustomDataMapTags(step.getCustomDataMapTags());
+        publisher.setMeasurementRegex(step.getMeasurementRegex());
         publisher.setCustomDataTags(step.getCustomDataTags());
         publisher.setCustomPrefix(step.getCustomPrefix());
         publisher.setCustomProjectName(step.getCustomProjectName());

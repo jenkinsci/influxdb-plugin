@@ -186,12 +186,31 @@ Optional parameters
 - `customDataTags` (Map) - custom tags in "jenkins_custom_data" measurement
 - `customDataMap` (Map) - custom fields in custom measurements
 - `customDataMapTags` (Map<Map>) - custom tags in custom measurements (map of tags for each custom measurements)
+- `measurementRegex` (String) - optional regex for measurement names to publish; if set, only matching measurement series are published by the call ([default measurement names](doc/available_metrics.md))
 - `jenkinsEnvParameterField` (String) - custom fields in "jenkins_data" measurement (newline-separated KEY=VALUE pairs)
 - `jenkinsEnvParameterTag` (String) - custom tags in all measurements (newline-separated KEY=VALUE pairs)
 - `measurementName` (String) - custom measurement name (replaces default "jenkins_data" and "jenkins_custom_data")
 
 All `customData*` parameters contain custom data generated during the
 build and not by the plugin, so they are not available in the snippet generator.
+
+`measurementRegex` filters which measurements are published in a given call.
+This makes it possible to publish multiple distinct rows for the same measurement within a single build by
+calling `influxDbPublisher` multiple times. Note that `target.jobScheduledTimeAsPointsTimestamp` must be
+disabled in this case, as all calls within the same build would otherwise share an identical timestamp, causing InfluxDB to overwrite earlier entries.
+The value is matched against the full measurement name using `java.util.regex.Pattern#matches()`, so use anchors like `^` and `$` for exact matches.
+
+Example: publish only selected measurements using regex.
+The following example publishes only `my_custom_data`, `jenkins_data`, and `git_data`.
+
+``` syntaxhighlighter-pre
+influxDbPublisher(
+  selectedTarget: 'my-target',
+  customDataMap: [my_custom_data: [line_rate: 0.92, failures: 2]],
+  customDataMapTags: [my_custom_data: [project: 'test-project', trigger: 'darrow']],
+  measurementRegex: '^(my_custom_data|jenkins_data|git_data)$'
+)
+```
 
 
 > :heavy_exclamation_mark: NOTE! Up to release 1.10.3, pipeline was configured with using the url and database.
