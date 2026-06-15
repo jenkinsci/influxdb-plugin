@@ -3,9 +3,15 @@
 ## Summary
 A short guideline on integrating Jenkins with SonarQube and verifying their integration.
 
-The SonarQubePointGenerator is expecting to find a sonar build report (report-task.txt) created by the scanner with the following content:
+The `SonarQubePointGenerator` resolves the SonarQube report (`report-task.txt`) in the following order:
+
+1. **Workspace file scan** — searches recursively under `$WORKSPACE` for the report file.
+2. **Archived artifact** — if the workspace is not accessible (e.g. when the publisher runs on the controller while the build ran on a remote agent), the plugin falls back to reading the report from the build's archived artifacts. Archive `report-task.txt` in your pipeline with `archiveArtifacts` to enable this path. This fallback currently relies on local artifact storage and does not work with jenkins S3-backed managers.
+3. **Build log parsing** — as a last resort, the plugin scans the console output for SonarQube scanner log lines that contain the required metadata.
+
+The report file is created by the SonarQube scanner and has the following content:
 ```
-file: ${WORKSPACE}/**/sonar/report-task.txt	
+file: ${WORKSPACE}/**/sonar/report-task.txt
 
 projectKey=com.tom:sonarqube-jacoco-code-coverage
 serverUrl=http://localhost:9000
@@ -15,9 +21,9 @@ ceTaskId=AX0vnvr4_QGKX8b7Yz_v
 ceTaskUrl=http://localhost:9000/api/ce/task?id=AX0vnvr4_QGKX8b7Yz_v
 ```
 
-The actual location of the report file in the workspace depends on the build system used - Maven, Gradle, etc. 
+The actual location of the report file in the workspace depends on the build system used - Maven, Gradle, etc.
 
-If, for whatever reason, a report file is created with a different name, the `SONARQUBE_BUILD_REPORT_NAME` env var 
+If, for whatever reason, a report file is created with a different name, the `SONARQUBE_BUILD_REPORT_NAME` env var
 could be used to specify either the file name or the path pattern ending with the file name.
 
 Examples:
@@ -27,31 +33,32 @@ Examples:
         SONARQUBE_BUILD_REPORT_NAME="custom-report.txt"
         # SONARQUBE_BUILD_REPORT_NAME="path/custom-report.txt"
     }
-    
+
     steps {
         withSonarQubeEnv('SonarQube') {
             influxDbPublisher(selectedTarget: 'influxdb_v2',)
         }
     }
   }
-``` 
+```
 
-The information extracted fron this file is used to query about SQ issues, measures and task status.
+The information extracted from this file is used to query SonarQube for issues, measures, and task status.
 
 # References
 1. [CloudBees Video on SonarQube integration with Jenkins](https://www.youtube.com/watch?v=KsTMy0920go)
 2. SonarQube WEB API: https://sonarcloud.io/web_api/
 
-## Verification 
-The plugin is using the following API calls 
+## Verification
+
+The plugin uses the following API calls:
+
 1. [Issues Search](https://sonarcloud.io/web_api/api/issues/search)
-2. [Measures Search Histhory](https://sonarcloud.io/web_api/api/measures/search_history)
-3. [Task CE status](https://sonarcloud.io/web_api/api/ce/task)
+2. [Measures Search History](https://sonarcloud.io/web_api/api/measures/search_history)
+3. [CE Task Status](https://sonarcloud.io/web_api/api/ce/task)
 
-After seetting up a security token in SonarQube use the following curl calls to verify manually the API integration
-with SonarQube.
+After setting up a security token in SonarQube, use the following curl commands to verify the API integration manually.
 
-### Measures Search Histhory
+### Measures Search History
 export TOKEN=****************
 curl -s -G -u ${TOKEN}: \
 --data-urlencode "componentKey=com.tom:sonarqube-jacoco-code-coverage" \
@@ -98,7 +105,7 @@ http://localhost:9000/api/issues/search?ps=1 | jq .
   "facets": []
 }
 ```
- 
+
 ### Task status
 export TOKEN=****************
 curl -s -G -u ${TOKEN}: \
@@ -130,15 +137,15 @@ http://localhost:9000/api/ce/task?id=AX0vnvr4_QGKX8b7Yz_v | jq .
 # A simple pipeline for testing
 ```
 pipeline {
-    agent any    
+    agent any
 
     stages {
         stage('Clone sources') {
             steps {
                 git url: 'https://github.com/dgeorgievski/sonarqube-jacoco-code-coverage.git'
             }
-        }        
-        
+        }
+
         stage('Build') {
             steps {
                 sh './gradlew clean test build'
@@ -146,7 +153,7 @@ pipeline {
                 step( [ $class: 'JacocoPublisher' ] )
             }
         }
-        
+
         stage('SonarQube analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
@@ -154,26 +161,26 @@ pipeline {
                 }
             }
         }
-        
+
         stage("Quality gate") {
             steps {
                 waitForQualityGate abortPipeline: true
             }
         }
-        
+
         stage("InfluxDB v2 publisher") {
             environment {
                 LOG_JUNIT_RESULTS="true"
                 INFLUXDB_PLUGIN_CUSTOM_PROJECT_NAME = "foo"
             }
-            
+
             steps {
                 withSonarQubeEnv('SonarQube') {
                     influxDbPublisher(selectedTarget: 'influxdb_v2',)
                 }
             }
         }
-        
+
     }
 }
 ```

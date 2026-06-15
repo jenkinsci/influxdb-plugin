@@ -93,6 +93,8 @@ Tags specific for this measurement:
 
 #### `sonarqube_data` (since 1.11)
 
+See [sonarqube-integration](SonarQube_integration.md).
+
 | Metric | Type | Description | Introduced in |
 | --- | --- | --- | --- |
 | alert_status | string | State of the Quality Gate | 2.4 |
