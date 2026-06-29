@@ -318,9 +318,9 @@ public class InfluxDbPublicationService {
         listener.getLogger().println("[InfluxDB Plugin] Completed.");
     }
 
-    private List<AbstractPoint> filterByMeasurementRegex(List<AbstractPoint> pointsToWrite, TaskListener listener) {
+    private List<AbstractPoint> filterByMeasurementRegex(List<AbstractPoint> unfiltered, TaskListener listener) {
         if (measurementRegex == null || measurementRegex.trim().isEmpty()) {
-            return pointsToWrite;
+            return unfiltered;
         }
 
         final Pattern pattern;
@@ -336,17 +336,58 @@ public class InfluxDbPublicationService {
             return Collections.emptyList();
         }
 
-        List<AbstractPoint> filtered = pointsToWrite.stream()
+        List<AbstractPoint> filtered = unfiltered.stream()
                 .filter(point -> pattern.matcher(point.getName()).matches())
                 .collect(Collectors.toList());
 
+        Map<String, Long> allCounts = groupMeasurementCounts(unfiltered);
+        Map<String, Long> includedCounts = groupMeasurementCounts(filtered);
+        Map<String, Long> excludedCounts = subtractCounts(allCounts, includedCounts);
+
         listener.getLogger().println(String.format(
-                "[InfluxDB Plugin] measurementRegex active: publishing %d/%d point(s) matching regex '%s'",
-                filtered.size(),
-                pointsToWrite.size(),
+                "[InfluxDB Plugin] measurementRegex active: '%s'",
                 measurementRegex));
+        listener.getLogger().println(String.format(
+                "[InfluxDB Plugin] Publishing points to %d measurement(s): %s",
+                includedCounts.size(),
+                formatMeasurementList(includedCounts)));
+        listener.getLogger().println(String.format(
+                "[InfluxDB Plugin] Excluding points for %d measurement(s): %s",
+                excludedCounts.size(),
+                formatMeasurementList(excludedCounts)));
 
         return filtered;
+    }
+
+    private Map<String, Long> groupMeasurementCounts(List<AbstractPoint> points) {
+        return points.stream()
+                .collect(Collectors.groupingBy(AbstractPoint::getName, TreeMap::new, Collectors.counting()));
+    }
+
+    private Map<String, Long> subtractCounts(Map<String, Long> allCounts, Map<String, Long> includedCounts) {
+        Map<String, Long> excludedCounts = new TreeMap<>(allCounts);
+        includedCounts.forEach((name, count) -> {
+            long remaining = excludedCounts.getOrDefault(name, 0L) - count;
+            if (remaining <= 0) {
+                excludedCounts.remove(name);
+            } else {
+                excludedCounts.put(name, remaining);
+            }
+        });
+        return excludedCounts;
+    }
+
+    private String formatMeasurementList(Map<String, Long> measurementCounts) {
+        if (measurementCounts.isEmpty()) {
+            return "(none)";
+        }
+
+        return measurementCounts.entrySet().stream()
+                .map(entry -> {
+                    String suffix = entry.getValue() > 1 ? String.format(" (%d points)", entry.getValue()) : "";
+                    return entry.getKey() + suffix;
+                })
+                .collect(Collectors.joining(", "));
     }
 
     private void addPointsFromPlugin(List<AbstractPoint> pointsToWrite, PointGenerator generator, TaskListener listener, String plugin) {
