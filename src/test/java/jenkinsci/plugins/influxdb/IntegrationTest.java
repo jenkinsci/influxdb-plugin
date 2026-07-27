@@ -1,5 +1,9 @@
 package jenkinsci.plugins.influxdb;
 
+import com.influxdb.client.InfluxDBClient;
+import com.influxdb.client.InfluxDBClientFactory;
+import com.influxdb.client.QueryApi;
+import com.influxdb.query.FluxTable;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import hudson.model.Result;
@@ -95,4 +99,63 @@ public class IntegrationTest extends IntegrationBaseTest {
         this.assertInfluxRecordsAreIdentical(influxData.get(1), expectedValues, ignoreKeys);
         this.assertInfluxRecordsAreIdentical(influxData.get(2), expectedValues, ignoreKeys);
     }
+
+        @Test
+        public void testMeasurementRegexAppliesToPublisherCall() throws Exception {
+                String projectName = "influxdb-regex-test-job-" + System.currentTimeMillis();
+                InfluxDbGlobalConfig globalConfig = InfluxDbGlobalConfig.getInstance();
+                Map<String, Boolean> originalGlobalListenerFlags = new HashMap<>();
+
+                for (Target target : globalConfig.getTargets()) {
+                        originalGlobalListenerFlags.put(target.getDescription(), target.isGlobalListener());
+                        target.setGlobalListener(false);
+                }
+
+                FreeStyleProject project = jenkinsRule.createFreeStyleProject(projectName);
+                project.getBuildersList().add(new Shell("echo 'Measurement regex integration test'"));
+
+                InfluxDbPublisher publisher = new InfluxDbPublisher("InfluxDB v1");
+                publisher.setMeasurementRegex("^jenkins_data$");
+                project.getPublishersList().add(publisher);
+
+                try {
+                        FreeStyleBuild build = project.scheduleBuild2(0).get();
+                        jenkinsRule.assertBuildStatus(Result.SUCCESS, build);
+
+                        try (InfluxDBClient v1Client = InfluxDBClientFactory.createV1(
+                                        testEnv.get("INFLUXDB_V1_URL"),
+                                        testEnv.get("INFLUXDB_USERNAME"),
+                                        testEnv.get("INFLUXDB_PASSWORD").toCharArray(),
+                                        testEnv.get("INFLUXDB_DATABASE_OR_BUCKET"),
+                                        null
+                        )) {
+                                assertEquals(1L, countRecordsForProject(v1Client, "jenkins_data", projectName));
+                                assertEquals(0L, countRecordsForProject(v1Client, "metrics_data", projectName));
+                                assertEquals(0L, countRecordsForProject(v1Client, "agent_data", projectName));
+                        }
+                } finally {
+                        for (Target target : globalConfig.getTargets()) {
+                                Boolean original = originalGlobalListenerFlags.get(target.getDescription());
+                                if (original != null) {
+                                        target.setGlobalListener(original);
+                                }
+                        }
+                }
+        }
+
+        private long countRecordsForProject(InfluxDBClient client, String measurementName, String projectName) {
+                QueryApi queryApi = client.getQueryApi();
+                String flux = String.format(
+                                "from(bucket: \"%s\") " +
+                                                "|> range(start: 0) " +
+                                                "|> filter(fn: (r) => r._measurement == \"%s\")" +
+                                                "|> filter(fn: (r) => r.project_name == \"%s\")" +
+                                                "|> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")",
+                                testEnv.get("INFLUXDB_DATABASE_OR_BUCKET"),
+                                measurementName,
+                                projectName
+                );
+                List<FluxTable> tables = queryApi.query(flux);
+                return tables.stream().mapToLong(table -> table.getRecords().size()).sum();
+        }
 }

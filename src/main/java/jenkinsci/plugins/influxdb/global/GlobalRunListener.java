@@ -65,6 +65,7 @@ public class GlobalRunListener extends RunListener<Run<?, ?>> {
                     null,
                     null,
                     null,
+                    null,
                     System.currentTimeMillis() * 1000000,
                     env.expand(env.get(VARIABLE_PREFIX + "CUSTOM_FIELDS")),
                     env.expand(env.get(VARIABLE_PREFIX + "CUSTOM_TAGS")),

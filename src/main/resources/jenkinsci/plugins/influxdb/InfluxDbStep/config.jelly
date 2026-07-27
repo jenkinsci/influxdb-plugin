@@ -11,6 +11,9 @@
         <f:entry title="Custom Project Name" field="customProjectName">
             <f:textbox/>
         </f:entry>
+        <f:entry title="Measurement Regex" field="measurementRegex">
+            <f:textbox/>
+        </f:entry>
         <f:entry title="Jenkins Environment Field Set" field="jenkinsEnvParameterField">
             <f:textarea/>
         </f:entry>

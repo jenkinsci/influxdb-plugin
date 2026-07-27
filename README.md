@@ -186,12 +186,32 @@ Optional parameters
 - `customDataTags` (Map) - custom tags in "jenkins_custom_data" measurement
 - `customDataMap` (Map) - custom fields in custom measurements
 - `customDataMapTags` (Map<Map>) - custom tags in custom measurements (map of tags for each custom measurements)
+- `measurementRegex` (String) - if set, the call will only publish to measurement names that match the regex ([default measurement names](doc/available_metrics.md))
 - `jenkinsEnvParameterField` (String) - custom fields in "jenkins_data" measurement (newline-separated KEY=VALUE pairs)
 - `jenkinsEnvParameterTag` (String) - custom tags in all measurements (newline-separated KEY=VALUE pairs)
 - `measurementName` (String) - custom measurement name (replaces default "jenkins_data" and "jenkins_custom_data")
 
 All `customData*` parameters contain custom data generated during the
 build and not by the plugin, so they are not available in the snippet generator.
+
+`measurementRegex` (introduced in version 6.1):
+
+This makes it possible to write multiple distinct points to the same measurement within a single job by repeatedly
+calling `influxDbPublisher` and selectively filter to which measurements to publish to. It is recommended to disable `target.jobScheduledTimeAsPointsTimestamp`
+in this case, as all points published by the same job would otherwise share identical timestamps, causing InfluxDB to discard exact duplicates.
+The value is matched against the full measurement name using `java.util.regex.Pattern#matches()`, so use anchors like `^` and `$` for exact matches.
+
+Example: write points to only selected measurement destinations using regex.
+The following example writes points only to the `my_custom_data` and `junit_data` measurements, retaining publication to default measurements like `jenkins_data` and `agent_data`.
+
+``` syntaxhighlighter-pre
+influxDbPublisher(
+  selectedTarget: 'my-target',
+  customDataMap: [my_custom_data: [line_rate: 0.92, failures: 2]],
+  customDataMapTags: [my_custom_data: [project: 'test-project', trigger: 'darrow']],
+  measurementRegex: '^(my_custom_data|junit_data)$'
+)
+```
 
 
 > :heavy_exclamation_mark: NOTE! Up to release 1.10.3, pipeline was configured with using the url and database.
