@@ -10,7 +10,7 @@ import hudson.tasks.test.AbstractTestResultAction;
 import jenkins.model.Jenkins;
 import jenkinsci.plugins.influxdb.models.AbstractPoint;
 import jenkinsci.plugins.influxdb.renderer.ProjectNameRenderer;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
