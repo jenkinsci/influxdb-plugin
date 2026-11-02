@@ -84,8 +84,7 @@ class JenkinsBasePointGeneratorTest extends PointGeneratorBaseTest {
 
     @Test
     void agent_present() throws Exception {
-        Mockito.when(build.getExecutor()).thenReturn(executor);
-        Mockito.when(mockedEnvVars.get("NODE_NAME")).thenReturn(NODE_NAME);
+        setupRunGetExecutorAndGetStubs("NODE_NAME", NODE_NAME);
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         AbstractPoint[] points = generator.generate();
 
@@ -124,8 +123,7 @@ class JenkinsBasePointGeneratorTest extends PointGeneratorBaseTest {
 
     @Test
     void branch_present() throws Exception {
-        Mockito.when(build.getExecutor()).thenReturn(executor);
-        Mockito.when(mockedEnvVars.get("BRANCH_NAME")).thenReturn("develop");
+        setupRunGetExecutorAndGetStubs("BRANCH_NAME", "develop");
         JenkinsBasePointGenerator generator = new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, StringUtils.EMPTY, StringUtils.EMPTY, CUSTOM_PREFIX, MEASUREMENT_NAME, mockedEnvVars);
         AbstractPoint[] points = generator.generate();
 
@@ -213,5 +211,10 @@ class JenkinsBasePointGeneratorTest extends PointGeneratorBaseTest {
                 new JenkinsBasePointGenerator(build, listener, measurementRenderer, currTime, JENKINS_ENV_PARAMETER_TAG, JENKINS_ENV_PARAMETER_FIELD, CUSTOM_PREFIX, customMeasurement, mockedEnvVars);
         AbstractPoint[] points = jenkinsBasePointGenerator.generate();
         assertTrue(allLineProtocolsStartWith(points[0], customMeasurement));
+    }
+
+    private void setupRunGetExecutorAndGetStubs(Object getArg1, String getReturnValue) {
+        Mockito.when(build.getExecutor()).thenReturn(executor);
+        Mockito.when(mockedEnvVars.get(getArg1)).thenReturn(getReturnValue);
     }
 }
